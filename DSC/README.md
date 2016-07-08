@@ -1,1 +1,0 @@
-DSC Resources
