@@ -1,31 +1,31 @@
 # PowerCLI Community Repository 
 ## Principles of Operations
 ## Table of Contents
-* Abstract
-* Table of Contents
-* Content Restrictions
-  * Type of Content
-* Meta Information
-  * Required Information
-  * Suggested Information
-* Suggested Quality Management
-  * General Best Practices
-  * Alias Usage
-  * Scripts
-  * Modules
-  * Help Information
-  * Security
-* Resource Maintenance
-  * Maintenance Ownership
-  * Filing issues 
-  * Resolving issues
-* Getting Started
-  * Accessing the Repository
-  * Adding Resources
-* Additional Resources
-  * Discussions
-  * VMware Sample Exchange 
-* VMWARE TECHNOLOGY PREVIEW LICENSE AGREEMENT
+* [Abstract](https://github.com/vmware/PowerCLI-Example-Scripts#abstract)
+* [Table of Contents](https://github.com/vmware/PowerCLI-Example-Scripts#table-of-contents)
+* [Content Restrictions](https://github.com/vmware/PowerCLI-Example-Scripts#content-restrictions)
+  * [Type of Content](https://github.com/vmware/PowerCLI-Example-Scripts#type-of-content)
+* [Meta Information](https://github.com/vmware/PowerCLI-Example-Scripts#meta-information)
+  * [Required Information](https://github.com/vmware/PowerCLI-Example-Scripts#required-information)
+  * [Suggested Information](https://github.com/vmware/PowerCLI-Example-Scripts#suggested-information)
+* [Suggested Quality Management](https://github.com/vmware/PowerCLI-Example-Scripts#suggested-quality-management)
+  * [General Best Practices](https://github.com/vmware/PowerCLI-Example-Scripts#general-best-practices)
+  * [Alias Usage](https://github.com/vmware/PowerCLI-Example-Scripts#alias-usage)
+  * [Scripts](https://github.com/vmware/PowerCLI-Example-Scripts#scripts)
+  * [Modules](https://github.com/vmware/PowerCLI-Example-Scripts#modules)
+  * [Help Information](https://github.com/vmware/PowerCLI-Example-Scripts#help-information)
+  * [Security](https://github.com/vmware/PowerCLI-Example-Scripts#security)
+* [Resource Maintenance](https://github.com/vmware/PowerCLI-Example-Scripts#resource-maintenance)
+  * [Maintenance Ownership](https://github.com/vmware/PowerCLI-Example-Scripts#maintenance-ownership)
+  * [Filing issues](https://github.com/vmware/PowerCLI-Example-Scripts#filing-isssues)
+  * [Resolving issues](https://github.com/vmware/PowerCLI-Example-Scripts#resolving-issues)
+* [Getting Started](https://github.com/vmware/PowerCLI-Example-Scripts#getting-started)
+  * [Accessing the Repository](https://github.com/vmware/PowerCLI-Example-Scripts#accessing-the-repository)
+  * [Adding Resources](https://github.com/vmware/PowerCLI-Example-Scripts#adding-resources)
+* [Additional Resources](https://github.com/vmware/PowerCLI-Example-Scripts#additional-resources)
+  * [Discussions](https://github.com/vmware/PowerCLI-Example-Scripts#discussions)
+  * [VMware Sample Exchange](https://github.com/vmware/PowerCLI-Example-Scripts#vmware-sample-exchange)
+* [VMWARE TECHNOLOGY PREVIEW LICENSE AGREEMENT](https://github.com/vmware/PowerCLI-Example-Scripts#vmware-technology-preview-license-agreement)
 
 ## Abstract
 This document will serve for collaboration to identify the operating principles of a centralized PowerCLI Community Repository on GitHub.   
@@ -54,17 +54,17 @@ The following information must be included with each submitted scripting resourc
   * What does the resource do
 * Any KNOWN limitations or dependencies
   * vSphere version, required modules, etc. 
-#### Note Placement Examples:
-    Script:   Top few lines    
-    Module:   Module manifest
-#### Script Note Example:
-    <#  
-    Script name:    script_name.ps1  
-    Created on:     07/07/2016
-    Author:         Author Name, @TwitterHandle  
-    Description:    The purpose of the script is to …  
-    Dependencies:   None known  
-    #>
+**Note Placement Examples:**
+>    Script:   Top few lines    
+>    Module:   Module manifest
+**Script Note Example:**
+>    <#  
+>    Script name:    script_name.ps1  
+>    Created on:     07/07/2016
+>    Author:         Author Name, @TwitterHandle  
+>    Description:    The purpose of the script is to …  
+>    Dependencies:   None known  
+>    #>
 
 ### Suggested Information
 The following information should be included when possible. Inclusion of information provides valuable information to consumers of the resource.
@@ -72,7 +72,7 @@ The following information should be included when possible. Inclusion of informa
 * PowerCLI build against which the script was developed/tested
 * PowerShell version against which the script was developed/tested
 * OS platform version against which the script was tested/developed
-* Keywords that make it easier to find a script (for example: VDS, health check)
+* Keywords that make it easier to find a script, for example: VDS, health check
 ## Suggested Quality Management
 This section describes guidelines put in place to maintain a standard of quality while also promoting broader contribution.
 ### General Best Practices
@@ -90,7 +90,7 @@ This section describes guidelines put in place to maintain a standard of quality
 * The script should be easy to read and understand
 * Place user-defined variables towards the top of the script
 ### Modules
-* The module file (PSM1) should contain only functions. A module manifest file (PSD1) should also be created and included. A module formatting file (format.ps1xml) is desirable but not a requirement.  
+* The module file, PSM1, should contain only functions. A module manifest file, PSD1, should also be created and included. A module formatting file (format.ps1xml) is desirable but not a requirement.  
 * Use only standard verbs
 ### Security
 * Usage of PowerShell’s strict mode is preferred, but not required. 
@@ -137,7 +137,7 @@ Any community member can resolve issues within the repository, however only the 
 ### Discussions
 Join in on the discussion within the VMware Code Slack team's PowerCLI channel: <https://code.vmware.com/slack/>
 ### VMware Sample Exchange
-It is highly recommened to add any and all submitted resources to the VMware Sample Exchange: <https://developercenter.vmware.com/samples>  
+It is highly recommened to add any and all submitted resources to the VMware Sample Exchange: <https://developercenter.vmware.com/samples>    
 Sample Exchange can be allowed to access your GitHub resources, by way of a linking process, where they can be indexed and searched by the community. There are VMware social media accounts which will advertise resources posted to the site and there's no additional accounts needed, as the VMware Sample Exchange uses MyVMware credentials.     
 
 ## VMWARE TECHNOLOGY PREVIEW LICENSE AGREEMENT
