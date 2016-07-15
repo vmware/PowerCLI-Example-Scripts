@@ -53,11 +53,13 @@ The following information must be included with each submitted scripting resourc
 * Minimal/High Level Description
   * What does the resource do
 * Any KNOWN limitations or dependencies
-  * vSphere version, required modules, etc. 
-**Note Placement Examples:**  
+  * vSphere version, required modules, etc.  
+
+#### Note Placement Examples:
 Script:   Top few lines      
 Module:   Module manifest  
-**Script Note Example:**  
+  
+#### Script Note Example:
 <#  
 Script name:    script_name.ps1  
 Created on:     07/07/2016  
@@ -73,6 +75,7 @@ The following information should be included when possible. Inclusion of informa
 * PowerShell version against which the script was developed/tested
 * OS platform version against which the script was tested/developed
 * Keywords that make it easier to find a script, for example: VDS, health check  
+
 ## Suggested Quality Management
 This section describes guidelines put in place to maintain a standard of quality while also promoting broader contribution.
 ### General Best Practices
