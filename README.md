@@ -95,7 +95,7 @@ Module:   Module manifest
 `Created on:     07/07/2016`  
 `Author:         Author Name, @TwitterHandle`  
 `Description:    The purpose of the script is to …`  
-`Dependencies:   None known`
+`Dependencies:   None known`  
 `#>`  
 
 ### Suggested Information
@@ -112,13 +112,14 @@ The following information should be included when possible. Inclusion of informa
 `Created on:     07/07/2016`  
 `Author:         Author Name, @TwitterHandle`  
 `Description:    The purpose of the script is to …`  
-`Dependencies:   None known`
-`===Tested Against Environment====`
-`vSphere Version: 6.0`
-`PowerCLI Version: PowerCLI 6.3 R1`
-`PowerShell Version: 5.0`
-`OS Version: Windows 10`
-`Keyword: VM`
+`Dependencies:   None known`  
+
+`===Tested Against Environment====`  
+`vSphere Version: 6.0`  
+`PowerCLI Version: PowerCLI 6.3 R1`  
+`PowerShell Version: 5.0`  
+`OS Version: Windows 10`  
+`Keyword: VM`  
 `#>`  
 
 ## Suggested Quality Management
@@ -176,6 +177,10 @@ The VMware Technnology Preview License Agreement: <https://github.com/vmware/Pow
 * Approval of Additions
 
 ## Board Members
+
+Board members are voulenteers from the PowerCLI community and VMware staff members, board members are not held responsible for any issues which may occur from running of scripts inside this repository.
+
+Members: 
 * Josh Atwell (Community Member)
 * Mathieu Buisson (Community Member)
 * Luc Dekens (Community Member)
