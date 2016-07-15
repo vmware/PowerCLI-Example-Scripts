@@ -66,7 +66,7 @@ Created on:     07/07/2016
 Author:         Author Name, @TwitterHandle  
 Description:    The purpose of the script is to …  
 Dependencies:   None known  
-#>  
+`#>`  
 
 ### Suggested Information
 The following information should be included when possible. Inclusion of information provides valuable information to consumers of the resource.
@@ -148,7 +148,7 @@ Any community member can resolve issues within the repository, however only the 
 ### Discussions
 Join in on the discussion within the VMware Code Slack team's PowerCLI channel: <https://code.vmware.com/slack/>
 ### VMware Sample Exchange
-It is highly recommened to add any and all submitted resources to the VMware Sample Exchange: <https://developercenter.vmware.com/samples>    
+It is highly recommened to add any and all submitted resources to the VMware Sample Exchange: <https://developercenter.vmware.com/samples>      
 Sample Exchange can be allowed to access your GitHub resources, by way of a linking process, where they can be indexed and searched by the community. There are VMware social media accounts which will advertise resources posted to the site and there's no additional accounts needed, as the VMware Sample Exchange uses MyVMware credentials.     
 
 ## VMWARE TECHNOLOGY PREVIEW LICENSE AGREEMENT
