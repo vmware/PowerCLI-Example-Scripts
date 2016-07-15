@@ -80,24 +80,32 @@ The following information should be included when possible. Inclusion of informa
 This section describes guidelines put in place to maintain a standard of quality while also promoting broader contribution.
 ### General Best Practices
 ### Resource Naming
-* Give the resource a name that is indicitive of the actions and/or results of its running 
+* Give the resource a name that is indicitive of the actions and/or results of its running
+
 ### Fault Handling
 * Every submitted resource should include basic fault handling. One of many good write-ups can be found via Microsoft’s Hey, Scripting Guy! Blog: https://blogs.technet.microsoft.com/heyscriptingguy/2014/07/09/handling-errors-the-powershell-way/
+
 ### Alias Usage
 * Avoid any alias usage within all submitted resources.
+
 ### Global Variable Usage
 * Avoid changing any global variables
+
 ### Help Information
 * All resources shall have inline documentation. 
+
 ### Scripts
 * The script should be easy to read and understand
 * Place user-defined variables towards the top of the script
+
 ### Modules
 * The module file, PSM1, should contain only functions. A module manifest file, PSD1, should also be created and included. A module formatting file (format.ps1xml) is desirable but not a requirement.  
 * Use only standard verbs
+
 ### Security
 * Usage of PowerShell’s strict mode is preferred, but not required. 
 * Remove any information related to one’s own environment (examples: Passwords, DNS/IP Addresses, custom user credentials, etc)
+
 ## Resource Maintenance
 ### Maintenance Ownership
 Ownership of any and all submitted resources are maintained by the submitter. This ownership also includes maintenance of any and all submitted resources. 
