@@ -54,17 +54,17 @@ The following information must be included with each submitted scripting resourc
   * What does the resource do
 * Any KNOWN limitations or dependencies
   * vSphere version, required modules, etc. 
-**Note Placement Examples:**
->    Script:   Top few lines    
->    Module:   Module manifest
-**Script Note Example:**
->    <#  
->    Script name:    script_name.ps1  
->    Created on:     07/07/2016
->    Author:         Author Name, @TwitterHandle  
->    Description:    The purpose of the script is to …  
->    Dependencies:   None known  
->    #>
+**Note Placement Examples:**  
+Script:   Top few lines      
+Module:   Module manifest  
+**Script Note Example:**  
+<#  
+Script name:    script_name.ps1  
+Created on:     07/07/2016  
+Author:         Author Name, @TwitterHandle  
+Description:    The purpose of the script is to …  
+Dependencies:   None known  
+#>  
 
 ### Suggested Information
 The following information should be included when possible. Inclusion of information provides valuable information to consumers of the resource.
@@ -72,7 +72,7 @@ The following information should be included when possible. Inclusion of informa
 * PowerCLI build against which the script was developed/tested
 * PowerShell version against which the script was developed/tested
 * OS platform version against which the script was tested/developed
-* Keywords that make it easier to find a script, for example: VDS, health check
+* Keywords that make it easier to find a script, for example: VDS, health check  
 ## Suggested Quality Management
 This section describes guidelines put in place to maintain a standard of quality while also promoting broader contribution.
 ### General Best Practices
