@@ -5,6 +5,9 @@
 * [Table of Contents](https://github.com/vmware/PowerCLI-Example-Scripts#table-of-contents)
 * [Content Restrictions](https://github.com/vmware/PowerCLI-Example-Scripts#content-restrictions)
   * [Type of Content](https://github.com/vmware/PowerCLI-Example-Scripts#type-of-content)
+* [Getting Started](https://github.com/vmware/PowerCLI-Example-Scripts#getting-started)
+  * [Accessing the Repository](https://github.com/vmware/PowerCLI-Example-Scripts#accessing-the-repository)
+  * [Adding Resources](https://github.com/vmware/PowerCLI-Example-Scripts#adding-resources)
 * [Meta Information](https://github.com/vmware/PowerCLI-Example-Scripts#meta-information)
   * [Required Information](https://github.com/vmware/PowerCLI-Example-Scripts#required-information)
   * [Suggested Information](https://github.com/vmware/PowerCLI-Example-Scripts#suggested-information)
@@ -19,9 +22,6 @@
   * [Maintenance Ownership](https://github.com/vmware/PowerCLI-Example-Scripts#maintenance-ownership)
   * [Filing issues](https://github.com/vmware/PowerCLI-Example-Scripts#filing-isssues)
   * [Resolving issues](https://github.com/vmware/PowerCLI-Example-Scripts#resolving-issues)
-* [Getting Started](https://github.com/vmware/PowerCLI-Example-Scripts#getting-started)
-  * [Accessing the Repository](https://github.com/vmware/PowerCLI-Example-Scripts#accessing-the-repository)
-  * [Adding Resources](https://github.com/vmware/PowerCLI-Example-Scripts#adding-resources)
 * [Additional Resources](https://github.com/vmware/PowerCLI-Example-Scripts#additional-resources)
   * [Discussions](https://github.com/vmware/PowerCLI-Example-Scripts#discussions)
   * [VMware Sample Exchange](https://github.com/vmware/PowerCLI-Example-Scripts#vmware-sample-exchange)
@@ -40,79 +40,6 @@ The repository has been provided to allow the community to share resources that 
 * PowerActions scripts
 * Pester Tests
 * Tools built with PowerShell
-
-## Meta Information
-This section will provide guidance on information which should be included with each submitted PowerCLI resource. Information listed in the Suggested Information will not be required for commit of a pull request to the repo, but will certainly increase ease of use for users of the resource.
-### Required Information
-The following information must be included with each submitted scripting resource. Please include the information in the appropriate location based upon the submitted scripting resource.  
-
-* Author Name
-  * This can include full name, Twitter profile, or other identifiable piece of information that would allow interested parties to contact author with questions.
-* Date
-  * Date the resource was written
-* Minimal/High Level Description
-  * What does the resource do
-* Any KNOWN limitations or dependencies
-  * vSphere version, required modules, etc.  
-
-#### Note Placement Examples:
-Script:   Top few lines      
-Module:   Module manifest  
-  
-#### Script Note Example:
-`<#`  
-`Script name:    script_name.ps1`  
-`Created on:     07/07/2016`  
-`Author:         Author Name, @TwitterHandle`  
-`Description:    The purpose of the script is to …`  
-`Dependencies:   None known`  
-`#>`  
-
-### Suggested Information
-The following information should be included when possible. Inclusion of information provides valuable information to consumers of the resource.
-* vSphere version against which the script was developed/tested
-* PowerCLI build against which the script was developed/tested
-* PowerShell version against which the script was developed/tested
-* OS platform version against which the script was tested/developed
-* Keywords that make it easier to find a script, for example: VDS, health check  
-
-## Suggested Quality Management
-This section describes guidelines put in place to maintain a standard of quality while also promoting broader contribution.
-### General Best Practices
-### Resource Naming
-* Give the resource a name that is indicitive of the actions and/or results of its running
-
-### Fault Handling
-* Every submitted resource should include basic fault handling. One of many good write-ups can be found via Microsoft’s Hey, Scripting Guy! Blog: https://blogs.technet.microsoft.com/heyscriptingguy/2014/07/09/handling-errors-the-powershell-way/
-
-### Alias Usage
-* Avoid any alias usage within all submitted resources.
-
-### Global Variable Usage
-* Avoid changing any global variables
-
-### Help Information
-* All resources shall have inline documentation. 
-
-### Scripts
-* The script should be easy to read and understand
-* Place user-defined variables towards the top of the script
-
-### Modules
-* The module file, PSM1, should contain only functions. A module manifest file, PSD1, should also be created and included. A module formatting file (format.ps1xml) is desirable but not a requirement.  
-* Use only standard verbs
-
-### Security
-* Usage of PowerShell’s strict mode is preferred, but not required. 
-* Remove any information related to one’s own environment (examples: Passwords, DNS/IP Addresses, custom user credentials, etc)
-
-## Resource Maintenance
-### Maintenance Ownership
-Ownership of any and all submitted resources are maintained by the submitter. This ownership also includes maintenance of any and all submitted resources. 
-### Filing Issues
-Any bugs or other issues should be filed within GitHub by way of the repository’s Issue Tracker. 
-### Resolving Issues 
-Any community member can resolve issues within the repository, however only the owner or a board member can approve the update. Once approved, assuming the resolution involves a pull request, only a board member will be able to merge and close the request. 
 
 ## Getting Started
 ### Accessing the Repository
@@ -144,6 +71,94 @@ Any community member can resolve issues within the repository, however only the 
 5. Click “Propose new file”
 6. On the “Open a pull request” page, click “Create pull request”
 
+## Meta Information
+This section will provide guidance on information which should be included with each submitted PowerCLI resource. Information listed in the Suggested Information will not be required for commit of a pull request to the repo, but will certainly increase ease of use for users of the resource.
+### Required Information
+The following information must be included with each submitted scripting resource. Please include the information in the appropriate location based upon the submitted scripting resource.  
+
+* Author Name
+  * This can include full name, Twitter profile, or other identifiable piece of information that would allow interested parties to contact author with questions.
+* Date
+  * Date the resource was written
+* Minimal/High Level Description
+  * What does the resource do
+* Any KNOWN limitations or dependencies
+  * vSphere version, required modules, etc.  
+
+#### Note Placement Examples:
+Script:   Top few lines      
+Module:   Module manifest  
+  
+#### Required Script Note Example:
+`<#`  
+`Script name:    script_name.ps1`  
+`Created on:     07/07/2016`  
+`Author:         Author Name, @TwitterHandle`  
+`Description:    The purpose of the script is to …`  
+`Dependencies:   None known`
+`#>`  
+
+### Suggested Information
+The following information should be included when possible. Inclusion of information provides valuable information to consumers of the resource.
+* vSphere version against which the script was developed/tested
+* PowerCLI build against which the script was developed/tested
+* PowerShell version against which the script was developed/tested
+* OS platform version against which the script was tested/developed
+* Keywords that make it easier to find a script, for example: VDS, health check  
+
+#### Suggested Script Note Example:
+`<#`  
+`Script name:    script_name.ps1`  
+`Created on:     07/07/2016`  
+`Author:         Author Name, @TwitterHandle`  
+`Description:    The purpose of the script is to …`  
+`Dependencies:   None known`
+`===Tested Against Environment====`
+`vSphere Version: 6.0`
+`PowerCLI Version: PowerCLI 6.3 R1`
+`PowerShell Version: 5.0`
+`OS Version: Windows 10`
+`Keyword: VM`
+`#>`  
+
+## Suggested Quality Management
+This section describes guidelines put in place to maintain a standard of quality while also promoting broader contribution.
+### General Best Practices
+### Resource Naming
+* Give the resource a name that is indicitive of the actions and/or results of its running
+
+### Fault Handling
+* Read and apply the following basic fault handling where applicable: Microsoft’s Hey, Scripting Guy! Blog: https://blogs.technet.microsoft.com/heyscriptingguy/2014/07/09/handling-errors-the-powershell-way/
+
+### Alias Usage
+* Avoid any alias usage within all submitted resources.
+
+### Global Variable Usage
+* Avoid changing any global variables
+
+### Help Information
+* All resources should have inline documentation. 
+
+### Scripts
+* The script should be easy to read and understand
+* Place user-defined variables towards the top of the script
+
+### Modules
+* The module file, PSM1, should contain only functions. A module manifest file, PSD1, should also be created and included. A module formatting file (format.ps1xml) is desirable but not a requirement.  
+* Use only standard verbs
+
+### Security
+* Usage of PowerShell’s strict mode is preferred, but not required. 
+* Remove any information related to one’s own environment (examples: Passwords, DNS/IP Addresses, custom user credentials, etc)
+
+## Resource Maintenance
+### Maintenance Ownership
+Ownership of any and all submitted resources are maintained by the submitter. This ownership also includes maintenance of any and all submitted resources. 
+### Filing Issues
+Any bugs or other issues should be filed within GitHub by way of the repository’s Issue Tracker. 
+### Resolving Issues 
+Any community member can resolve issues within the repository, however only the owner or a board member can approve the update. Once approved, assuming the resolution involves a pull request, only a board member will be able to merge and close the request. 
+
 ## Additional Resources
 ### Discussions
 Join in on the discussion within the VMware Code Slack team's PowerCLI channel: <https://code.vmware.com/slack/>
@@ -161,13 +176,13 @@ The VMware Technnology Preview License Agreement: <https://github.com/vmware/Pow
 * Approval of Additions
 
 ## Board Members
-* Josh Atwell
-* Mathieu Buisson
-* Luc Dekens
-* Jonathan Medd
-* Alan Renouf
-* Kyle Ruddy
-* Rynardt Spies
+* Josh Atwell (Community Member)
+* Mathieu Buisson (Community Member)
+* Luc Dekens (Community Member)
+* Jonathan Medd (Community Member)
+* Alan Renouf (VMware)
+* Kyle Ruddy (VMware)
+* Rynardt Spies (Community Member)
 
 ## Approval of Additions
 Items added to the repository require 2 votes from the board members before being added to the repository. The approving members will have ideally downloaded and tested the item. When two “Approved for Merge” comments are added from board members, the pull can then be committed to the repository.
