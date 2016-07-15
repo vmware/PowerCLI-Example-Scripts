@@ -28,7 +28,7 @@
 * VMWARE TECHNOLOGY PREVIEW LICENSE AGREEMENT
 
 ## Abstract
-This document will serve for collaboration to identify the operating principles of a centralized PowerCLI resource repo on GitHub.   
+This document will serve for collaboration to identify the operating principles of a centralized PowerCLI Community Repository on GitHub.   
 
 The central PowerCLI repo will be located at: <https://github.com/vmware/PowerCLI-Example-Scripts>
 ## Content Restrictions
