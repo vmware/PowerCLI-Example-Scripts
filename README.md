@@ -1,4 +1,4 @@
-# PowerCLI Public Repo 
+# PowerCLI Community Repository 
 ## Principles of Operations
 ## Table of Contents
 * Abstract
