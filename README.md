@@ -1,5 +1,6 @@
 # PowerCLI Community Repository 
 ## Principles of Operations
+[//]: # (LucD: Did you run this through Legal? Knowing the US habit of suing I want to make sure that every submitter's a** is covered.)
 ## Table of Contents
 * [Abstract](https://github.com/vmware/PowerCLI-Example-Scripts#abstract)
 * [Table of Contents](https://github.com/vmware/PowerCLI-Example-Scripts#table-of-contents)
@@ -78,12 +79,14 @@ The following information must be included with each submitted scripting resourc
 
 * Author Name
   * This can include full name, Twitter profile, or other identifiable piece of information that would allow interested parties to contact author with questions.
+[//]: # (LucD: Shouldn't we enforce that all question follow the Issues concept? Questions about a script might be useful for others.) 
 * Date
   * Date the resource was written
 * Minimal/High Level Description
   * What does the resource do
 * Any KNOWN limitations or dependencies
-  * vSphere version, required modules, etc.  
+  * vSphere version, required modules, etc.
+[//]: # (LucD: Perhaps add a question to add additional "tested" versions/environments through the Issues concept. Original author(s) might not always have access.) 
 
 #### Note Placement Examples:
 Script:   Top few lines      
@@ -97,7 +100,8 @@ Module:   Module manifest
 `Description:    The purpose of the script is to …`  
 `Dependencies:   None known`  
 `#>`  
-
+[//]: # (LucD: Why not go for the standard PS Help format as a requirement?)
+[//]: # (LucD: What about a Disclaimer? Or is that covered by the License attached to the repository?)
 ### Suggested Information
 The following information should be included when possible. Inclusion of information provides valuable information to consumers of the resource.
 * vSphere version against which the script was developed/tested
@@ -124,11 +128,13 @@ The following information should be included when possible. Inclusion of informa
 
 ## Suggested Quality Management
 This section describes guidelines put in place to maintain a standard of quality while also promoting broader contribution.
+[//]: # (LucD: I'm missing the formatting of the code (capitalisation, indentation, aligned braces... Perhaps refer to the [The PowerShell Best Practices and Style Guide](https://github.com/PoshCode/PowerShellPracticeAndStyle))
 ### General Best Practices
 ### Resource Naming
-* Give the resource a name that is indicitive of the actions and/or results of its running
+* Give the resource a name that is indicative of the actions and/or results of its running
 
 ### Fault Handling
+[//]: # (LucD: That article is a rather limited set of fault handling options. Shouldn't we add a snippet with some examples?)
 * Read and apply the following basic fault handling where applicable: Microsoft’s Hey, Scripting Guy! Blog: https://blogs.technet.microsoft.com/heyscriptingguy/2014/07/09/handling-errors-the-powershell-way/
 
 ### Alias Usage
@@ -155,6 +161,7 @@ This section describes guidelines put in place to maintain a standard of quality
 ## Resource Maintenance
 ### Maintenance Ownership
 Ownership of any and all submitted resources are maintained by the submitter. This ownership also includes maintenance of any and all submitted resources. 
+[//]: # (LucD: This part is one of the reasons I asked about Legal and Disclaimers. Is Ownership the same as Liability?)
 ### Filing Issues
 Any bugs or other issues should be filed within GitHub by way of the repository’s Issue Tracker. 
 ### Resolving Issues 
@@ -163,14 +170,16 @@ Any community member can resolve issues within the repository, however only the 
 ## Additional Resources
 ### Discussions
 Join in on the discussion within the VMware Code Slack team's PowerCLI channel: <https://code.vmware.com/slack/>
+[//]: # (LucD: I would suggest to start a dedicated Slack channel, for example "PowerCLI Repository". This to avoid having to look through all the PowerCLI clatter)
 ### VMware Sample Exchange
 It is highly recommened to add any and all submitted resources to the VMware Sample Exchange: <https://developercenter.vmware.com/samples>
       
 Sample Exchange can be allowed to access your GitHub resources, by way of a linking process, where they can be indexed and searched by the community. There are VMware social media accounts which will advertise resources posted to the site and there's no additional accounts needed, as the VMware Sample Exchange uses MyVMware credentials.     
+[//]: # (LucD: Will that be an automated process?)
 
 ## VMWARE TECHNOLOGY PREVIEW LICENSE AGREEMENT
 The VMware Technnology Preview License Agreement: <https://github.com/vmware/PowerCLI-Example-Scripts/blob/master/LICENSE.md>
-
+[//]: # (LucD: This only protects VMware, not the submitters, as far as my legalese is correct)
 # Repository Administrator Resources
 ## Table of Contents
 * Board Members
@@ -178,7 +187,8 @@ The VMware Technnology Preview License Agreement: <https://github.com/vmware/Pow
 
 ## Board Members
 
-Board members are voulenteers from the PowerCLI community and VMware staff members, board members are not held responsible for any issues which may occur from running of scripts inside this repository.
+Board members are volunteers from the PowerCLI community and VMware staff members, board members are not held responsible for any issues which may occur from running of scripts inside this repository.
+[//]: # (LucD: Again, I would like to have this checked by Legal. Especially for the submitter and the requirement to have a disclaimer in each script)
 
 Members: 
 * Josh Atwell (Community Member)
@@ -191,3 +201,6 @@ Members:
 
 ## Approval of Additions
 Items added to the repository, including items from the Board members, require 2 votes from the board members before being added to the repository. The approving members will have ideally downloaded and tested the item. When two “Approved for Merge” comments are added from board members, the pull can then be committed to the repository.
+
+[//]: # (LucD: What about Removals? Could imagine a submitter wants his submission removed)
+ 
