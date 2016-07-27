@@ -182,7 +182,6 @@ Board members are voulenteers from the PowerCLI community and VMware staff membe
 
 Members: 
 * Josh Atwell (Community Member)
-* Mathieu Buisson (Community Member)
 * Luc Dekens (Community Member)
 * Jonathan Medd (Community Member)
 * Alan Renouf (VMware)
