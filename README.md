@@ -178,7 +178,7 @@ The VMware Technnology Preview License Agreement: <https://github.com/vmware/Pow
 
 ## Board Members
 
-Board members are voulenteers from the PowerCLI community and VMware staff members, board members are not held responsible for any issues which may occur from running of scripts inside this repository.
+Board members are volunteers from the PowerCLI community and VMware staff members, board members are not held responsible for any issues which may occur from running of scripts inside this repository.
 
 Members: 
 * Josh Atwell (Community Member)
