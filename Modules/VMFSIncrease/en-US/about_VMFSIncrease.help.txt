@@ -1,0 +1,13 @@
+TOPIC
+	VMFSIncrease
+
+SYNOPSIS
+	The VMFSIncrease module offers the same functionality that is available
+through the Increase button in the vSphere Web Client.
+
+DESCRIPTION
+	The VMFSIncrease offers functionality that allows to Expand or Extend
+ VMFS Datastores. The module uses the vSphere API to implement this functionality.
+
+  SEE ALSO
+http://www.lucd.info/2016/07/29/vmfs-datastores-expand-and-extend
