@@ -27,38 +27,39 @@ add-type @"
 
 	Dependencies:
 	PowerCLI Version: PowerCLI 6.3 R1
+
   .SYNOPSIS
-    Push Messages to VMware vRealize Log Insight.
+	Push Messages to VMware vRealize Log Insight.
   
   .DESCRIPTION
-  	Push Messages to VMware vRealize Log Insight.
+	Creates a Messages in VMware vRealize Log Insight via the Ingestion API
 
   .EXAMPLE
-    Push-vLIMessage -vLIServer "loginsight.lan.local" -vLIAgentID "12862842-5A6D-679C-0E38-0E2BE888BB28" -Text "My Test"
+	Push-vLIMessage -vLIServer "loginsight.lan.local" -vLIAgentID "12862842-5A6D-679C-0E38-0E2BE888BB28" -Text "My Test"
 	
   .EXAMPLE
-    Push-vLIMessage -vLIServer "loginsight.lan.local" -vLIAgentID "12862842-5A6D-679C-0E38-0E2BE888BB28" -Text "My Test" -Hostname MyTEST -FieldName myTest -FieldContent myTest
+	Push-vLIMessage -vLIServer "loginsight.lan.local" -vLIAgentID "12862842-5A6D-679C-0E38-0E2BE888BB28" -Text "My Test" -Hostname MyTEST -FieldName myTest -FieldContent myTest
 	
   .PARAMETER vLIServer
-    Specify the FQDN of your vRealize Log Insight Appliance	
+	Specify the FQDN of your vRealize Log Insight Appliance	
 
   .PARAMETER vLIAgentID
-    Specify the vRealize Log Insight Agent ID, e.g. "12862842-5A6D-679C-0E38-0E2BE888BB28"
+	Specify the vRealize Log Insight Agent ID, e.g. "12862842-5A6D-679C-0E38-0E2BE888BB28"
 
   .PARAMETER Text
-    Specify the Event Text
+	Specify the Event Text
 
   .PARAMETER Hostname
-    Specify the Hostanme displayed in vRealize Log Insight
+	Specify the Hostanme displayed in vRealize Log Insight
 
   .PARAMETER FieldName
-    Specify the a Optional Field Name for vRealize Log Insight
+	Specify the a Optional Field Name for vRealize Log Insight
 	
   .PARAMETER FieldContent
-    Specify the a Optional FieldContent for the Field in -FieldName for vRealize Log Insight
+	Specify the a Optional FieldContent for the Field in -FieldName for vRealize Log Insight
 	If FielName is missing and FieldContent is given, it will be ignored
 	
- #Requires PS -Version 2.0
+ #Requires PS -Version 3.0
  
  #>
 function Push-vLIMessage {
