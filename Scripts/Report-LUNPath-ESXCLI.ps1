@@ -6,6 +6,16 @@
      Personal Blog: mycloudrevolution.com
      Twitter: @vMarkus_K
 	===========================================================================
+	Tested Against Environment:
+	vSphere Version: 6.0 U1, 5.5 U2
+	PowerCLI Version: PowerCLI 6.3 R1
+	PowerShell Version: 5.0
+	OS Version: Windows 8.1, Server 2012 R2
+	Keyword: ESXi, LUN, Path, Storage
+
+	Dependencies:
+	PowerCLI Version: PowerCLI 6.3 R1
+
 	.DESCRIPTION
 	This script will create a Report of LUNs with Paths that have more than one unique LUN ID or have more than the defined Paths.
 	Information’s will be gathered via ESXCLI. This is necessary to report also hidden Paths!
@@ -14,6 +24,8 @@
     ./Report-LUNPath-ESXCLI.ps1
 
 #>
+
+#Requires -Modules VMware.VimAutomation.Core, @{ModuleName="VMware.VimAutomation.Core";ModuleVersion="6.3.0.0"}
 
 #region 1: Global Definitions
 $MaxLUNPaths  = 2
