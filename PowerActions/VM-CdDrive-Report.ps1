@@ -1,16 +1,14 @@
 <#
 .MYNGC_REPORT
+.LABEL
+VM CD-Drive Report
+.DESCRIPTION
+PowerActions Report Script that reports on VMs CD-Drive configuration, making it easy to find VMs holding onto ISOs that you 
+need to update, or VMs that can't vMotion because they are tied into a physical resource from the ESXi host that is running it.
+VM object is key (as it's the first managed object in the output), enabling you the ability to right-click an entry in the 
+report to edit the target VM.  Script is able to report on VMs with multiple CD-Drives as well.  Version 1.0, written by
+Aaron Smith (@awsmith99), published 07/29/2016.
 #>
-
-# AUTHOR:    Aaron Smith (@awsmith99)
-# VERSION:   1.0
-# PUBLISHED: 2016.07.29
-# ABOUT    : PowerActions Report Script that reports on VMs CD-Drive configuration, making it easy
-#            to find VMs holding onto ISOs that you need to update, or VMs that can't vMotion
-#            because they are tied into a physical resource from the ESXi host that is running it.
-#            VM object is key (as it's the first managed object in the output), enabling you the
-#            ability to right-click an entry in the report to edit the target VM.  Script is able
-#            to report on VMs with multiple CD-Drives as well.
 
 param
 (
