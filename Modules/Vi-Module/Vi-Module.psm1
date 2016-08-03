@@ -27,8 +27,9 @@ Function Get-RDM {
 	Version 1.1 :: 03-Dec-2015 :: Bugfix :: Error message appear while VML mismatch,
 	when the VML identifier does not match for an RDM on two or more ESXi hosts.
 	VMware [KB2097287].
+	Version 1.2 :: 03-Aug-2016 :: Improvement :: GetType() method replaced by -is for type determine.
 .LINK
-	http://goo.gl/3wO4pi
+	http://www.ps1code.com/single-post/2015/10/16/How-to-get-RDM-Raw-Device-Mappings-disks-using-PowerCLi
 #>
 
 [CmdletBinding()]
@@ -53,7 +54,7 @@ Process {
 	
 	Foreach ($vm in ($VMs |Get-View)) {
 		Foreach ($dev in $vm.Config.Hardware.Device) {
-		    If (($dev.GetType()).Name -eq "VirtualDisk") {
+		    If ($dev -is [VMware.Vim.VirtualDisk]) {
 				If ("physicalMode","virtualMode" -contains $dev.Backing.CompatibilityMode) {
 		         	
 					Write-Progress -Activity "Gathering RDM ..." -CurrentOperation "Hard disk - [$($dev.DeviceInfo.Label)]" -Status "VM - $($vm.Name)"
@@ -106,22 +107,25 @@ Function Convert-VmdkThin2EZThick {
 .SYNOPSIS
 	Inflate thin virtual disks.
 .DESCRIPTION
-	This function convert all Thin Provisioned VM's disks to type 'Thick Provision Eager Zeroed'.
+	This function converts all Thin Provisioned VM' disks to type 'Thick Provision Eager Zeroed'.
 .PARAMETER VM
-	VM's collection, returned by Get-VM cmdlet.
+	Virtual Machine(s).
 .EXAMPLE
 	C:\PS> Get-VM VM1 |Convert-VmdkThin2EZThick
 .EXAMPLE
 	C:\PS> Get-VM VM1,VM2 |Convert-VmdkThin2EZThick -Confirm:$false |sort VM,Datastore,VMDK |ft -au
 .INPUTS
-	Get-VM collection.
-	[VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine[]]
+	[VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine[]] Objects, returned by Get-VM cmdlet.
 .OUTPUTS
-	PSObject collection.
+	[System.Management.Automation.PSCustomObject] PSObject collection.
 .NOTES
 	Author: Roman Gelman.
+	Version 1.0 :: 05-Nov-2015 :: Release.
+	Version 1.1 :: 03-Aug-2016 :: Improvements ::
+	[1] GetType() method replaced by -is for type determine.
+	[2] Parameter 'VMs' renamed to 'VM', parameter alias renamed from 'VM' to 'VMs'.
 .LINK
-	http://goo.gl/cVpTpO
+	http://www.ps1code.com/single-post/2015/11/05/How-to-convert-Thin-Provision-VMDK-disks-to-Eager-Zeroed-Thick-using-PowerCLi
 #>
 
 [CmdletBinding(ConfirmImpact='High',SupportsShouldProcess=$true)]
@@ -130,8 +134,8 @@ Param (
 
 	[Parameter(Mandatory=$true,Position=1,ValueFromPipeline=$true,HelpMessage="VM's collection, returned by Get-VM cmdlet")]
 		[ValidateNotNullorEmpty()]
-		[Alias("VM")]
-	[VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine[]]$VMs
+		[Alias("VMs")]
+	[VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine[]]$VM
 
 )
 
@@ -144,23 +148,23 @@ Begin {
 
 Process {
 	
-	Foreach ($vm in ($VMs |Get-View)) {
+	Foreach ($vmv in ($VM |Get-View)) {
 	
 		### Ask confirmation to proceed if VM is PoweredOff ###
-		If ($vm.Runtime.PowerState -eq 'poweredOff' -and $PSCmdlet.ShouldProcess("VM [$($vm.Name)]","Convert all Thin Provisioned VMDK to Type: 'Thick Provision Eager Zeroed'")) {
+		If ($vmv.Runtime.PowerState -eq 'poweredOff' -and $PSCmdlet.ShouldProcess("VM [$($vmv.Name)]","Convert all Thin Provisioned VMDK to Type: 'Thick Provision Eager Zeroed'")) {
 		
-			### Get ESXi object where $vm is registered ###
-			$esx = Get-View $vm.Runtime.Host
+			### Get ESXi object where $vmv is registered ###
+			$esx = Get-View $vmv.Runtime.Host
 			
-			### Get Datacenter object where $vm is registered ###
-			$parentObj = Get-View $vm.Parent
+			### Get Datacenter object where $vmv is registered ###
+			$parentObj = Get-View $vmv.Parent
 		    While ($parentObj -isnot [VMware.Vim.Datacenter]) {$parentObj = Get-View $parentObj.Parent}
 		    $datacenter       = New-Object VMware.Vim.ManagedObjectReference
 			$datacenter.Type  = 'Datacenter'
 			$datacenter.Value = $parentObj.MoRef.Value
 		   
-			Foreach ($dev in $vm.Config.Hardware.Device) {
-			    If (($dev.GetType()).Name -eq "VirtualDisk") {
+			Foreach ($dev in $vmv.Config.Hardware.Device) {
+			    If ($dev -is [VMware.Vim.VirtualDisk]) {
 					If ($dev.Backing.ThinProvisioned -and $dev.Backing.Parent -eq $null) {
 					
 			        	$sizeGB = [math]::Round(($dev.CapacityInKB / 1MB), 1)
@@ -171,11 +175,11 @@ Process {
 						$task      = Get-View $taskMoRef
 						
 						### Show task progress ###
-						For ($i=1;$i -lt [int32]::MaxValue;$i++) {
+						For ($i=1; $i -lt [int32]::MaxValue; $i++) {
 							If ("running","queued" -contains $task.Info.State) {
 								$task.UpdateViewData("Info")
 								If ($task.Info.Progress -ne $null) {
-									Write-Progress -Activity "Inflate virtual disk task is in progress ..." -Status "VM - $($vm.Name)" `
+									Write-Progress -Activity "Inflate virtual disk task is in progress ..." -Status "VM - $($vmv.Name)" `
 									-CurrentOperation "$($dev.DeviceInfo.Label) - $($dev.Backing.FileName) - $sizeGB GB" `
 									-PercentComplete $task.Info.Progress -ErrorAction SilentlyContinue
 									Start-Sleep -Seconds 3
@@ -194,7 +198,7 @@ Process {
 						$null = $dev.Backing.FileName -match $regxVMDK
 						
 						$Properties = [ordered]@{
-							VM           = $vm.Name
+							VM           = $vmv.Name
 							VMHost       = $esx.Name
 							Datastore    = $Matches.Datastore
 							VMDK         = $Matches.Filename
@@ -210,7 +214,7 @@ Process {
 					}
 				}
 			}
-			$vm.Reload()
+			$vmv.Reload()
 		}
 	}
 }
@@ -224,15 +228,13 @@ New-Alias -Name Convert-ViMVmdkThin2EZThick -Value Convert-VmdkThin2EZThick -For
 
 Function Find-VcVm {
 
-#requires -version 3.0
-
 <#
 .SYNOPSIS
 	Search VC's VM throw direct connection to group of ESXi Hosts.
 .DESCRIPTION
-	This script generate list of ESXi Hosts with common suffix in name,
+	This script generates a list of ESXi Hosts with common suffix in a name,
 	e.g. (esxprod1,esxprod2, ...) or (esxdev01,esxdev02, ...) etc. and
-	search VCenter's VM throw direct connection to this group of ESXi Hosts.
+	searches VCenter's VM throw direct connection to this group of ESXi Hosts.
 .PARAMETER VC
 	VC's VM Name.
 .PARAMETER HostSuffix
@@ -244,41 +246,45 @@ Function Find-VcVm {
 .PARAMETER AddZero
 	Add ESXi Hosts' postfix leading zero to one-digit postfix (from 01 to 09).
 .EXAMPLE
-	C:\PS> .\Find-VC.ps1 vc1 esxprod 1 20 -AddZero
+	PS C:\> Find-VcVm vc1 esxprod 1 20 -AddZero
 .EXAMPLE
-	C:\PS> .\Find-VC.ps1 -VC vc1 -HostSuffix esxdev -PostfixEnd 6
+	PS C:\> Find-VcVm -VC vc1 -HostSuffix esxdev -PostfixEnd 6
 .EXAMPLE
-	C:\PS> .\Find-VC.ps1 vc1 esxprod |fl
+	PS C:\> Find-VcVm vc1 esxprod |fl
 .NOTES
-	Author: Roman Gelman.
+	Author      :: Roman Gelman.
+	Limitation  :: [1] The function uses common credentials for all ESXi hosts.
+	               [2] The hosts' Lockdown mode should be disabled.
+	Version 1.0 :: 03-Sep-2015 :: Release.
+	Version 1.1 :: 03-Aug-2016 :: Improvement :: Returned object properties changed.
 .OUTPUTS
-	PSCustomObject with two Properties: VC,VMHost or $null.
+	[System.Management.Automation.PSCustomObject] PSObject collection.
 .LINK
-	http://rgel75.wix.com/blog
+	http://ps1code.com
 #>
 
 Param (
 
 	[Parameter(Mandatory=$true,Position=1,HelpMessage="vCenter's VM Name")]
 		[Alias("vCenter","VcVm")]
-	[System.String]$VC
+	[string]$VC
 	,
 	[Parameter(Mandatory=$true,Position=2,HelpMessage="ESXi Hosts' common suffix")]
 		[Alias("VMHostSuffix","ESXiSuffix")]
-	[System.String]$HostSuffix
+	[string]$HostSuffix
 	,
 	[Parameter(Mandatory=$false,Position=3,HelpMessage="ESXi Hosts' postfix number start")]
 		[ValidateRange(1,98)]
 		[Alias("PostfixFirst","Start")]
-	[Int]$PostfixStart = 1
+	[int]$PostfixStart = 1
 	,
 	[Parameter(Mandatory=$false,Position=4,HelpMessage="ESXi Hosts' postfix number end")]
 		[ValidateRange(2,99)]
 		[Alias("PostfixLast","End")]
-	[Int]$PostfixEnd = 9
+	[int]$PostfixEnd = 9
 	,
 	[Parameter(Mandatory=$false,Position=5,HelpMessage="Add ESXi Hosts' postfix leading zero")]
-	[Switch]$AddZero = $false
+	[switch]$AddZero = $false
 )
 
 Begin {
@@ -289,7 +295,6 @@ Begin {
 
 Process {
 
-	$VMHostName = ''
 	$cred = Get-Credential -UserName root -Message "Common VMHost Credentials"
 	If ($cred) {
 		$hosts = @()
@@ -301,9 +306,15 @@ Process {
 				$hosts += $HostSuffix + $i
 			}
 		}
-		Connect-VIServer $hosts -WarningAction SilentlyContinue -ErrorAction SilentlyContinue -Credential $cred |select Name,IsConnected |ft -AutoSize
+		
+		Connect-VIServer $hosts -WarningAction SilentlyContinue -ErrorAction SilentlyContinue -Credential $cred `
+		|select @{N='VMHost';E={$_.Name}},IsConnected |ft -AutoSize
+		
 		If ($global:DefaultVIServers.Length -ne 0) {
-			$VMHostName = (Get-VM -ErrorAction SilentlyContinue |? {$_.Name -eq $VC} |select -ExpandProperty VMHost).Name
+			$TargetVM = Get-VM -ErrorAction SilentlyContinue |? {$_.Name -eq $VC}
+			$VCHostname     = $TargetVM.Guest.HostName
+			$PowerState     = $TargetVM.PowerState
+			$VMHostHostname = $TargetVM.VMHost.Name
 			Disconnect-VIServer -Server '*' -Force -Confirm:$false
 		}
 	}
@@ -311,15 +322,16 @@ Process {
 
 End {
 
-	If ($VMHostName)	{
+	If ($TargetVM)	{
 		$Properties = [ordered]@{
-			VC     = $VC
-			VMHost = $VMHostName
+			VC         = $VC
+			Hostname   = $VCHostname
+			PowerState = $PowerState
+			VMHost     = $VMHostHostname
 		}
 		$Object = New-Object PSObject -Property $Properties
-		return $Object
+		$Object
 	}
-	Else {return $null}
 }
 
 } #EndFunction Find-VcVm
@@ -337,7 +349,7 @@ Function Set-PowerCLiTitle {
 .NOTES
 	Author: Roman Gelman.
 .LINK
-	http://goo.gl/0h97C6
+	http://www.ps1code.com/single-post/2015/11/17/ConnectVIServer-deep-dive-or-%C2%ABWhere-am-I-connected-%C2%BB
 #>
 
 $VIS = $global:DefaultVIServers |sort -Descending ProductLine,Name
@@ -390,15 +402,17 @@ Filter Get-VMHostFirmwareVersion {
 	[System.String[]] BIOS/UEFI version and release date.
 .NOTES
 	Author: Roman Gelman.
+	Version 1.0 :: 09-Jan-2016 :: Release.
+	Version 1.1 :: 03-Aug-2016 :: Improvement :: GetType() method replaced by -is for type determine.
 .LINK
-	https://goo.gl/Yg7mYp
+	http://www.ps1code.com/single-post/2016/1/9/How-to-know-ESXi-servers%E2%80%99-BIOSFirmware-version-using-PowerCLi
 #>
 
 Try
 	{
-		If     ($_.GetType().Name -eq 'VMHostImpl') {$BiosInfo = ($_ |Get-View).Hardware.BiosInfo}
-		ElseIf ($_.GetType().Name -eq 'HostSystem') {$BiosInfo = $_.Hardware.BiosInfo}
-		ElseIf ($_.GetType().Name -eq 'String')     {$BiosInfo = (Get-View -ViewType HostSystem -Filter @{"Name" = $_}).Hardware.BiosInfo}
+		If     ($_ -is [VMware.VimAutomation.ViCore.Types.V1.Inventory.VMHost]) {$BiosInfo = ($_ |Get-View).Hardware.BiosInfo}
+		ElseIf ($_ -is [VMware.Vim.HostSystem])                                 {$BiosInfo = $_.Hardware.BiosInfo}
+		ElseIf ($_ -is [string])                                                {$BiosInfo = (Get-View -ViewType HostSystem -Filter @{"Name" = $_}).Hardware.BiosInfo}
 		Else   {Throw "Not supported data type as pipeline"}
 
 		$fVersion = $BiosInfo.BiosVersion -replace ('^-\[|\]-$', $null)
@@ -444,7 +458,7 @@ Function Compare-VMHostSoftwareVib {
 	Version 1.0  ::	10-Jan-2016  :: Release.
 	Version 1.1  ::	01-May-2016  :: Improvement :: Added support for PowerCLi 6.3R1 and ESXCLI V2 interface.
 .LINK
-	https://goo.gl/Yg7mYp
+	http://www.ps1code.com/single-post/2016/1/10/How-to-compare-installed-VIB-packages-between-two-or-more-ESXi-hosts
 #>
 
 Param (
@@ -454,8 +468,8 @@ Param (
 	[VMware.VimAutomation.ViCore.Types.V1.Inventory.VMHost]$ReferenceVMHost
 	,
 	[Parameter(Mandatory,Position=2,ValueFromPipeline,HelpMessage="Difference VMHosts collection")]
-		[Alias("DifferenceESXi")]
-	[VMware.VimAutomation.ViCore.Types.V1.Inventory.VMHost[]]$DifferenceVMHosts
+		[Alias("DifferenceESXi","DifferenceVMHosts")]
+	[VMware.VimAutomation.ViCore.Types.V1.Inventory.VMHost[]]$DifferenceVMHost
 )
 
 Begin {
@@ -580,15 +594,16 @@ Function Enable-VMHostSSH {
 .NOTES
 	Author      ::	Roman Gelman.
 	Version 1.0 :: 07-Feb-2016 :: Release.
+	Version 1.1 :: 02-Aug-2016 :: -Cluster parameter data type changed to the portable type.
 .LINK
-	https://goo.gl/Yg7mYp
+	http://www.ps1code.com/single-post/2016/02/07/How-to-enabledisable-SSH-on-all-ESXi-hosts-in-a-cluster-using-PowerCLi
 #>
 
 Param (
 
 	[Parameter(Mandatory=$false,Position=0,ValueFromPipeline=$true)]
 		[ValidateNotNullorEmpty()]
-	[VMware.VimAutomation.ViCore.Impl.V1.Inventory.ClusterImpl[]]$Cluster = (Get-Cluster)
+	[VMware.VimAutomation.ViCore.Types.V1.Inventory.Cluster[]]$Cluster = (Get-Cluster)
 )
 
 Process {
@@ -654,15 +669,16 @@ Function Disable-VMHostSSH {
 .NOTES
 	Author      ::	Roman Gelman.
 	Version 1.0 :: 07-Feb-2016 :: Release.
+	Version 1.1 :: 02-Aug-2016 :: -Cluster parameter data type changed to the portable type.
 .LINK
-	https://goo.gl/Yg7mYp
+	http://www.ps1code.com/single-post/2016/02/07/How-to-enabledisable-SSH-on-all-ESXi-hosts-in-a-cluster-using-PowerCLi
 #>
 
 Param (
 
 	[Parameter(Mandatory=$false,Position=0,ValueFromPipeline=$true)]
 		[ValidateNotNullorEmpty()]
-	[VMware.VimAutomation.ViCore.Impl.V1.Inventory.ClusterImpl[]]$Cluster = (Get-Cluster)
+	[VMware.VimAutomation.ViCore.Types.V1.Inventory.Cluster[]]$Cluster = (Get-Cluster)
 	,
 	[Parameter(Mandatory=$false,Position=1)]
 	[Switch]$BlockFirewall
@@ -743,7 +759,7 @@ Function Set-VMHostNtpServer {
 	Author      ::	Roman Gelman.
 	Version 1.0 ::	10-Mar-2016  :: Release.
 .LINK
-	http://goo.gl/Q4S6yc
+	http://www.ps1code.com/single-post/2016/03/10/How-to-configure-NTP-servers-setting-on-ESXi-hosts-using-PowerCLi
 #>
 
 [CmdletBinding()]
@@ -842,7 +858,7 @@ Function Get-Version {
 	PS C:\> Get-Version -VCenter |Format-Table -AutoSize
 	Get all connected VCenter servers/ESXi hosts versions and PowerCLi version.
 .EXAMPLE
-	PS C:\> Get-DistributedSwitch |Get-Version |sort Version |? {$_.Version -lt 5.5}
+	PS C:\> Get-VDSwitch |Get-Version |sort Version |? {$_.Version -lt 5.5}
 	Get all DVSwitches that have version below 5.5.
 .EXAMPLE
 	PS C:\> Get-Datastore |Get-Version |? {$_.Version.Major -eq 3}
@@ -858,8 +874,11 @@ Function Get-Version {
 .NOTES
 	Author       ::	Roman Gelman.
 	Version 1.0  ::	23-May-2016  :: Release.
+	Version 1.1  ::	03-Aug-2016  :: Bugfix ::
+	[1] VDSwitch data type changed from [VMware.Vim.VmwareDistributedVirtualSwitch] to [VMware.VimAutomation.Vds.Types.V1.VmwareVDSwitch].
+	[2] Function Get-VersionVDSwitch edited to support data type change.
 .LINK
-	http://goo.gl/Dd6Ilt
+	http://www.ps1code.com/single-post/2016/05/25/How-to-know-any-VMware-object%E2%80%99s-version-Use-GetVersion
 #>
 
 [CmdletBinding(DefaultParameterSetName='VIO')]
@@ -1081,7 +1100,7 @@ Begin {
 	$ProductTypeName = 'VMware DVSwitch'
 	Try
 		{
-			$ProductInfo = $InputObject.Summary.ProductInfo
+			$ProductInfo = $InputObject.ExtensionData.Summary.ProductInfo
 			$ProductFullVersion = 'VMware Distributed Virtual Switch ' + $ProductInfo.Version + ' build-' + $ProductInfo.Build
 			$ProductVersion = [version]($ProductInfo.Version + '.' + $ProductInfo.Build)
 			
@@ -1195,11 +1214,11 @@ Process {
 
 	If ($PSCmdlet.ParameterSetName -eq 'VIO') {
 		Foreach ($obj in $VIObject) {
-			If     ($obj -is 'VMware.VimAutomation.ViCore.Types.V1.Inventory.VMHost')                  {Get-VersionVMHostImpl -InputObject $obj}
-			ElseIf ($obj -is 'VMware.Vim.HostSystem')                                                  {Get-VersionVMHostView -InputObject $obj}
-			ElseIf ($obj -is 'VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine')          {Get-VersionVM -InputObject $obj}
-			ElseIf ($obj -is 'VMware.Vim.VmwareDistributedVirtualSwitch')                              {Get-VersionVDSwitch -InputObject $obj}
-			ElseIf ($obj -is 'VMware.VimAutomation.ViCore.Types.V1.DatastoreManagement.VmfsDatastore') {Get-VersionDatastore -InputObject $obj}
+			If     ($obj -is [VMware.VimAutomation.ViCore.Types.V1.Inventory.VMHost])                  {Get-VersionVMHostImpl -InputObject $obj}
+			ElseIf ($obj -is [VMware.Vim.HostSystem])                                                  {Get-VersionVMHostView -InputObject $obj}
+			ElseIf ($obj -is [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine])          {Get-VersionVM -InputObject $obj}
+			ElseIf ($obj -is [VMware.VimAutomation.Vds.Types.V1.VmwareVDSwitch])                       {Get-VersionVDSwitch -InputObject $obj}
+			ElseIf ($obj -is [VMware.VimAutomation.ViCore.Types.V1.DatastoreManagement.VmfsDatastore]) {Get-VersionDatastore -InputObject $obj}
 			Else   {Write-Warning "Not supported object type"}
 		}
 	}
