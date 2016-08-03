@@ -28,8 +28,8 @@ Get-VMotion
 View all s/vMotion events from the last 7 days.
 
 .EXAMPLE
-Get-VM -Name 'vm1' | Get-VMotion -ExcludeSVMotion
-View all vMotion events for VM "vm1" in the last week.
+Get-VM -Name 'Tron','Rinzler' | Get-VMotion -ExcludeSVMotion
+View all vMotion events for only VMs "Tron" and "Rinzler" in the last week.
 
 .EXAMPLE
 Get-VM | Get-VMotion -Days 1 -ExcludeVMotion | Select-Object Name, Source, Destination, Duration
