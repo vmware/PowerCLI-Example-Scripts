@@ -1,5 +1,6 @@
 <#
 .MYNGC_REPORT
+KEY\(VM\)
 .LABEL
 VM CD-Drive Report
 .DESCRIPTION
