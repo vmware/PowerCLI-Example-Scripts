@@ -1,4 +1,6 @@
-﻿<#
+﻿#requires -Version 3 -Modules VMware.VimAutomation.Core
+
+<#
 Script name: Get-VMotion.ps1
 Created on: 2016/07/30
 Author: Brian Bunke, @brianbunke
@@ -83,6 +85,7 @@ https://github.com/brianbunke
         $EventFilterSpec.Time.BeginTime = (Get-Date).AddDays(-$Days)
         $EventFilterSpec.Type = 'VmMigratedEvent', 'DrsVmMigratedEvent', 'VmBeingHotMigratedEvent', 'VmBeingMigratedEvent'
         # Perform the query and condition the data for further use
+        Write-Verbose "Requesting vMotion event history from the last $Days day(s)"
         $vMotionList = (Get-View (Get-View ServiceInstance -Property Content.EventManager).Content.EventManager).QueryEvents($EventFilterSpec) |
             Select-Object ChainID,
                           CreatedTime,
@@ -99,6 +102,7 @@ https://github.com/brianbunke
         $Results = New-Object System.Collections.ArrayList
 
         # Group together by ChainID; each vMotion has a begin event and end event
+        Write-Verbose 'Pairing vMotion events together for mating purposes'
         ForEach ($vMotion in ($vMotionList | Sort-Object CreatedTime | Group-Object ChainID)) {
             If ($vMotion.Group.Count -eq 2) {
                 # Mark the current vMotion as vMotion / Storage vMotion / Both
