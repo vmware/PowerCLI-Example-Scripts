@@ -1,8 +1,6 @@
-﻿#requires -Version 3 -Modules VMware.VimAutomation.Core
-
-<#
+﻿<#
 Script name: Get-VMotion.ps1
-Created on: 2016/07/30
+Created on: 2016/08/09
 Author: Brian Bunke, @brianbunke
 Description: View details of recent vMotion and Storage vMotion events
 Note to future contributors: Test changes with Pester file Get-VMotion.Tests.ps1
@@ -14,37 +12,44 @@ PowerShell Version: 5.0
 OS Version: Windows 7/10
 #>
 
+#Requires -Version 3 -Modules VMware.VimAutomation.Core
+
 function Get-VMotion {
 <#
 .SYNOPSIS
 View details of recent vMotion and Storage vMotion events.
 
 .DESCRIPTION
-Use to check DRS history, or to help with troubleshooting performance issues.
-If filtering by VM, objects should be supplied from the pipeline via Get-VM.
+Use to check DRS history, or to help with troubleshooting.
+Can filter to just results from recent days, hours, or minutes (default is 1 day).
+Supplying one parent object (Get-Cluster) and filtering later will perform much faster than supplying many VMs.
 
 .EXAMPLE
 Get-VMotion
-View all s/vMotion events from the last 7 days.
+For all datacenters found by Get-Datacenter, view all s/vMotion events from the last day.
 
 .EXAMPLE
-Get-VM -Name 'Tron','Rinzler' | Get-VMotion -ExcludeSVMotion
-View all vMotion events for only VMs "Tron" and "Rinzler" in the last week.
+Get-Cluster '*arcade' | Get-VMotion -Hours 8 -Verbose | Where-Object {$_.Type -eq 'vmotion'}
+For the cluster Flynn's Arcade, view all vMotions in the last eight hours.
+Verbose output tracks each VM as it is processed.
+NOTE: Piping "Get-Datacenter" or "Get-Cluster" will be much faster than an unfiltered "Get-VM".
 
 .EXAMPLE
-Get-VM | Get-VMotion -Days 1 -ExcludeVMotion | Select-Object Name, Source, Destination, Duration
-View all Storage vMotion events for all VMs in the last 24 hours.
-Select less properties for easier reading in a table format.
+$List = Get-VM 'Tron','Rinzler'
+Get-VMotion -Entity $List -Days 7
+View all s/vMotion events for only VMs "Tron" and "Rinzler" in the last week.
+Objects captured in variables can be supplied as above or passed through the pipeline.
 
 .INPUTS
-[VMware.VimAutomation.ViCore.Impl.V1.VM.UniversalVirtualMachineImpl]
-Object type supplied by PowerCLI cmdlet Get-VM
+[VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]]
+PowerCLI cmdlets Get-Datacenter / Get-Cluster / Get-VM
 
 .OUTPUTS
 [System.Collections.ArrayList]
 
 .NOTES
-Thanks to alanrenouf/sneddo for doing the hard work as part of vCheck.
+Thanks to lucdekens/alanrenouf/sneddo for doing the hard work long ago.
+http://www.lucd.info/2013/03/31/get-the-vmotionsvmotion-history/
 https://github.com/alanrenouf/vCheck-vSphere
 
 .LINK
@@ -53,62 +58,90 @@ https://github.com/vmware/PowerCLI-Example-Scripts
 .LINK
 https://github.com/brianbunke
 #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Days')]
     [OutputType([System.Collections.ArrayList])]
     param (
-        # Number of days to search for events. Defaults to 7.
-        [int]$Days = 7,
-        
-        # Filter results to only the specified VMs. Pipeline input recommended.
+        # Filter results to only the specified object(s)
+        # Tested with datacenter, cluster, and VM entities
         [Parameter(ValueFromPipeline = $true)]
-        [Alias('Name')]
-        $VM,
+        [Alias('Name','VM','Cluster')]
+        [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]]$Entity = (Get-Datacenter),
 
-        # Exclude all vMotion events, and review only Storage vMotion history.
-        [switch]$ExcludeVMotion,
-
-        # Exclude all Storage vMotion events, and review only vMotion history.
-        [switch]$ExcludeSVMotion
+        # Number of days to return results from. Defaults to 7
+        # Mutually exclusive from Hours, Minutes
+        [Parameter(ParameterSetName='Days')]
+        [int]$Days = 1,
+        # Number of hours to return results from
+        # Mutually exclusive from Days, Minutes
+        [Parameter(ParameterSetName='Hours')]
+        [int]$Hours,
+        # Number of minutes to return results from
+        # Mutually exclusive from Days, Hours
+        [Parameter(ParameterSetName='Minutes')]
+        [int]$Minutes
     )
 
     BEGIN {
-        # If both switches are supplied, advise the user and stop the script
-        If ($ExcludeVMotion -and $ExcludeSVMotion) {
-            Write-Warning 'Using both "exclude" switches filters out all results. Use one or neither.'
-            break
+        # Based on parameter supplied, set $Time for $EventFilter below
+        switch ($PSCmdlet.ParameterSetName) {
+            'Days'    {$Time = (Get-Date).AddDays(-$Days)}
+            'Hours'   {$Time = (Get-Date).AddHours(-$Hours)}
+            'Minutes' {$Time = (Get-Date).AddMinutes(-$Minutes)}
         }
 
-        # Build a vMotion-specific event filter query. Shamelessly stolen from vCheck
-        $EventFilterSpec = New-Object VMware.Vim.EventFilterSpec
-        $EventFilterSpec.Category = 'Info'
-        $EventFilterSpec.Time = New-Object VMware.Vim.EventFilterSpecByTime
-        $EventFilterSpec.Time.BeginTime = (Get-Date).AddDays(-$Days)
-        $EventFilterSpec.Type = 'VmMigratedEvent', 'DrsVmMigratedEvent', 'VmBeingHotMigratedEvent', 'VmBeingMigratedEvent'
-        # Perform the query and condition the data for further use
-        Write-Verbose "Requesting vMotion event history from the last $Days day(s)"
-        $vMotionList = (Get-View (Get-View ServiceInstance -Property Content.EventManager).Content.EventManager).QueryEvents($EventFilterSpec) |
-            Select-Object ChainID,
-                          CreatedTime,
-                          UserName,
-                          @{n='Cluster';   e={$_.ComputeResource.Name}},
-                          @{n='Datacenter';e={$_.Datacenter.Name}},
-                          @{n='DestDS';    e={$_.DestDatastore.Name}},
-                          @{n='DestHost';  e={$_.DestHost.Name}},
-                          @{n='SourceDS';  e={$_.Ds.Name}},
-                          @{n='SourceHost';e={$_.Host.Name}},
-                          @{n='VM';        e={$_.Vm.Name}}
+        # Construct an empty array for events returned
+        # Performs faster than @() when appending; matters if running against many VMs
+        $Events = New-Object System.Collections.ArrayList
 
+        # Build a vMotion-specific event filter query
+        # http://pubs.vmware.com/vsphere-60/index.jsp#com.vmware.wssdk.apiref.doc/vim.event.EventManager.html
+        $EventFilter        = New-Object VMware.Vim.EventFilterSpec
+        $EventFilter.Entity = New-Object VMware.Vim.EventFilterSpecByEntity
+        $EventFilter.Time   = New-Object VMware.Vim.EventFilterSpecByTime
+        $EventFilter.Time.BeginTime = $Time
+        $EventFilter.Category = 'Info'
+        $EventFilter.DisableFullMessage = $true
+        $EventFilter.EventTypeID = 'VmMigratedEvent', 'DrsVmMigratedEvent', 'VmBeingHotMigratedEvent', 'VmBeingMigratedEvent'
+    }
+
+    PROCESS {
+        $Entity | ForEach-Object {
+            Write-Verbose "Processing $($_.Name)"
+
+            # Add the entity details for the current loop of the Process block
+            $EventFilter.Entity.Entity = $_.ExtensionData.MoRef
+            $EventFilter.Entity.Recursion = &{
+                If ($_.ExtensionData.MoRef.Type -eq 'VirtualMachine') {'self'} Else {'all'}}
+            # Create the event collector, and collect 100 events at a time
+            $Collector = Get-View (Get-View EventManager).CreateCollectorForEvents($EventFilter)
+            $Buffer = $Collector.ReadNextEvents(100)
+            While ($Buffer) {
+                # Append the 100 results into the $Events array
+                If (($Buffer | Measure-Object).Count -gt 1) {
+                    # .AddRange if more than one event
+                    $Events.AddRange($Buffer) | Out-Null
+                } Else {
+                    # .Add if only one event; should never happen since gathering begin & end events
+                    $Events.Add($Buffer) | Out-Null
+                }
+                $Buffer = $Collector.ReadNextEvents(100)
+            }
+            # Destroy the collector after each entity to avoid running out of memory :)
+            $Collector.DestroyCollector()
+        }
+    }
+
+    END {
         # Construct an empty array for results within the ForEach
         $Results = New-Object System.Collections.ArrayList
 
-        # Group together by ChainID; each vMotion has a begin event and end event
-        Write-Verbose 'Pairing vMotion events together for mating purposes'
-        ForEach ($vMotion in ($vMotionList | Sort-Object CreatedTime | Group-Object ChainID)) {
+        # Group together by ChainID; each vMotion has begin/end events
+        ForEach ($vMotion in ($Events | Sort-Object CreatedTime | Group-Object ChainID)) {
             If ($vMotion.Group.Count -eq 2) {
                 # Mark the current vMotion as vMotion / Storage vMotion / Both
-                If ($vMotion.Group[0].SourceDS -eq $vMotion.Group[0].DestDS) {
+                If ($vMotion.Group[0].Ds.Name -eq $vMotion.Group[0].DestDatastore.Name) {
                     $Type = 'vMotion'
-                } ElseIf ($vMotion.Group[0].SourceHost -eq $vMotion.Group[0].DestHost) {
+                } ElseIf ($vMotion.Group[0].Host.Name -eq $vMotion.Group[0].DestHost.Name) {
                     $Type = 's-vMotion'
                 } Else {
                     $Type = 'Both'
@@ -116,49 +149,22 @@ https://github.com/brianbunke
 
                 # Add the current vMotion into the $Results array
                 $Results.Add([PSCustomObject][Ordered]@{
-                    Name        = $vMotion.Group[0].VM
-                    Type        = $Type
+                    Name      = $vMotion.Group[0].Vm.Name
+                    Type      = $Type
                     # Src/Dst are hosts if a vMotion, but datastores if svMotion
-                    Source      = &{If ($Type -eq 's-vMotion') {$vMotion.Group[0].SourceDS} Else {$vMotion.Group[0].SourceHost}}
-                    Destination = &{If ($Type -eq 's-vMotion') {$vMotion.Group[0].DestDS} Else {$vMotion.Group[0].DestHost}}
+                    SrcHost   = $vMotion.Group[0].Host.Name
+                    DstHost   = $vMotion.Group[0].DestHost.Name
+                    SrcDS     = $vMotion.Group[0].Ds.Name
+                    DstDS     = $vMotion.Group[0].DestDatastore.Name
                     # Hopefully people aren't performing vMotions that take >24 hours, because I'm ignoring days in the string
-                    Duration    = (New-TimeSpan -Start $vMotion.Group[0].CreatedTime -End $vMotion.Group[1].CreatedTime).ToString('hh\:mm\:ss')
-                    StartTime   = $vMotion.Group[0].CreatedTime
-                    EndTime     = $vMotion.Group[1].CreatedTime
+                    Duration  = (New-TimeSpan -Start $vMotion.Group[0].CreatedTime -End $vMotion.Group[1].CreatedTime).ToString('hh\:mm\:ss')
+                    StartTime = $vMotion.Group[0].CreatedTime
+                    EndTime   = $vMotion.Group[1].CreatedTime
                     # Making an assumption that all events with an empty username are DRS-initiated
-                    Username    = &{If ($vMotion.Group[0].UserName) {$vMotion.Group[0].UserName} Else {'DRS'}}
+                    Username  = &{If ($vMotion.Group[0].UserName) {$vMotion.Group[0].UserName} Else {'DRS'}}
                 }) | Out-Null
-            }
-        }
-
-        # Construct an empty array to grab any $VM objects from the pipeline
-        $VMList = New-Object System.Collections.ArrayList
-    } #begin
-
-    PROCESS {
-        # All VM names are added to the array here
-        $VMList.Add($VM.Name) | Out-Null
-    }
-
-    END {
-        # This block if the -VM parameter was used
-        If (($VMList | Measure-Object).Count -gt 0) {
-            If ($ExcludeVMotion) {
-                return $Results | Where-Object {$_.Type -ne 'vMotion' -and $_.Name -in $VMList}
-            } ElseIf ($ExcludeSVMotion) {
-                return $Results | Where-Object {$_.Type -ne 's-vMotion' -and $_.Name -in $VMList}
-            } Else {
-                return $Results | Where-Object Name -in $VMList
-            }
-        # This block if -VM was not used
-        } Else {
-            If ($ExcludeVMotion) {
-                return $Results | Where-Object Type -ne 'vMotion'
-            } ElseIf ($ExcludeSVMotion) {
-                return $Results | Where-Object Type -ne 's-vMotion'
-            } Else {
-                return $Results
-            }
-        } #if/else -VM
-    } #end
-} #function
+            } #IfGroup
+        } #ForEach ChainID
+        $Results
+    } #End
+}
