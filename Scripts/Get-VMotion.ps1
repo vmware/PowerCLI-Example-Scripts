@@ -35,13 +35,15 @@ Verbose output tracks each VM as it is processed.
 NOTE: Piping "Get-Datacenter" or "Get-Cluster" will be much faster than an unfiltered "Get-VM".
 
 .EXAMPLE
-$List = Get-VM 'Tron','Rinzler'
-Get-VMotion -Entity $List -Days 7
+>
+PS C:\>$Grid = $global:DefaultVIServers | Where-Object {$_.Name -eq 'Grid'}
+PS C:\>Get-VM -Name 'Tron','Rinzler' | Get-VMotion -Days 7 -Server $Grid
+
 View all s/vMotion events for only VMs "Tron" and "Rinzler" in the last week.
-Objects captured in variables can be supplied as above or passed through the pipeline.
+If connected to multiple servers, will only search for events on server Grid.
 
 .INPUTS
-[VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]]
+[VMware.VimAutomation.ViCore.Types.V1.Inventory.InventoryItem[]]
 PowerCLI cmdlets Get-Datacenter / Get-Cluster / Get-VM
 
 .OUTPUTS
@@ -64,21 +66,30 @@ https://github.com/brianbunke
         # Filter results to only the specified object(s)
         # Tested with datacenter, cluster, and VM entities
         [Parameter(ValueFromPipeline = $true)]
-        [Alias('Name','VM','Cluster')]
-        [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]]$Entity = (Get-Datacenter),
+        [ValidateScript({$_.GetType().Name -match 'VirtualMachine|Cluster|Datacenter'})]
+        [Alias('Name','VM','Cluster','Datacenter')]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.InventoryItem[]]$Entity = (Get-Datacenter),
 
         # Number of days to return results from. Defaults to 7
         # Mutually exclusive from Hours, Minutes
         [Parameter(ParameterSetName='Days')]
+        [ValidateRange(0,[int]::MaxValue)]
         [int]$Days = 1,
         # Number of hours to return results from
         # Mutually exclusive from Days, Minutes
         [Parameter(ParameterSetName='Hours')]
+        [ValidateRange(0,[int]::MaxValue)]
         [int]$Hours,
         # Number of minutes to return results from
         # Mutually exclusive from Days, Hours
         [Parameter(ParameterSetName='Minutes')]
-        [int]$Minutes
+        [ValidateRange(0,[int]::MaxValue)]
+        [int]$Minutes,
+
+        # Specifies the vCenter Server systems on which you want to run the cmdlet.
+        # If no value is passed to this parameter, the command runs on the default servers.
+        # For more information about default servers, see the description of Connect-VIServer.
+        [VMware.VimAutomation.Types.VIServer[]]$Server
     )
 
     BEGIN {
@@ -102,7 +113,7 @@ https://github.com/brianbunke
         $EventFilter.Category = 'Info'
         $EventFilter.DisableFullMessage = $true
         $EventFilter.EventTypeID = 'VmMigratedEvent', 'DrsVmMigratedEvent', 'VmBeingHotMigratedEvent', 'VmBeingMigratedEvent'
-    }
+    } #Begin
 
     PROCESS {
         $Entity | ForEach-Object {
@@ -128,8 +139,8 @@ https://github.com/brianbunke
             }
             # Destroy the collector after each entity to avoid running out of memory :)
             $Collector.DestroyCollector()
-        }
-    }
+        } #ForEach
+    } #Process
 
     END {
         # Construct an empty array for results within the ForEach
