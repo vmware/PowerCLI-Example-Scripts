@@ -457,6 +457,7 @@ Function Compare-VMHostSoftwareVib {
 	Dependencies ::	ESXCLI V2 works on vCenter 5.0/ESXi 5.0 and later.
 	Version 1.0  ::	10-Jan-2016  :: Release.
 	Version 1.1  ::	01-May-2016  :: Improvement :: Added support for PowerCLi 6.3R1 and ESXCLI V2 interface.
+	Version 1.2  :: 15-Aug-2016  :: Bugfix      :: In the 'Foreach ($esx in $DifferenceVMHosts)' loop the '$DifferenceVMHosts' var replaced with '$DifferenceVMHost'.
 .LINK
 	http://www.ps1code.com/single-post/2016/1/10/How-to-compare-installed-VIB-packages-between-two-or-more-ESXi-hosts
 #>
@@ -495,7 +496,7 @@ Process {
 			"{0}" -f $Error.Exception.Message
 		}
 
-	Foreach ($esx in $DifferenceVMHosts) {
+	Foreach ($esx in $DifferenceVMHost) {
 	
 		 Try
 			{
