@@ -1,6 +1,6 @@
 ﻿<#
 Script name: Get-VMotion.ps1
-Created on: 2016/08/09
+Created on: 2016/08/23
 Author: Brian Bunke, @brianbunke
 Description: View details of recent vMotion and Storage vMotion events
 Note to future contributors: Test changes with Pester file Get-VMotion.Tests.ps1
@@ -26,12 +26,13 @@ Supplying one parent object (Get-Cluster) and filtering later will perform much 
 
 .EXAMPLE
 Get-VMotion
+By default, searches $global:DefaultVIServers (all open Connect-VIServer sessions).
 For all datacenters found by Get-Datacenter, view all s/vMotion events from the last day.
 
 .EXAMPLE
 Get-Cluster '*arcade' | Get-VMotion -Hours 8 -Verbose | Where-Object {$_.Type -eq 'vmotion'}
 For the cluster Flynn's Arcade, view all vMotions in the last eight hours.
-Verbose output tracks each VM as it is processed.
+Verbose output will note each cluster as it is processed.
 NOTE: Piping "Get-Datacenter" or "Get-Cluster" will be much faster than an unfiltered "Get-VM".
 
 .EXAMPLE
@@ -68,9 +69,9 @@ https://github.com/brianbunke
         [Parameter(ValueFromPipeline = $true)]
         [ValidateScript({$_.GetType().Name -match 'VirtualMachine|Cluster|Datacenter'})]
         [Alias('Name','VM','Cluster','Datacenter')]
-        [VMware.VimAutomation.ViCore.Types.V1.Inventory.InventoryItem[]]$Entity = (Get-Datacenter),
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.InventoryItem[]]$Entity,
 
-        # Number of days to return results from. Defaults to 7
+        # Number of days to return results from. Defaults to 1
         # Mutually exclusive from Hours, Minutes
         [Parameter(ParameterSetName='Days')]
         [ValidateRange(0,[int]::MaxValue)]
@@ -86,13 +87,22 @@ https://github.com/brianbunke
         [ValidateRange(0,[int]::MaxValue)]
         [int]$Minutes,
 
-        # Specifies the vCenter Server systems on which you want to run the cmdlet.
+        # Specifies the vCenter Server system(s) on which you want to run the cmdlet.
         # If no value is passed to this parameter, the command runs on the default servers.
         # For more information about default servers, see the description of Connect-VIServer.
-        [VMware.VimAutomation.Types.VIServer[]]$Server
+        [VMware.VimAutomation.Types.VIServer[]]$Server = $global:DefaultVIServers
     )
 
     BEGIN {
+        If (-not $Server) {
+            Write-Warning 'Please open a vCenter session with Connect-VIServer first. Exiting'
+            break
+        }
+        Write-Verbose "Processing against vCenter server(s) $($Server -join ' | ')"
+
+        # If an inventory item was not supplied, return datacenters from $Server
+        If (-not $Entity) {$Entity = Get-Datacenter -Server $Server}
+
         # Based on parameter supplied, set $Time for $EventFilter below
         switch ($PSCmdlet.ParameterSetName) {
             'Days'    {$Time = (Get-Date).AddDays(-$Days)}
@@ -113,18 +123,20 @@ https://github.com/brianbunke
         $EventFilter.Category = 'Info'
         $EventFilter.DisableFullMessage = $true
         $EventFilter.EventTypeID = 'VmMigratedEvent', 'DrsVmMigratedEvent', 'VmBeingHotMigratedEvent', 'VmBeingMigratedEvent'
+
+        $EventMgr = Get-View EventManager -Server $Server
     } #Begin
 
     PROCESS {
         $Entity | ForEach-Object {
-            Write-Verbose "Processing $($_.Name)"
+            Write-Verbose "Processing inventory object $($_.Name)"
 
             # Add the entity details for the current loop of the Process block
             $EventFilter.Entity.Entity = $_.ExtensionData.MoRef
             $EventFilter.Entity.Recursion = &{
                 If ($_.ExtensionData.MoRef.Type -eq 'VirtualMachine') {'self'} Else {'all'}}
             # Create the event collector, and collect 100 events at a time
-            $Collector = Get-View (Get-View EventManager).CreateCollectorForEvents($EventFilter)
+            $Collector = Get-View ($EventMgr).CreateCollectorForEvents($EventFilter) -Server $Server
             $Buffer = $Collector.ReadNextEvents(100)
             While ($Buffer) {
                 # Append the 100 results into the $Events array
@@ -162,7 +174,6 @@ https://github.com/brianbunke
                 $Results.Add([PSCustomObject][Ordered]@{
                     Name      = $vMotion.Group[0].Vm.Name
                     Type      = $Type
-                    # Src/Dst are hosts if a vMotion, but datastores if svMotion
                     SrcHost   = $vMotion.Group[0].Host.Name
                     DstHost   = $vMotion.Group[0].DestHost.Name
                     SrcDS     = $vMotion.Group[0].Ds.Name
