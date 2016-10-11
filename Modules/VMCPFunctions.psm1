@@ -168,7 +168,7 @@ function Set-VMCPSettings {
     [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact="High")]
     param
     (
-        [Parameter(Mandatory=$True,
+        [Parameter(Mandatory=$false,
         ValueFromPipeline=$True,
         ValueFromPipelineByPropertyName=$True,
         HelpMessage='What is the Cluster Name?')]
