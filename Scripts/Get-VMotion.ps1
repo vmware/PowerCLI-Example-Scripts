@@ -3,7 +3,6 @@ Script name: Get-VMotion.ps1
 Created on: 2016/08/23
 Author: Brian Bunke, @brianbunke
 Description: View details of recent vMotion and Storage vMotion events
-Note to future contributors: Test changes with Pester file Get-VMotion.Tests.ps1
 
 ===Tested Against Environment====
 vSphere Version: 6.0 U1/U2
@@ -100,9 +99,6 @@ https://github.com/brianbunke
         }
         Write-Verbose "Processing against vCenter server(s) $($Server -join ' | ')"
 
-        # If an inventory item was not supplied, return datacenters from $Server
-        If (-not $Entity) {$Entity = Get-Datacenter -Server $Server}
-
         # Based on parameter supplied, set $Time for $EventFilter below
         switch ($PSCmdlet.ParameterSetName) {
             'Days'    {$Time = (Get-Date).AddDays(-$Days)}
@@ -123,35 +119,46 @@ https://github.com/brianbunke
         $EventFilter.Category = 'Info'
         $EventFilter.DisableFullMessage = $true
         $EventFilter.EventTypeID = 'VmMigratedEvent', 'DrsVmMigratedEvent', 'VmBeingHotMigratedEvent', 'VmBeingMigratedEvent'
-
-        $EventMgr = Get-View EventManager -Server $Server
     } #Begin
 
     PROCESS {
-        $Entity | ForEach-Object {
-            Write-Verbose "Processing inventory object $($_.Name)"
+        ForEach ($vCenter in $Server) {
+            $EventMgr = Get-View EventManager -Server $vCenter
 
-            # Add the entity details for the current loop of the Process block
-            $EventFilter.Entity.Entity = $_.ExtensionData.MoRef
-            $EventFilter.Entity.Recursion = &{
-                If ($_.ExtensionData.MoRef.Type -eq 'VirtualMachine') {'self'} Else {'all'}}
-            # Create the event collector, and collect 100 events at a time
-            $Collector = Get-View ($EventMgr).CreateCollectorForEvents($EventFilter) -Server $Server
-            $Buffer = $Collector.ReadNextEvents(100)
-            While ($Buffer) {
-                # Append the 100 results into the $Events array
-                If (($Buffer | Measure-Object).Count -gt 1) {
-                    # .AddRange if more than one event
-                    $Events.AddRange($Buffer) | Out-Null
-                } Else {
-                    # .Add if only one event; should never happen since gathering begin & end events
-                    $Events.Add($Buffer) | Out-Null
-                }
-                $Buffer = $Collector.ReadNextEvents(100)
+            # If an inventory item was not supplied, return datacenter object(s)
+            If ($Entity) {
+                $InventoryObjects = $Entity
+            } Else {
+                $InventoryObjects = Get-Datacenter -Server $vCenter
             }
-            # Destroy the collector after each entity to avoid running out of memory :)
-            $Collector.DestroyCollector()
-        } #ForEach
+
+            $InventoryObjects | ForEach-Object {
+                Write-Verbose "Processing inventory object $($_.Name)"
+
+                # Add the entity details for the current loop of the Process block
+                $EventFilter.Entity.Entity = $_.ExtensionData.MoRef
+                $EventFilter.Entity.Recursion = &{
+                    If ($_.ExtensionData.MoRef.Type -eq 'VirtualMachine') {'self'} Else {'all'}}
+                # Create the event collector, and collect 100 events at a time
+                $Collector = Get-View ($EventMgr).CreateCollectorForEvents($EventFilter) -Server $vCenter
+                $Buffer = $Collector.ReadNextEvents(100)
+                While ($Buffer) {
+                    # Append the 100 results into the $Events array
+                    If (($Buffer | Measure-Object).Count -gt 1) {
+                        # .AddRange if more than one event
+                        $Events.AddRange($Buffer) | Out-Null
+                    } Else {
+                        # .Add if only one event; should never happen since gathering begin & end events
+                        $Events.Add($Buffer) | Out-Null
+                    }
+                    $Buffer = $Collector.ReadNextEvents(100)
+                }
+                # Destroy the collector after each entity to avoid running out of memory :)
+                $Collector.DestroyCollector()
+            } #ForEach $Entity
+
+            $InventoryObjects = $null
+        } #ForEach $vCenter
     } #Process
 
     END {
@@ -160,7 +167,10 @@ https://github.com/brianbunke
 
         # Group together by ChainID; each vMotion has begin/end events
         ForEach ($vMotion in ($Events | Sort-Object CreatedTime | Group-Object ChainID)) {
-            If ($vMotion.Group.Count -eq 2) {
+            # Each vMotion should have start and finish events
+            # "% 2" correctly processes duplicate vMotion results
+            # (duplicate results can occur, for example, if you have duplicate vCenter connections open)
+            If ($vMotion.Group.Count % 2 -eq 0) {
                 # Mark the current vMotion as vMotion / Storage vMotion / Both
                 If ($vMotion.Group[0].Ds.Name -eq $vMotion.Group[0].DestDatastore.Name) {
                     $Type = 'vMotion'
