@@ -168,35 +168,35 @@ function Set-VMCPSettings {
     [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact="High")]
     param
     (
-        [Parameter(Mandatory=$false,
+        [Parameter(Mandatory=$true,
         ValueFromPipeline=$True,
         ValueFromPipelineByPropertyName=$True,
         HelpMessage='What is the Cluster Name?')]
-        $cluster= (Get-Cluster -Server $Server),
+        $cluster,
         
-        [Parameter(Mandatory=$True,
+        [Parameter(Mandatory=$False,
         ValueFromPipeline=$False,
-        HelpMessage='True=Enabled False=Disabled')]
-        [switch]$enableVMCP,
+        HelpMessage='$True=Enabled $False=Disabled')]
+        [bool]$enableVMCP,
 
-        [Parameter(Mandatory=$True,
+        [Parameter(Mandatory=$False,
         ValueFromPipeline=$False,
         HelpMessage='Actions that can be taken in response to a PDL event')]
         [ValidateSet("disabled","warning","restartAggressive")]
         [string]$VmStorageProtectionForPDL,
         
-        [Parameter(Mandatory=$True,
+        [Parameter(Mandatory=$False,
         ValueFromPipeline=$False,
         HelpMessage='Options available for an APD response')]
         [ValidateSet("disabled","restartConservative","restartAggressive","warning")]
         [string]$VmStorageProtectionForAPD,
         
-        [Parameter(Mandatory=$True,
+        [Parameter(Mandatory=$False,
         ValueFromPipeline=$False,
         HelpMessage='Value in seconds')]
         [Int]$VmTerminateDelayForAPDSec,
         
-        [Parameter(Mandatory=$True,
+        [Parameter(Mandatory=$False,
         ValueFromPipeline=$False,
         HelpMessage='This setting will instruct vSphere HA to take a certain action if an APD event is cleared')]
         [ValidateSet("reset","none")]
@@ -217,9 +217,18 @@ function Set-VMCPSettings {
             {
                 "string" {$CL = Get-Cluster $Clus -Server $Server -ErrorAction SilentlyContinue}
                 "ClusterImpl" {$CL = $Clus}
+                default {Throw 'Please provide a cluster name or object'}
             }
 
             If ($CL) {
+
+                # Get the actual configuration of the Cluster
+                $ActualSettings = Get-VMCPSettings -Cluster $CL -Server $Server
+
+                # Show actual settings in the verbose mode
+                Write-Verbose "[$($CL.Name)] Actual VMCP settings "
+                Write-Verbose $ActualSettings
+
                 # Create the object we will configure
                 $settings = New-Object VMware.Vim.ClusterConfigSpecEx
                 $settings.dasConfig = New-Object VMware.Vim.ClusterDasConfigInfo
@@ -237,49 +246,76 @@ function Set-VMCPSettings {
                 $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings = New-Object VMware.Vim.ClusterVmComponentProtectionSettings
 
                 #Storage Protection For PDL
-                $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForPDL = "$VmStorageProtectionForPDL"
+                If ($PSBoundParameters.ContainsKey('VmStorageProtectionForPDL')) {
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForPDL = $VmStorageProtectionForPDL
+                } else {
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForPDL = $ActualSettings.'Protection For PDL'
+                }
 
                 #Storage Protection for APD
-                switch ($VmStorageProtectionForAPD) {
-                    "disabled" {
-                        # If Disabled, there is no need to set the Timeout Value
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = 'disabled'
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.enableAPDTimeoutForHosts = $false
-                    }
-
-                    "restartConservative" {
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = 'restartConservative'
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.enableAPDTimeoutForHosts = $true
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmTerminateDelayForAPDSec = $VmTerminateDelayForAPDSec
-                    }
-
-                    "restartAggressive" {
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = 'restartAggressive'
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.enableAPDTimeoutForHosts = $true
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmTerminateDelayForAPDSec = $VmTerminateDelayForAPDSec
-                    }
-
-                    "warning" {
-                        # If Warning, there is no need to set the Timeout Value
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = 'warning'
-                        $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.enableAPDTimeoutForHosts = $false
-                    }
-
+                If ($PSBoundParameters.ContainsKey('VmStorageProtectionForAPD')) {
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = $VmStorageProtectionForAPD
+                } else {
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = $ActualSettings.'Protection For APD'
                 }
 
+                #Storage Protection for APD
+                If ($PSBoundParameters.ContainsKey('VmStorageProtectionForAPD')) {
+                    switch ($VmStorageProtectionForAPD) {
+                        "disabled" {
+                            # If Disabled, there is no need to set enable Timeout Value
+                            $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = 'disabled'
+                            $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.enableAPDTimeoutForHosts = $false
+                        }
+
+                        "restartConservative" {
+                            $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = 'restartConservative'
+                            $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.enableAPDTimeoutForHosts = $true
+                        }
+
+                        "restartAggressive" {
+                            $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = 'restartAggressive'
+                            $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.enableAPDTimeoutForHosts = $true
+                        }
+
+                        "warning" {
+                            # If Warning, there is no need to enable the Timeout Value
+                            $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = 'warning'
+                            $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.enableAPDTimeoutForHosts = $false
+                        }
+                    }
+                } else {
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmStorageProtectionForAPD = $ActualSettings.'Protection For APD'
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.enableAPDTimeoutForHosts = $ActualSettings.'APD Timeout Enabled'
+                }
+
+                #APD Timeout Enabled
+                If ($PSBoundParameters.ContainsKey('VmTerminateDelayForAPDSec')) {
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmTerminateDelayForAPDSec = $VmTerminateDelayForAPDSec
+                } else {
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmTerminateDelayForAPDSec = $ActualSettings.'APD Timeout (Seconds)'
+                }
+                
                 # Reaction On APD Cleared
-                $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmReactionOnAPDCleared = "$VmReactionOnAPDCleared"
+                If ($PSBoundParameters.ContainsKey('VmReactionOnAPDCleared')) {
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmReactionOnAPDCleared = "$VmReactionOnAPDCleared"
+                } else {
+                    $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmReactionOnAPDCleared = $ActualSettings.'Reaction on APD Cleared'
+                }
 
                 # Execute API Call
-                $modify = $true
-                $ClusterMod = Get-View -Id "ClusterComputeResource-$($CL.ExtensionData.MoRef.Value)" -Server $Server
-
                 If ($pscmdlet.ShouldProcess($CL.Name,"Modify VMCP configuration")) {
-                    $ClusterMod.ReconfigureComputeResource_Task($settings, $modify) | out-null
+                    $modify = $true
+                    $ClusterMod = Get-View -Id "ClusterComputeResource-$($CL.ExtensionData.MoRef.Value)" -Server $Server
+                    $Task = $ClusterMod.ReconfigureComputeResource_Task($settings, $modify)
                 }
 
-                # Show result
-                Get-VMCPSettings -Cluster $CL -Server $Server
+                # Wait for the reconfiguration task to finish to show the result
+                If ($Task) {
+                    $TaskID = "Task-" + $($Task.Value)
+                    Get-Task -Id $TaskID | Wait-Task | Out-Null
+                    Get-VMCPSettings -Cluster $CL -Server $Server
+                }
             }
         }
     }
