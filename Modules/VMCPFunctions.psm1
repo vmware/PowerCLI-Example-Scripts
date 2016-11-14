@@ -313,7 +313,7 @@ function Set-VMCPSettings {
                 # Wait for the reconfiguration task to finish to show the result
                 If ($Task) {
                     $TaskID = "Task-" + $($Task.Value)
-                    Get-Task -Id $TaskID | Wait-Task | Out-Null
+                    Get-Task -Id $TaskID -Server $Server | Wait-Task | Out-Null
                     Get-VMCPSettings -Cluster $CL -Server $Server
                 }
             }
