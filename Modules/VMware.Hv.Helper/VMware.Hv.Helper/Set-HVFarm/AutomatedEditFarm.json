@@ -1,6 +1,0 @@
-{
-	"data.description" : "update through edit farm function",
-	"data.displayName" : "LCFarmTestUpdated1",
-	"data.displayProtocolSettings.defaultDisplayProtocol" : "PCOIP",
-	"automatedFarmData.virtualCenterManagedCommonSettings.transparentPageSharingScope" : "FARM"
-}
