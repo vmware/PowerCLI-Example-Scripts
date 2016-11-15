@@ -1,0 +1,16 @@
+{
+    "Base":  {
+                 "Name" : "RdsJson",
+                 "DisplayName":  "TestRDSPS",
+                 "AccessGroup":  "Root",
+                 "Description":  "Testing PS"
+             },
+    "DesktopSettings":  null,
+    "Type":  "RDS",
+    "AutomatedDesktopSpec":  null,
+    "ManualDesktopSpec":  null,
+    "RdsDesktopSpec":  {
+                           "Farm":  "Farm2"
+                       },
+    "GlobalEntitlementData":  null
+}
