@@ -1,0 +1,80 @@
+{
+    "Type":  "AUTOMATED",
+    "Data":  {
+                 "Name":  "LCFarmTest",
+                 "DisplayName":  "Ankit LC Farm Test",
+                 "AccessGroup":  "Root",
+                 "Description":  "created LC Farm from PS",
+                 "Enabled":  null,
+                 "Deleting":  false,
+                 "Settings":  null,
+                 "Desktop":  null,
+                 "DisplayProtocolSettings":  null,
+                 "ServerErrorThreshold":  null,
+                 "MirageConfigurationOverrides":  null
+             },
+    "AutomatedFarmSpec":  {
+                              "ProvisioningType":  "VIEW_COMPOSER",
+                              "VirtualCenter":  null,
+                              "RdsServerNamingSpec":  {
+                                                          "NamingMethod":  "PATTERN",
+                                                          "PatternNamingSettings":  {
+                                                                                        "NamingPattern":  "LCFarmVM_PS",
+                                                                                        "MaxNumberOfRDSServers":  1
+                                                                                    }
+                                                      },
+                              "VirtualCenterProvisioningSettings":  {
+                                                                        "EnableProvisioning":  true,
+                                                                        "StopProvisioningOnError":  true,
+                                                                        "MinReadyVMsOnVComposerMaintenance":  0,
+                                                                        "VirtualCenterProvisioningData":  {
+                                                                                                              "ParentVm":  "Win_Server_2012_R2",
+                                                                                                              "Snapshot":  "Snap_RDS",
+                                                                                                              "Datacenter":  null,
+                                                                                                              "VmFolder":  "AnkitPoolVM",
+                                                                                                              "HostOrCluster":  "cls",
+                                                                                                              "ResourcePool":  "cls"
+                                                                                                          },
+                                                                        "VirtualCenterStorageSettings":  {
+                                                                                                             "Datastores":  [
+                                                                                                                                {
+                                                                                                                                    "Datastore":  "datastore1 (5)",
+                                                                                                                                    "StorageOvercommit":  "UNBOUNDED"
+                                                                                                                                }
+                                                                                                                            ],
+                                                                                                             "UseVSan":  false,
+                                                                                                             "ViewComposerStorageSettings":  {
+                                                                                                                                                 "UseSeparateDatastoresReplicaAndOSDisks":  false,
+                                                                                                                                                 "ReplicaDiskDatastore":  null,
+                                                                                                                                                 "UseNativeSnapshots":  false,
+                                                                                                                                                 "SpaceReclamationSettings":  {
+                                                                                                                                                                                  "ReclaimVmDiskSpace":  false,
+                                                                                                                                                                                  "ReclamationThresholdGB":  null,
+                                                                                                                                                                                  "BlackoutTimes":  null
+                                                                                                                                                                              }
+                                                                                                                                             }
+                                                                                                         },
+                                                                        "VirtualCenterNetworkingSettings":  {
+                                                                                                                "Nics":  null
+                                                                                                            }
+                                                                    },
+                              "VirtualCenterManagedCommonSettings":  {
+                                                                         "TransparentPageSharingScope":  "VM"
+                                                                     },
+                              "CustomizationSettings":  {
+                                                            "CustomizationType":  "SYS_PREP",
+                                                            "DomainAdministrator":  null,
+                                                            "AdContainer":  "CN=Computers",
+                                                            "ReusePreExistingAccounts":  false,
+                                                            "SysprepCustomizationSettings":  {
+                                                                                                 "CustomizationSpec":  "RDSH_Cust2"
+                                                                                             }
+                                                        },
+                              "RdsServerMaxSessionsData":  {
+                                                               "MaxSessionsType":  "UNLIMITED",
+                                                               "MaxSessions":  null
+                                                           }
+                          },
+    "ManualFarmSpec":  null,
+    "NetBiosName" : "adankit"
+}

@@ -1,0 +1,8 @@
+{
+	"base.description" : "update through edit pool",
+	"base.displayName" : "pooldisp",
+	"desktopSettings.displayProtocolSettings.defaultDisplayProtocol" : "BLAST",
+	"manualDesktopData.viewStorageAcceleratorSettings.useViewStorageAccelerator" :  true,
+	"manualDesktopData.viewStorageAcceleratorSettings.viewComposerDiskTypes" : "OS_DISKS",
+	"manualDesktopData.viewStorageAcceleratorSettings.regenerateViewStorageAcceleratorDays" : 8
+}
