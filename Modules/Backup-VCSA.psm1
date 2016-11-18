@@ -27,6 +27,7 @@
 
 	
 	.NOTES
+        Credit goes to @AlanRenouf for sharing the base of this function with me which I was able to take and make more robust as well as add in progress indicators
         You must be connected to the CisService for this to work, if you are not connected, the function will prompt you for your credentials
 		If a -LocationType is not chosen, the function will default to FTP.
         The destination location for a backup must be an empty folder (easiest to use the get-date cmdlet in the location)
