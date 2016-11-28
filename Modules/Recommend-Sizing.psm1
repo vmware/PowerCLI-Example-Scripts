@@ -8,6 +8,7 @@ function Recommend-Sizing {
     ===========================================================================
     Changelog:  
     2016.11 ver 1.0 Base Release 
+    2016.11 ver 1.1 Optional Stats Collection. 
     ===========================================================================
     External Code Sources:  
     http://www.lucd.info/2011/04/22/get-the-maximum-iops/
@@ -26,7 +27,7 @@ function Recommend-Sizing {
     This Function collects Basic vSphere Informations for a Hardware Sizing Recomamndation. Focus is in Compute Ressources.        
 
     .Example
-    Recommend-Sizing -ClusterNames Cluster01, Cluster02 -StatsRange 480 -Verbose    
+    Recommend-Sizing -ClusterNames Cluster01, Cluster02 -Stats -StatsRange 60 -Verbose    
 
     .Example
     Recommend-Sizing -ClusterNames Cluster01, Cluster02 
@@ -36,6 +37,11 @@ function Recommend-Sizing {
 
     .PARAMETER ClusterNames
     List of your vSphere Cluser Names to process.
+
+    .PARAMETER Stats
+    Enables Stats Collection.
+
+    Warning: At the moment this is only tested and supported with vSphere 5.5!
 
     .PARAMETER StatsRange
     Time Range in Minutes for the Stats Collection.
@@ -49,12 +55,18 @@ function Recommend-Sizing {
 param( 
     [Parameter(Mandatory=$True, ValueFromPipeline=$False, Position=0)]
         [Array] $ClusterNames,
-     [Parameter(Mandatory=$False, ValueFromPipeline=$False, Position=1)]
+    [Parameter(Mandatory=$False, ValueFromPipeline=$False, Position=2)]
+        [switch] $Stats,
+     [Parameter(Mandatory=$False, ValueFromPipeline=$False, Position=2)]
         [int] $StatsRange = 1440      
         
 )
 Begin {
-    [int]$TimeRange = "-" + $StatsRange
+     if ($Stats) {
+        Write-Warning "Stats Collection enabled.`nAt the moment this is only tested and supported with vSphere 5.5"
+        [int]$TimeRange = "-" + $StatsRange
+     }
+
     $Validate = $True
     #region: Check Clusters
     Write-Verbose "$(Get-Date -Format G) Starting Cluster Validation..." 
@@ -108,27 +120,32 @@ Process {
             Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) Memory Details completed" 
             #endregion
 
-            #region: Creating Disk Metrics
-            Write-Verbose "$(Get-Date -Format G) Create $($Cluster.name) IOPS Metrics..."
-            $DiskMetrics = "virtualDisk.numberReadAveraged.average","virtualDisk.numberWriteAveraged.average"
-            $start = (Get-Date).AddMinutes($TimeRange)
-            $DiskStats = Get-Stat -Stat $DiskMetrics -Entity $ClusterVMsPoweredOn -Start $start -Verbose:$False
-            Write-Verbose "$(Get-Date -Format G) Create $($Cluster.name) IOPS Metrics completed"
-            #endregion
-            
-            #region: Creating IOPS Reports
-            Write-Verbose "$(Get-Date -Format G) Process $($Cluster.name) IOPS Report..."
-            $reportDiskPerf = @() 
-            $reportDiskPerf = $DiskStats | Group-Object -Property {$_.Entity.Name},Instance | %{
-                New-Object PSObject -Property @{
-                    IOPSMax = ($_.Group | `
-                        Group-Object -Property Timestamp | `
-                        %{$_.Group[0].Value + $_.Group[1].Value} | `
-                        Measure-Object -Maximum).Maximum
+            if ($Stats) {
+                #region: Creating Disk Metrics
+                Write-Verbose "$(Get-Date -Format G) Create $($Cluster.name) IOPS Metrics..."
+                $DiskMetrics = "virtualDisk.numberReadAveraged.average","virtualDisk.numberWriteAveraged.average"
+                $start = (Get-Date).AddMinutes($TimeRange)
+                $DiskStats = Get-Stat -Stat $DiskMetrics -Entity $ClusterVMsPoweredOn -Start $start -Verbose:$False
+                Write-Verbose "$(Get-Date -Format G) Create $($Cluster.name) IOPS Metrics completed"
+                #endregion
+                
+                #region: Creating IOPS Reports
+                Write-Verbose "$(Get-Date -Format G) Process $($Cluster.name) IOPS Report..."
+                $reportDiskPerf = @() 
+                $reportDiskPerf = $DiskStats | Group-Object -Property {$_.Entity.Name},Instance | %{
+                    New-Object PSObject -Property @{
+                        IOPSMax = ($_.Group | `
+                            Group-Object -Property Timestamp | `
+                            %{$_.Group[0].Value + $_.Group[1].Value} | `
+                            Measure-Object -Maximum).Maximum
+                    }
                 }
+                Write-Verbose "$(Get-Date -Format G) Process $($Cluster.name) IOPS Report completed"
+                #endregion
             }
-            Write-Verbose "$(Get-Date -Format G) Process $($Cluster.name) IOPS Report completed"
-            #endregion
+            else {
+                Write-Verbose "$(Get-Date -Format G) Stats Cellocetion skipped..."
+            }
 
             #region: Create VM Disk Space Report
             Write-Verbose "$(Get-Date -Format G) Process $($Cluster.name) VM Disk Space Report..."
@@ -174,11 +191,11 @@ Process {
                 PhysicalMemoryGB = $PhysicalMemory
                 AllocatedVMMemoryGB = $AllocatedVMMemoryGB        
 				ClusterMemoryUsage = "$MemoryUsage %"
-                SumMaxVMIOPS = [math]::round( ($reportDiskPerf | Measure-Object -Sum -Property IOPSMax).sum, 1 )
-                AverageMaxVMIOPs = [math]::round( ($reportDiskPerf | Measure-Object -Average -Property IOPSMax).Average,1 )
                 SumVMDiskSpaceGB = [math]::round( ($reportDiskSpace | Measure-Object -Sum -Property CapacityGB).sum, 1 )
                 SumDatastoreSpaceGB = [math]::round( ($DatastoreReport | Measure-Object -Sum -Property CapacityGB).sum, 1 )
                 SumDatastoreUsedSpaceGB = [math]::round( ($DatastoreReport | Measure-Object -Sum -Property UsedSpaceGB).sum, 1 )
+                SumMaxVMIOPS = [math]::round( ($reportDiskPerf | Measure-Object -Sum -Property IOPSMax).sum, 1 )
+                AverageMaxVMIOPs = [math]::round( ($reportDiskPerf | Measure-Object -Average -Property IOPSMax).Average,1 )
 			}
 		    $MyView += $SizingReport
             Write-Verbose "$(Get-Date -Format G) Process Global Report completed"
