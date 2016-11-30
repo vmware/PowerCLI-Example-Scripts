@@ -1,0 +1,24 @@
+{
+    "Type":  "MANUAL",
+    "Data":  {
+                 "Name":  "manualFarmTest",
+                 "DisplayName":  "manualFarmTest",
+                 "AccessGroup":  "Root",
+                 "Description":  "Manual PS Test",
+                 "Enabled":  null,
+                 "Deleting":  false,
+                 "Settings":  null,
+                 "Desktop":  null,
+                 "DisplayProtocolSettings":  null,
+                 "ServerErrorThreshold":  null,
+                 "MirageConfigurationOverrides":  null
+             },
+    "AutomatedFarmSpec":  null,
+    "ManualFarmSpec":  {
+                           "RdsServers":  [
+                                              {
+                                                  "rdsServer": "WIN-ORKA1Q8B0P7"
+                                              }
+                                          ]
+                       }
+}
