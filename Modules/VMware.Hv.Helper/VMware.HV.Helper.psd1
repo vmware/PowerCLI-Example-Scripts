@@ -60,7 +60,7 @@ RequiredModules = @('VMware.VimAutomation.HorizonView')
 # TypesToProcess = @()
 
 # Format files (.ps1xml) to be loaded when importing this module
-# FormatsToProcess = @()
+FormatsToProcess = @('VMware.HV.Helper.format.ps1xml')
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @('VMware.HV.Helper.psm1')
