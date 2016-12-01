@@ -1,6 +1,3 @@
-﻿Connect-VIServer vc-l-01a.corp.local -User administrator@vsphere.local -Password VMware1!
-Connect-OMServer vrops.corp1.local -User admin -Password VMware1!
-
 function Enable-OMMaintenance {
       <#	
 	    .NOTES
@@ -96,21 +93,21 @@ function Disable-OMMaintenance {
       }
 }
 
-Write-Host "Enable a single host as being in maintenance mode for 1 minute"
-Enable-OMMaintenance -Resource ESX-01a* -MaintenanceTime 1
+#Write-Host "Enable a single host as being in maintenance mode for 1 minute"
+#Enable-OMMaintenance -Resource ESX-01a* -MaintenanceTime 1
 
-Write-Host "List All Host Resources and their state"
-Get-OMResource ESX-* | Select Name, State | FT
+#Write-Host "List All Host Resources and their state"
+#Get-OMResource ESX-* | Select Name, State | FT
 
-Write-Host "Set All VMs with a name as backup as being in maintenance mode for 20 minutes"
-Get-VM backup* | Enable-OMMaintenance -MaintenanceTime 20
+#Write-Host "Set All VMs with a name as backup as being in maintenance mode for 20 minutes"
+#Get-VM backup* | Enable-OMMaintenance -MaintenanceTime 20
 
-Write-Host "List All Backup VM Resources and their state"
-Get-VM backup* | Get-OMResource | Select Name, State | FT
+#Write-Host "List All Backup VM Resources and their state"
+#Get-VM backup* | Get-OMResource | Select Name, State | FT
 
-Write-Host "Disable maintenance mode for all VMs with a name as backup as we have completed our scheduled work"
-Get-VM backup* | Disable-OMMaintenance
+#Write-Host "Disable maintenance mode for all VMs with a name as backup as we have completed our scheduled work"
+#Get-VM backup* | Disable-OMMaintenance
 
-Write-Host "List All VM Resources and their state"
-Get-VM backup* | Get-OMResource | Select Name, State | FT
+#Write-Host "List All VM Resources and their state"
+#Get-VM backup* | Get-OMResource | Select Name, State | FT
 

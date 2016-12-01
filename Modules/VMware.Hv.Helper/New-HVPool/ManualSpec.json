@@ -1,0 +1,35 @@
+{
+    "Base":  {
+                 "Name" : "MnlJson",
+                 "DisplayName":  "MNLPUL",
+                 "AccessGroup":  "ROOT",
+                 "Description":  "Manual pool creation"
+             },
+    "DesktopSettings":  null,
+    "Type":  "MANUAL",
+    "AutomatedDesktopSpec":  null,
+    "ManualDesktopSpec":  {
+                              "UserAssignment":  {
+                                                     "UserAssignment":  "FLOATING",
+                                                     "AutomaticAssignment":  true
+                                                 },
+                              "Source":  "VIRTUAL_CENTER",
+                              "Machines":  [
+                                               {
+                                                  "Machine" : "PowerCLI-VM"
+                                               }
+                                           ],
+                              "VirtualCenter":  null,
+                              "ViewStorageAcceleratorSettings":  {
+                                                                     "UseViewStorageAccelerator":  false,
+                                                                     "ViewComposerDiskTypes":  null,
+                                                                     "RegenerateViewStorageAcceleratorDays":  null,
+                                                                     "BlackoutTimes":  null
+                                                                 },
+                              "VirtualCenterManagedCommonSettings":  {
+                                                                         "TransparentPageSharingScope":  "VM"
+                                                                     }
+                          },
+    "RdsDesktopSpec":  null,
+    "GlobalEntitlementData":  null
+}
