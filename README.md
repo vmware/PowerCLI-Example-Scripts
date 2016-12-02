@@ -189,4 +189,4 @@ Members:
 * Rynardt Spies (Community Member)
 
 ## Approval of Additions
-Items added to the repository, including items from the Board members, require 2 votes from the board members before being added to the repository. The approving members will have ideally downloaded and tested the item. When two “Approved for Merge” comments are added from board members, the pull can then be committed to the repository.
+Items added to the repository, including items from the Board members, require a review and approval from at least one board member before being added to the repository. The approving member/s will have verified for a lack of malicious code. Once an “Approved for Merge” comment has been added from a board member, the pull can then be committed to the repository.
