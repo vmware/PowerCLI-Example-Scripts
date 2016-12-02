@@ -1356,7 +1356,7 @@ function Get-HVPoolSummary {
 function Find-HVPool {
   [CmdletBinding()]
   param(
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $true)]
     $Param
   )
 
