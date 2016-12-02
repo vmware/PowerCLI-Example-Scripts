@@ -21,8 +21,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
-function Get_New_Object {
+function Get-HVObject {
   param(
     [Parameter(Mandatory = $true)]
     [string]$TypeName,
@@ -34,7 +33,7 @@ function Get_New_Object {
   return New-Object $objStr -Property $propertyName
 }
 
-function Get_ViewAPI_Service {
+function Get-ViewAPIService {
   param(
     [Parameter(Mandatory = $false)]
     $HvServer
@@ -57,7 +56,7 @@ function Get_ViewAPI_Service {
   return $null
 }
 
-function Get_Vcenter_ID {
+function Get-VcenterID {
   param(
     [Parameter(Mandatory = $true)]
     $Services,
@@ -86,7 +85,7 @@ function Get_Vcenter_ID {
   return $virtualCenterId
 }
 
-function Get_Json_Object {
+function Get-JsonObject {
   param(
     [Parameter(Mandatory = $true)]
     [string]$SpecFile
@@ -98,7 +97,7 @@ function Get_Json_Object {
   }
 }
 
-function Get_MapEntry {
+function Get-MapEntry {
   param(
     [Parameter(Mandatory = $true)]
     $Key,
@@ -113,7 +112,7 @@ function Get_MapEntry {
   return $update
 }
 
-function Get-RegisteredPhysicalMachines ($Services,$MachinesList) {
+function Get-RegisteredPhysicalMachine ($Services,$MachinesList) {
   [VMware.Hv.MachineId[]]$machines = $null
   $query_service_helper = New-Object VMware.Hv.QueryServiceService
   foreach ($machineName in $machinesList) {
@@ -132,7 +131,7 @@ function Get-RegisteredPhysicalMachines ($Services,$MachinesList) {
   return $machines
 }
 
-function Get-RegisteredRDSServers ($Services,$ServerList) {
+function Get-RegisteredRDSServer ($Services,$ServerList) {
   [VMware.Hv.RDSServerId[]]$servers = $null
   $query_service_helper = New-Object VMware.Hv.QueryServiceService
   foreach ($serverName in $serverList) {
@@ -153,6 +152,7 @@ function Get-RegisteredRDSServers ($Services,$ServerList) {
   }
   return $servers
 }
+
 function Add-HVDesktop {
 <#
 .SYNOPSIS
@@ -231,7 +231,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
   )
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -240,7 +240,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
 
   process {
     try {
-      $desktopPool = Get-HVPool -poolName $poolName -hvServer $hvServer
+      $desktopPool = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
     } catch {
       Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
       break
@@ -270,7 +270,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
           $specifiedNames.vmName = $machine
           if ($userAssignment -eq $user_assignement_helper.USER_ASSIGNMENT_DEDICATED -and $users) {
             try {
-              $specifiedNames.user = Get_UserId -user $users[$cnt]
+              $specifiedNames.user = Get-UserId -user $users[$cnt]
             } catch {
               Write-Error "Unable to retrieve UserOrGroupId for user: [$users[$cnt]], $_"
               return
@@ -283,13 +283,13 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
       }
       'MANUAL' {
         if ($source -eq 'UNMANAGED') {
-          $machineList = Get-RegisteredPhysicalMachines -services $services -machinesList $machines
+          $machineList = Get-RegisteredPhysicalMachine -services $services -machinesList $machines
           if ($machineList.Length -eq 0) {
             Write-Error "Failed to retrieve registerd physical machines with the given machines parameter"
             return
           }
         } else {
-		  $vcId = Get_Vcenter_ID -services $services -vCenter $vCenter
+		  $vcId = Get-VcenterID -services $services -vCenter $vCenter
           $machineList = Get-MachinesByVCenter -machineList $machines -vcId $vcId
           if ($machineList.Length -eq 0) {
             Write-Error "Failed to get any Virtual Center machines with the given machines parameter"
@@ -310,7 +310,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
   }
 }
 
-function Get_UserId ($User) {
+function Get-UserId ($User) {
 
   $defn = New-Object VMware.Hv.QueryDefinition
   $defn.queryEntityType = 'ADUserOrGroupSummaryView'
@@ -399,7 +399,7 @@ function Add-HVRDSServer {
   )
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -408,7 +408,7 @@ function Add-HVRDSServer {
 
   process {
     try {
-      $farmSpecObj = Get-HVFarm -farmName $farmName -hvServer $hvServer
+      $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
     } catch {
       Write-Error "Make sure Get-HVFarm advanced function is loaded, $_"
       break
@@ -429,7 +429,7 @@ function Add-HVRDSServer {
       }
       'MANUAL' {
         try {
-          $serverList = Get-RegisteredRDSServers -services $services -serverList $rdsServers
+          $serverList = Get-RegisteredRDSServer -services $services -serverList $rdsServers
           $farm_service_helper.Farm_AddRDSServers($services, $id, $serverList)
         } catch {
           Write-Error "Failed to Add RDS Server to Farm with error: $_"
@@ -507,7 +507,7 @@ function Connect-HVEvent {
 
   begin {
     # Connect to Connection Server and call the View API service
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -864,7 +864,7 @@ function Get-HVEvent {
     $adapter.SelectCommand = $command
 
     $DataTable = New-Object System.Data.DataTable
-    $adapter.Fill($DataTable)
+    $adapter.Fill($DataTable) | Out-Null
 
     Write-Host "Number of records found : " $DataTable.Rows.Count
 
@@ -874,7 +874,6 @@ function Get-HVEvent {
       Foreach($row in $DataTable.Rows) {
         Write-Host $row[0]  "   "  $row[1]  " "  $row[2]  " "  $row[3]  " "  $row[4]  " "
       }#>
-
     return New-Object pscustomobject -Property @{ Events = $DataTable; }
   }
 
@@ -924,7 +923,7 @@ function Get-HVFarm {
      Get-HVFarm -FarmName 'Farm-01' -FarmType 'MANUAL' -Enabled $true
 
 .EXAMPLE
-     Get-HVFarm -FarmName 'Farm-01' -Full
+     Get-HVFarm -FarmName 'Farm-01'
 
 .OUTPUTs
     Returns the list of FarmSummaryView or FarmInfo object matching the query criteria.
@@ -964,19 +963,121 @@ function Get-HVFarm {
     $Enabled,
 
     [Parameter(Mandatory = $false)]
-    [switch]
-    $Full,
+    $HvServer = $null
+  )
+
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+  $farmList = Find-HVFarm -Param $PSBoundParameters
+  $farm_service_helper = New-Object VMware.Hv.FarmService
+  $queryResults = @()
+  foreach ($id in $farmList.id) {
+    $info = $farm_service_helper.Farm_Get($services,$id)
+    $queryResults += $info
+  }
+  $farmList = $queryResults
+  return $farmList
+}
+
+function Get-HVFarmSummary {
+<#
+.SYNOPSIS
+    This function is used to find farms based on the search criteria provided by the user.
+
+.DESCRIPTION
+    This function queries the specified Connection Server for farms which are configured on the server. If no farm is configured on the specified connection server or no farm matches the given search criteria, it will return null.
+
+.PARAMETER FarmName
+    farmName to be searched
+
+.PARAMETER FarmDisplayName
+    farmDisplayName to be searched
+
+.PARAMETER FarmType
+    farmType to be searched. It can take following values:
+    "AUTOMATED"	- search for automated farms only
+    'MANUAL' - search for manual farms only
+
+.PARAMETER Enabled
+    search for farms which are enabled
+
+.PARAMETER HvServer
+    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
+
+.EXAMPLE
+     Get-HVFarm -FarmName 'Farm-01'
+
+.EXAMPLE
+     Get-HVFarm -FarmName 'Farm-01' -FarmDisplayName 'Sales RDS Farm'
+
+.EXAMPLE
+     Get-HVFarm -FarmName 'Farm-01' -FarmType 'MANUAL'
+
+.EXAMPLE
+     Get-HVFarm -FarmName 'Farm-01' -FarmType 'MANUAL' -Enabled $true
+
+.EXAMPLE
+     Get-HVFarm -FarmName 'Farm-01'
+
+.OUTPUTs
+    Returns the list of FarmSummaryView or FarmInfo object matching the query criteria.
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    [string]
+    $FarmName,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $FarmDisplayName,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('MANUAL','AUTOMATED')]
+    [string]
+    $FarmType,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $Enabled,
 
     [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
 
-  $services = Get_ViewAPI_Service -hvServer $hvServer
+  $services = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
   }
+  $farmList = Find-HVFarm -Param $PSBoundParameters
+  return $farmList
+}
 
+function Find-HVFarm {
+   [CmdletBinding()]
+   param(
+    [Parameter(Mandatory = $true)]
+    $Param
+  )
   #
   # This translates the function arguments into the View API properties that must be queried
   $farmSelectors = @{
@@ -986,7 +1087,7 @@ function Get-HVFarm {
     'farmType' = 'data.type';
   }
 
-  $parms = $psboundparameters
+  $parms = $Param
 
   $query_service_helper = New-Object VMware.Hv.QueryServiceService
   $query = New-Object VMware.Hv.QueryDefinition
@@ -1011,16 +1112,8 @@ function Get-HVFarm {
 
   $queryResults = $query_service_helper.QueryService_Query($services, $query)
   $farmList = $queryResults.results
-  if ($full) {
-    $farm_service_helper = New-Object VMware.Hv.FarmService
-    $queryResults = @()
-    foreach ($id in $farmList.id) {
-      $info = $farm_service_helper.Farm_Get($services,$id)
-      $queryResults += $info
-    }
-    $farmList = $queryResults
-  }
-  return $farmList
+  
+  Return $farmList
 }
 
 function Get-HVPool {
@@ -1063,10 +1156,6 @@ function Get-HVPool {
    If the value is true then only pools which are enabled would be returned.
    If the value is false then only pools which are disabled would be returned.
 
-.PARAMETER Full
-   Switch to get full information about the pool.
-   Use this switch only when you require complete information about pool.
-
 .PARAMETER HvServer
     Reference to Horizon View Server to query the pools from. If the value is not passed or null then
     first element from global:DefaultHVServers would be considered inplace of hvServer
@@ -1075,7 +1164,7 @@ function Get-HVPool {
    Get-HVPool -PoolName 'mypool' -PoolType MANUAL -UserAssignment FLOATING -Enabled $true -ProvisioningEnabled $true
 
 .EXAMPLE
-   Get-HVPool -PoolType AUTOMATED -UserAssignment FLOATING -full
+   Get-HVPool -PoolType AUTOMATED -UserAssignment FLOATING
 
 .EXAMPLE
    Get-HVPool -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false
@@ -1084,8 +1173,7 @@ function Get-HVPool {
    Get-HVPool -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false -HvServer $mycs
 
 .OUTPUTS
-  If switch -Full is used then returns list of DesktopSummaryView
-  else returns list of objects of type Desktop
+   Returns list of objects of type Desktop
 
 .NOTES
     Author                      : Praveen Mathamsetty.
@@ -1131,20 +1219,147 @@ function Get-HVPool {
     $ProvisioningEnabled,
 
     [Parameter(Mandatory = $false)]
-    [switch]
-    $Full,
+    $HvServer = $null
+  )
+
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+  $poolList = Find-HVPool -Param $PSBoundParameters
+  $queryResults = @()
+  $desktop_helper = New-Object VMware.Hv.DesktopService
+  foreach ($id in $poolList.id) {
+    $info = $desktop_helper.Desktop_Get($services,$id)
+    $queryResults += $info
+  }
+  $poolList = $queryResults
+  return $poolList
+}
+
+function Get-HVPoolSummary {
+<#
+.Synopsis
+   Gets pool summary with given search parameters.
+
+.DESCRIPTION
+   Queries and returns pools information, the pools list would be determined based on
+   queryable fields poolName, poolDisplayName, poolType, userAssignment, enabled,
+   provisioningEnabled. When more than one fields are used for query the pools which
+   satisfy all fields criteria would be returned.
+
+.PARAMETER PoolName
+   Pool name to query for.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the pools which has name same as value will be returned.
+
+.PARAMETER PoolDisplayName
+   Pool display name to query for.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the pools which has display name same as value will be returned.
+
+.PARAMETER PoolType
+   Pool type to filter with.
+   If the value is null or not provided then filter will not be applied.
+   If the value is MANUAL then only manual pools would be returned.
+   If the value is AUTOMATED then only automated pools would be returned
+   If the value is RDS then only Remote Desktop Service Pool pools would be returned
+
+.PARAMETER UserAssignment
+   User Assignment of pool to filter with.
+   If the value is null or not provided then filter will not be applied.
+   If the value is DEDICATED then only dedicated pools would be returned.
+   If the value is FLOATING then only floating pools would be returned
+
+.PARAMETER Enabled
+   Pool enablement to filter with.
+   If the value is not provided then then filter will not be applied.
+   If the value is true then only pools which are enabled would be returned.
+   If the value is false then only pools which are disabled would be returned.
+
+.PARAMETER HvServer
+    Reference to Horizon View Server to query the pools from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Get-HVPoolSummary -PoolName 'mypool' -PoolType MANUAL -UserAssignment FLOATING -Enabled $true -ProvisioningEnabled $true
+
+.EXAMPLE
+   Get-HVPoolSummary -PoolType AUTOMATED -UserAssignment FLOATING
+
+.EXAMPLE
+   Get-HVPoolSummary -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false
+
+.EXAMPLE
+   Get-HVPoolSummary -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false -HvServer $mycs
+
+.OUTPUTS
+   Returns list of DesktopSummaryView
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    [string]
+    $PoolName,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $PoolDisplayName,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('MANUAL','AUTOMATED','RDS')]
+    [string]
+    $PoolType,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('FLOATING','DEDICATED')]
+    [string]
+    $UserAssignment,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $Enabled,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $ProvisioningEnabled,
 
     [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
 
-  $services = Get_ViewAPI_Service -hvServer $hvServer
+  $services = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
   }
+  $poolList = Find-HVPool -Param $psboundparameters
+  Return $poolList
+}
 
-  #
+function Find-HVPool {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    $Param
+  )
+
   # This translates the function arguments into the View API properties that must be queried
   $poolSelectors = @{
     'poolName' = 'desktopSummaryData.name';
@@ -1155,7 +1370,7 @@ function Get-HVPool {
     'provisioningEnabled' = 'desktopSummaryData.provisioningEnabled'
   }
 
-  $parms = $psboundparameters
+  $parms = $Param
 
   $query_service_helper = New-Object VMware.Hv.QueryServiceService
   $query = New-Object VMware.Hv.QueryDefinition
@@ -1205,17 +1420,9 @@ function Get-HVPool {
     $scriptBlock = [Scriptblock]::Create($whereClause)
     $poolList = $queryResults.results | where $scriptBlock
   }
-  if ($full) {
-    $queryResults = @()
-    $desktop_helper = New-Object VMware.Hv.DesktopService
-    foreach ($id in $poolList.id) {
-      $info = $desktop_helper.Desktop_Get($services,$id)
-      $queryResults += $info
-    }
-    $poolList = $queryResults
-  }
-  return $poolList
+  Return $poolList
 }
+
 
 function Get-HVQueryFilter {
 <#
@@ -1359,7 +1566,7 @@ function Get-HVQueryFilter {
     }
   }
   process {
-    $queryFilter = Get_New_Object -typeName $switchToClassName[$PsCmdlet.ParameterSetName]
+    $queryFilter = Get-HVObject -typeName $switchToClassName[$PsCmdlet.ParameterSetName]
 
     switch ($PsCmdlet.ParameterSetName) {
 
@@ -1473,7 +1680,7 @@ function Get-HVQueryResult {
   )
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
 
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
@@ -1831,7 +2038,7 @@ function New-HVFarm {
   #
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -1855,7 +2062,7 @@ function New-HVFarm {
     $farm_service_helper = New-Object VMware.Hv.FarmService
     if ($spec) {
       try {
-        $jsonObject = Get_Json_Object -specFile $spec
+        $jsonObject = Get-JsonObject -specFile $spec
       } catch {
         Write-Error "Json file exception, $_"
         break
@@ -1911,7 +2118,7 @@ function New-HVFarm {
       $farmType = 'MANUAL'
     }
 
-    $script:farmSpecObj = Get_Farm_Spec -farmType $farmType -provisioningType $provisioningType -namingMethod $namingMethod
+    $script:farmSpecObj = Get-FarmSpec -farmType $farmType -provisioningType $provisioningType -namingMethod $namingMethod
 
     #
     # build out the infrastructure based on type of provisioning
@@ -1921,7 +2128,7 @@ function New-HVFarm {
 
       'MANUAL' {
         try {
-          $serverList = Get-RegisteredRDSServers -services $services -serverList $rdsServers
+          $serverList = Get-RegisteredRDSServer -services $services -serverList $rdsServers
           $farmSpecObj.ManualFarmSpec.RdsServers = $serverList
         } catch {
           $handleException = $true
@@ -1941,7 +2148,7 @@ function New-HVFarm {
         #
 
         if (!$virtualCenterID) {
-          $virtualCenterID = Get_Vcenter_ID -services $services -vCenter $vCenter
+          $virtualCenterID = Get-VcenterID -services $services -vCenter $vCenter
         }
 
         if ($null -eq $virtualCenterID) {
@@ -1977,11 +2184,11 @@ function New-HVFarm {
         # build the VM LIST
         #
         try {
-          $farmVirtualCenterProvisioningData = Build_VM_List_Farm -vc $virtualCenterID -vmObject $farmVirtualCenterProvisioningData
+          $farmVirtualCenterProvisioningData = Get-HVFarmProvisioningData -vc $virtualCenterID -vmObject $farmVirtualCenterProvisioningData
           $hostClusterId = $farmVirtualCenterProvisioningData.HostOrCluster
-          $farmVirtualCenterStorageSettings = Build_Datastore_List_Farm -hostclusterID $hostClusterId -storageObject $farmVirtualCenterStorageSettings
-          $farmVirtualCenterNetworkingSettings = Build_Network_List_Farm -networkObject $farmVirtualCenterNetworkingSettings
-          $farmCustomizationSettings = Build_Customization_Settings_Farm -vc $virtualCenterID -customObject $farmCustomizationSettings
+          $farmVirtualCenterStorageSettings = Get-HVFarmStorageObject -hostclusterID $hostClusterId -storageObject $farmVirtualCenterStorageSettings
+          $farmVirtualCenterNetworkingSettings = Get-HVFarmNetworkSetting -networkObject $farmVirtualCenterNetworkingSettings
+          $farmCustomizationSettings = Get-HVFarmCustomizationSetting -vc $virtualCenterID -customObject $farmCustomizationSettings
         } catch {
           $handleException = $true
           Write-Error "Failed to create Farm with error: $_"
@@ -2051,7 +2258,7 @@ $myDebug | out-file -filepath c:\temp\copiedfarm.json
 
 }
 
-function Build_VM_List_Farm {
+function Get-HVFarmProvisioningData {
   param(
     [Parameter(Mandatory = $false)]
     [VMware.Hv.FarmVirtualCenterProvisioningData]$VmObject,
@@ -2123,7 +2330,7 @@ function Build_VM_List_Farm {
   return $vmObject
 }
 
-function Build_Datastore_List_Farm {
+function Get-HVFarmStorageObject {
   param(
     [Parameter(Mandatory = $false)]
     [VMware.Hv.FarmVirtualCenterStorageSettings]$StorageObject,
@@ -2167,7 +2374,7 @@ function Build_Datastore_List_Farm {
   return $storageObject
 }
 
-function Build_Network_List_Farm {
+function Get-HVFarmNetworkSetting {
   param(
     [Parameter(Mandatory = $false)]
     [VMware.Hv.FarmVirtualCenterNetworkingSettings]$NetworkObject
@@ -2178,7 +2385,7 @@ function Build_Network_List_Farm {
   return $networkObject
 }
 
-function Build_Customization_Settings_Farm {
+function Get-HVFarmCustomizationSetting {
   param(
     [Parameter(Mandatory = $false)]
     [VMware.Hv.FarmCustomizationSettings]$CustomObject,
@@ -2188,7 +2395,7 @@ function Build_Customization_Settings_Farm {
   )
   if (!$customObject) {
     $ViewComposerDomainAdministrator_service_helper = New-Object VMware.Hv.ViewComposerDomainAdministratorService
-    $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministrator_service_helper.ViewComposerDomainAdministrator_List($services, $vcID) | Where-Object { $_.base.domain -cmatch $netBiosName })
+    $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministrator_service_helper.ViewComposerDomainAdministrator_List($services, $vcID) | Where-Object { $_.base.domain -match $netBiosName })
     if (! [string]::IsNullOrWhitespace($domainAdmin)) {
       $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministratorID | Where-Object { $_.base.userName -ieq $domainAdmin }).id
     } else {
@@ -2229,7 +2436,7 @@ function Build_Customization_Settings_Farm {
   return $customObject
 }
 
-function Get_Farm_Spec {
+function Get-FarmSpec {
   param(
     [Parameter(Mandatory = $true)]
     [string]$FarmType,
@@ -2842,7 +3049,7 @@ function New-HVPool {
   #
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -2853,7 +3060,7 @@ function New-HVPool {
 
     if ($poolName) {
       try {
-        $sourcePool = Get-HVPool -poolName $poolName -hvServer $hvServer
+        $sourcePool = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
       } catch {
         Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
         break
@@ -2866,7 +3073,7 @@ function New-HVPool {
 
     if ($spec) {
       try {
-        $jsonObject = Get_Json_Object -specFile $spec
+        $jsonObject = Get-JsonObject -specFile $spec
       } catch {
         Write-Error "Json file exception, $_"
         break
@@ -2948,9 +3155,9 @@ function New-HVPool {
     if ($PSCmdlet.MyInvocation.ExpectingInput -or $clonePool) {
 
       if ($clonePool -and ($clonePool.GetType().name -eq 'DesktopSummaryView')) {
-        $clonePool = Get-HVPool -poolName $clonePool.desktopsummarydata.name -Full
-      } else {
-        Write-Error "In pipeline did not get object of expected type DesktopSummaryView"
+        $clonePool = Get-HVPool -poolName $clonePool.desktopsummarydata.name
+      } elseif (!($clonePool -and ($clonePool.GetType().name -eq 'DesktopInfo'))) {
+        Write-Error "In pipeline did not get object of expected type DesktopSummaryView/DesktopInfo"
         return
       }
       $poolType = $clonePool.type
@@ -2991,7 +3198,7 @@ function New-HVPool {
       elseif ($RDS) { $poolType = 'RDS' }
 
     }
-    $script:desktopSpecObj = Get_Desktop_Spec -poolType $poolType -provisioningType $provisioningType -namingMethod $namingMethod
+    $script:desktopSpecObj = Get-HVDesktopSpec -poolType $poolType -provisioningType $provisioningType -namingMethod $namingMethod
 
     #
     # accumulate properties that are shared among various type
@@ -3007,7 +3214,7 @@ function New-HVPool {
       if (! (($poolType -eq 'MANUAL') -and ($source  -eq 'UNMANAGED'))) {
 
           if (!$virtualCenterID) {
-            $virtualCenterID = Get_Vcenter_ID -services $services -vCenter $vCenter
+            $virtualCenterID = Get-VcenterID -services $services -vCenter $vCenter
           }
           if ($null -eq $virtualCenterID) {
             $handleException = $true
@@ -3079,7 +3286,7 @@ function New-HVPool {
           $desktopSpecObj.ManualDesktopSpec.VirtualCenter = $virtualCenterID
         } else {
           # Get Physical Regstered VMs
-          $machineList = Get-RegisteredPhysicalMachines -services $services -machinesList $VM
+          $machineList = Get-RegisteredPhysicalMachine -services $services -machinesList $VM
         }
         $desktopSpecObj.ManualDesktopSpec.Machines = $machineList
       }
@@ -3123,11 +3330,11 @@ function New-HVPool {
         #
         $handleException = $false
         try {
-          $desktopVirtualCenterProvisioningData = Build_VM_List -vc $virtualCenterID -vmObject $desktopVirtualCenterProvisioningData
+          $desktopVirtualCenterProvisioningData = Get-HVPoolProvisioningData -vc $virtualCenterID -vmObject $desktopVirtualCenterProvisioningData
           $hostClusterId = $desktopVirtualCenterProvisioningData.HostOrCluster
-          $desktopVirtualCenterStorageSettings = Build_Datastore_List -hostclusterID $hostClusterId -storageObject $desktopVirtualCenterStorageSettings
-          $DesktopVirtualCenterNetworkingSettings = Build_Network_List -networkObject $DesktopVirtualCenterNetworkingSettings
-          $desktopCustomizationSettings = Build_Customization_Settings -vc $virtualCenterID -customObject $desktopCustomizationSettings
+          $desktopVirtualCenterStorageSettings = Get-HVPoolStorageObject -hostclusterID $hostClusterId -storageObject $desktopVirtualCenterStorageSettings
+          $DesktopVirtualCenterNetworkingSettings = Get-HVPoolNetworkSetting -networkObject $DesktopVirtualCenterNetworkingSettings
+          $desktopCustomizationSettings = Get-HVPoolCustomizationSetting -vc $virtualCenterID -customObject $desktopCustomizationSettings
         } catch {
           $handleException = $true
           Write-Error "Failed to create Pool with error: $_"
@@ -3203,7 +3410,7 @@ function New-HVPool {
 
 }
 
-function Build_VM_List {
+function Get-HVPoolProvisioningData {
   param(
     [Parameter(Mandatory = $false)]
     [VMware.Hv.DesktopVirtualCenterProvisioningData]$VmObject,
@@ -3284,7 +3491,7 @@ function Build_VM_List {
   return $vmObject
 }
 
-function Build_Datastore_List {
+function Get-HVPoolStorageObject {
   param(
     [Parameter(Mandatory = $false)]
     [VMware.Hv.DesktopVirtualCenterStorageSettings]$StorageObject,
@@ -3335,7 +3542,7 @@ function Build_Datastore_List {
   return $storageObject
 }
 
-function Build_Network_List {
+function Get-HVPoolNetworkSetting {
   param(
     [Parameter(Mandatory = $false)]
     [VMware.Hv.DesktopVirtualCenterNetworkingSettings]$NetworkObject
@@ -3346,7 +3553,7 @@ function Build_Network_List {
   return $networkObject
 }
 
-function Build_Customization_Settings {
+function Get-HVPoolCustomizationSetting {
   param(
     [Parameter(Mandatory = $false)]
     [VMware.Hv.DesktopCustomizationSettings]$CustomObject,
@@ -3381,7 +3588,7 @@ function Build_Customization_Settings {
       if ($null -eq $instantCloneEngineDomainAdministrator) {
         throw "No Instant Clone Engine Domain Administrator found with netBiosName: [$netBiosName]"
       }
-      $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings = Get_CustomizationSettings_Objects
+      $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings = Get-CustomizationObject
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.InstantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator
     }
     else {
@@ -3398,7 +3605,7 @@ function Build_Customization_Settings {
         }
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
-          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings = Get_CustomizationSettings_Objects
+          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings = Get-CustomizationObject
 
           # Get SysPrep CustomizationSpec ID
           $customization_spec_helper = New-Object VMware.Hv.CustomizationSpecService
@@ -3409,7 +3616,7 @@ function Build_Customization_Settings {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings.CustomizationSpec = $sysPrepIds[0].id
         } elseif ($custType -eq 'QUICK_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'QUICK_PREP'
-          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings = Get_CustomizationSettings_Objects
+          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings = Get-CustomizationObject
         } else {
           throw "The customization type: [$custType] is not supported for LinkedClone Pool"
         }
@@ -3417,7 +3624,7 @@ function Build_Customization_Settings {
       } elseif ($FullClone) {
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
-          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings = Get_CustomizationSettings_Objects
+          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings = Get-CustomizationObject
           # Get SysPrep CustomizationSpec ID
           $customization_spec_helper = New-Object VMware.Hv.CustomizationSpecService
           $sysPrepIds = $customization_spec_helper.CustomizationSpec_List($services,$vcID) | Where-Object { $_.customizationSpecData.name -eq $sysPrepName } | Select-Object -Property id
@@ -3426,7 +3633,7 @@ function Build_Customization_Settings {
           }
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings.CustomizationSpec = $sysPrepIds[0].id
         } elseif ($custType -eq 'NONE') {
-          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.NoCustomizationSettings = Get_CustomizationSettings_Objects
+          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.NoCustomizationSettings = Get-CustomizationObject
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.NoCustomizationSettings.DoNotPowerOnVMsAfterCreation = $false
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = "NONE"
         } else {
@@ -3439,7 +3646,7 @@ function Build_Customization_Settings {
   return $customObject
 }
 
-function Get_CustomizationSettings_Objects {
+function Get-CustomizationObject {
   if ($InstantClone) {
     return New-Object VMware.Hv.DesktopCloneprepCustomizationSettings
   } elseif ($LinkedClone) {
@@ -3457,7 +3664,7 @@ function Get_CustomizationSettings_Objects {
   }
 }
 
-function Get_Desktop_Spec {
+function Get-HVDesktopSpec {
 
   param(
     [Parameter(Mandatory = $true)]
@@ -3551,7 +3758,7 @@ function Remove-HVFarm {
   )
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -3668,7 +3875,7 @@ function Remove-HVPool {
   )
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -3679,7 +3886,7 @@ function Remove-HVPool {
     $poolList = @()
     if ($poolName) {
       try {
-        $myPools = get-hvpool -poolName $poolName -hvServer $hvServer
+        $myPools = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
       } catch {
         Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
         break
@@ -3749,6 +3956,18 @@ function Set-HVFarm {
 .PARAMETER Farm
     Object(s) of the farm to edit. Object(s) should be of type FarmSummaryView/FarmInfo.
 
+.PARAMETER Enable
+    Switch to enable the farm(s).
+
+.PARAMETER Disable
+    Switch to disable the farm(s).
+
+.PARAMETER Start
+    Switch to enable provisioning immediately for the farm(s). It's applicable only for 'AUTOMATED' farm type.
+
+.PARAMETER Stop
+    Switch to disable provisioning immediately for the farm(s). It's applicable only for 'AUTOMATED' farm type.
+
 .PARAMETER Key
     Property names path separated by . (dot) from the root of desktop spec.
 
@@ -3770,6 +3989,12 @@ function Set-HVFarm {
 .EXAMPLE
     $farm_array | Set-HVFarm -Key 'base.description' -Value 'updated description'
 
+.EXAMPLE
+    Set-HVFarm -farm 'Farm2' -Start
+
+.EXAMPLE
+    Set-HVFarm -farm 'Farm2' -Enable
+
 .OUTPUTS
     None
 
@@ -3789,11 +4014,23 @@ function Set-HVFarm {
     ConfirmImpact = 'High'
   )]
   param(
-    [Parameter(Mandatory = $false,ParameterSetName = 'option')]
+    [Parameter(Mandatory = $true,ParameterSetName = 'option')]
     [string]$FarmName,
 
     [Parameter(ValueFromPipeline = $true,ParameterSetName = 'pipeline')]
     $Farm,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Enable,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Disable,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Start,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Stop,
 
     [Parameter(Mandatory = $false)]
     [string]$Key,
@@ -3809,7 +4046,7 @@ function Set-HVFarm {
   )
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -3820,13 +4057,17 @@ function Set-HVFarm {
     $farmList = @()
     if ($farmName) {
       try {
-        $farmSpecObj = Get-HVFarm -farmName $farmName -hvServer $hvServer
+        $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
       } catch {
         Write-Error "Make sure Get-HVFarm advanced function is loaded, $_"
         break
       }
       if ($farmSpecObj) {
         foreach ($farmObj in $farmSpecObj) {
+          if (($Start -or $Stop) -and ("AUTOMATED" -ne $farmObj.Data.Type)) {
+            Write-Error "Start/Stop operation is not supported for farm with name : [$farmObj.Data.Name]"
+            return
+          }
           $farmList += $farmObj.id
         }
       } else {
@@ -3835,7 +4076,18 @@ function Set-HVFarm {
       }
     } elseif ($PSCmdlet.MyInvocation.ExpectingInput) {
       foreach ($item in $farm) {
-        if ($item.GetType().name -eq 'FarmInfo' -or $item.GetType().name -eq 'FarmSummaryView') {
+        if ($item.GetType().name -eq 'FarmSummaryView') {
+          if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.Data.Type)) {
+            Write-Error "Start/Stop operation is not supported for farm with name : [$item.Data.Name]"
+            return
+          }
+          $farmList += $item.id
+        }
+        elseif ($item.GetType().name -eq 'FarmInfo') {
+          if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.Type)) {
+            Write-Error "Start/Stop operation is not supported for farm with name : [$item.Data.Name]"
+            return
+          }
           $farmList += $item.id
         }
         else {
@@ -3848,15 +4100,29 @@ function Set-HVFarm {
 
     $updates = @()
     if ($key -and $value) {
-      $updates += Get_MapEntry -key $key -value $value
+      $updates += Get-MapEntry -key $key -value $value
     } elseif ($key -or $value) {
       Write-Error "Both key:[$key] and value:[$value] need to be specified"
     }
     if ($spec) {
-      $specObject = Get_Json_Object -specFile $spec
+      $specObject = Get-JsonObject -specFile $spec
       foreach ($member in ($specObject.PSObject.Members | Where-Object { $_.MemberType -eq 'NoteProperty' })) {
-        $updates += Get_MapEntry -key $member.name -value $member.value
+        $updates += Get-MapEntry -key $member.name -value $member.value
       }
+    }
+    if ($Enable) {
+      $updates += Get-MapEntry -key 'data.enabled' -value $true
+    }
+    elseif ($Disable) {
+      $updates += Get-MapEntry -key 'data.enabled' -value $false
+    }
+    elseif ($Start) {
+      $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.enableProvisioning' `
+            -value $true
+    }
+    elseif ($Stop) {
+      $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.enableProvisioning' `
+            -value $false
     }
     $farm_service_helper = New-Object VMware.Hv.FarmService
     foreach ($item in $farmList) {
@@ -3884,6 +4150,18 @@ function Set-HVPool {
 .PARAMETER Pool
     Object(s) of the pool to edit.
 
+.PARAMETER Enable
+    Switch parameter to enable the pool.
+
+.PARAMETER Disable
+    Switch parameter to disable the pool.
+
+.PARAMETER Start
+    Switch parameter to start the pool.
+
+.PARAMETER Stop
+    Switch parameter to stop the pool.
+
 .PARAMETER Key
     Property names path separated by . (dot) from the root of desktop spec.
 
@@ -3901,6 +4179,18 @@ function Set-HVPool {
 
 .EXAMPLE
     Set-HVPool -PoolName 'RDSPool' -Key 'base.description' -Value 'update description'
+
+.Example
+    Set-HVPool  -PoolName 'LnkClone' -Disable
+
+.Example
+    Set-HVPool  -PoolName 'LnkClone' -Enable
+
+.Example
+    Set-HVPool  -PoolName 'LnkClone' -Start
+
+.Example
+    Set-HVPool  -PoolName 'LnkClone' -Stop
 
 .OUTPUTS
     None
@@ -3922,12 +4212,24 @@ function Set-HVPool {
   )]
 
   param(
-    [Parameter(Mandatory = $false,ParameterSetName = 'option')]
+    [Parameter(Mandatory = $true,ParameterSetName = 'option')]
     [string]$PoolName,
 
     #pool object
     [Parameter(ValueFromPipeline = $true,ParameterSetName = 'pipeline')]
     $Pool,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Enable,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Disable,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Start,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Stop,
 
     [Parameter(Mandatory = $false)]
     [string]$Key,
@@ -3943,7 +4245,7 @@ function Set-HVPool {
   )
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -3954,15 +4256,34 @@ function Set-HVPool {
     $poolList = @()
     if ($poolName) {
       try {
-        $desktopPools = Get-HVPool -poolName $poolName -hvServer $hvServer
+        $desktopPools = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
       } catch {
         Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
         break
       }
-      if ($desktopPools) { $poolList += $desktopPools.id }
+      if ($desktopPools) {
+        foreach ($desktopObj in $desktopPools) {
+          if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.DesktopSummaryData.Type)) {
+            Write-Error "Start/Stop operation is not supported for Poll with name : [$item.DesktopSummaryData.Name]"
+            return
+          }
+          $poolList += $desktopObj.id
+        }
+      }
     } elseif ($PSCmdlet.MyInvocation.ExpectingInput) {
       foreach ($item in $pool) {
-        if (($item.GetType().name -eq 'DesktopInfo') -or ($item.GetType().name -eq 'DesktopSummaryView')) {
+        if ($item.GetType().name -eq 'DesktopInfo') {
+          if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.Type)) {
+            Write-Error "Start/Stop operation is not supported for Pool with name : [$item.Base.Name]"
+            return
+          }
+          $poolList += $item.id
+        }
+        elseif ($item.GetType().name -eq 'DesktopSummaryView') {
+          if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.DesktopSummaryData.Type)) {
+            Write-Error "Start/Stop operation is not supported for Poll with name : [$item.DesktopSummaryData.Name]"
+            return
+          }
           $poolList += $item.id
         }
         else {
@@ -3974,22 +4295,35 @@ function Set-HVPool {
     }
     $updates = @()
     if ($key -and $value) {
-      $updates += Get_MapEntry -key $key -value $value
+      $updates += Get-MapEntry -key $key -value $value
     } elseif ($key -or $value) {
       Write-Error "Both key:[$key] and value:[$value] needs to be specified"
     }
     if ($spec) {
       try {
-        $specObject = Get_Json_Object -specFile $spec
+        $specObject = Get-JsonObject -specFile $spec
       } catch {
         Write-Error "Json file exception, $_"
         return
       }
       foreach ($member in ($specObject.PSObject.Members | Where-Object { $_.MemberType -eq 'NoteProperty' })) {
-        $updates += Get_MapEntry -key $member.name -value $member.value
+        $updates += Get-MapEntry -key $member.name -value $member.value
       }
     }
-
+    if ($Enable) {
+      $updates += Get-MapEntry -key 'desktopSettings.enabled' -value $true
+    }
+    elseif ($Disable) {
+      $updates += Get-MapEntry -key 'desktopSettings.enabled' -value $false
+    }
+    elseif ($Start) {
+      $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.enableProvisioning' `
+        -value $true
+    }
+    elseif ($Stop) {
+      $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.enableProvisioning' `
+        -value $false
+    }
     $desktop_helper = New-Object VMware.Hv.DesktopService
     foreach ($item in $poolList) {
       $desktop_helper.Desktop_Update($services,$item,$updates)
@@ -4011,18 +4345,6 @@ function Start-HVFarm {
 
 .PARAMETER Farm
     Name/Object(s) of the farm. Object(s) should be of type FarmSummaryView/FarmInfo.
-
-.PARAMETER Enable
-    Switch to enable the farm(s).
-
-.PARAMETER Disable
-    Switch to disable the farm(s).
-
-.PARAMETER Start
-    Switch to enable provisioning immediately for the farm(s). It's applicable only for 'AUTOMATED' farm type.
-
-.PARAMETER Stop
-    Switch to disable provisioning immediately for the farm(s). It's applicable only for 'AUTOMATED' farm type.
 
 .PARAMETER Recompose
     Switch for recompose operation. Requests a recompose of RDS Servers in the specified 'AUTOMATED' farm. This marks the RDS Servers for recompose, which is performed asynchronously.
@@ -4057,18 +4379,6 @@ function Start-HVFarm {
     Start-HVFarm -Recompose -Farm 'Farm-01' -LogoffSetting FORCE_LOGOFF -ParentVM 'View-Agent-Win8' -SnapshotVM 'Snap_USB'
 
 .EXAMPLE
-    Start-HVFarm -Farm 'Farm-01' -Enable
-
-.EXAMPLE
-    Start-HVFarm -Farm 'Farm-01' -Disable
-
-.EXAMPLE
-    Start-HVFarm -Farm 'Farm-01' -Start
-
-.EXAMPLE
-    Start-HVFarm -Farm 'Farm-01' -Stop
-
-.EXAMPLE
     $myTime = Get-Date '10/03/2016 12:30:00'
     Start-HVFarm -Farm 'Farm-01' -Recompose -LogoffSetting 'FORCE_LOGOFF' -ParentVM 'ParentVM' -SnapshotVM 'SnapshotVM' -StartTime $myTime
 
@@ -4093,18 +4403,6 @@ function Start-HVFarm {
   param(
     [Parameter(Mandatory = $true,ValueFromPipeline = $true)]
     $Farm,
-
-    [Parameter(Mandatory = $false,ParameterSetName = 'ENABLE')]
-    [switch]$Enable,
-
-    [Parameter(Mandatory = $false,ParameterSetName = 'DISABLE')]
-    [switch]$Disable,
-
-    [Parameter(Mandatory = $false,ParameterSetName = 'START')]
-    [switch]$Start,
-
-    [Parameter(Mandatory = $false,ParameterSetName = 'STOP')]
-    [switch]$Stop,
 
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
     [switch]$Recompose,
@@ -4136,7 +4434,7 @@ function Start-HVFarm {
   )
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -4198,7 +4496,7 @@ function Start-HVFarm {
             Write-Error "RECOMPOSE operation is not supported for farm with name [$farmList.$item]"
             break
           } else {
-            $vcId = Get_Vcenter_ID -services $services -vCenter $vCenter
+            $vcId = Get-VcenterID -services $services -vCenter $vCenter
             if ($null -eq $vcId) {
               break
             }
@@ -4211,7 +4509,7 @@ function Start-HVFarm {
             $spec.StopOnFirstError = $stopOnFirstError
             $spec.RdsServers = $serverList
             try {
-              $spec = Set_Spec_Vms_Farm -vcId $vcId -spec $spec
+              $spec = Set-HVFarmSpec -vcId $vcId -spec $spec
             } catch {
               Write-Error "RECOMPOSE task failed with error: $_"
               break
@@ -4219,45 +4517,11 @@ function Start-HVFarm {
             if ($startTime) { $spec.startTime = $startTime }
             # Update Base Image VM and Snapshot in Farm
             $updates = @()
-            $updates += Get_MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
-            $updates += Get_MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
+            $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
+            $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
             $farm_service_helper.Farm_Update($services,$item,$updates)
 
             $farm_service_helper.Farm_Recompose($services,$item,$spec)
-          }
-        }
-        'ENABLE' {
-          $map = New-Object VMware.Hv.MapEntry
-          $map.key = 'data.enabled'
-          $map.value = $true
-          $farm_service_helper.Farm_Update($services,$item,$map)
-        }
-        'DISABLE' {
-          $map = New-Object VMware.Hv.MapEntry
-          $map.key = 'data.enabled'
-          $map.value = $false
-          $farm_service_helper.Farm_Update($services,$item,$map)
-        }
-        'START' {
-          if ($farmType.$item -ne 'AUTOMATED') {
-            Write-Error "Start operation is not supported for farm with name [$farmList.$item]"
-            break
-          } else {
-            $map = New-Object VMware.Hv.MapEntry
-            $map.key = 'automatedFarmData.virtualCenterProvisioningSettings.enableProvisioning'
-            $map.value = $true
-            $farm_service_helper.Farm_Update($services,$item,$map)
-          }
-        }
-        'STOP' {
-          if ($farmType.$item -ne 'AUTOMATED') {
-            Write-Error "STOP operation is not supported for farm with name [$farmList.$item]"
-            break
-          } else {
-            $map = New-Object VMware.Hv.MapEntry
-            $map.key = 'automatedFarmData.virtualCenterProvisioningSettings.enableProvisioning'
-            $map.value = $false
-            $farm_service_helper.Farm_Update($services,$item,$map)
           }
         }
       }
@@ -4297,7 +4561,7 @@ function Get-AllRDSServersInFarm ($Services,$Farm,$ServerList) {
   return $servers
 }
 
-function Set_Spec_Vms_Farm {
+function Set-HVFarmSpec {
   param(
     [Parameter(Mandatory = $true)]
     [VMware.Hv.VirtualCenterId]$VcID,
@@ -4337,18 +4601,6 @@ function Start-HVPool {
 
 .PARAMETER Pool
     Name/Object(s) of the pool.
-
-.PARAMETER Enable
-    Switch parameter to enable the pool.
-
-.PARAMETER Disable
-    Switch parameter to disable the pool.
-
-.PARAMETER Start
-    Switch parameter to start the pool.
-
-.PARAMETER Stop
-    Switch parameter to stop the pool.
 
 .PARAMETER Refresh
     Switch parameter to refresh operation.
@@ -4399,16 +4651,13 @@ function Start-HVPool {
 
 .EXAMPLE
     $myTime = Get-Date '10/03/2016 12:30:00'
-    Start-HVPool -Eebalance -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -StartTime $myTime
+    Start-HVPool -Rebalance -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -StartTime $myTime
 
 .EXAMPLE
     Start-HVPool -SchedulePushImage -Pool 'InstantPool' -LogoffSetting FORCE_LOGOFF -ParentVM 'InsParentVM' -SnapshotVM 'InsSnapshotVM'
 
 .EXAMPLE
     Start-HVPool -CancelPushImage -Pool 'InstantPool'
-
-.EXAMPLE
-    Start-HVPool -Pool 'TestPool' -Enable
 
 .OUTPUTS
     None
@@ -4432,18 +4681,6 @@ function Start-HVPool {
     # handles both objects and string
     [Parameter(Mandatory = $true,ValueFromPipeline = $true)]
     $Pool,
-
-    [Parameter(Mandatory = $false,ParameterSetName = 'ENABLE')]
-    [switch]$Enable,
-
-    [Parameter(Mandatory = $false,ParameterSetName = 'DISABLE')]
-    [switch]$Disable,
-
-    [Parameter(Mandatory = $false,ParameterSetName = 'START')]
-    [switch]$Start,
-
-    [Parameter(Mandatory = $false,ParameterSetName = 'STOP')]
-    [switch]$Stop,
 
     [Parameter(Mandatory = $false,ParameterSetName = 'REFRESH')]
     [switch]$Refresh,
@@ -4502,7 +4739,7 @@ function Start-HVPool {
 
 
   begin {
-    $services = Get_ViewAPI_Service -hvServer $hvServer
+    $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -4528,7 +4765,7 @@ function Start-HVPool {
           $type = $item.desktopsummarydata.type
         } elseif ($item.GetType().name -eq 'String') {
           try {
-            $poolObj = Get-HVPool -poolName $item -hvServer $hvServer
+            $poolObj = Get-HVPoolSummary -poolName $item -hvServer $hvServer
           } catch {
             Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
             break
@@ -4560,32 +4797,32 @@ function Start-HVPool {
       $desktop_helper = New-Object VMware.Hv.DesktopService
       switch ($operation) {
         'REBALANCE' {
-          $spec = Get_TaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRebalanceSpec' -desktopId $item
+          $spec = Get-HVTaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRebalanceSpec' -desktopId $item
           if ($null -ne $spec) {
             # make sure current task on VMs, must be None
             $desktop_helper.Desktop_Rebalance($services,$item,$spec)
           }
         }
         'REFRESH' {
-          $spec = Get_TaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRefreshSpec' -desktopId $item
+          $spec = Get-HVTaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRefreshSpec' -desktopId $item
           if ($null -ne $spec) {
             # make sure current task on VMs, must be None
             $desktop_helper.Desktop_Refresh($services,$item,$spec)
           }
         }
         'RECOMPOSE' {
-          $spec = Get_TaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRecomposeSpec' -desktopId $item
+          $spec = Get-HVTaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRecomposeSpec' -desktopId $item
           if ($null -ne $spec) {
-            $vcId = Get_Vcenter_ID -services $services -vCenter $vCenter
-            $spec = Set_Spec_Vms -vcId $vcId -spec $spec
+            $vcId = Get-VcenterID -services $services -vCenter $vCenter
+            $spec = Set-HVPoolSpec -vcId $vcId -spec $spec
 
             # make sure current task on VMs, must be None
             $desktop_helper.Desktop_Recompose($services,$item,$spec)
 
             # Update Base Image VM and Snapshot in Pool
             $updates = @()
-            $updates += Get_MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
-            $updates += Get_MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
+            $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
+            $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
             $desktop_helper.Desktop_Update($services,$item,$updates)
 
           }
@@ -4596,8 +4833,8 @@ function Start-HVPool {
             break
           } else {
             $spec = New-Object VMware.Hv.DesktopPushImageSpec
-            $vcId = Get_Vcenter_ID -services $services -vCenter $vCenter
-            $spec = Set_Spec_Vms -vcId $vcId -spec $spec
+            $vcId = Get-VcenterID -services $services -vCenter $vCenter
+            $spec = Set-HVPoolSpec -vcId $vcId -spec $spec
             $spec.Settings = New-Object VMware.Hv.DesktopPushImageSettings
             $spec.Settings.LogoffSetting = $logoffSetting
             $spec.Settings.StopOnFirstError = $stopOnFirstError
@@ -4613,46 +4850,12 @@ function Start-HVPool {
             $desktop_helper.Desktop_CancelScheduledPushImage($services,$item)
           }
         }
-        'ENABLE' {
-          $map = New-Object VMware.Hv.MapEntry
-          $map.key = 'desktopSettings.enabled'
-          $map.value = $true
-          $desktop_helper.Desktop_Update($services,$item,$map)
-        }
-        'DISABLE' {
-          $map = New-Object VMware.Hv.MapEntry
-          $map.key = 'desktopSettings.enabled'
-          $map.value = $false
-          $desktop_helper.Desktop_Update($services,$item,$map)
-        }
-        'START' {
-          if ($poolType.$item -ne 'Automated') {
-            Write-Error "$poolList.$item is not a Automated pool"
-            break
-          } else {
-            $map = New-Object VMware.Hv.MapEntry
-            $map.key = 'automatedDesktopData.virtualCenterProvisioningSettings.enableProvisioning'
-            $map.value = $true
-            $desktop_helper.Desktop_Update($services,$item,$map)
-          }
-        }
-        'STOP' {
-          if ($poolType.$item -ne 'Automated') {
-            Write-Error "$poolList.$item is not a Automated pool"
-            break
-          } else {
-            $map = New-Object VMware.Hv.MapEntry
-            $map.key = 'automatedDesktopData.virtualCenterProvisioningSettings.enableProvisioning'
-            $map.value = $false
-            $desktop_helper.Desktop_Update($services,$item,$map)
-          }
-        }
       }
     }
   }
 }
 
-function Get-Machines ($Pool,$MachineList) {
+function Get-Machine ($Pool,$MachineList) {
   [VMware.Hv.MachineId[]]$machines = @()
   $remainingCount = 1 # run through loop at least once
   $query = New-Object VMware.Hv.QueryDefinition
@@ -4682,7 +4885,7 @@ function Get-Machines ($Pool,$MachineList) {
   return $machines
 }
 
-function Set_Spec_Vms {
+function Set-HVPoolSpec {
   param(
     [Parameter(Mandatory = $true)]
     [VMware.Hv.VirtualCenterId]$VcID,
@@ -4705,7 +4908,7 @@ function Set_Spec_Vms {
   return $spec
 }
 
-function Get_TaskSpec {
+function Get-HVTaskSpec {
   param(
     [Parameter(Mandatory = $true)]
     [string]$Source,
@@ -4727,12 +4930,12 @@ function Get_TaskSpec {
     Write-Error "$operation task is not supported for pool type: [$source]"
     return $null
   }
-  $machineList = Get-Machines $desktopId $machines
+  $machineList = Get-Machine $desktopId $machines
   if ($machineList.Length -eq 0) {
     Write-Error "Failed to get any Virtual Center machines with the given pool name: [$poolName]"
     return $null
   }
-  $spec = Get_New_Object -TypeName $taskSpecName
+  $spec = Get-HVObject -TypeName $taskSpecName
   $spec.LogoffSetting = $logoffSetting
   $spec.StopOnFirstError = $stopOnFirstError
   $spec.Machines = $machineList
@@ -4740,4 +4943,4 @@ function Get_TaskSpec {
   return $spec
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVEvent,Get-HVFarm,Get-HVPool,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
