@@ -20,7 +20,6 @@ $SSOSiteName = "Site01"
 $datacenter = "DC01"
 $cluster = "Cluster01"
 $ntpserver = "pool.ntp.org"
-$webClientTheme = "CormacHogan"
 
 # VSAN Configuration
 $VSANPolicy = '(("hostFailuresToTolerate" i1) ("forceProvisioning" i1))'
