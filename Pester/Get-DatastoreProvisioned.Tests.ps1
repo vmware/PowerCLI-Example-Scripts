@@ -6,19 +6,13 @@ Created on: 2016/07/27
 Author: Brian Bunke, @brianbunke
 Description: Help validate that any changes to Get-DatastoreProvisioned.ps1 do not break existing functionality
 Dependencies: Pester
-
-===Tested Against Environment====
-vSphere Version: 6.0 U1/U2
-PowerCLI Version: PowerCLI 6.3 R1
-PowerShell Version: 5.0
-OS Version: Windows 7/10
 #>
 
-# Tests file stored separately from actual script
+# Tests file currently stored separately from actual script
 # Find where this file is running from, replace parent folder 'Pester' with 'Scripts'
-$Path = (Split-Path -Parent $MyInvocation.MyCommand.Path).Replace("Pester","Scripts")
+$Path = (Split-Path -Parent $MyInvocation.MyCommand.Path).Replace('Pester','Scripts')
 # Remove the '.Tests.' from the file name
-$File = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
+$File = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace('.Tests.', '.')
 # With changes made to the path, dot-source the function for testing
 . "$Path\$File"
 
@@ -57,8 +51,10 @@ Describe 'Get-DatastoreProvisioned' {
 
     It "Doesn't change existing functionality" {
         $StillWorks = $1,$2,$3 | Get-DatastoreProvisioned
+        # Should see all three proxied objects
         $StillWorks | Should Not BeNullOrEmpty
         ($StillWorks | Measure-Object).Count | Should Be 3
+        # Should still have six properties with the same names
         ($StillWorks | Get-Member -MemberType NoteProperty).Count | Should Be 6
         'Name','FreeSpaceGB','CapacityGB','ProvisionedGB','UsedPct','ProvisionedPct' | ForEach-Object {
             ($StillWorks | Get-Member -MemberType NoteProperty).Name -contains $_ | Should Be $true
