@@ -242,7 +242,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
     try {
       $desktopPool = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
     } catch {
-      Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
+      Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
       break
     }
     if ($desktopPool) {
@@ -1087,7 +1087,7 @@ function Find-HVFarm {
     'farmType' = 'data.type';
   }
 
-  $parms = $Param
+  $params = $Param
 
   $query_service_helper = New-Object VMware.Hv.QueryServiceService
   $query = New-Object VMware.Hv.QueryDefinition
@@ -1097,10 +1097,10 @@ function Find-HVFarm {
   $query.queryEntityType = 'FarmSummaryView'
   [VMware.Hv.queryfilter[]]$filterSet = @()
   foreach ($setting in $farmSelectors.Keys) {
-    if ($null -ne $parms[$setting]) {
+    if ($null -ne $params[$setting]) {
       $equalsFilter = New-Object VMware.Hv.QueryFilterEquals
       $equalsFilter.memberName = $farmSelectors[$setting]
-      $equalsFilter.value = $parms[$setting]
+      $equalsFilter.value = $params[$setting]
       $filterSet += $equalsFilter
     }
   }
@@ -1370,17 +1370,17 @@ function Find-HVPool {
     'provisioningEnabled' = 'desktopSummaryData.provisioningEnabled'
   }
 
-  $parms = $Param
+  $params = $Param
 
   $query_service_helper = New-Object VMware.Hv.QueryServiceService
   $query = New-Object VMware.Hv.QueryDefinition
 
   $wildCard = $false
   #Only supports wild card '*'
-  if ($parms['PoolName'] -and $parms['PoolName'].contains('*')) {
+  if ($params['PoolName'] -and $params['PoolName'].contains('*')) {
     $wildcard = $true
   }
-  if ($parms['PoolDisplayName'] -and $parms['PoolDisplayName'].contains('*')) {
+  if ($params['PoolDisplayName'] -and $params['PoolDisplayName'].contains('*')) {
     $wildcard = $true
   }
   # build the query values
@@ -1388,10 +1388,10 @@ function Find-HVPool {
   if (! $wildcard) {
     [VMware.Hv.queryfilter[]]$filterSet = @()
     foreach ($setting in $poolSelectors.Keys) {
-      if ($null -ne $parms[$setting]) {
+      if ($null -ne $params[$setting]) {
         $equalsFilter = New-Object VMware.Hv.QueryFilterEquals
         $equalsFilter.memberName = $poolSelectors[$setting]
-        $equalsFilter.value = $parms[$setting]
+        $equalsFilter.value = $params[$setting]
         $filterSet += $equalsFilter
       }
     }
@@ -1408,11 +1408,11 @@ function Find-HVPool {
     $queryResults = $query_service_helper.QueryService_Query($services,$query)
     $strFilterSet = @()
     foreach ($setting in $poolSelectors.Keys) {
-      if ($null -ne $parms[$setting]) {
+      if ($null -ne $params[$setting]) {
         if ($wildcard -and (($setting -eq 'PoolName') -or ($setting -eq 'PoolDisplayName')) ) {
-          $strFilterSet += '($_.' + $poolSelectors[$setting] + ' -like "' + $parms[$setting] + '")'
+          $strFilterSet += '($_.' + $poolSelectors[$setting] + ' -like "' + $params[$setting] + '")'
         } else {
-          $strFilterSet += '($_.' + $poolSelectors[$setting] + ' -eq "' + $parms[$setting] + '")'
+          $strFilterSet += '($_.' + $poolSelectors[$setting] + ' -eq "' + $params[$setting] + '")'
         }
       }
     }
@@ -3062,7 +3062,7 @@ function New-HVPool {
       try {
         $sourcePool = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
       } catch {
-        Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
+        Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
         break
       }
       if ($sourcePool) {
@@ -3888,7 +3888,7 @@ function Remove-HVPool {
       try {
         $myPools = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
       } catch {
-        Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
+        Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
         break
       }
       if ($myPools) {
@@ -4258,7 +4258,7 @@ function Set-HVPool {
       try {
         $desktopPools = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
       } catch {
-        Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
+        Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
         break
       }
       if ($desktopPools) {
@@ -4767,7 +4767,7 @@ function Start-HVPool {
           try {
             $poolObj = Get-HVPoolSummary -poolName $item -hvServer $hvServer
           } catch {
-            Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
+            Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
             break
           }
           if ($poolObj) {
@@ -4943,4 +4943,317 @@ function Get-HVTaskSpec {
   return $spec
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
+function Find-HVMachine {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    $Param
+  )
+
+  $params = $Param
+
+  try {
+    if ($params['PoolName']) {
+      $poolObj = Get-HVPoolSummary -poolName $params['PoolName'] -hvServer $params['HvServer']
+      if ($poolObj.Length -ne 1) {
+        Write-Error "Failed to retrieve specific pool object with given PoolName : $params['PoolName']"
+        break;
+      } else {
+        $desktopId = $poolObj.Id
+      }
+    }
+  } catch {
+    Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
+    break
+  }
+  #
+  # This translates the function arguments into the View API properties that must be queried
+  $machineSelectors = @{
+    'PoolName' = 'base.desktop';
+    'MachineName' = 'base.name';
+    'DnsName' = 'base.dnsName';
+    'State' = 'base.basicState';
+  }
+
+
+  $query_service_helper = New-Object VMware.Hv.QueryServiceService
+  $query = New-Object VMware.Hv.QueryDefinition
+
+  $wildCard = $false
+  #Only supports wild card '*'
+  if ($params['MachineName'] -and $params['MachineName'].contains('*')) {
+    $wildcard = $true
+  }
+  if ($params['DnsName'] -and $params['DnsName'].contains('*')) {
+    $wildcard = $true
+  }
+  # build the query values, MachineNamesView is having more info than
+  # MachineSummaryView
+  $query.queryEntityType = 'MachineNamesView'
+  if (! $wildcard) {
+    [VMware.Hv.queryfilter[]]$filterSet = @()
+    foreach ($setting in $machineSelectors.Keys) {
+      if ($null -ne $params[$setting]) {
+        $equalsFilter = New-Object VMware.Hv.QueryFilterEquals
+        $equalsFilter.memberName = $machineSelectors[$setting]
+        if ($equalsFilter.memberName -eq 'base.desktop') {
+            $equalsFilter.value = $desktopId
+        } else {
+            $equalsFilter.value = $params[$setting]
+        }
+        $filterSet += $equalsFilter
+      }
+    }
+    if ($filterSet.Count -gt 0) {
+      $andFilter = New-Object VMware.Hv.QueryFilterAnd
+      $andFilter.Filters = $filterset
+      $query.Filter = $andFilter
+    }
+    $queryResults = $query_service_helper.QueryService_Query($services,$query)
+    $machineList = $queryResults.results
+  }
+  if ($wildcard -or [string]::IsNullOrEmpty($machineList)) {
+    $query.Filter = $null
+    $queryResults = $query_service_helper.QueryService_Query($services,$query)
+    $strFilterSet = @()
+    foreach ($setting in $machineSelectors.Keys) {
+      if ($null -ne $params[$setting]) {
+        if ($wildcard -and (($setting -eq 'MachineName') -or ($setting -eq 'DnsName')) ) {
+          $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -like "' + $params[$setting] + '")'
+        } else {
+          $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -eq "' + $params[$setting] + '")'
+        }
+      }
+    }
+    $whereClause =  [string]::Join(' -and ', $strFilterSet)
+    $scriptBlock = [Scriptblock]::Create($whereClause)
+    $machineList = $queryResults.results | where $scriptBlock
+  }
+  return $machineList
+}
+
+
+function Get-HVMachine {
+<#
+.Synopsis
+   Gets virtual Machine(s) information with given search parameters.
+
+.DESCRIPTION
+   Queries and returns virtual machines information, the machines list would be determined
+   based on queryable fields poolName, dnsName, machineName, state. When more than one
+   fields are used for query the virtual machines which satisfy all fields criteria would be returned.
+
+.PARAMETER PoolName
+   Pool name to query for.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the virtual machines which has name same as value will be returned.
+
+.PARAMETER MachineName
+   The name of the Machine to query for.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the virtual machines which has display name same as value will be returned.
+
+.PARAMETER DnsName
+   DNS name for the Machine to filter with.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the virtual machines which has display name same as value will be returned.
+
+.PARAMETER State
+   The basic state of the Machine to filter with.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the virtual machines which has display name same as value will be returned.
+
+.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Get-HVDesktop -PoolName 'ManualPool'
+
+.EXAMPLE
+   Get-HVDesktop -MachineName 'PowerCLIVM'
+
+.EXAMPLE
+   Get-HVDesktop -State CUSTOMIZING
+
+.EXAMPLE
+   Get-HVDesktop -DnsName 'powercli-*' -State CUSTOMIZING
+
+.OUTPUTS
+  Returns list of objects of type MachineInfo
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    [string]
+    $PoolName,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $MachineName,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $DnsName,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('PROVISIONING','PROVISIONING_ERROR','WAIT_FOR_AGENT','CUSTOMIZING',
+    'DELETING','MAINTENANCE','ERROR','PROVISIONED','AGENT_UNREACHABLE','UNASSIGNED_USER_CONNECTED',
+    'CONNECTED','UNASSIGNED_USER_DISCONNECTED','DISCONNECTED','AGENT_ERR_STARTUP_IN_PROGRESS',
+    'AGENT_ERR_DISABLED','AGENT_ERR_INVALID_IP','AGENT_ERR_NEED_REBOOT','AGENT_ERR_PROTOCOL_FAILURE',
+    'AGENT_ERR_DOMAIN_FAILURE','AGENT_CONFIG_ERROR','ALREADY_USED','AVAILABLE','IN_PROGRESS','DISABLED',
+    'DISABLE_IN_PROGRESS','VALIDATING','UNKNOWN')]
+    [string]
+    $State,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $JsonFilePath,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+
+  $machineList = Find-HVMachine -Param $PSBoundParameters
+
+  if ($full) {
+    $queryResults = @()
+    $desktop_helper = New-Object VMware.Hv.MachineService
+    foreach ($id in $machineList.id) {
+      $info = $desktop_helper.Machine_Get($services,$id)
+      $queryResults += $info
+    }
+    $machineList = $queryResults
+  }
+  return $machineList
+}
+
+function Get-HVMachineSummary {
+<#
+.Synopsis
+   Gets virtual Machine(s) summary with given search parameters.
+
+.DESCRIPTION
+   Queries and returns virtual machines information, the machines list would be determined
+   based on queryable fields poolName, dnsName, machineName, state. When more than one
+   fields are used for query the virtual machines which satisfy all fields criteria would be returned.
+
+.PARAMETER PoolName
+   Pool name to query for.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the virtual machines which has name same as value will be returned.
+
+.PARAMETER MachineName
+   The name of the Machine to query for.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the virtual machines which has display name same as value will be returned.
+
+.PARAMETER DnsName
+   DNS name for the Machine to filter with.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the virtual machines which has display name same as value will be returned.
+
+.PARAMETER State
+   The basic state of the Machine to filter with.
+   If the value is null or not provided then filter will not be applied,
+   otherwise the virtual machines which has display name same as value will be returned.
+
+.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Get-HVDesktopSummary -PoolName 'ManualPool'
+
+.EXAMPLE
+   Get-HVDesktopSummary -MachineName 'PowerCLIVM'
+
+.EXAMPLE
+   Get-HVDesktopSummary -State CUSTOMIZING
+
+.EXAMPLE
+   Get-HVDesktopSummary -DnsName 'powercli-*' -State CUSTOMIZING
+
+.OUTPUTS
+  Returns list of objects of type MachineNamesView
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    [string]
+    $PoolName,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $MachineName,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $DnsName,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('PROVISIONING','PROVISIONING_ERROR','WAIT_FOR_AGENT','CUSTOMIZING',
+    'DELETING','MAINTENANCE','ERROR','PROVISIONED','AGENT_UNREACHABLE','UNASSIGNED_USER_CONNECTED',
+    'CONNECTED','UNASSIGNED_USER_DISCONNECTED','DISCONNECTED','AGENT_ERR_STARTUP_IN_PROGRESS',
+    'AGENT_ERR_DISABLED','AGENT_ERR_INVALID_IP','AGENT_ERR_NEED_REBOOT','AGENT_ERR_PROTOCOL_FAILURE',
+    'AGENT_ERR_DOMAIN_FAILURE','AGENT_CONFIG_ERROR','ALREADY_USED','AVAILABLE','IN_PROGRESS','DISABLED',
+    'DISABLE_IN_PROGRESS','VALIDATING','UNKNOWN')]
+    [string]
+    $State,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $JsonFilePath,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+
+  $machineList = Find-HVMachine -Param $PSBoundParameters
+  return $machineList
+}
+
+
+
