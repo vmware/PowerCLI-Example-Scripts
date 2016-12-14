@@ -59,6 +59,13 @@ New-VIProperty -Name Locked -ObjectType VirtualMachine -Value  {
     ($vm.extensiondata.Runtime.ConnectionState -eq "invalid") -and ($vm.extensiondata.Config.KeyId)
 } -BasedOnExtensionProperty 'Runtime.ConnectionState','Config.KeyId' -Force | Out-Null
 
+New-VIProperty -Name KMSserver -ObjectType VirtualMachine -Value {
+    Param ($VM)
+    if ($VM.Encrypted) {
+      $VM.EncryptionKeyId.ProviderId.Id
+    }
+    } -BasedOnExtensionProperty 'Config.KeyId' -Force | Out-Null
+
 New-VIProperty -Name Encrypted -ObjectType HardDisk -Value {
  Param ($hardDisk)
      $hardDisk.ExtensionData.Backing.KeyId -ne $null
