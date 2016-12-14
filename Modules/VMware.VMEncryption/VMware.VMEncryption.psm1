@@ -67,8 +67,8 @@ New-VIProperty -Name KMSserver -ObjectType VirtualMachine -Value {
     } -BasedOnExtensionProperty 'Config.KeyId' -Force | Out-Null
 
 New-VIProperty -Name Encrypted -ObjectType HardDisk -Value {
- Param ($hardDisk)
-     $hardDisk.ExtensionData.Backing.KeyId -ne $null
+    Param ($hardDisk)
+    $hardDisk.ExtensionData.Backing.KeyId -ne $null
 } -BasedOnExtensionProperty 'Backing.KeyId' -Force | Out-Null
 
 New-VIProperty -Name EncryptionKeyId -ObjectType HardDisk -Value {
