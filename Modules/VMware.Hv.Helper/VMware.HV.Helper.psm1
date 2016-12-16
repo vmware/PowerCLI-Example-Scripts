@@ -1,7 +1,7 @@
 #Script Module : VMware.Hv.Helper
 #Version       : 1.0
 
-#Copyright © 2016 VMware, Inc. All Rights Reserved.
+#Copyright Â© 2016 VMware, Inc. All Rights Reserved.
 
 #Permission is hereby granted, free of charge, to any person obtaining a copy of
 #this software and associated documentation files (the "Software"), to deal in
@@ -1844,7 +1844,7 @@ function New-HVFarm {
     Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description  'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
+    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -DescriptionÂ  'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPatternÂ  "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
 
 .EXAMPLE
     New-HVFarm -Spec C:\VMWare\Specs\LinkedClone.json
@@ -4956,7 +4956,7 @@ function Find-HVMachine {
     if ($params['PoolName']) {
       $poolObj = Get-HVPoolSummary -poolName $params['PoolName'] -hvServer $params['HvServer']
       if ($poolObj.Length -ne 1) {
-        Write-Error "Failed to retrieve specific pool object with given PoolName : $params['PoolName']"
+        Write-Host "Failed to retrieve specific pool object with given PoolName : "$params['PoolName']
         break;
       } else {
         $desktopId = $poolObj.Id
