@@ -59,6 +59,11 @@ New-VIProperty -Name Locked -ObjectType VirtualMachine -Value  {
     ($vm.extensiondata.Runtime.ConnectionState -eq "invalid") -and ($vm.extensiondata.Config.KeyId)
 } -BasedOnExtensionProperty 'Runtime.ConnectionState','Config.KeyId' -Force | Out-Null
 
+New-VIProperty -Name vMotionEncryption -ObjectType VirtualMachine -Value {
+    Param ($VM)
+       $VM.ExtensionData.Config.MigrateEncryption
+} -BasedOnExtensionProperty 'Config.MigrateEncryption' -Force | Out-Null
+
 New-VIProperty -Name KMSserver -ObjectType VirtualMachine -Value {
     Param ($VM)
     if ($VM.Encrypted) {
@@ -108,7 +113,6 @@ Function Enable-VMHostCryptoSafe {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -177,7 +181,6 @@ Function Set-VMHostCryptoKey {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -231,6 +234,71 @@ Function Set-VMHostCryptoKey {
     }
 }
 
+Function Set-vMotionEncryptionConfig {
+    <#
+    .SYNOPSIS
+       This cmdlet sets the vMotionEncryption property of a VM.
+    
+    .DESCRIPTION
+       Use this function to set the vMotionEncryption settings for a VM.
+       The 'Encryption' parameter is set up with Tab-Complete for the available
+       options.
+
+    .PARAMETER VM
+       Specifies the VM you want to set the vMotionEncryption property.
+
+    .PARAMETER Encryption
+       Specifies the value you want to set to the vMotionEncryption property. 
+       The Encryption options are: Disabled, Opportunistic, and Required.
+
+    .EXAMPLE
+       PS C:\> Get-VM | Set-vMotionEncryptionConfig -Encryption opportunistic
+        
+       Sets the vMotionEncryption of all the VMs
+    
+    .NOTES
+       Author                                    : Carrie Yang
+       Author email                              : yangm@vmware.com
+       Version                                   : 1.0
+
+       ==========Tested Against Environment==========
+       VMware vSphere Hypervisor(ESXi) Version   : 6.5
+       VMware vCenter Server Version             : 6.5
+       PowerCLI Version                          : PowerCLI 6.5
+       PowerShell Version                        : 3.0
+    #>
+
+    [CmdLetBinding()]
+
+    param (
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine]$VM,
+
+        [ValidateSet("disabled", "opportunistic", "required")]
+        [String]$Encryption	
+    )
+
+    process{
+        # Confirm the connected VIServer is vCenter Server
+        ConfirmIsVCenter
+
+        if ($VM.Encrypted -and $VM.vMotionEncryption -ne $Encryption) {
+           Write-Error "Cannot change encrypted vMotion state for an encrypted VM."
+           return
+        }
+
+        $VMView = $VM | get-view
+        $config = new-object VMware.Vim.VirtualMachineConfigSpec
+        $config.MigrateEncryption = New-object VMware.Vim.VirtualMachineConfigSpecEncryptedVMotionModes
+        $config.MigrateEncryption = "$encryption"
+    
+        $VMView.ReconfigVM($config)
+
+        $VM.ExtensionData.UpdateViewData()        
+        $VM.vMotionEncryption    
+    }
+}
+
 Function Enable-VMEncryption {
     <#
     .SYNOPSIS
@@ -277,7 +345,6 @@ Function Enable-VMEncryption {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -438,7 +505,6 @@ Function Enable-VMDiskEncryption {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -591,7 +657,6 @@ Function Disable-VMEncryption {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -688,7 +753,6 @@ Function Disable-VMDiskEncryption {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -824,7 +888,6 @@ Function Set-VMEncryptionKey {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -981,7 +1044,6 @@ Function Set-VMDiskEncryptionKey {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -1105,7 +1167,6 @@ Function Get-VMEncryptionInfo {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -1205,7 +1266,6 @@ Function Get-EntityByCryptoKey {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -1331,7 +1391,6 @@ Function New-KMServer {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -1491,7 +1550,6 @@ Function Remove-KMServer {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -1569,7 +1627,6 @@ Function Get-KMSCluster {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     # Confirm the connected VIServer is vCenter Server
@@ -1661,7 +1718,6 @@ Function Get-KMServerInfo {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -1723,7 +1779,6 @@ Function Get-KMServerStatus {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -1795,7 +1850,6 @@ Function Get-DefaultKMSCluster {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
     # Confirm the connected VIServer is vCenter Server
@@ -1833,7 +1887,6 @@ Function Set-DefaultKMSCluster {
        VMware vCenter Server Version             : 6.5
        PowerCLI Version                          : PowerCLI 6.5
        PowerShell Version                        : 3.0
-
     #>
 
    [CmdLetBinding()]
@@ -1889,7 +1942,6 @@ Function ConfirmHardDiskIsValid {
 
     .PARAMETER HardDisk
        Specifies the hard disks which you want to use to validate.
-
     #>
 
     [CmdLetBinding()]
