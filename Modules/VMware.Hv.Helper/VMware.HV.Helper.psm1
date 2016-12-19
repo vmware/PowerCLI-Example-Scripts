@@ -5136,16 +5136,17 @@ function Get-HVMachine {
   }
 
   $machineList = Find-HVMachine -Param $PSBoundParameters
-
-  if ($full) {
-    $queryResults = @()
-    $desktop_helper = New-Object VMware.Hv.MachineService
-    foreach ($id in $machineList.id) {
-      $info = $desktop_helper.Machine_Get($services,$id)
-      $queryResults += $info
-    }
-    $machineList = $queryResults
+  if (!$machineList) {
+    Write-Host "No Virtual Machine(s) Found with given search parameters"
+    break
   }
+  $queryResults = @()
+  $desktop_helper = New-Object VMware.Hv.MachineService
+  foreach ($id in $machineList.id) {
+    $info = $desktop_helper.Machine_Get($services,$id)
+    $queryResults += $info
+  }
+  $machineList = $queryResults
   return $machineList
 }
 
@@ -5252,8 +5253,12 @@ function Get-HVMachineSummary {
   }
 
   $machineList = Find-HVMachine -Param $PSBoundParameters
+  if (!$machineList) {
+    Write-Host "No Virtual Machine(s) Found with given search parameters"
+    break
+  }
   return $machineList
 }
 
-
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
 
