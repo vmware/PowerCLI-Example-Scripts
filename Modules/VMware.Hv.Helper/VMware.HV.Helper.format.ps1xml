@@ -29,7 +29,7 @@
 							  <Label>User Assignment</Label>
                           </TableColumnHeader>
 						  <TableColumnHeader>
-                              <Width>8</Width>
+                              <Width>7</Width>
 							  <Label>Enabled</Label>
                           </TableColumnHeader>
 						  <TableColumnHeader>
@@ -117,27 +117,27 @@
                   <TableControl>
                       <TableHeaders>
                           <TableColumnHeader>
-                              <Width>16</Width>
+                              <Width>15</Width>
 							  <Label>Machine</Label>
                           </TableColumnHeader>
                           <TableColumnHeader>
-                              <Width>16</Width>
+                              <Width>12</Width>
 							  <Label>DesktopPool</Label>
                           </TableColumnHeader>
                           <TableColumnHeader>
-                              <Width>16</Width>
+                              <Width>12</Width>
 							  <Label>DNS Name</Label>
                           </TableColumnHeader>
                            <TableColumnHeader>
-                              <Width>16</Width>
+                              <Width>8</Width>
 							  <Label>User</Label>
                           </TableColumnHeader>
 						  <TableColumnHeader>
-                              <Width>16</Width>
+                              <Width>15</Width>
 							  <Label>Host</Label>
                           </TableColumnHeader>
 						  <TableColumnHeader>
-                              <Width>8</Width>
+                              <Width>5</Width>
 							  <Label>Agent</Label>
                           </TableColumnHeader>
 						  <TableColumnHeader>
@@ -145,9 +145,8 @@
 							  <Label>Datastore</Label>
                           </TableColumnHeader>
                           <TableColumnHeader>
-                              <Width>10</Width>
+                              <Width>15</Width>
 							  <Label>Status</Label>
-							  <Alignment>Right</Alignment>
                           </TableColumnHeader>
                       </TableHeaders>
                       <TableRowEntries>
@@ -169,13 +168,13 @@
                                       <ScriptBlock>$_.ManagedMachineNamesData.HostName</ScriptBlock>
                                   </TableColumnItem>
 								  <TableColumnItem>
-                                      <ScriptBlock>$_.Data.AgentVersion</ScriptBlock>
+                                      <ScriptBlock>$_.Base.AgentVersion</ScriptBlock>
                                   </TableColumnItem>
                                   <TableColumnItem>
                                       <ScriptBlock>$_.ManagedMachineNamesData.DatastorePaths</ScriptBlock>
                                   </TableColumnItem>
 								  <TableColumnItem>
-                                      <ScriptBlock>$_.Data.BasicState</ScriptBlock>
+                                      <ScriptBlock>$_.Base.BasicState</ScriptBlock>
                                   </TableColumnItem>
                               </TableColumnItems>
                           </TableRowEntry>
@@ -212,12 +211,16 @@
 						  <ScriptBlock>$_.ManagedMachineNamesData.HostName</ScriptBlock>
 						  </ListItem>
 						  <ListItem>
-						  <Label>Enabled</Label>
+                          <Label>Agent</Label>
+						  <ScriptBlock>$_.Base.AgentVersion</ScriptBlock>
+						  </ListItem>
+						  <ListItem>
+						  <Label>Datastore</Label>
 						  <ScriptBlock>$_.ManagedMachineNamesData.DatastorePaths</ScriptBlock>
 						  </ListItem>
 						  <ListItem>
-						  <Label>Sessions</Label>
-						  <ScriptBlock>$_.Data.BasicState</ScriptBlock>
+						  <Label>Status</Label>
+						  <ScriptBlock>$_.Base.BasicState</ScriptBlock>
 						  </ListItem>
 						</ListItems>
 					  </ListEntry>
