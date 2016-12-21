@@ -69,7 +69,7 @@ New-VIProperty -Name KMSserver -ObjectType VirtualMachine -Value {
     if ($VM.Encrypted) {
       $VM.EncryptionKeyId.ProviderId.Id
     }
-    } -BasedOnExtensionProperty 'Config.KeyId' -Force | Out-Null
+} -BasedOnExtensionProperty 'Config.KeyId' -Force | Out-Null
 
 New-VIProperty -Name Encrypted -ObjectType HardDisk -Value {
     Param ($hardDisk)
@@ -238,7 +238,7 @@ Function Set-vMotionEncryptionConfig {
     <#
     .SYNOPSIS
        This cmdlet sets the vMotionEncryption property of a VM.
-    
+
     .DESCRIPTION
        Use this function to set the vMotionEncryption settings for a VM.
        The 'Encryption' parameter is set up with Tab-Complete for the available
@@ -248,17 +248,17 @@ Function Set-vMotionEncryptionConfig {
        Specifies the VM you want to set the vMotionEncryption property.
 
     .PARAMETER Encryption
-       Specifies the value you want to set to the vMotionEncryption property. 
-       The Encryption options are: Disabled, Opportunistic, and Required.
+       Specifies the value you want to set to the vMotionEncryption property.
+       The Encryption options are: disabled, opportunistic, and required.
 
     .EXAMPLE
        PS C:\> Get-VM | Set-vMotionEncryptionConfig -Encryption opportunistic
-        
+
        Sets the vMotionEncryption of all the VMs
-    
+
     .NOTES
-       Author                                    : Carrie Yang
-       Author email                              : yangm@vmware.com
+       Author                                    : Brian Graf, Carrie Yang.
+       Author email                              : grafb@vmware.com, yangm@vmware.com
        Version                                   : 1.0
 
        ==========Tested Against Environment==========
@@ -274,28 +274,31 @@ Function Set-vMotionEncryptionConfig {
         [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
         [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine]$VM,
 
+        [Parameter(Mandatory=$True]
         [ValidateSet("disabled", "opportunistic", "required")]
-        [String]$Encryption	
+        [String]$Encryption
     )
 
     process{
-        # Confirm the connected VIServer is vCenter Server
-        ConfirmIsVCenter
+        if ($VM.vMotionEncryption -eq $Encryption) {
+           Write-Warning "The encrypted vMotion state is already $Encrypted, no need to change it."
+           return
+        }
 
-        if ($VM.Encrypted -and $VM.vMotionEncryption -ne $Encryption) {
+        if ($VM.Encrypted) {
            Write-Error "Cannot change encrypted vMotion state for an encrypted VM."
            return
         }
 
         $VMView = $VM | get-view
-        $config = new-object VMware.Vim.VirtualMachineConfigSpec
-        $config.MigrateEncryption = New-object VMware.Vim.VirtualMachineConfigSpecEncryptedVMotionModes
-        $config.MigrateEncryption = "$encryption"
-    
+        $Config = New-Object VMware.Vim.VirtualMachineConfigSpec
+        $Config.MigrateEncryption = New-Object VMware.Vim.VirtualMachineConfigSpecEncryptedVMotionModes
+        $Config.MigrateEncryption = $Encryption
+
         $VMView.ReconfigVM($config)
 
-        $VM.ExtensionData.UpdateViewData()        
-        $VM.vMotionEncryption    
+        $VM.ExtensionData.UpdateViewData()
+        $VM.vMotionEncryption
     }
 }
 
@@ -1156,7 +1159,7 @@ Function Get-VMEncryptionInfo {
     .NOTES
        If $HardDisk is specified, then only the encryption information of the disks specified in $HardDisk is obtained.
        Otherwise, all disks' encryption information of the specified VM is returned.
-    
+
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
@@ -1255,7 +1258,7 @@ Function Get-EntityByCryptoKey {
     .NOTES
        At least one of the KeyId and KMSClusterId parameters is required.
        If the SearchVMHosts, SearchVMs and SearchDisks all not specified, the cmdlet return $null.
-    
+
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
@@ -1876,7 +1879,7 @@ Function Set-DefaultKMSCluster {
        C:\PS>Set-DefaultKMSCluster -KMSClusterId 'ClusterIdString'
 
        Sets the KMS cluster whose cluster ID is 'ClusterIdString' as the default KMS cluster.
-    
+
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
