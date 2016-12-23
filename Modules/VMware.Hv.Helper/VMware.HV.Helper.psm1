@@ -1,7 +1,7 @@
 #Script Module : VMware.Hv.Helper
 #Version       : 1.0
 
-#Copyright Â© 2016 VMware, Inc. All Rights Reserved.
+#Copyright © 2016 VMware, Inc. All Rights Reserved.
 
 #Permission is hereby granted, free of charge, to any person obtaining a copy of
 #this software and associated documentation files (the "Software"), to deal in
@@ -48,10 +48,8 @@ function Get-ViewAPIService {
       return $hvServer.ExtensionData
     }
   } elseif ($global:DefaultHVServers.Length -gt 0) {
-    if ($pscmdlet.ShouldProcess($global:DefaultHVServers[0].uid,'hvServer not specified, use default hvServer connection?')) {
-      $hvServer = $global:DefaultHVServers[0]
-      return $hvServer.ExtensionData
-    }
+     $hvServer = $global:DefaultHVServers[0]
+     return $hvServer.ExtensionData
   }
   return $null
 }
@@ -296,7 +294,10 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
             return
           }
         }
-        $desktop_service_helper.Desktop_AddMachinesToManualDesktop($services,$id,$machineList)
+        if ($pscmdlet.ShouldProcess($machineList)) {
+          $desktop_service_helper.Desktop_AddMachinesToManualDesktop($services,$id,$machineList)
+        }
+        return $machineList
       }
       default {
         Write-Error "Only Automated/Manual pool types support this add operation"
@@ -347,6 +348,7 @@ function Get-MachinesByVCenter ($MachineList,$VcId) {
   }
   return $machines
 }
+
 function Add-HVRDSServer {
 <#
 .SYNOPSIS
@@ -430,7 +432,10 @@ function Add-HVRDSServer {
       'MANUAL' {
         try {
           $serverList = Get-RegisteredRDSServer -services $services -serverList $rdsServers
-          $farm_service_helper.Farm_AddRDSServers($services, $id, $serverList)
+          if ($pscmdlet.ShouldProcess($serverList)) {
+            $farm_service_helper.Farm_AddRDSServers($services, $id, $serverList)
+          }
+          return $serverList
         } catch {
           Write-Error "Failed to Add RDS Server to Farm with error: $_"
           break
@@ -443,7 +448,8 @@ function Add-HVRDSServer {
     [System.gc]::collect()
   }
 }
-[System.Reflection.Assembly]::LoadWithPartialName("System.Data.OracleClient") | Out-Null
+
+
 
 function Connect-HVEvent {
 <#
@@ -506,6 +512,7 @@ function Connect-HVEvent {
   )
 
   begin {
+    [System.Reflection.Assembly]::LoadWithPartialName("System.Data.OracleClient") | Out-Null
     # Connect to Connection Server and call the View API service
     $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
@@ -1350,6 +1357,10 @@ function Get-HVPoolSummary {
     break
   }
   $poolList = Find-HVPool -Param $psboundparameters
+  if (!$poolList) {
+    Write-Host "No Pool Found with given search parameters"
+    break
+  }
   Return $poolList
 }
 
@@ -1844,7 +1855,7 @@ function New-HVFarm {
     Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -DescriptionÂ  'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPatternÂ  "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
+    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description  'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
 
 .EXAMPLE
     New-HVFarm -Spec C:\VMWare\Specs\LinkedClone.json
@@ -2246,10 +2257,13 @@ function New-HVFarm {
 
     # Please uncomment below code, if you want to save the json file
     <#
-$myDebug = convertto-json -InputObject $farmSpecObj -depth 12
-$myDebug | out-file -filepath c:\temp\copiedfarm.json
-#>
-    $farm_service_helper.Farm_Create($services, $farmSpecObj)
+    $myDebug = convertto-json -InputObject $farmSpecObj -depth 12
+    $myDebug | out-file -filepath c:\temp\copiedfarm.json
+    #>
+    if ($pscmdlet.ShouldProcess($farmSpecObj)) {
+      $Id = $farm_service_helper.Farm_Create($services, $farmSpecObj)
+    }   
+    return $farmSpecObj
   }
 
   end {
@@ -2454,8 +2468,6 @@ function Get-FarmSpec {
   if ($farmType -eq 'AUTOMATED') {
     $farm_spec_helper.getDataObject().AutomatedFarmSpec.RdsServerNamingSpec.PatternNamingSettings = $farm_helper.getFarmPatternNamingSettingsHelper().getDataObject()
     $farm_spec_helper.getDataObject().AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings = $farm_helper.getFarmViewComposerStorageSettingsHelper().getDataObject()
-  } elseif ($farmType -eq 'MANUAL') {
-    # No need to set
   }
   return $farm_spec_helper.getDataObject()
 }
@@ -2988,10 +3000,13 @@ function New-HVPool {
 
     [Parameter(Mandatory = $true,ParameterSetName = 'MANUAL')]
     [Parameter(Mandatory = $false,ParameterSetName = "JSON_FILE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'CLONED_POOL')]
     [string[]]$VM,
 
     #farm
     [Parameter(Mandatory = $false,ParameterSetName = 'RDS')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'CLONED_POOL')]
+
     [string]
     $Farm,
 
@@ -3163,7 +3178,7 @@ function New-HVPool {
       $poolType = $clonePool.type
       $desktopBase = $clonePool.base
       $desktopSettings = $clonePool.DesktopSettings
-      $provisioningType = $null
+      $provisioningType = $clonePool.source
       if ($clonePool.AutomatedDesktopData) {
         $provisioningType = $clonePool.AutomatedDesktopData.ProvisioningType
         $virtualCenterID = $clonePool.AutomatedDesktopData.VirtualCenter
@@ -3176,8 +3191,25 @@ function New-HVPool {
         $desktopVirtualCenterManagedCommonSettings = $clonePool.AutomatedDesktopData.virtualCenterManagedCommonSettings
         $desktopCustomizationSettings = $clonePool.AutomatedDesktopData.CustomizationSettings
       }
-      if (($null -eq $provisioningType) -or ($provisioningType -eq 'INSTANT_CLONE_ENGINE')) {
-        Write-Error "Only Automated linked clone or full clone pool support cloning"
+       elseif ($clonePool.ManualDesktopData) {
+        if (! $VM) {
+            Write-Error "ManualDesktop pool cloning requires list of machines, parameter VM is empty"
+            break
+        }
+        $source = $clonePool.source
+        $virtualCenterID = $clonePool.ManualDesktopData.VirtualCenter
+        $desktopUserAssignment = $clonePool.ManualDesktopData.userAssignment
+        $desktopVirtualCenterStorageSettings = $clonePool.ManualDesktopData.viewStorageAcceleratorSettings
+        $desktopVirtualCenterManagedCommonSettings = $clonePool.ManualDesktopData.virtualCenterManagedCommonSettings
+      }
+      elseif($clonePool.RdsDesktopData) {
+        if (! $Farm) {
+            Write-Error "RdsDesktop pool cloning requires farm, parameter Farm is not set"
+            break
+        }
+      }
+      if ($provisioningType -eq 'INSTANT_CLONE_ENGINE' -and $poolType -eq 'AUTOMATED') {
+        Write-Error "Cloning is not supported for instant clone pools"
         break
       }
     } else {
@@ -3198,7 +3230,7 @@ function New-HVPool {
       elseif ($RDS) { $poolType = 'RDS' }
 
     }
-    $script:desktopSpecObj = Get-HVDesktopSpec -poolType $poolType -provisioningType $provisioningType -namingMethod $namingMethod
+    $script:desktopSpecObj = Get-DesktopSpec -poolType $poolType -provisioningType $provisioningType -namingMethod $namingMethod
 
     #
     # accumulate properties that are shared among various type
@@ -3400,7 +3432,10 @@ function New-HVPool {
     $myDebug | out-file -filepath c:\temp\copieddesktop.json
    #>
     $desktop_helper = New-Object VMware.Hv.DesktopService
-    $desktop_helper.Desktop_create($services,$desktopSpecObj)
+    if ($pscmdlet.ShouldProcess($desktopSpecObj)) {
+      $id = $desktop_helper.Desktop_create($services,$desktopSpecObj)
+    } 
+    return $desktopSpecObj
   }
 
   end {
@@ -3457,7 +3492,7 @@ function Get-HVPoolProvisioningData {
     $folderList += $folders
     while ($folderList.Length -gt 0) {
       $item = $folderList[0]
-      if ($item -and !$_.folderdata.incompatiblereasons.inuse -and !$_.folderdata.incompatiblereasons.viewcomposerreplicafolder -and ($item.folderdata.name -eq $vmFolder)) {
+      if ($item -and !$_.folderdata.incompatiblereasons.inuse -and !$_.folderdata.incompatiblereasons.viewcomposerreplicafolder -and (($item.folderdata.path -eq $vmFolder)    -or ($item.folderdata.name -eq $vmFolder))) {
         $vmObject.VmFolder = $item.id
         break
       }
@@ -3473,7 +3508,7 @@ function Get-HVPoolProvisioningData {
   if ($hostOrCluster) {
     $vmFolder_helper = New-Object VMware.Hv.HostOrClusterService
     $hostClusterList = ($vmFolder_helper.HostOrCluster_GetHostOrClusterTree($services,$vmobject.datacenter)).treeContainer.children.info
-    $hostClusterObj = $hostClusterList | Where-Object { $_.name -eq $hostOrCluster }
+    $hostClusterObj = $hostClusterList | Where-Object { ($_.path -eq $hostOrCluster) -or ($_.name -eq $hostOrCluster) }
     if ($null -eq $hostClusterObj) {
       throw "No hostOrCluster found with Name: [$hostOrCluster]"
     }
@@ -3482,7 +3517,7 @@ function Get-HVPoolProvisioningData {
   if ($resourcePool) {
     $resourcePool_helper = New-Object VMware.Hv.ResourcePoolService
     $resourcePoolList = $resourcePool_helper.ResourcePool_GetResourcePoolTree($services,$vmobject.HostOrCluster)
-    $resourcePoolObj = $resourcePoolList | Where-Object { $_.resourcepooldata.name -eq $resourcePool }
+    $resourcePoolObj = $resourcePoolList | Where-Object { ($_.resourcepooldata.path -eq $resourcePool) -or ($_.resourcepooldata.name -eq $resourcePool) }
     if ($null -eq $resourcePoolObj) {
       throw "No hostOrCluster found with Name: [$resourcePool]"
     }
@@ -3526,7 +3561,7 @@ function Get-HVPoolStorageObject {
     $datastoreList = $datastore_helper.Datastore_ListDatastoresByHostOrCluster($services,$hostClusterID)
     $datastoresSelected = @()
     foreach ($ds in $datastores) {
-      $datastoresSelected += ($datastoreList | Where-Object { $_.datastoredata.name -eq $ds }).id
+      $datastoresSelected += ($datastoreList | Where-Object { ($_.DatastoreData.Path -eq $ds) -or ($_.datastoredata.name -eq $ds) }).id
     }
     foreach ($ds in $datastoresSelected) {
       $myDatastores = New-Object VMware.Hv.DesktopVirtualCenterDatastoreSettings
@@ -3664,7 +3699,7 @@ function Get-CustomizationObject {
   }
 }
 
-function Get-HVDesktopSpec {
+function Get-DesktopSpec {
 
   param(
     [Parameter(Mandatory = $true)]
@@ -3775,16 +3810,16 @@ function Remove-HVFarm {
       }
       if ($farmSpecObj) {
         foreach ($farmObj in $farmSpecObj) {
-          $farmList += $farmObj.id
+          $farmList += @{"id" = $farmObj.id; "Name" =  $farmObj.data.name}
         }
       } else {
         Write-Error "Unable to retrieve FarmSummaryView with given farmName [$farmName]"
         break
       }
-    } elseif ($PSCmdlet.MyInvocation.ExpectingInput) {
+    } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Farm) {
       foreach ($item in $farm) {
-        if ($item.GetType().name -eq 'FarmInfo' -or $item.GetType().name -eq 'FarmSummaryView') {
-          $farmList += $item.id
+        if (($item.GetType().name -eq 'FarmInfo') -or ($item.GetType().name -eq 'FarmSummaryView')) {
+          $farmList += @{"id" = $item.id; "Name" =  $item.data.name}
         }
         else {
           Write-Error "In pipeline did not get object of expected type FarmSummaryView/FarmInfo"
@@ -3795,10 +3830,11 @@ function Remove-HVFarm {
     }
     $farm_service_helper = New-Object VMware.Hv.FarmService
     foreach ($item in $farmList) {
-      $farm_service_helper.Farm_Delete($services, $item)
+      if ($pscmdlet.ShouldProcess($item)) {
+        $farm_service_helper.Farm_Delete($services, $item.id)
+      }
+      Write-Host "Farm Deleted: " $item.Name
     }
-    Write-Host "Farm Deleted"
-
   }
   end {
     [System.gc]::collect()
@@ -3893,7 +3929,7 @@ function Remove-HVPool {
       }
       if ($myPools) {
         foreach ($poolObj in $myPools) {
-          $poolList += $poolObj.id
+          $poolList += @{id = $poolObj.id; name = $poolObj.desktopSummaryData.name}
         }
       } else {
         Write-Error "No desktopsummarydata found with pool name: [$pool]"
@@ -3901,8 +3937,11 @@ function Remove-HVPool {
       }
     } elseif ($PSCmdlet.MyInvocation.ExpectingInput) {
       foreach ($item in $pool) {
-        if (($item.GetType().name -eq 'DesktopInfo') -or ($item.GetType().name -eq 'DesktopSummaryView')) {
-          $poolList += $item.id
+        if ($item.GetType().name -eq 'DesktopSummaryView') {
+          $poolList += @{id = $item.id; name = $item.desktopSummaryData.name}
+        }
+        elseif ($item.GetType().name -eq 'DesktopInfo') {
+          $poolList += @{id = $item.id; name = $item.base.name}
         }
         else {
           Write-Error "In pipeline did not get object of expected type DesktopSummaryView/DesktopInfo"
@@ -3917,9 +3956,8 @@ function Remove-HVPool {
     foreach ($item in $poolList) {
       if ($terminateSession) {
         #Terminate session
-        $queryResults = Get-HVQueryResults MachineSummaryView (Get-HVQueryFilter base.desktop -eq $item)
+        $queryResults = Get-HVQueryResults MachineSummaryView (Get-HVQueryFilter base.desktop -eq $item.id)
         $sessions += $queryResults.base.session
-
         if ($null -ne $sessions) {
           $session_service_helper = New-Object VMware.Hv.SessionService
           try {
@@ -3932,8 +3970,10 @@ function Remove-HVPool {
           Write-Host "No session found."
         }
       }
-      Write-Host "Deleting Pool"
-      $desktop_service_helper.Desktop_Delete($services,$item,$deleteSpec)
+      Write-Host "Deleting Pool: " $item.Name
+      if ($pscmdlet.ShouldProcess($deleteSpec)) {
+        $desktop_service_helper.Desktop_Delete($services,$item.id,$deleteSpec)
+      }
     }
   }
 
@@ -4126,7 +4166,10 @@ function Set-HVFarm {
     }
     $farm_service_helper = New-Object VMware.Hv.FarmService
     foreach ($item in $farmList) {
-      $farm_service_helper.Farm_Update($services,$item,$updates)
+      if ($pscmdlet.ShouldProcess($updates)) {
+        $farm_service_helper.Farm_Update($services,$item,$updates)
+      }
+      Write-Host "Updated Farm Member $updates.Key with value $updates.value"
     }
   }
 
@@ -4326,7 +4369,10 @@ function Set-HVPool {
     }
     $desktop_helper = New-Object VMware.Hv.DesktopService
     foreach ($item in $poolList) {
-      $desktop_helper.Desktop_Update($services,$item,$updates)
+      if ($pscmdlet.ShouldProcess($updates)) {
+       $desktop_helper.Desktop_Update($services,$item,$updates)
+      }
+      Write-Host "Updated Pool member $updates.key with value $updates.value"
     }
   }
 
@@ -4519,9 +4565,11 @@ function Start-HVFarm {
             $updates = @()
             $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
             $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
-            $farm_service_helper.Farm_Update($services,$item,$updates)
-
-            $farm_service_helper.Farm_Recompose($services,$item,$spec)
+            if ($pscmdlet.ShouldProcess($spec)) {
+              $farm_service_helper.Farm_Update($services,$item,$updates)
+              $farm_service_helper.Farm_Recompose($services,$item,$spec)
+            }
+            Write-Host "Performed recompose task on farm: $farmList.item"
           }
         }
       }
@@ -4800,14 +4848,20 @@ function Start-HVPool {
           $spec = Get-HVTaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRebalanceSpec' -desktopId $item
           if ($null -ne $spec) {
             # make sure current task on VMs, must be None
-            $desktop_helper.Desktop_Rebalance($services,$item,$spec)
+            if ($pscmdlet.ShouldProcess($spec)) {
+              $desktop_helper.Desktop_Rebalance($services,$item,$spec)
+            }
+            Write-Host "Performed rebalance task on Pool: $PoolList.item"
           }
         }
         'REFRESH' {
           $spec = Get-HVTaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRefreshSpec' -desktopId $item
           if ($null -ne $spec) {
             # make sure current task on VMs, must be None
-            $desktop_helper.Desktop_Refresh($services,$item,$spec)
+            if ($pscmdlet.ShouldProcess($spec)) {
+              $desktop_helper.Desktop_Refresh($services,$item,$spec)
+            }
+            Write-Host "Performed refresh task on Pool: $PoolList.item"
           }
         }
         'RECOMPOSE' {
@@ -4823,8 +4877,10 @@ function Start-HVPool {
             $updates = @()
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
-            $desktop_helper.Desktop_Update($services,$item,$updates)
-
+            if ($pscmdlet.ShouldProcess($spec)) {
+              $desktop_helper.Desktop_Update($services,$item,$updates)
+            }
+            Write-Host "Performed recompose task on Pool: $PoolList.item"
           }
         }
         'PUSH_IMAGE' {
@@ -4839,7 +4895,10 @@ function Start-HVPool {
             $spec.Settings.LogoffSetting = $logoffSetting
             $spec.Settings.StopOnFirstError = $stopOnFirstError
             if ($startTime) { $spec.Settings.startTime = $startTime }
-            $desktop_helper.Desktop_SchedulePushImage($services,$item,$spec)
+            if ($pscmdlet.ShouldProcess($spec)) {
+              $desktop_helper.Desktop_SchedulePushImage($services,$item,$spec)
+            }
+            Write-Host "Performed push_image task on Pool: $PoolList.item"
           }
         }
         'CANCEL_PUSH_IMAGE' {
@@ -4847,7 +4906,10 @@ function Start-HVPool {
             Write-Error "$poolList.$item is not a INSTANT CLONE pool"
             break
           } else {
-            $desktop_helper.Desktop_CancelScheduledPushImage($services,$item)
+            if ($pscmdlet.ShouldProcess($spec)) {
+              $desktop_helper.Desktop_CancelScheduledPushImage($services,$item)
+            }
+            Write-Host "Performed cancel_push_image task on Pool: $PoolList.item"
           }
         }
       }
@@ -4956,7 +5018,7 @@ function Find-HVMachine {
     if ($params['PoolName']) {
       $poolObj = Get-HVPoolSummary -poolName $params['PoolName'] -hvServer $params['HvServer']
       if ($poolObj.Length -ne 1) {
-        Write-Host "Failed to retrieve specific pool object with given PoolName : "$params['PoolName']
+        Write-Host "Failed to retrieve specific pool object with given PoolName : " $params['PoolName']
         break;
       } else {
         $desktopId = $poolObj.Id
@@ -5260,5 +5322,353 @@ function Get-HVMachineSummary {
   return $machineList
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
+function Get-HVDesktopSpec {
+<#
+.Synopsis
+   Gets desktop specification
 
+.DESCRIPTION
+   Converts DesktopInfo Object to DesktopSpec. Also Converts view API Ids to human readable names
+
+.PARAMETER DesktopInfo
+   An object with detailed description of a desktop instance.
+
+.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Converts DesktopInfo to DesktopSpec
+   Get-HVDesktopSpec -DesktopInfo $DesktopInfoObj
+
+.EXAMPLE
+   Converts DesktopInfo to DesktopSpec and also dumps json object
+   Get-HVPool -PoolName 'LnkClnJson' | Get-HVDesktopSpec -FilePath "C:\temp\LnkClnJson.json"
+
+.OUTPUTS
+  Returns desktop specification
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+    [VMware.HV.DesktopInfo]
+    $DesktopInfo,
+
+    [Parameter(Mandatory = $false)]
+    [String]
+    $FilePath,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  
+  $DesktopSpec = New-Object VMware.HV.DesktopSpec
+  $DesktopPsObj = (($DesktopSpec | ConvertTo-Json -Depth 14) | ConvertFrom-Json)
+  $DesktopInfoPsObj = (($DesktopInfo | ConvertTo-Json -Depth 14) | ConvertFrom-Json)
+  $DesktopPsObj.Type = $DesktopInfoPsObj.Type
+  $DesktopPsObj.DesktopSettings = $DesktopInfoPsObj.DesktopSettings
+
+  $entityId = New-Object VMware.HV.EntityId
+  $entityId.Id = $DesktopInfoPsObj.Base.AccessGroup.Id
+  $DesktopPsObj.Base = New-Object PsObject -Property @{
+    name = $DesktopInfoPsObj.Base.Name;
+    displayName = $DesktopInfoPsObj.Base.displayName;
+    accessGroup = (Get-HVInternalName -EntityId $entityId);
+    description = $DesktopInfoPsObj.Base.description;
+  }
+
+  if (! $DesktopInfoPsObj.GlobalEntitlementData.GlobalEntitlement) {
+    $DesktopPsObj.GlobalEntitlementData = $null
+  } else {
+    $entityId.Id = $DesktopInfoPsObj.GlobalEntitlementData.GlobalEntitlement.Id
+    $DesktopPsObj.GlobalEntitlementData = Get-HVInternalName -EntityId $entityId
+  }
+
+  Switch ($DesktopInfo.Type) {
+    "AUTOMATED" {
+      $specificNamingSpecObj = $null
+      if ("SPECIFIED" -eq $DesktopInfoPsObj.AutomatedDesktopData.vmNamingSettings.NamingMethod) {
+        $specificNamingSpecObj =  New-Object PsObject -Property @{
+          specifiedNames = $null;
+          startMachinesInMaintenanceMode = $DesktopInfoPsObj.AutomatedDesktopData.vmNamingSettings.SpecificNamingSettings.StartMachinesInMaintenanceMode;
+          numUnassignedMachinesKeptPoweredOn = $DesktopInfoPsObj.AutomatedDesktopData.vmNamingSettings.SpecificNamingSettings.NumUnassignedMachinesKeptPoweredOn;
+        }
+      }
+      $vmNamingSpecObj = New-Object PsObject -Property @{
+        namingMethod = $DesktopInfoPsObj.AutomatedDesktopData.vmNamingSettings.NamingMethod;
+        patternNamingSettings = $DesktopInfoPsObj.AutomatedDesktopData.VmNamingSettings.PatternNamingSettings;
+        specificNamingSpec = $specificNamingSpecObj;
+      }
+      $virtualCenterProvisioningDataObj = New-Object PsObject @{
+        template = $null;
+        parentVm = $null;
+        snapshot = $null;
+        datacenter = $null;
+        vmFolder = $null;
+        hostOrCluster = $null;
+        resourcePool= $null;
+      }
+      $ProvisioningSettingsObj = $DesktopInfoPsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings
+      if ($ProvisioningSettingsObj.VirtualCenterProvisioningData.Datacenter){
+        $entityId.Id = $ProvisioningSettingsObj.VirtualCenterProvisioningData.Datacenter.Id
+        $virtualCenterProvisioningDataObj.Datacenter  = Get-HVInternalName -EntityId $entityId
+      }
+      if ($ProvisioningSettingsObj.VirtualCenterProvisioningData.HostOrCluster){
+        $entityId.Id = $ProvisioningSettingsObj.VirtualCenterProvisioningData.HostOrCluster.Id
+        $virtualCenterProvisioningDataObj.HostOrCluster  = Get-HVInternalName -EntityId $entityId
+      }
+      if ($ProvisioningSettingsObj.VirtualCenterProvisioningData.ResourcePool){
+        $entityId.Id = $ProvisioningSettingsObj.VirtualCenterProvisioningData.ResourcePool.Id
+        $virtualCenterProvisioningDataObj.ResourcePool  = Get-HVInternalName -EntityId $entityId
+      }
+      if ($ProvisioningSettingsObj.VirtualCenterProvisioningData.ParentVm){
+        $entityId.Id = $ProvisioningSettingsObj.VirtualCenterProvisioningData.ParentVm.Id
+        $virtualCenterProvisioningDataObj.ParentVm  = Get-HVInternalName -EntityId $entityId `
+          -VcId $DesktopInfo.AutomatedDesktopData.virtualCenter
+      }
+      if ($ProvisioningSettingsObj.VirtualCenterProvisioningData.Snapshot){
+        $entityId.Id = $ProvisioningSettingsObj.VirtualCenterProvisioningData.Snapshot.Id
+        $virtualCenterProvisioningDataObj.Snapshot  = Get-HVInternalName -EntityId $entityId `
+        -BaseImageVmId $DesktopInfo.AutomatedDesktopData.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ParentVm
+      }
+      if ($ProvisioningSettingsObj.VirtualCenterProvisioningData.Template){
+        $entityId.Id = $ProvisioningSettingsObj.VirtualCenterProvisioningData.Template.Id
+        $virtualCenterProvisioningDataObj.Template  = Get-HVInternalName -EntityId $entityId
+      }
+      if ($ProvisioningSettingsObj.VirtualCenterProvisioningData.VmFolder){
+        $entityId.Id = $ProvisioningSettingsObj.VirtualCenterProvisioningData.VmFolder.Id
+        $virtualCenterProvisioningDataObj.VmFolder  = Get-HVInternalName -EntityId $entityId
+      }
+      
+      $DesktopInfoPsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData = `
+        $virtualCenterProvisioningDataObj
+      $datastores = $DesktopInfoPsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores
+      $dataStoresObj = Get-DataStoreName -datastores $datastores
+      $DesktopInfoPsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores = `
+        $dataStoresObj
+      $virtualCenterStorageSettingsObj = `
+        $DesktopInfoPsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings.virtualCenterStorageSettings
+      if($virtualCenterStorageSettingsObj.replicaDiskDatastore) {
+        $entityId.Id = $virtualCenterStorageSettingsObj.replicaDiskDatastore.Id
+        $DesktopInfoPsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.replicaDiskDatastore =`
+          Get-HVInternalName -EntityId $entityId
+      }
+      if($virtualCenterStorageSettingsObj.persistentDiskSettings) {
+        $datastores = $virtualCenterStorageSettingsObj.persistentDiskSettings.persistentDiskDatastores
+        $dataStoresObj = Get-DataStoreName -datastores $datastores
+        $DesktopInfoPsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.persistentDiskSettings.persistentDiskDatastores = `
+          $dataStoresObj
+      }
+      if ($DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.domainAdministrator) {
+        $entityId.Id = $DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.domainAdministrator.Id
+        $DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.domainAdministrator = Get-HVInternalName -EntityId $entityId
+      }
+      if ($DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.adContainer) {
+        $entityId.Id = $DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.adContainer.Id
+        $DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.adContainer = Get-HVInternalName -EntityId $entityId
+      }
+      if ($DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.sysprepCustomizationSettings) {
+        $entityId.Id = `
+          $DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.sysprepCustomizationSettings.customizationSpec.Id
+        $DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.sysprepCustomizationSettings.customizationSpec = `
+          Get-HVInternalName -EntityId $entityId 
+      }
+      if ($DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.cloneprepCustomizationSettings) {
+        $entityId.Id = `
+          $DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.cloneprepCustomizationSettings.instantCloneEngineDomainAdministrator.Id
+        $DesktopInfoPsObj.AutomatedDesktopData.customizationSettings.cloneprepCustomizationSettings.instantCloneEngineDomainAdministrator = `
+          Get-HVInternalName -EntityId $entityId 
+      }
+
+      $DesktopPsObj.AutomatedDesktopSpec = New-Object PsObject  -Property @{
+        provisioningType = $DesktopInfoPsObj.AutomatedDesktopData.ProvisioningType;
+        virtualCenter = $null;
+        userAssignment = $DesktopInfoPsObj.AutomatedDesktopData.UserAssignment;
+        virtualCenterProvisioningSettings = $DesktopInfoPsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings;
+        virtualCenterManagedCommonSettings = $DesktopInfoPsObj.AutomatedDesktopData.virtualCenterManagedCommonSettings;
+        customizationSettings = $DesktopInfoPsObj.AutomatedDesktopData.customizationSettings;
+        vmNamingSpec = $VmNamingSpecObj;
+      }
+      if ($DesktopInfoPsObj.AutomatedDesktopData.virtualCenter) {
+        $entityId.Id = $DesktopInfoPsObj.AutomatedDesktopData.virtualCenter.Id
+        $DesktopPsObj.AutomatedDesktopSpec.virtualCenter = Get-HVInternalName `
+          -EntityId $entityId
+      }
+      break
+    }
+    "MANUAL" {
+      $DesktopPsObj.ManualDesktopSpec = New-Object PsObject -Property @{
+        userAssignment = $DesktopInfoPsObj.ManualDesktopData.UserAssignment;
+        source = $DesktopInfoPsObj.ManualDesktopData.Source;
+        virtualCenter = $null;
+        machines = $null;
+        viewStorageAcceleratorSettings = $DesktopInfoPsObj.ManualDesktopData.ViewStorageAcceleratorSettings;
+        virtualCenterManagedCommonSettings = $DesktopInfoPsObj.ManualDesktopData.VirtualCenterManagedCommonSettings;
+      }
+      if ($DesktopInfoPsObj.ManualDesktopData.virtualCenter) {
+        $entityId.Id = $DesktopInfoPsObj.ManualDesktopData.virtualCenter.Id
+        $DesktopPsObj.ManualDesktopSpec.virtualCenter = Get-HVInternalName `
+          -EntityId $entityId
+      }
+      break 
+    }
+    "RDS" {
+      $DesktopPsObj.rdsDesktopSpec =  New-Object PsObject -Property @{
+        farm = $null;
+      }
+      break
+    }
+  }
+  $DesktopSpecJson = ($DesktopPsObj | ConvertTo-Json -Depth 14)
+  if ($filePath) {
+    $DesktopSpecJson |  Out-File -FilePath $filePath
+  }
+  return $DesktopSpecJson
+}
+
+function Get-DataStoreName {
+  param(
+    [Parameter(Mandatory = $true)]
+    $datastores
+  )
+  $dataStoresObj = @()
+  $entityId = New-Object VMware.Hv.EntityId
+  $datastores | % {
+    $entityId.Id = $_.datastore.Id
+    $dataStoresObj += , (New-Object PsObject -Property @{
+        datastore = Get-HVInternalName -EntityId $entityId;
+        storageOvercommit = $_.storageOvercommit;
+    })
+  }
+  return $dataStoresObj
+}
+
+function Get-HVInternalName {
+<#
+.Synopsis
+   Gets human readable name
+
+.DESCRIPTION
+   Converts Horizon API Ids to human readable names. Horizon API Ids are base64 encoded, this function
+   will decode and returns internal/human readable names.
+
+.PARAMETER EntityId
+   Representation of a manageable entity id.
+
+.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Decodes and returns human readable name
+   Get-HVInternalName -EntityId $entityId
+
+.OUTPUTS
+  Returns human readable name
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [VMware.HV.EntityId]
+    $EntityId,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [VMware.HV.VirtualCenterId]
+    $VcId,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [VMware.HV.BaseImageVmId]
+    $BaseImageVmId,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+  process {
+    $tokens = ($EntityId.id -split "/")
+    $serviceName = $tokens[0]
+    Switch ($serviceName) {
+      'VirtualCenter' {
+         $vc_id = New-Object VMware.HV.VirtualCenterId
+         $vc_id.Id = $EntityId.Id
+         return ($services.VirtualCenter.VirtualCenter_Get($vc_id)).serverSpec.serverName
+       }
+       'InstantCloneEngineDomainAdministrator' {
+         $Icid = New-Object VMware.HV.InstantCloneEngineDomainAdministratorId
+         $Icid.Id = $EntityId.Id
+         $Info = $services.InstantCloneEngineDomainAdministrator.InstantCloneEngineDomainAdministrator_Get($Icid)
+         return $Info.Base.Username
+       }
+       'BaseImageVm' {
+         $info = $services.BaseImageVm.BaseImageVm_List($VcId) | where { $_.id.id -eq  $EntityId.id }
+         return $info.name
+       }
+       'BaseImageSnapshot' {
+         $info = $services.BaseImageSnapshot.BaseImageSnapshot_List($BaseImageVmId) | where { $_.id.id -eq  $EntityId.id }
+         return $info.name
+       }
+       'VmTemplate' {
+         $info = $services.VmTemplate.VmTemplate_List($VcId) | where { $_.id.id -eq  $EntityId.id }
+         return $info.name
+       }
+       'ViewComposerDomainAdministrator' {
+         $AdministratorId = New-Object VMware.HV.ViewComposerDomainAdministratorId
+         $AdministratorId.id = $EntityId.id
+         $info = $services.ViewComposerDomainAdministrator.ViewComposerDomainAdministrator_Get($AdministratorId)
+         return $info.base.userName
+       }
+       default {
+         $base64String  = $tokens[$tokens.Length-1]
+         $mod = $base64String.Length % 4
+         if ($mod -ne 0) {
+           #Length of a string must be multiples of 4
+           $base64String = $base64String.PadRight(($base64String.Length + (4 - $mod)), "=")
+         }
+         #Convert 4 bytes to 3 bytes base64 decoding
+         return ([System.Text.Encoding]::ASCII.GetString([System.Convert]:: `
+           FromBase64String($base64String)))
+       }
+    }
+  }
+  end {
+    [System.gc]::collect()
+  }
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVDesktopSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
