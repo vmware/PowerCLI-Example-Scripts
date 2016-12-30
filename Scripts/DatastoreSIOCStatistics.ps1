@@ -58,7 +58,7 @@ function Set-DatastoreSIOCStatCollection {
 .PARAMETER Datastore
     Datastore to be ran against
 .EXAMPLE
-	Set-DatastoreSIOCStatCollection -Datastore ExampleDatastore -Enable $true
+	Set-DatastoreSIOCStatCollection -Datastore ExampleDatastore -Enable
 	Enables SIOC statistics collection for the provided datastore 
 #>
 [CmdletBinding(SupportsShouldProcess)] 
