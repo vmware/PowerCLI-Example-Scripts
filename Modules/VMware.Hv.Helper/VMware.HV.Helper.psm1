@@ -918,22 +918,27 @@ function Get-HVFarm {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
+     Queries and returns farmInfo based on given parameter farmName
      Get-HVFarm -FarmName 'Farm-01'
 
 .EXAMPLE
+     Queries and returns farmInfo based on given parameters farmName, farmDisplayName
      Get-HVFarm -FarmName 'Farm-01' -FarmDisplayName 'Sales RDS Farm'
 
 .EXAMPLE
+     Queries and returns farmInfo based on given parameters farmName, farmType
      Get-HVFarm -FarmName 'Farm-01' -FarmType 'MANUAL'
 
 .EXAMPLE
+     Queries and returns farmInfo based on given parameters farmName, FarmType etc
      Get-HVFarm -FarmName 'Farm-01' -FarmType 'MANUAL' -Enabled $true
 
 .EXAMPLE
-     Get-HVFarm -FarmName 'Farm-01'
+     Queries and returns farmInfo based on parameter farmName with wild character *
+     Get-HVFarm -FarmName 'Farm-0*'
 
 .OUTPUTs
-    Returns the list of FarmSummaryView or FarmInfo object matching the query criteria.
+    Returns the list of FarmInfo object matching the query criteria.
 
 .NOTES
     Author                      : Ankit Gupta.
@@ -979,6 +984,10 @@ function Get-HVFarm {
     break
   }
   $farmList = Find-HVFarm -Param $PSBoundParameters
+  if (! $farmList) {
+    Write-Host "No farm Found with given search parameters"
+    breakss
+  }
   $farm_service_helper = New-Object VMware.Hv.FarmService
   $queryResults = @()
   foreach ($id in $farmList.id) {
@@ -1015,22 +1024,27 @@ function Get-HVFarmSummary {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-     Get-HVFarm -FarmName 'Farm-01'
+     Queries and returns farmSummary objects based on given parameter farmName
+     Get-HVFarmSummary -FarmName 'Farm-01'
 
 .EXAMPLE
-     Get-HVFarm -FarmName 'Farm-01' -FarmDisplayName 'Sales RDS Farm'
+     Queries and returns farmSummary objects based on given parameters farmName, farmDisplayName
+     Get-HVFarmSummary -FarmName 'Farm-01' -FarmDisplayName 'Sales RDS Farm'
 
 .EXAMPLE
-     Get-HVFarm -FarmName 'Farm-01' -FarmType 'MANUAL'
+     Queries and returns farmSummary objects based on given parameters farmName, farmType
+     Get-HVFarmSummary -FarmName 'Farm-01' -FarmType 'MANUAL'
 
 .EXAMPLE
-     Get-HVFarm -FarmName 'Farm-01' -FarmType 'MANUAL' -Enabled $true
+     Queries and returns farmSummary objects based on given parameters farmName, FarmType etc
+     Get-HVFarmSummary -FarmName 'Farm-01' -FarmType 'MANUAL' -Enabled $true
 
 .EXAMPLE
-     Get-HVFarm -FarmName 'Farm-01'
+     Queries and returns farmSummary objects based on given parameter farmName with wild character *
+     Get-HVFarmSummary -FarmName 'Farm-0*'
 
 .OUTPUTs
-    Returns the list of FarmSummaryView or FarmInfo object matching the query criteria.
+    Returns the list of FarmSummary object matching the query criteria.
 
 .NOTES
     Author                      : Praveen Mathamsetty.
@@ -1076,6 +1090,10 @@ function Get-HVFarmSummary {
     break
   }
   $farmList = Find-HVFarm -Param $PSBoundParameters
+  if (! $farmList) {
+    Write-Host "No farm Found with given search parameters"
+    break
+  }
   return $farmList
 }
 
@@ -1099,27 +1117,51 @@ function Find-HVFarm {
   $query_service_helper = New-Object VMware.Hv.QueryServiceService
   $query = New-Object VMware.Hv.QueryDefinition
 
+  $wildcard = $false
   # build the query values
+  if ($params['FarmName'] -and $params['FarmName'].contains('*')) {
+    $wildcard = $true
+  }
+  if ($params['FarmDisplayName'] -and $params['FarmDisplayName'].contains('*')) {
+    $wildcard = $true
+  }
 
   $query.queryEntityType = 'FarmSummaryView'
-  [VMware.Hv.queryfilter[]]$filterSet = @()
-  foreach ($setting in $farmSelectors.Keys) {
-    if ($null -ne $params[$setting]) {
-      $equalsFilter = New-Object VMware.Hv.QueryFilterEquals
-      $equalsFilter.memberName = $farmSelectors[$setting]
-      $equalsFilter.value = $params[$setting]
-      $filterSet += $equalsFilter
+  if (! $wildcard) {
+    [VMware.Hv.queryfilter[]]$filterSet = @()
+    foreach ($setting in $farmSelectors.Keys) {
+      if ($null -ne $params[$setting]) {
+        $equalsFilter = New-Object VMware.Hv.QueryFilterEquals
+        $equalsFilter.memberName = $farmSelectors[$setting]
+        $equalsFilter.value = $params[$setting]
+        $filterSet += $equalsFilter
+      }
     }
-  }
-  if ($filterSet.Count -gt 0) {
-    $queryList = New-Object VMware.Hv.QueryFilterAnd
-    $queryList.Filters = $filterset
-    $query.Filter = $queryList
-  }
+    if ($filterSet.Count -gt 0) {
+      $queryList = New-Object VMware.Hv.QueryFilterAnd
+      $queryList.Filters = $filterset
+      $query.Filter = $queryList
+    }
 
-  $queryResults = $query_service_helper.QueryService_Query($services, $query)
-  $farmList = $queryResults.results
-  
+    $queryResults = $query_service_helper.QueryService_Query($services, $query)
+    $farmList = $queryResults.results
+  } elseif ($wildcard -or [string]::IsNullOrEmpty($farmList)){
+    $query.Filter = $null
+    $queryResults = $query_service_helper.QueryService_Query($services,$query)
+    $strFilterSet = @()
+    foreach ($setting in $farmSelectors.Keys) {
+      if ($null -ne $params[$setting]) {
+        if ($wildcard -and (($setting -eq 'FarmName') -or ($setting -eq 'FarmDisplayName')) ) {
+          $strFilterSet += '($_.' + $farmSelectors[$setting] + ' -like "' + $params[$setting] + '")'
+        } else {
+          $strFilterSet += '($_.' + $farmSelectors[$setting] + ' -eq "' + $params[$setting] + '")'
+        }
+      }
+    }
+    $whereClause =  [string]::Join(' -and ', $strFilterSet)
+    $scriptBlock = [Scriptblock]::Create($whereClause)
+    $farmList = $queryResults.results | where $scriptBlock
+  }
   Return $farmList
 }
 
@@ -1168,19 +1210,23 @@ function Get-HVPool {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
+   Queries and returns pool object(s) based on given parameters poolName, poolType etc.
    Get-HVPool -PoolName 'mypool' -PoolType MANUAL -UserAssignment FLOATING -Enabled $true -ProvisioningEnabled $true
 
 .EXAMPLE
+   Queries and returns pool object(s) based on given parameters poolType and userAssignment
    Get-HVPool -PoolType AUTOMATED -UserAssignment FLOATING
 
 .EXAMPLE
+   Queries and returns pool object(s) based on given parameters poolName, PoolType etc.
    Get-HVPool -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false
 
 .EXAMPLE
+   Queries and returns pool object(s) based on given parameters poolName and HvServer etc.
    Get-HVPool -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false -HvServer $mycs
 
 .OUTPUTS
-   Returns list of objects of type Desktop
+   Returns list of objects of type DesktopInfo
 
 .NOTES
     Author                      : Praveen Mathamsetty.
@@ -1235,6 +1281,10 @@ function Get-HVPool {
     break
   }
   $poolList = Find-HVPool -Param $PSBoundParameters
+  if (! $poolList) {
+    Write-Host "No Pool Found with given search parameters"
+    break
+  }
   $queryResults = @()
   $desktop_helper = New-Object VMware.Hv.DesktopService
   foreach ($id in $poolList.id) {
@@ -1290,15 +1340,19 @@ function Get-HVPoolSummary {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
+   Queries and returns desktopSummaryView based on given parameters poolName, poolType etc.
    Get-HVPoolSummary -PoolName 'mypool' -PoolType MANUAL -UserAssignment FLOATING -Enabled $true -ProvisioningEnabled $true
 
 .EXAMPLE
+   Queries and returns desktopSummaryView based on given parameters poolType, userAssignment.
    Get-HVPoolSummary -PoolType AUTOMATED -UserAssignment FLOATING
 
 .EXAMPLE
+   Queries and returns desktopSummaryView based on given parameters poolName, poolType, userAssignment etc.
    Get-HVPoolSummary -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false
 
 .EXAMPLE
+   Queries and returns desktopSummaryView based on given parameters poolName, HvServer etc.
    Get-HVPoolSummary -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false -HvServer $mycs
 
 .OUTPUTS
@@ -1478,30 +1532,38 @@ function Get-HVQueryFilter {
 
 
 .EXAMPLE
+    Creates queryFilterEquals with given parameters memberName(position 0) and memberValue(position 2)
     Get-HVQueryFilter data.name -Eq vmware
 
 .EXAMPLE
+    Creates queryFilterEquals with given parameters memberName and memberValue
     Get-HVQueryFilter -MemberName data.name -Eq -MemberValue vmware
 
 .EXAMPLE
+    Creates queryFilterNotEquals filter with given parameters memberName and memberValue
     Get-HVQueryFilter data.name -Ne vmware
 
 .EXAMPLE
+    Creates queryFilterContains with given parameters memberName and memberValue
     Get-HVQueryFilter data.name -Contains vmware
 
 .EXAMPLE
+    Creates queryFilterStartsWith with given parameters memberName and memberValue
     Get-HVQueryFilter data.name -Startswith vmware
 
 .EXAMPLE
+    Creates queryFilterNot with given parameter filter
     $filter = Get-HVQueryFilter data.name -Startswith vmware
     Get-HVQueryFilter -Not $filter
 
 .EXAMPLE
+    Creates queryFilterAnd with given parameter filters array
     $filter1 = Get-HVQueryFilter data.name -Startswith vmware
     $filter2 = Get-HVQueryFilter data.name -Contains pool
     Get-HVQueryFilter -And @($filter1, $filter2)
 
 .EXAMPLE
+    Creates queryFilterOr with given parameter filters array
     $filter1 = Get-HVQueryFilter data.name -Startswith vmware
     $filter2 = Get-HVQueryFilter data.name -Contains pool
     Get-HVQueryFilter -Or @($filter1, $filter2)
@@ -1630,22 +1692,24 @@ function Get-HVQueryResult {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
+    Returns query results of entityType DesktopSummaryView(position 0)
     Get-HVQueryResult DesktopSummaryView
 
 .EXAMPLE
+    Returns query results of entityType DesktopSummaryView(position 0) with given filter(position 1)
     Get-HVQueryResult DesktopSummaryView (Get-HVQueryFilter data.name -Eq vmware)
 
 .EXAMPLE
+    Returns query results of entityType DesktopSummaryView with given filter
     Get-HVQueryResult -EntityType DesktopSummaryView -Filter (Get-HVQueryFilter desktopSummaryData.name -Eq vmware)
 
 .EXAMPLE
-    Get-HVQueryResult -EntityType DesktopSummaryView -Filter (Get-HVQueryFilter desktopSummaryData.name -Eq vmware) -SortBy desktopSummaryData.displayName
-
-.EXAMPLE
+    Returns query results of entityType DesktopSummaryView with given filter and also sorted based on dispalyName
     $myFilter = Get-HVQueryFilter data.name -Contains vmware
     Get-HVQueryResult -EntityType DesktopSummaryView -Filter $myFilter -SortBy desktopSummaryData.displayName -SortDescending $false
 
 .EXAMPLE
+    Returns query results of entityType DesktopSummaryView, maximum count equal to limit
     Get-HVQueryResult DesktopSummaryView -Limit 10
 
 .OUTPUTS
@@ -1855,12 +1919,15 @@ function New-HVFarm {
     Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
+    Creates new linkedClone farm by using naming pattern 
     New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description  'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
 
 .EXAMPLE
+    Creates new linkedClone farm by using json file 
     New-HVFarm -Spec C:\VMWare\Specs\LinkedClone.json
 
 .EXAMPLE
+    Creates new manual farm by using rdsServers names
     New-HVFarm -Manual -FarmName "manualFarmTest" -FarmDisplayName "manualFarmTest" -Description "Manual PS Test" -RdsServers "vm-for-rds.eng.vmware.com","vm-for-rds-2.eng.vmware.com"
 
 .OUTPUTS
@@ -2683,7 +2750,7 @@ function New-HVPool {
    New-HVPool -Spec C:\VMWare\Specs\LinkedClone.json
 
 .EXAMPLE
-   Clone new pool from automated linked (or) full clone pool
+   Clones new pool by using existing pool configuration
    Get-HVPool -PoolName 'vmwarepool' | New-HVPool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
    (OR)
    $vmwarepool = Get-HVPool -PoolName 'vmwarepool';  New-HVPool -ClonePool $vmwarepool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
@@ -3752,12 +3819,15 @@ function Remove-HVFarm {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
+   Delete a given farm. For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
    Remove-HVFarm -FarmName 'Farm-01' -HvServer $hvServer
 
 .EXAMPLE
+   Deletes a given Farm object(s). For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
    $farm_array | Remove-HVFarm -HvServer $hvServer
 
 .EXAMPLE
+   Deletes a given Farm object. For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
    $farm1 = Get-HVFarm -FarmName 'Farm-01'
    Remove-HVFarm -Farm $farm1
 
@@ -3866,12 +3936,15 @@ function Remove-HVPool {
     Logs off a session forcibly to virtual machine(s). This operation will also log off a locked session.
 
 .EXAMPLE
+   Deletes pool from disk with given parameters PoolName etc.
    Remove-HVPool -HvServer $hvServer -PoolName 'FullClone' -DeleteFromDisk
 
 .EXAMPLE
+   Deletes specified pool from disk
    $pool_array | Remove-HVPool -HvServer $hvServer  -DeleteFromDisk
 
 .EXAMPLE
+   Deletes specified pool and VM(s) associations are removed from view Manager
    Remove-HVPool -Pool $pool1
 
 .OUTPUTS
@@ -3956,7 +4029,7 @@ function Remove-HVPool {
     foreach ($item in $poolList) {
       if ($terminateSession) {
         #Terminate session
-        $queryResults = Get-HVQueryResults MachineSummaryView (Get-HVQueryFilter base.desktop -eq $item.id)
+        $queryResults = Get-HVQueryResult MachineSummaryView (Get-HVQueryFilter base.desktop -eq $item.id)
         $sessions += $queryResults.base.session
         if ($null -ne $sessions) {
           $session_service_helper = New-Object VMware.Hv.SessionService
@@ -4021,18 +4094,23 @@ function Set-HVFarm {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-    Set-HVFarm -FarmName 'Farm-o1' -Spec 'C:\Edit-HVFarm\ManualEditFarm.json'
+    Updates farm configuration by using json file
+    Set-HVFarm -FarmName 'Farm-01' -Spec 'C:\Edit-HVFarm\ManualEditFarm.json'
 
 .EXAMPLE
-    Set-HVFarm -FarmName 'Farm-o1' -Key 'base.description' -Value 'updated description'
+    Updates farm configuration with given parameters key and value
+    Set-HVFarm -FarmName 'Farm-01' -Key 'base.description' -Value 'updated description'
 
 .EXAMPLE
+    Updates farm(s) configuration with given parameters key and value
     $farm_array | Set-HVFarm -Key 'base.description' -Value 'updated description'
 
 .EXAMPLE
+    Enables provisioning to specified farm
     Set-HVFarm -farm 'Farm2' -Start
 
 .EXAMPLE
+    Enables specified farm
     Set-HVFarm -farm 'Farm2' -Enable
 
 .OUTPUTS
@@ -4218,21 +4296,27 @@ function Set-HVPool {
     Path of the JSON specification file containing key/value pair.
 
 .EXAMPLE
+    Updates pool configuration by using json file
     Set-HVPool -PoolName 'ManualPool' -Spec 'C:\Edit-HVPool\EditPool.json'
 
 .EXAMPLE
+    Updates pool configuration with given parameters key and value
     Set-HVPool -PoolName 'RDSPool' -Key 'base.description' -Value 'update description'
 
 .Example
+    Disables specified pool
     Set-HVPool  -PoolName 'LnkClone' -Disable
 
 .Example
+    Enables specified pool
     Set-HVPool  -PoolName 'LnkClone' -Enable
 
 .Example
+    Enables provisioning to specified pool
     Set-HVPool  -PoolName 'LnkClone' -Start
 
 .Example
+    Disables provisioning to specified pool
     Set-HVPool  -PoolName 'LnkClone' -Stop
 
 .OUTPUTS
@@ -4422,9 +4506,11 @@ function Start-HVFarm {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
+    Requests a recompose of RDS Servers in the specified automated farm
     Start-HVFarm -Recompose -Farm 'Farm-01' -LogoffSetting FORCE_LOGOFF -ParentVM 'View-Agent-Win8' -SnapshotVM 'Snap_USB'
 
 .EXAMPLE
+    Requests a recompose task for automated farm in specified time
     $myTime = Get-Date '10/03/2016 12:30:00'
     Start-HVFarm -Farm 'Farm-01' -Recompose -LogoffSetting 'FORCE_LOGOFF' -ParentVM 'ParentVM' -SnapshotVM 'SnapshotVM' -StartTime $myTime
 
@@ -4692,19 +4778,24 @@ function Start-HVPool {
     View API service object of Connect-HVServer cmdlet.
 
 .EXAMPLE
+    Requests a recompose of machines in the specified pool
     Start-HVPool -Recompose -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -ParentVM 'View-Agent-Win8' -SnapshotVM 'Snap_USB'
 
 .EXAMPLE
+    Requests a refresh of machines in the specified pool
     Start-HVPool -Refresh -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF
 
 .EXAMPLE
+    Requests a rebalance of machines in a pool with specified time
     $myTime = Get-Date '10/03/2016 12:30:00'
     Start-HVPool -Rebalance -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -StartTime $myTime
 
 .EXAMPLE
+    Requests an update of push image operation on the specified Instant Clone Engine sourced pool
     Start-HVPool -SchedulePushImage -Pool 'InstantPool' -LogoffSetting FORCE_LOGOFF -ParentVM 'InsParentVM' -SnapshotVM 'InsSnapshotVM'
 
 .EXAMPLE
+    Requests a cancellation of the current scheduled push image operation on the specified Instant Clone Engine sourced pool
     Start-HVPool -CancelPushImage -Pool 'InstantPool'
 
 .OUTPUTS
@@ -5130,16 +5221,20 @@ function Get-HVMachine {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
+   Queries VM(s) with given parameter poolName
    Get-HVDesktop -PoolName 'ManualPool'
 
 .EXAMPLE
+   Queries VM(s) with given parameter machineName
    Get-HVDesktop -MachineName 'PowerCLIVM'
 
 .EXAMPLE
+   Queries VM(s) with given parameter vm state
    Get-HVDesktop -State CUSTOMIZING
 
 .EXAMPLE
-   Get-HVDesktop -DnsName 'powercli-*' -State CUSTOMIZING
+   Queries VM(s) with given parameter dnsName with wildcard character *
+   Get-HVDesktop -DnsName 'powercli-*'
 
 .OUTPUTS
   Returns list of objects of type MachineInfo
@@ -5247,16 +5342,20 @@ function Get-HVMachineSummary {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
+   Queries VM(s) with given parameter poolName
    Get-HVDesktopSummary -PoolName 'ManualPool'
 
 .EXAMPLE
+   Queries VM(s) with given parameter machineName
    Get-HVDesktopSummary -MachineName 'PowerCLIVM'
 
 .EXAMPLE
+   Queries VM(s) with given parameter vm state
    Get-HVDesktopSummary -State CUSTOMIZING
 
 .EXAMPLE
-   Get-HVDesktopSummary -DnsName 'powercli-*' -State CUSTOMIZING
+   Queries VM(s) with given parameter dnsName with wildcard character *
+   Get-HVDesktopSummary -DnsName 'powercli-*'
 
 .OUTPUTS
   Returns list of objects of type MachineNamesView
@@ -5574,7 +5673,7 @@ function Get-HVInternalName {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Decodes and returns human readable name
+   Decodes Horizon API Id and returns human readable name
    Get-HVInternalName -EntityId $entityId
 
 .OUTPUTS
