@@ -1,0 +1,38 @@
+{
+    "Type":  "MANUAL",
+    "Data":  {
+                 "Name":  "manualFarmTest",
+                 "DisplayName":  "manualFarmTest",
+                 "AccessGroup":  "Root",
+                 "Description":  "Manual PS Test",
+                 "Enabled":  null,
+                 "Deleting":  false,
+                 "Settings":  {
+								"DisconnectedSessionTimeoutPolicy" : "NEVER",
+								"DisconnectedSessionTimeoutMinutes" : 1,
+								"EmptySessionTimeoutPolicy" : "AFTER",
+								"EmptySessionTimeoutMinutes" : 1,
+								"LogoffAfterTimeout" : false
+							  },
+                 "Desktop":  null,
+                 "DisplayProtocolSettings":  {
+												"DefaultDisplayProtocol" : "PCOIP",
+												"AllowDisplayProtocolOverride" : false,
+												"EnableHTMLAccess" : false
+											 },
+                 "ServerErrorThreshold":  null,
+                 "MirageConfigurationOverrides":  {
+													"OverrideGlobalSetting" : false,
+													"Enabled" : false,
+													"Url" : null
+												  }
+             },
+    "AutomatedFarmSpec":  null,
+    "ManualFarmSpec":  {
+                           "RdsServers":  [
+                                              {
+                                                  "rdsServer": "RDSServer.adviewdev.eng.vmware.com"
+                                              }
+                                          ]
+                       }
+}

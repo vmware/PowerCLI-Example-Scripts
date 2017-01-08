@@ -1,0 +1,27 @@
+{
+    "Base":  {
+                 "Name" : "RdsJson",
+                 "DisplayName":  "TestRDSPS",
+                 "AccessGroup":  "Root",
+                 "Description":  "Testing PS"
+             },
+    "DesktopSettings":  {
+							"enabled": true,
+							"deleting": false,
+							"connectionServerRestrictions": null,
+							"logoffSettings":  null,
+							"displayProtocolSettings": null,
+							"flashSettings": {
+												"quality": "NO_CONTROL",
+												"throttling": "DISABLED"
+											 },
+							"mirageConfigurationOverrides": null
+	                    },
+    "Type":  "RDS",
+    "AutomatedDesktopSpec":  null,
+    "ManualDesktopSpec":  null,
+    "RdsDesktopSpec":  {
+                           "Farm":  "test1"
+                       },
+    "GlobalEntitlementData":  null
+}

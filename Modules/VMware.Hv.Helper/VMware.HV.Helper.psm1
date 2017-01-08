@@ -294,7 +294,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
             return
           }
         }
-        if ($pscmdlet.ShouldProcess($machineList)) {
+        if ($pscmdlet.ShouldProcess($machines)) {
           $desktop_service_helper.Desktop_AddMachinesToManualDesktop($services,$id,$machineList)
         }
         return $machineList
@@ -412,7 +412,7 @@ function Add-HVRDSServer {
     try {
       $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
     } catch {
-      Write-Error "Make sure Get-HVFarm advanced function is loaded, $_"
+      Write-Error "Make sure Get-HVFarmSummary advanced function is loaded, $_"
       break
     }
     if ($farmSpecObj) {
@@ -432,7 +432,7 @@ function Add-HVRDSServer {
       'MANUAL' {
         try {
           $serverList = Get-RegisteredRDSServer -services $services -serverList $rdsServers
-          if ($pscmdlet.ShouldProcess($serverList)) {
+          if ($pscmdlet.ShouldProcess($rdsServers)) {
             $farm_service_helper.Farm_AddRDSServers($services, $id, $serverList)
           }
           return $serverList
@@ -985,8 +985,8 @@ function Get-HVFarm {
   }
   $farmList = Find-HVFarm -Param $PSBoundParameters
   if (! $farmList) {
-    Write-Host "No farm Found with given search parameters"
-    breakss
+    Write-Host "Get-HVFarm: No Farm Found with given search parameters"
+    break
   }
   $farm_service_helper = New-Object VMware.Hv.FarmService
   $queryResults = @()
@@ -1089,12 +1089,7 @@ function Get-HVFarmSummary {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
   }
-  $farmList = Find-HVFarm -Param $PSBoundParameters
-  if (! $farmList) {
-    Write-Host "No farm Found with given search parameters"
-    break
-  }
-  return $farmList
+  Return Find-HVFarm -Param $PSBoundParameters
 }
 
 function Find-HVFarm {
@@ -1282,7 +1277,7 @@ function Get-HVPool {
   }
   $poolList = Find-HVPool -Param $PSBoundParameters
   if (! $poolList) {
-    Write-Host "No Pool Found with given search parameters"
+    Write-Host "Get-HVPool: No Pool Found with given search parameters"
     break
   }
   $queryResults = @()
@@ -1410,12 +1405,7 @@ function Get-HVPoolSummary {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
   }
-  $poolList = Find-HVPool -Param $psboundparameters
-  if (!$poolList) {
-    Write-Host "No Pool Found with given search parameters"
-    break
-  }
-  Return $poolList
+  Return Find-HVPool -Param $psboundparameters
 }
 
 function Find-HVPool {
@@ -1798,6 +1788,7 @@ function Get-HVQueryResult {
   }
 }
 
+
 function New-HVFarm {
 <#
 .Synopsis
@@ -1984,6 +1975,71 @@ function New-HVFarm {
     [boolean]
     $Enable = $true,
 
+    #farmSpec.data.settings.disconnectedSessionTimeoutPolicy
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("IMMEDIATE","NEVER","AFTER")]
+    [string]
+    $DisconnectedSessionTimeoutPolicy  = "NEVER",
+
+    #farmSpec.data.settings.disconnectedSessionTimeoutMinutes
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $DisconnectedSessionTimeoutMinutes,
+    
+    #farmSpec.data.settings.emptySessionTimeoutPolicy
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("NEVER","AFTER")]
+    [string]
+    $EmptySessionTimeoutPolicy = "AFTER",
+
+    #farmSpec.data.settings.emptySessionTimeoutMinutes
+    [Parameter(Mandatory = $false)]
+    [ValidateSet(1,[Int]::MaxValue)]
+    [int]
+    $EmptySessionTimeoutMinutes = 1,
+
+    #farmSpec.data.settings.logoffAfterTimeout
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $LogoffAfterTimeout = $false,
+
+    #farmSpec.data.displayProtocolSettings.defaultDisplayProtocol
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("RDP","PCOIP","BLAST")]
+    [string]
+    $DefaultDisplayProtocol = "PCOIP",
+
+    #farmSpec.data.displayProtocolSettings.allowDisplayProtocolOverride
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $AllowDisplayProtocolOverride = $true,
+
+    #farmSpec.data.displayProtocolSettings.enableHTMLAccess
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $EnableHTMLAccess = $false,
+
+    #farmSpec.data.serverErrorThreshold
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(0,[Int]::MaxValue)]
+    $ServerErrorThreshold = 0,
+
+    #farmSpec.data.mirageConfigurationOverrides.overrideGlobalSetting
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $OverrideGlobalSetting = $false,
+
+    #farmSpec.data.mirageConfigurationOverrides.enabled
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $MirageServerEnabled,
+
+    #farmSpec.data.mirageConfigurationOverrides.url
+    [Parameter(Mandatory = $false)]
+    [string]
+    $Url,
+
     #farmSpec.automatedfarmSpec.virtualCenter if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [string]
@@ -2014,15 +2070,25 @@ function New-HVFarm {
     [string]
     $ResourcePool,
 
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.dataCenter if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [string]
+    $dataCenter,
+
     #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastore if LINKED_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
     [string[]]
     $Datastores,
 
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores.storageOvercommit if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [string[]]
+    $StorageOvercommit = $null,
+
     #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.useVSAN if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
-    [string]
-    $UseVSAN,
+    [boolean]
+    $UseVSAN = $false,
 
     #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.enableProvsioning if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
@@ -2059,6 +2125,37 @@ function New-HVFarm {
     [int]
     $MaximumCount = 1,
 
+	#farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.useSeparateDatastoresReplicaAndOSDisks
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]
+    $UseSeparateDatastoresReplicaAndOSDisks = $false,
+
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.replicaDiskDatastore
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [string]
+    $ReplicaDiskDatastore,
+
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.useNativeSnapshots
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]
+    $UseNativeSnapshots = $false,
+
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.spaceReclamationSettings.reclaimVmDiskSpace
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]
+    $ReclaimVmDiskSpace = $false,
+
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.spaceReclamationSettings.reclamationThresholdGB
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(0,[Int]::MaxValue)]
+    [int]
+    $ReclamationThresholdGB = 1,
+
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.spaceReclamationSettings.blackoutTimes
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [VMware.Hv.FarmBlackoutTime[]]
+    $BlackoutTimes,
+
     #farmSpec.automatedfarmSpec.customizationSettings.adContainer if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     [string]
@@ -2074,12 +2171,29 @@ function New-HVFarm {
     [string]
     $DomainAdmin = $null,
 
+    #farmSpec.automatedfarmSpec.customizationSettings.reusePreExistingAccounts
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [Boolean]
+    $ReusePreExistingAccounts = $false,
+
     #farmSpec.automatedfarmSpec.customizationSettings.sysprepCustomizationSettings.customizationSpec if LINKED_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
     [string]
     $SysPrepName,
 
-    ##farmSpec.manualfarmSpec.rdsServers
+    #farmSpec.automatedfarmSpec.rdsServerMaxSessionsData.maxSessionsType if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet("UNLIMITED", "LIMITED")]
+    [string]
+    $MaxSessionsType = "UNLIMITED",
+
+    #farmSpec.automatedfarmSpec.rdsServerMaxSessionsData.maxSessionsType if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(1, [int]::MaxValue)]
+    [int]
+    $MaxSessions,
+
+    #farmSpec.manualfarmSpec.rdsServers
     [Parameter(Mandatory = $true,ParameterSetName = 'MANUAL')]
     [string[]]
     $RdsServers,
@@ -2127,9 +2241,9 @@ function New-HVFarm {
 
     if ($farmName) {
       try {
-        $sourceFarm = Get-HVFarm -farmName $farmName -hvServer $hvServer
+        $sourceFarm = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
       } catch {
-        Write-Error "Make sure Get-HVFarm advanced function is loaded, $_"
+        Write-Error "Make sure Get-HVFarmSummary advanced function is loaded, $_"
         break
       }
       if ($sourceFarm) {
@@ -2145,18 +2259,33 @@ function New-HVFarm {
         Write-Error "Json file exception, $_"
         break
       }
+      try {
+        Test-HVFarmSpec -JsonObject $jsonObject
+      } catch {
+        Write-Error "Json object validation failed, $_"
+        break
+      }
       if ($jsonObject.type -eq 'AUTOMATED') {
         $farmType = 'AUTOMATED'
+        $provisioningType = $jsonObject.ProvisioningType
         if ($null -ne $jsonObject.AutomatedFarmSpec.VirtualCenter) {
           $vCenter = $jsonObject.AutomatedFarmSpec.VirtualCenter
         }
         $linkedClone = $true
         $netBiosName = $jsonObject.NetBiosName
+        if ($null -ne $jsonObject.AutomatedFarmSpec.CustomizationSettings.DomainAdministrator) {
+            $domainAdministrator = $jsonObject.AutomatedFarmSpec.CustomizationSettings.DomainAdministrator
+        }
         $adContainer = $jsonObject.AutomatedFarmSpec.CustomizationSettings.AdContainer
+        $reusePreExistingAccounts = $jsonObject.AutomatedFarmSpec.CustomizationSettings.ReusePreExistingAccounts
+        $sysPrepName = $jsonObject.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings.CustomizationSpec
 
         $namingMethod = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.NamingMethod
         $namingPattern = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.namingPattern
         $maximumCount = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.maxNumberOfRDSServers
+        $enableProvisioning = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.EnableProvisioning
+        $stopProvisioningOnError = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.StopProvisioningOnError
+        $minReady = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.MinReadyVMsOnVComposerMaintenance
 
         $transparentPageSharingScope = $jsonObject.AutomatedFarmSpec.virtualCenterManagedCommonSettings.TransparentPageSharingScope
 
@@ -2170,10 +2299,36 @@ function New-HVFarm {
         $hostOrCluster = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster
         $resourcePool = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ResourcePool
         $dataStoreList = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.Datastores
+
         foreach ($dtStore in $dataStoreList) {
           $datastores += $dtStore.Datastore
+          $storageOvercommit += $dtStore.StorageOvercommit
         }
-        $sysPrepName = $jsonObject.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings.CustomizationSpec
+        $useVSan =  $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.UseVSan
+        $useSeparateDatastoresReplicaAndOSDisks = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.UseSeparateDatastoresReplicaAndOSDisks
+        if ($useSeparateDatastoresReplicaAndOSDisks) {
+            $replicaDiskDatastore = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.ReplicaDiskDatastore
+        }
+        $useNativeSnapshots = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.UseNativeSnapshots
+        $reclaimVmDiskSpace = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.ReclaimVmDiskSpace
+        if ($reclaimVmDiskSpace) {
+            $ReclamationThresholdGB = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.ReclamationThresholdGB
+            if ($null -ne $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.blackoutTimes) {
+                $blackoutTimesList = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.blackoutTimes
+                foreach ($blackout in $blackoutTimesList) {
+                    $blackoutObj  = New-Object VMware.Hv.DesktopBlackoutTime
+                    $blackoutObj.Days = $blackout.Days
+                    $blackoutObj.StartTime = $blackout.StartTime
+                    $blackoutObj.EndTime = $blackoutObj.EndTime
+                    $blackoutTimes += $blackoutObj
+                }
+            }
+        }
+        $maxSessionsType = $jsonObject.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType
+        if ($maxSessionsType -eq "LIMITED") {
+            $maxSessions = $jsonObject.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessions
+        }
+
       } elseif ($jsonObject.type -eq 'MANUAL') {
         $manual = $true
         $farmType = 'MANUAL'
@@ -2183,10 +2338,33 @@ function New-HVFarm {
           $rdsServers += $RdsServerObj.rdsServer
         }
       }
-      $farmDisplayName = $jsonObject.data.DisplayName
-      $description = $jsonObject.data.Description
-      $accessGroup = $jsonObject.data.AccessGroup
-      $farmName = $jsonObject.data.name
+      $farmDisplayName = $jsonObject.Data.DisplayName
+      $description = $jsonObject.Data.Description
+      $accessGroup = $jsonObject.Data.AccessGroup
+      $farmName = $jsonObject.Data.name
+      if ($null -ne $jsonObject.Data.Enabled) {
+        $enable = $jsonObject.Data.Enabled
+      }
+      if ($null -ne $jsonObject.Data.Settings) {
+        $disconnectedSessionTimeoutPolicy = $jsonObject.Data.Settings.DisconnectedSessionTimeoutPolicy
+        $disconnectedSessionTimeoutMinutes = $jsonObject.Data.Settings.DisconnectedSessionTimeoutMinutes
+        $emptySessionTimeoutPolicy = $jsonObject.Data.Settings.EmptySessionTimeoutPolicy
+        $emptySessionTimeoutMinutes = $jsonObject.Data.Settings.EmptySessionTimeoutMinutes
+        $logoffAfterTimeout = $jsonObject.Data.Settings.LogoffAfterTimeout
+      }
+      if ($null -ne $jsonObject.Data.DisplayProtocolSettings) {
+        $defaultDisplayProtocol = $jsonObject.Data.DisplayProtocolSettings.DefaultDisplayProtocol
+        $allowDisplayProtocolOverride = $jsonObject.Data.DisplayProtocolSettings.AllowDisplayProtocolOverride
+        $enableHTMLAccess = $jsonObject.Data.DisplayProtocolSettings.EnableHTMLAccess
+      }
+      if ($null -ne $jsonObject.Data.serverErrorThreshold) {
+        $serverErrorThreshold = $jsonObject.Data.serverErrorThreshold
+      }
+      if ($null -ne $jsonObject.Data.MirageConfigurationOverrides) {
+        $overrideGlobalSetting = $jsonObject.Data.MirageConfigurationOverrides.OverrideGlobalSetting
+        $mirageserverEnabled = $jsonObject.Data.MirageConfigurationOverrides.Enabled
+        $url = $jsonObject.Data.MirageConfigurationOverrides.url
+      }
     }
 
     if ($linkedClone) {
@@ -2245,17 +2423,17 @@ function New-HVFarm {
           $farmVirtualCenterManagedCommonSettings = $farmSpecObj.AutomatedFarmSpec.virtualCenterManagedCommonSettings
         }
 
-        if (!$farmVirtualMachineNamingSpec) {
+        if ($farmSpecObj.AutomatedFarmSpec.RdsServerNamingSpec) {
           $farmSpecObj.AutomatedFarmSpec.RdsServerNamingSpec.NamingMethod = $namingMethod
           $farmSpecObj.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.namingPattern = $namingPattern
           $farmSpecObj.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.maxNumberOfRDSServers = $maximumCount
         } else {
           $vmNamingSpec = New-Object VMware.Hv.FarmRDSServerNamingSpec
-          $vmNamingSpec.NamingMethod = 'PATTERN'
-
+          $vmNamingSpec.NamingMethod = $namingMethod
           $vmNamingSpec.patternNamingSettings = New-Object VMware.Hv.FarmPatternNamingSettings
           $vmNamingSpec.patternNamingSettings.namingPattern = $namingPattern
           $vmNamingSpec.patternNamingSettings.maxNumberOfRDSServers = $maximumCount
+          $farmSpecObj.AutomatedFarmSpec.RdsServerNamingSpec = $vmNamingSpec
         }
 
         #
@@ -2263,8 +2441,10 @@ function New-HVFarm {
         #
         try {
           $farmVirtualCenterProvisioningData = Get-HVFarmProvisioningData -vc $virtualCenterID -vmObject $farmVirtualCenterProvisioningData
-          $hostClusterId = $farmVirtualCenterProvisioningData.HostOrCluster
-          $farmVirtualCenterStorageSettings = Get-HVFarmStorageObject -hostclusterID $hostClusterId -storageObject $farmVirtualCenterStorageSettings
+
+          $HostOrCluster_helper = New-Object VMware.Hv.HostOrClusterService
+          $hostClusterIds = (($HostOrCluster_helper.HostOrCluster_GetHostOrClusterTree($services, $farmVirtualCenterProvisioningData.datacenter)).treeContainer.children.info).Id
+          $farmVirtualCenterStorageSettings = Get-HVFarmStorageObject -hostclusterIDs $hostClusterIds -storageObject $farmVirtualCenterStorageSettings
           $farmVirtualCenterNetworkingSettings = Get-HVFarmNetworkSetting -networkObject $farmVirtualCenterNetworkingSettings
           $farmCustomizationSettings = Get-HVFarmCustomizationSetting -vc $virtualCenterID -customObject $farmCustomizationSettings
         } catch {
@@ -2273,31 +2453,20 @@ function New-HVFarm {
           break
         }
 
-        $farmSpecObj.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType = "UNLIMITED"
-
-        if (!$FarmVirtualCenterProvisioningSettings) {
-          $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.enableProvisioning = $true
-          $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.stopProvisioningOnError = $true
-          $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.minReadyVMsOnVComposerMaintenance = 0
-          $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData = $farmVirtualCenterProvisioningData
-          $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings = $farmVirtualCenterStorageSettings
-          $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings = $FarmVirtualCenterNetworkingSettings
-
-          $farmSpecObj.AutomatedFarmSpec.CustomizationSettings = $farmCustomizationSettings
-          $farmSpecObj.AutomatedFarmSpec.ProvisioningType = $provisioningType
-          $farmSpecObj.AutomatedFarmSpec.VirtualCenter = $virtualCenterID
-        } else {
-          $FarmVirtualCenterProvisioningSettings.VirtualCenterProvisioningData = $farmVirtualCenterProvisioningData
-          $FarmVirtualCenterProvisioningSettings.VirtualCenterStorageSettings = $farmVirtualCenterStorageSettings
-          $FarmVirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings = $FarmVirtualCenterNetworkingSettings
-
-          $FarmAutomatedFarmSpec = New-Object VMware.Hv.FarmAutomatedFarmSpec
-          $FarmAutomatedFarmSpec.ProvisioningType = $provisioningType
-          $FarmAutomatedFarmSpec.VirtualCenter = $virtualCenterID
-          $FarmAutomatedFarmSpec.VirtualCenterProvisioningSettings = $farmVirtualCenterProvisioningSettings
-          $FarmAutomatedFarmSpec.virtualCenterManagedCommonSettings = $farmVirtualCenterManagedCommonSettings
-          $FarmAutomatedFarmSpec.CustomizationSettings = $farmCustomizationSettings
+        $farmSpecObj.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType = $maxSessionsType
+        if ($maxSessionsType -eq "LIMITED") {
+            $farmSpecObj.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType = $maxSessions
         }
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.enableProvisioning = $enableProvisioning
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.stopProvisioningOnError = $stopProvisioningOnError
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.minReadyVMsOnVComposerMaintenance = $minReady
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData = $farmVirtualCenterProvisioningData
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings = $farmVirtualCenterStorageSettings
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings = $FarmVirtualCenterNetworkingSettings
+
+		$farmSpecObj.AutomatedFarmSpec.CustomizationSettings = $farmCustomizationSettings
+        $farmSpecObj.AutomatedFarmSpec.ProvisioningType = $provisioningType
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenter = $virtualCenterID
       }
     }
 
@@ -2313,6 +2482,29 @@ function New-HVFarm {
     $farmData.name = $farmName
     $farmData.DisplayName = $farmDisplayName
     $farmData.Description = $description
+    if ($farmData.Settings) {
+        $farmData.Settings.DisconnectedSessionTimeoutPolicy = $disconnectedSessionTimeoutPolicy
+        if ($disconnectedSessionTimeoutPolicy -eq "AFTER") {
+            $farmData.Settings.DisconnectedSessionTimeoutMinutes = $disconnectedSessionTimeoutMinutes
+        }
+        $farmData.Settings.EmptySessionTimeoutPolicy = $emptySessionTimeoutPolicy
+        if ($emptySessionTimeoutPolicy -eq "AFTER") {
+            $farmData.Settings.EmptySessionTimeoutMinutes = $emptySessionTimeoutMinutes
+        }
+        $logoffAfterTimeout = $farmData.Settings.logoffAfterTimeout
+    }
+    if ($farmData.DisplayProtocolSettings) {
+        $farmData.DisplayProtocolSettings.DefaultDisplayProtocol = $defaultDisplayProtocol
+        $farmData.DisplayProtocolSettings.AllowDisplayProtocolOverride = $AllowDisplayProtocolOverride
+        $farmData.DisplayProtocolSettings.EnableHTMLAccess = $enableHTMLAccess
+    }
+    if ($farmData.MirageConfigurationOverrides){
+        $farmData.MirageConfigurationOverrides.OverrideGlobalSetting = $overrideGlobalSetting
+        $farmData.MirageConfigurationOverrides.Enabled = $mirageServerEnabled
+        if ($url) {
+            $farmData.MirageConfigurationOverrides.Url = $url
+        }
+    }
     $farmSpecObj.type = $farmType
 
     if ($FarmAutomatedFarmSpec) {
@@ -2327,7 +2519,8 @@ function New-HVFarm {
     $myDebug = convertto-json -InputObject $farmSpecObj -depth 12
     $myDebug | out-file -filepath c:\temp\copiedfarm.json
     #>
-    if ($pscmdlet.ShouldProcess($farmSpecObj)) {
+
+    if ($pscmdlet.ShouldProcess($farmSpecObj.data.name)) {
       $Id = $farm_service_helper.Farm_Create($services, $farmSpecObj)
     }   
     return $farmSpecObj
@@ -2338,6 +2531,85 @@ function New-HVFarm {
   }
 
 }
+
+function Test-HVFarmSpec {
+  param(
+    [Parameter(Mandatory = $true)]
+    $JsonObject
+  )
+  if ($null -eq $jsonObject.Type) {
+    Throw "Specify type of farm in json file"
+  }
+  $jsonFarmTypeArray = @('AUTOMATED','MANUAL')
+  if (! ($jsonFarmTypeArray -contains $jsonObject.Type)) {
+    Throw "Farm type must be AUTOMATED or MANUAL"
+  }
+  if ($null -eq $jsonObject.Data.Name) {
+    Throw "Specify farm name in json file"
+  }
+  if ($null -eq $jsonObject.Data.AccessGroup) {
+    Throw "Specify horizon access group in json file"
+  }
+  if ($jsonObject.Type -eq "AUTOMATED"){
+    $jsonProvisioningType = $jsonObject.AutomatedFarmSpec.ProvisioningType
+    if ($null -eq $jsonProvisioningType) {
+        Throw "Must specify provisioningType in json file"
+    }
+    if ($null -eq $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.namingMethod) {
+        Throw "Must specify naming method to PATTERN in json file"
+    }
+    if ($null -eq  $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings) {
+        Throw "Specify Naming pattern settings in json file"
+    }
+    if ($null -eq $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.namingPattern) {
+        Throw "Specify specified naming pattern in json file"
+    }
+    if ($null -eq $jsonObject.AutomatedFarmSpec.virtualCenterProvisioningSettings.enableProvisioning) {
+        Throw "Specify Whether to enable provisioning in json file"
+    }
+    if ($null -eq $jsonObject.AutomatedFarmSpec.virtualCenterProvisioningSettings.stopProvisioningOnError) {
+        Throw "Specify Whether provisioning on all VMs stops on error in json file"
+    }
+    $jsonTemplate = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Template
+    $jsonParentVm = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ParentVm
+    $jsonSnapshot = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Snapshot
+    $jsonVmFolder = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.VmFolder
+    $jsonHostOrCluster = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.HostOrCluster
+    $ResourcePool = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ResourcePool
+    if (!( ($null -ne $jsonTemplate) -or (($null -ne $jsonParentVm) -and ($null -ne $jsonSnapshot) )) ) {
+       Throw "Must specify Template or (ParentVm and Snapshot) names in json file"
+    }
+    if ($null -eq $jsonVmFolder) {
+       Throw "Must specify VM folder in json file to deploy the VMs"
+    }
+    if ($null -eq $jsonHostOrCluster) {
+       Throw "Must specify Host or cluster in json file to deploy the VMs"
+    }
+    if ($null -eq $resourcePool) {
+       Throw "Must specify Resource pool in json file to deploy the VMs"
+    }
+    if ($null -eq $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.Datastores) {
+       Throw "Must specify datastores names in json file"
+    }
+    if ($null -eq $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.useVSan) {
+       Throw "Must specify whether to use virtual SAN or not"
+    }
+    if ($null -eq $jsonObject.AutomatedFarmSpec.CustomizationSettings.customizationType) {
+        Throw "Specify Type of customization to use in json file"
+    }
+    if ($null -eq $jsonObject.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings) {
+        Throw "Specify Sysprep customization settings in json file"
+    }
+    if ($null -eq $jsonObject.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType) {
+        Throw "Specify MaxSessionsType in json file"
+    }
+  } elseif ($jsonObject.Type -eq "MANUAL") {
+    if ($null -eq $jsonObject.manualFarmSpec.rdsServers) {
+        Throw "Specify rdsServers name in json file"
+    }
+  }
+}
+
 
 function Get-HVFarmProvisioningData {
   param(
@@ -2359,6 +2631,12 @@ function Get-HVFarmProvisioningData {
     }
     $vmObject.ParentVm = $parentVMObj.id
     $dataCenterID = $parentVMObj.datacenter
+    if ($dataCenter -and $dataCenterID) {
+        $baseImageVmInfo = $base_imageVm_helper.BaseImageVm_ListByDatacenter($dataCenterID)
+        if (! ($baseImageVmInfo.Path -like "/$dataCenter/*")) {
+            throw "$parentVM not exists in datacenter: [$dataCenter]"
+        }
+    }
     $vmObject.datacenter = $dataCenterID
   }
   if ($snapshotVM) {
@@ -2411,23 +2689,30 @@ function Get-HVFarmProvisioningData {
   return $vmObject
 }
 
+
 function Get-HVFarmStorageObject {
   param(
-    [Parameter(Mandatory = $false)]
-    [VMware.Hv.FarmVirtualCenterStorageSettings]$StorageObject,
 
     [Parameter(Mandatory = $true)]
-    [VMware.Hv.HostOrClusterId]$HostClusterID
+    [VMware.Hv.HostOrClusterId[]]$HostClusterIDs,
+	
+	[Parameter(Mandatory = $false)]
+    [VMware.Hv.FarmVirtualCenterStorageSettings]$StorageObject
   )
   if (!$storageObject) {
     $storageObject = New-Object VMware.Hv.FarmVirtualCenterStorageSettings
 
     $FarmSpaceReclamationSettings = New-Object VMware.Hv.FarmSpaceReclamationSettings -Property @{ 'reclaimVmDiskSpace' = $false }
+    if ($reclaimVmDiskSpace) {
+        $FarmSpaceReclamationSettings.ReclamationThresholdGB = $reclamationThresholdGB
+        if ($blackoutTimes) {
+          $FarmSpaceReclamationSettings.BlackoutTimes = $blackoutTimes
+        }
+    }
 
     $FarmViewComposerStorageSettingsList = @{
-      'useSeparateDatastoresReplicaAndOSDisks' = $false;
-      'replicaDiskDatastore' = $FarmReplicaDiskDatastore
-      'useNativeSnapshots' = $false;
+      'useSeparateDatastoresReplicaAndOSDisks' = $UseSeparateDatastoresReplicaAndOSDisks;
+      'useNativeSnapshots' = $useNativeSnapshots;
       'spaceReclamationSettings' = $FarmSpaceReclamationSettings;
     }
 
@@ -2435,18 +2720,33 @@ function Get-HVFarmStorageObject {
   }
 
   if ($datastores) {
+    if ($StorageOvercommit -and  ($datastores.Length -ne  $StorageOvercommit.Length) ) {
+        throw "Parameters datastores length: [$datastores.Length] and StorageOvercommit length: [$StorageOvercommit.Length] should be of same size"
+    }
     $Datastore_service_helper = New-Object VMware.Hv.DatastoreService
-    $datastoreList = $Datastore_service_helper.Datastore_ListDatastoresByHostOrCluster($services, $hostClusterID)
+    foreach ($hostClusterID in $hostClusterIDs) {
+        $datastoreList += $Datastore_service_helper.Datastore_ListDatastoresByHostOrCluster($services, $hostClusterID)
+    }
     $datastoresSelected = @()
     foreach ($ds in $datastores) {
       $datastoresSelected += ($datastoreList | Where-Object { $_.datastoredata.name -eq $ds }).id
     }
+    if (! $storageOvercommit) {
+      foreach ($ds in $datastoresSelected) {
+        $storageOvercommit += ,'UNBOUNDED'
+      }
+    } 
+    $StorageOvercommitCnt = 0
     foreach ($ds in $datastoresSelected) {
       $datastoresObj = New-Object VMware.Hv.FarmVirtualCenterDatastoreSettings
       $datastoresObj.Datastore = $ds
-      $datastoresObj.StorageOvercommit = 'UNBOUNDED'
+      $datastoresObj.StorageOvercommit =  $storageOvercommit[$StorageOvercommitCnt]
       $StorageObject.Datastores += $datastoresObj
     }
+    if ($useSeparateDatastoresReplicaAndOSDisks) {
+        $FarmReplicaDiskDatastore = ($datastoreList | Where-Object { $_.datastoredata.name -eq $replicaDiskDatastore }).id
+    }
+    $StorageObject.ViewComposerStorageSettings.ReplicaDiskDatastore = $FarmReplicaDiskDatastore
   }
   if ($storageObject.Datastores.Count -eq 0) {
     throw "No datastores found with name: [$datastores]"
@@ -2454,6 +2754,7 @@ function Get-HVFarmStorageObject {
   if ($useVSAN) { $storageObject.useVSAN = $useVSAN }
   return $storageObject
 }
+
 
 function Get-HVFarmNetworkSetting {
   param(
@@ -2465,6 +2766,7 @@ function Get-HVFarmNetworkSetting {
   }
   return $networkObject
 }
+
 
 function Get-HVFarmCustomizationSetting {
   param(
@@ -2479,7 +2781,7 @@ function Get-HVFarmCustomizationSetting {
     $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministrator_service_helper.ViewComposerDomainAdministrator_List($services, $vcID) | Where-Object { $_.base.domain -match $netBiosName })
     if (! [string]::IsNullOrWhitespace($domainAdmin)) {
       $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministratorID | Where-Object { $_.base.userName -ieq $domainAdmin }).id
-    } else {
+    } elseif ($null -ne $ViewComposerDomainAdministratorID) {
       $ViewComposerDomainAdministratorID = $ViewComposerDomainAdministratorID[0].id
     }
     if ($null -eq $ViewComposerDomainAdministratorID) {
@@ -2509,7 +2811,7 @@ function Get-HVFarmCustomizationSetting {
     $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
     $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.DomainAdministrator = $ViewComposerDomainAdministratorID
     $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.AdContainer = $adContainerId
-    $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.ReusePreExistingAccounts = $false
+    $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
     $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings = $sysprepCustomizationSettings
 
     $customObject = $farmSpecObj.AutomatedFarmSpec.CustomizationSettings
@@ -2535,9 +2837,15 @@ function Get-FarmSpec {
   if ($farmType -eq 'AUTOMATED') {
     $farm_spec_helper.getDataObject().AutomatedFarmSpec.RdsServerNamingSpec.PatternNamingSettings = $farm_helper.getFarmPatternNamingSettingsHelper().getDataObject()
     $farm_spec_helper.getDataObject().AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings = $farm_helper.getFarmViewComposerStorageSettingsHelper().getDataObject()
+
+
   }
+  $farm_spec_helper.getDataObject().Data.Settings = $farm_helper.getFarmSessionSettingsHelper().getDataObject()
+  $farm_spec_helper.getDataObject().Data.DisplayProtocolSettings = $farm_helper.getFarmDisplayProtocolSettingsHelper().getDataObject()
+  $farm_spec_helper.getDataObject().Data.MirageConfigurationOverrides = $farm_helper.getFarmMirageConfigurationOverridesHelper( ).getDataObject()
   return $farm_spec_helper.getDataObject()
 }
+
 
 function New-HVPool {
 <#
@@ -2743,7 +3051,7 @@ function New-HVPool {
 
 .EXAMPLE
    Create new automated linked clone pool with naming method pattern
-   New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "vmware2" -MinReady 1 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
+   New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
 
 .EXAMPLE
    Create new automated linked clone pool by using JSON spec file
@@ -2850,7 +3158,6 @@ function New-HVPool {
 
     #desktopSpec.automatedDesktopSpec.desktopUserAssignment.userAssigment if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     #desktopSpec.manualDesktopSpec.desktopUserAssignment.userAssigment if MANUAL
-
     [Parameter(Mandatory = $true,ParameterSetName = 'MANUAL')]
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
@@ -2876,6 +3183,120 @@ function New-HVPool {
     [Parameter(Mandatory = $false)]
     [string[]]
     $ConnectionServerRestrictions,
+
+	#desktopSpec.desktopSettings.deleting
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]$Deleting = $false,
+
+    #desktopSpec.desktopSettings.logoffSettings.powerPloicy
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('TAKE_NO_POWER_ACTION', 'ALWAYS_POWERED_ON', 'SUSPEND', 'POWER_OFF')]
+    [string]$PowerPolicy = 'TAKE_NO_POWER_ACTION',
+
+    #desktopSpec.desktopSettings.logoffSettings.powerPloicy
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('IMMEDIATELY', 'NEVER', 'AFTER')]
+    [string]$AutomaticLogoffPolicy = 'NEVER',
+
+    #desktopSpec.desktopSettings.logoffSettings.automaticLogoffMinutes
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(1,120)]
+    [int]$AutomaticLogoffMinutes = 120,
+
+    #desktopSpec.desktopSettings.logoffSettings.allowUsersToResetMachines
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]$allowUsersToResetMachines = $false,
+
+    #desktopSpec.desktopSettings.logoffSettings.allowMultipleSessionsPerUser
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]$allowMultipleSessionsPerUser = $false,
+
+    #desktopSpec.desktopSettings.logoffSettings.deleteOrRefreshMachineAfterLogoff
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('NEVER', 'DELETE', 'AFTER')]
+    [string]$deleteOrRefreshMachineAfterLogoff = 'NEVER',
+
+    #desktopSpec.desktopSettings.logoffSettings.refreshOsDiskAfterLogoff
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('NEVER', 'ALWAYS', 'EVERY', 'AT_SIZE')]
+    [string]$refreshOsDiskAfterLogoff = 'NEVER',
+
+    #desktopSpec.desktopSettings.logoffSettings.refreshPeriodDaysForReplicaOsDisk
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [int]$refreshPeriodDaysForReplicaOsDisk = 120,
+
+    #desktopSpec.desktopSettings.logoffSettings.refreshThresholdPercentageForReplicaOsDisk
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(1,100)]
+    [int]$refreshThresholdPercentageForReplicaOsDisk,
+
+    #DesktopDisplayProtocolSettings
+    #desktopSpec.desktopSettings.logoffSettings.supportedDisplayProtocols
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('RDP', 'PCOIP', 'BLAST')]
+    [string[]]$supportedDisplayProtocols = @('RDP', 'PCOIP', 'BLAST'),
+
+    #desktopSpec.desktopSettings.logoffSettings.defaultDisplayProtocol
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('RDP', 'PCOIP', 'BLAST')]
+    [string]$defaultDisplayProtocol = 'PCOIP',
+
+    #desktopSpec.desktopSettings.logoffSettings.allowUsersToChooseProtocol
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [int]$allowUsersToChooseProtocol = $true,
+
+    #desktopSpec.desktopSettings.logoffSettings.enableHTMLAccess
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]$enableHTMLAccess = $false,
+
+    # DesktopPCoIPDisplaySettings
+    #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.renderer3D
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('MANAGE_BY_VSPHERE_CLIENT', 'AUTOMATIC', 'SOFTWARE', 'HARDWARE', 'DISABLED')]
+    [string]$renderer3D = 'DISABLED',
+
+    #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.enableGRIDvGPUs
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]$enableGRIDvGPUs = $false,
+
+    #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.vRamSizeMB
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(64,512)]
+    [int]$vRamSizeMB = 96,
+
+    #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.maxNumberOfMonitors
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(1,4)]
+    [int]$maxNumberOfMonitors = 2,
+
+    #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.maxResolutionOfAnyOneMonitor
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('WUXGA', 'WSXGA_PLUS', 'WQXGA', 'UHD')]
+    [string]$maxResolutionOfAnyOneMonitor = 'WUXGA',
+
+    # flashSettings
+    #desktopSpec.desktopSettings.flashSettings.quality
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('NO_CONTROL', 'LOW', 'MEDIUM', 'HIGH')]
+    [string]$quality = 'NO_CONTROL',
+
+    #desktopSpec.desktopSettings.flashSettings.throttling
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateSet('DISABLED', 'CONSERVATIVE', 'MODERATE', 'AGGRESSIVE')]
+    [string]$throttling = 'DISABLED',
+
+    #mirageConfigurationOverrides
+    #desktopSpec.desktopSettings.mirageConfigurationOverrides.overrideGlobalSetting
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]$overrideGlobalSetting = $false,
+
+    #desktopSpec.desktopSettings.mirageConfigurationOverrides.enabled
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]$enabled = $true,
+
+    #desktopSpec.desktopSettings.mirageConfigurationOverrides.url
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [string]$url = $true,
 
     #desktopSpec.automatedDesktopSpec.virtualCenter if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     #desktopSpec.manualDesktopSpec.virtualCenter if MANUAL
@@ -2924,6 +3345,12 @@ function New-HVPool {
     [string]
     $ResourcePool,
 
+	#desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.datacenter if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
+    [string]
+    $datacenter,
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastore if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
@@ -2931,13 +3358,116 @@ function New-HVPool {
     [string[]]
     $Datastores,
 
+	#desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores.storageOvercommit if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
+    [string[]]
+    $StorageOvercommit = $null,
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.useVSAN if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
-    [string]
-    $UseVSAN,
+    [boolean]
+    $UseVSAN =  $false,
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.useSeparateDatastoresReplicaAndOSDisks if LINKED_CLONE, INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [boolean]
+    $UseSeparateDatastoresReplicaAndOSDisks = $false,
 
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.replicaDiskDatastore if LINKED_CLONE, INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [string]
+    $ReplicaDiskDatastore,
+
+	#desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.replicaDiskDatastore if LINKED_CLONE, INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [boolean]
+    $UseNativeSnapshots = $false,
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.spaceReclamationSettings.reclaimVmDiskSpace if LINKED_CLONE, INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [boolean]
+    $ReclaimVmDiskSpace = $false,
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.spaceReclamationSettings.reclamationThresholdGB if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(0,[Int]::MaxValue)]
+    [int]
+    $ReclamationThresholdGB =  1,
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.redirectWindowsProfile if LINKED_CLONE, INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [boolean]
+    $RedirectWindowsProfile = $true,
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.useSeparateDatastoresPersistentAndOSDisks if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]
+    $UseSeparateDatastoresPersistentAndOSDisks = $false,
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.PersistentDiskDatastores if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [string[]]
+    $PersistentDiskDatastores,
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.PersistentDiskDatastores if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [string[]]
+    $PersistentDiskStorageOvercommit = $null,
+
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.diskSizeMB if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(128,[Int]::MaxValue)]
+    [int]
+    $DiskSizeMB = 2048,
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.diskDriveLetter if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidatePattern("^[D-Z]$")]
+    [string]
+    $DiskDriveLetter = "D",
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.nonPersistentDiskSettings.redirectDisposableFiles if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]
+    $redirectDisposableFiles,
+
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.nonPersistentDiskSettings.diskSizeMB if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(512,[Int]::MaxValue)]
+    [int]
+    $NonPersistentDiskSizeMB = 4096,
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.nonPersistentDiskSettings.diskDriveLetter if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidatePattern("^[D-Z]|Auto$")]
+    [string]
+    $NonPersistentDiskDriveLetter = "Auto",
+
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewStorageAcceleratorSettings.useViewStorageAccelerator if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [boolean]
+    $UseViewStorageAccelerator =  $false,
+
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewStorageAcceleratorSettings.useViewStorageAccelerator if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [string]
+    $ViewComposerDiskTypes = "OS_DISKS",
+
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewStorageAcceleratorSettings.regenerateViewStorageAcceleratorDays if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [ValidateRange(1,999)]
+    [int]
+    $RegenerateViewStorageAcceleratorDays = 7,
+
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewStorageAcceleratorSettings.blackoutTimes if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [VMware.Hv.DesktopBlackoutTime[]]
+    $BlackoutTimes,
+
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterNetworkingSettings.nics
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
+    [VMware.Hv.DesktopNetworkInterfaceCardSettings[]]
+    $Nics,
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.enableProvsioning if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -3042,6 +3572,8 @@ function New-HVPool {
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [string]$NetBiosName,
 
+    #desktopSpec.automatedDesktopSpec.customizationSettings.domainAdministrator
+    #desktopSpec.automatedDesktopSpec.customizationSettings.cloneprepCustomizationSettings.instantCloneEngineDomainAdministrator
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     [string]$DomainAdmin = $null,
@@ -3052,13 +3584,48 @@ function New-HVPool {
     [ValidateSet('CLONE_PREP','QUICK_PREP','SYS_PREP','NONE')]
     [string]
     $CustType,
-
+    #desktopSpec.automatedDesktopSpec.customizationSettings.reusePreExistingAccounts if LINKED_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [Boolean]
+    $ReusePreExistingAccounts = $false,
     #desktopSpec.automatedDesktopSpec.customizationSettings.sysprepCustomizationSettings.customizationSpec if LINKED_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = "FULL_CLONE")]
     [string]
     $SysPrepName,
 
+    #desktopSpec.automatedDesktopSpec.customizationSettings.noCustomizationSettings.doNotPowerOnVMsAfterCreation if FULL_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = "FULL_CLONE")]
+    [boolean]
+    $DoNotPowerOnVMsAfterCreation = $false,
+
+    #desktopSpec.automatedDesktopSpec.customizationSettings.quickprepCustomizationSettings.powerOffScriptName if LINKED_CLONE, INSTANT_CLONE
+    #desktopSpec.automatedDesktopSpec.customizationSettings.cloneprepCustomizationSettings.powerOffScriptName
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [string]
+    $PowerOffScriptName,
+
+    #desktopSpec.automatedDesktopSpec.customizationSettings.quickprepCustomizationSettings.powerOffScriptParameters
+    #desktopSpec.automatedDesktopSpec.customizationSettings.cloneprepCustomizationSettings.powerOffScriptParameters
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [string]
+    $PowerOffScriptParameters,
+
+    #desktopSpec.automatedDesktopSpec.customizationSettings.quickprepCustomizationSettings.postSynchronizationScriptName
+    #desktopSpec.automatedDesktopSpec.customizationSettings.cloneprepCustomizationSettings.postSynchronizationScriptName
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [string]
+    $PostSynchronizationScriptName,
+
+    #desktopSpec.automatedDesktopSpec.customizationSettings.quickprepCustomizationSettings.postSynchronizationScriptParameters
+    #desktopSpec.automatedDesktopSpec.customizationSettings.cloneprepCustomizationSettings.postSynchronizationScriptParameters
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [string]
+    $PostSynchronizationScriptParameters,
     #manual desktop
     [Parameter(Mandatory = $true,ParameterSetName = 'MANUAL')]
     [ValidateSet('VIRTUAL_CENTER','UNMANAGED')]
@@ -3160,6 +3727,13 @@ function New-HVPool {
         Write-Error "Json file exception, $_"
         break
       }
+      
+	  try {
+        Test-HVDesktopSpec -JsonObject $jsonObject
+      } catch {
+        Write-Error "Json object validation failed, $_"
+        break
+      }
       if ($jsonObject.type -eq "AUTOMATED") {
         $poolType = 'AUTOMATED'
         if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenter) {
@@ -3176,13 +3750,37 @@ function New-HVPool {
         $custType = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CustomizationType
         if ($jsonObject.AutomatedDesktopSpec.ProvisioningType -eq "INSTANT_CLONE_ENGINE") {
           $InstantClone = $true
+          if ($null -ne $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings) {
+            $domainAdmin = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.InstantCloneEngineDomainAdministrator
+            $powerOffScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.PowerOffScriptName
+            $powerOffScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.PowerOffScriptParameters
+            $postSynchronizationScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.PostSynchronizationScriptName
+            $postSynchronizationScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.PostSynchronizationScriptParameters
+          }
         } else {
           if ($jsonObject.AutomatedDesktopSpec.ProvisioningType -eq "VIEW_COMPOSER") {
             $LinkedClone = $true
-          } else {
+            $domainAdmin = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.domainAdministrator
+          } elseIf($jsonObject.AutomatedDesktopSpec.ProvisioningType -eq "VIRTUAL_CENTER") {
             $FullClone = $true
           }
-          $sysPrepName = $jsonObject.SysPrepName
+          switch ($custType) {
+              'SYS_PREP' {
+                $sysprepCustomizationSettings = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings
+                $sysPrepName = $sysprepCustomizationSettings.customizationSpec
+                $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
+              }
+              'QUICK_PREP' {
+                $powerOffScriptName= $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptName
+                $powerOffScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptParameters
+                $postSynchronizationScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PostSynchronizationScriptName
+                $postSynchronizationScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PostSynchronizationScriptParameters
+              }
+              'NONE' {
+                $doNotPowerOnVMsAfterCreation = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.NoCustomizationSettings.DoNotPowerOnVMsAfterCreation
+              }
+
+          }
         }
         $namingMethod = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod
         $transparentPageSharingScope = $jsonObject.AutomatedDesktopSpec.virtualCenterManagedCommonSettings.TransparentPageSharingScope
@@ -3196,6 +3794,9 @@ function New-HVPool {
           $startInMaintenanceMode = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.SpecificNamingSpec.startMachinesInMaintenanceMode
           $numUnassignedMachinesKeptPoweredOn = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.SpecificNamingSpec.numUnassignedMachinesKeptPoweredOn
         }
+        $enableProvisioning = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.EnableProvisioning
+        $stopProvisioningOnError = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.stopProvisioningOnError
+        $minReady = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.minReadyVMsOnVComposerMaintenance
         if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.Template) {
           $template = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.Template
         }
@@ -3205,14 +3806,87 @@ function New-HVPool {
         if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.Snapshot) {
           $snapshotVM = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.Snapshot
         }
+        $dataCenter = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.dataCenter
         $vmFolder = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.VmFolder
         $hostOrCluster = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster
         $resourcePool = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ResourcePool
         $dataStoreList = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.Datastores
         foreach ($dtStore in $dataStoreList) {
           $datastores += $dtStore.Datastore
+          $storageOvercommit += $dtStore.StorageOvercommit
         }
-      } elseif ($jsonObject.type -eq "MANUAL") {
+        $useVSan = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.UseVSan
+        if ($LinkedClone -or $InstantClone) {
+            $useSeparateDatastoresReplicaAndOSDisks = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.UseSeparateDatastoresReplicaAndOSDisks
+            if ($useSeparateDatastoresReplicaAndOSDisks) {
+                $replicaDiskDatastore = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.replicaDiskDatastore
+            }
+            if ($LinkedClone) {
+                #For Instant clone desktops, this setting can only be set to false
+                $useNativeSnapshots = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.useNativeSnapshots
+                $reclaimVmDiskSpace = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.spaceReclamationSettings.reclaimVmDiskSpace
+                if ($reclaimVmDiskSpace) {
+                    $reclamationThresholdGB = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.spaceReclamationSettings.reclamationThresholdGB
+                }
+                if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.PersistentDiskSettings) {
+                    $redirectWindowsProfile = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.PersistentDiskSettings.RedirectWindowsProfile
+                    if ($redirectWindowsProfile) {
+                        $useSeparateDatastoresPersistentAndOSDisks = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.PersistentDiskSettings.UseSeparateDatastoresPersistentAndOSDisks
+                    }
+                    $dataStoreList = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.PersistentDiskSettings.persistentDiskDatastores
+                    foreach ($dtStore in $dataStoreList) {
+                        $persistentDiskDatastores += $dtStore.Datastore
+                        $PersistentDiskStorageOvercommit += $dtStore.StorageOvercommit
+                    }
+                    if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.PersistentDiskSettings.DiskSizeMB) {
+                        $diskSizeMB = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.PersistentDiskSettings.DiskSizeMB
+                    }
+                    if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.PersistentDiskSettings.DiskDriveLetter) {
+                        $diskDriveLetter = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.PersistentDiskSettings.DiskDriveLetter
+                    }
+                }
+                if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.nonPersistentDiskSettings) {
+                    $redirectDisposableFiles = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.NonPersistentDiskSettings.RedirectDisposableFiles
+                    if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.NonPersistentDiskSettings.DiskSizeMB) {
+                        $nonPersistentDiskSizeMB = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.NonPersistentDiskSettings.DiskSizeMB
+                    }
+                    if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.NonPersistentDiskSettings.DiskDriveLetter) {
+                        $nonPersistentDiskDriveLetter = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings.NonPersistentDiskSettings.DiskDriveLetter
+                    }
+                }
+            } else {
+                $useNativeSnapshots = $false
+                $redirectWindowsProfile = $false
+            }
+        }
+        if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings) {
+            $useViewStorageAccelerator = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.UseViewStorageAccelerator
+            if ($useViewStorageAccelerator -and $LinkedClone) {
+                $viewComposerDiskTypes = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.ViewComposerDiskTypes
+            }
+            if (! $InstantClone -and $useViewStorageAccelerator) {
+                $regenerateViewStorageAcceleratorDays = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.RegenerateViewStorageAcceleratorDays
+                if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.blackoutTimes) {
+                    $blackoutTimesList =$jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.blackoutTimes
+                    foreach ($blackout in $blackoutTimesList) {
+                        $blackoutObj  = New-Object VMware.Hv.DesktopBlackoutTime
+                        $blackoutObj.Days = $blackout.Days
+                        $blackoutObj.StartTime = $blackout.StartTime
+                        $blackoutObj.EndTime = $blackoutObj.EndTime
+                        $blackoutTimes += $blackoutObj
+                    }
+                }
+            }
+        }
+        <# ToDo Nic
+        if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.nics) {
+            $nicList = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.nics
+            foreach($nicObj in  $nicList) {
+                $nic = New-Object VMware.Hv.DesktopNetworkInterfaceCardSettings
+            }
+        }
+        #>
+      } elseIf ($jsonObject.type -eq "MANUAL") {
         $MANUAL = $true
         $poolType = 'MANUAL'
         $userAssignment = $jsonObject.ManualDesktopSpec.userAssignment.userAssignment
@@ -3232,13 +3906,67 @@ function New-HVPool {
       $description = $jsonObject.base.Description
       $accessGroup = $jsonObject.base.AccessGroup
       $poolName = $jsonObject.base.name
+
+	  <#
+      # Populate desktop settings
+      #>
+      if ($null -ne $jsonObject.DesktopSettings) {
+          $Enable = $jsonObject.DesktopSettings.enabled
+          $deleting = $jsonObject.DesktopSettings.deleting
+          if ($null -ne $jsonObject.DesktopSettings.connectionServerRestrictions) {
+             $ConnectionServerRestrictions = $jsonObject.DesktopSettings.connectionServerRestrictions
+          }
+          if ($poolType -ne 'RDS') {
+            if ($null -ne $jsonObject.DesktopSettings.logoffSettings) {
+              $powerPolicy = $jsonObject.DesktopSettings.logoffSettings.powerPolicy
+              $automaticLogoffPolicy = $jsonObject.DesktopSettings.logoffSettings.automaticLogoffPolicy
+              if ($null -ne $jsonObject.DesktopSettings.logoffSettings.automaticLogoffMinutes) {
+                $automaticLogoffMinutes = $jsonObject.DesktopSettings.logoffSettings.automaticLogoffMinutes
+              }
+              $allowUsersToResetMachines = $jsonObject.DesktopSettings.logoffSettings.allowUsersToResetMachines
+              $allowMultipleSessionsPerUser = $jsonObject.DesktopSettings.logoffSettings.allowMultipleSessionsPerUser
+              $deleteOrRefreshMachineAfterLogoff = $jsonObject.DesktopSettings.logoffSettings.deleteOrRefreshMachineAfterLogoff
+              $refreshOsDiskAfterLogoff = $jsonObject.DesktopSettings.logoffSettings.refreshOsDiskAfterLogoff
+              $refreshPeriodDaysForReplicaOsDisk = $jsonObject.DesktopSettings.logoffSettings.refreshPeriodDaysForReplicaOsDisk
+              $refreshThresholdPercentageForReplicaOsDisk = $jsonObject.DesktopSettings.logoffSettings.refreshThresholdPercentageForReplicaOsDisk
+            }
+
+            if ($null -ne $jsonObject.DesktopSettings.displayProtocolSettings) {
+              $supportedDisplayProtocols = $jsonObject.DesktopSettings.displayProtocolSettings.supportedDisplayProtocols
+              $defaultDisplayProtocol = $jsonObject.DesktopSettings.displayProtocolSettings.defaultDisplayProtocol
+              $allowUsersToChooseProtocol = $jsonObject.DesktopSettings.displayProtocolSettings.allowUsersToChooseProtocol
+              if ($null -ne $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings) {
+                $renderer3D = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.renderer3D
+                $enableGRIDvGPUs = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.enableGRIDvGPUs
+                $vRamSizeMB = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.vRamSizeMB
+                $maxNumberOfMonitors = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.maxNumberOfMonitors
+                $maxResolutionOfAnyOneMonitor = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.maxResolutionOfAnyOneMonitor
+              }
+              $enableHTMLAccess = $jsonObject.DesktopSettings.displayProtocolSettings.enableHTMLAccess
+            }
+
+            if ($null -ne $jsonObject.DesktopSettings.mirageConfigurationOverrides) {
+              $overrideGlobalSetting = $jsonObject.DesktopSettings.mirageConfigurationOverrides.overrideGlobalSetting
+              $enabled = $jsonObject.DesktopSettings.mirageConfigurationOverrides.enabled
+              $url = $jsonObject.DesktopSettings.mirageConfigurationOverrides.url
+            }
+          }
+          if ($null -ne $jsonObject.DesktopSettings.flashSettings) {
+             $quality = $jsonObject.DesktopSettings.flashSettings.quality
+             $throttling = $jsonObject.DesktopSettings.flashSettings.throttling
+          }
+          #desktopsettings ends
+        }
+        if ($null -ne $jsonObject.GlobalEntitlementData) {
+            $globalEntitlement = $jsonObject.GlobalEntitlementData.globalEntitlement
+        }
     }
 
     if ($PSCmdlet.MyInvocation.ExpectingInput -or $clonePool) {
 
       if ($clonePool -and ($clonePool.GetType().name -eq 'DesktopSummaryView')) {
         $clonePool = Get-HVPool -poolName $clonePool.desktopsummarydata.name
-      } elseif (!($clonePool -and ($clonePool.GetType().name -eq 'DesktopInfo'))) {
+      } elseIf (!($clonePool -and ($clonePool.GetType().name -eq 'DesktopInfo'))) {
         Write-Error "In pipeline did not get object of expected type DesktopSummaryView/DesktopInfo"
         return
       }
@@ -3255,10 +3983,10 @@ function New-HVPool {
         $DesktopVirtualCenterProvisioningData = $DesktopVirtualCenterProvisioningSettings.VirtualCenterProvisioningData
         $DesktopVirtualCenterStorageSettings = $DesktopVirtualCenterProvisioningSettings.VirtualCenterStorageSettings
         $DesktopVirtualCenterNetworkingSettings = $DesktopVirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings
-        $desktopVirtualCenterManagedCommonSettings = $clonePool.AutomatedDesktopData.virtualCenterManagedCommonSettings
-        $desktopCustomizationSettings = $clonePool.AutomatedDesktopData.CustomizationSettings
+        $DesktopVirtualCenterManagedCommonSettings = $clonePool.AutomatedDesktopData.virtualCenterManagedCommonSettings
+        $DesktopCustomizationSettings = $clonePool.AutomatedDesktopData.CustomizationSettings
       }
-       elseif ($clonePool.ManualDesktopData) {
+	  elseIf ($clonePool.ManualDesktopData) {
         if (! $VM) {
             Write-Error "ManualDesktop pool cloning requires list of machines, parameter VM is empty"
             break
@@ -3269,7 +3997,7 @@ function New-HVPool {
         $desktopVirtualCenterStorageSettings = $clonePool.ManualDesktopData.viewStorageAcceleratorSettings
         $desktopVirtualCenterManagedCommonSettings = $clonePool.ManualDesktopData.virtualCenterManagedCommonSettings
       }
-      elseif($clonePool.RdsDesktopData) {
+	  elseIf($clonePool.RdsDesktopData) {
         if (! $Farm) {
             Write-Error "RdsDesktop pool cloning requires farm, parameter Farm is not set"
             break
@@ -3285,16 +4013,16 @@ function New-HVPool {
         $poolType = 'AUTOMATED'
         $provisioningType = 'INSTANT_CLONE_ENGINE'
       }
-      elseif ($LinkedClone) {
+      elseIf ($LinkedClone) {
         $poolType = 'AUTOMATED'
         $provisioningType = 'VIEW_COMPOSER'
       }
-      elseif ($FullClone) {
+      elseIf ($FullClone) {
         $poolType = 'AUTOMATED'
         $provisioningType = 'VIRTUAL_CENTER'
       }
-      elseif ($Manual) { $poolType = 'MANUAL' }
-      elseif ($RDS) { $poolType = 'RDS' }
+      elseIf ($Manual) { $poolType = 'MANUAL' }
+      elseIf ($RDS) { $poolType = 'RDS' }
 
     }
     $script:desktopSpecObj = Get-DesktopSpec -poolType $poolType -provisioningType $provisioningType -namingMethod $namingMethod
@@ -3355,8 +4083,8 @@ function New-HVPool {
     {
       'RDS' {
         <#
-                Query FarmId from Farm Name
-            #>
+            Query FarmId from Farm Name
+        #>
         $QueryFilterEquals = New-Object VMware.Hv.QueryFilterEquals
         $QueryFilterEquals.memberName = 'data.name'
         $QueryFilterEquals.value = $farm
@@ -3388,6 +4116,9 @@ function New-HVPool {
           $machineList = Get-RegisteredPhysicalMachine -services $services -machinesList $VM
         }
         $desktopSpecObj.ManualDesktopSpec.Machines = $machineList
+        if ($desktopUserAssignment) {
+            $desktopSpecObj.ManualDesktopSpec.userAssignment = $desktopUserAssignment
+        }
       }
       default {
         if (!$desktopVirtualMachineNamingSpec) {
@@ -3431,7 +4162,9 @@ function New-HVPool {
         try {
           $desktopVirtualCenterProvisioningData = Get-HVPoolProvisioningData -vc $virtualCenterID -vmObject $desktopVirtualCenterProvisioningData
           $hostClusterId = $desktopVirtualCenterProvisioningData.HostOrCluster
-          $desktopVirtualCenterStorageSettings = Get-HVPoolStorageObject -hostclusterID $hostClusterId -storageObject $desktopVirtualCenterStorageSettings
+          $hostOrCluster_helper = New-Object VMware.Hv.HostOrClusterService
+          $hostClusterIds = (($hostOrCluster_helper.HostOrCluster_GetHostOrClusterTree($services, $desktopVirtualCenterProvisioningData.datacenter)).treeContainer.children.info).Id
+          $desktopVirtualCenterStorageSettings = Get-HVPoolStorageObject -hostClusterIds $hostClusterId -storageObject $desktopVirtualCenterStorageSettings
           $DesktopVirtualCenterNetworkingSettings = Get-HVPoolNetworkSetting -networkObject $DesktopVirtualCenterNetworkingSettings
           $desktopCustomizationSettings = Get-HVPoolCustomizationSetting -vc $virtualCenterID -customObject $desktopCustomizationSettings
         } catch {
@@ -3440,10 +4173,10 @@ function New-HVPool {
           break
         }
 
-        if (!$DesktopVirtualCenterProvisioningSettings) {
-          $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.enableProvisioning = $true
-          $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.stopProvisioningOnError = $true
-          $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.minReadyVMsOnVComposerMaintenance = 0
+        if (! $DesktopVirtualCenterProvisioningSettings) {
+          $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.enableProvisioning = $enableProvisioning
+          $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.stopProvisioningOnError = $stopProvisioningOnError
+          $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.minReadyVMsOnVComposerMaintenance = $minReady
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData = $desktopVirtualCenterProvisioningData
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings = $desktopVirtualCenterStorageSettings
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings = $DesktopVirtualCenterNetworkingSettings
@@ -3484,8 +4217,83 @@ function New-HVPool {
     $desktopSpecObj.base.Description = $description
     $desktopSpecObj.type = $poolType
 
-    if ($desktopSettings) { $desktopSpecObj.DesktopSettings = $desktopSettings }
+	if (! $desktopSettings) {
+        $desktopSettingsService = New-Object VMware.Hv.DesktopService
+        $desktopSettingsHelper = $desktopSettingsService.getDesktopSettingsHelper()
+        $desktopSettingsHelper.setEnabled($Enable)
+        $desktopSettingsHelper.setConnectionServerRestrictions($ConnectionServerRestrictions)
 
+        #$desktopLogoffSettings = New-Object VMware.Hv.DesktopLogoffSettings
+        $desktopLogoffSettings = $desktopSettingsService.getDesktopLogoffSettingsHelper()
+        if ($InstantClone) {
+            $deleteOrRefreshMachineAfterLogoff = "DELETE"
+            $powerPolicy = "ALWAYS_POWERED_ON"
+        }
+        $desktopLogoffSettings.setPowerPolicy($powerPolicy)
+        $desktopLogoffSettings.setAutomaticLogoffPolicy($automaticLogoffPolicy)
+        $desktopLogoffSettings.setAutomaticLogoffMinutes($automaticLogoffMinutes)
+        $desktopLogoffSettings.setAllowUsersToResetMachines($allowUsersToResetMachines)
+        $desktopLogoffSettings.setAllowMultipleSessionsPerUser($allowMultipleSessionsPerUser)
+        $desktopLogoffSettings.setDeleteOrRefreshMachineAfterLogoff($deleteOrRefreshMachineAfterLogoff)
+        $desktopLogoffSettings.setRefreshOsDiskAfterLogoff($refreshOsDiskAfterLogoff)
+        $desktopLogoffSettings.setRefreshPeriodDaysForReplicaOsDisk($refreshPeriodDaysForReplicaOsDisk)
+        if ($refreshThresholdPercentageForReplicaOsDisk -and $refreshOsDiskAfterLogoff -eq "AT_SIZE") {
+            $desktopLogoffSettings.setRefreshThresholdPercentageForReplicaOsDisk($refreshThresholdPercentageForReplicaOsDisk)
+        }
+        if ($poolType -ne 'RDS') {
+            $desktopSettingsHelper.setLogoffSettings($desktopLogoffSettings.getDataObject())
+ 
+            $desktopDisplayProtocolSettings = $desktopSettingsService.getDesktopDisplayProtocolSettingsHelper()
+            #setSupportedDisplayProtocols is not exists, because this property cannot be updated.
+            $desktopDisplayProtocolSettings.getDataObject().SupportedDisplayProtocols = $supportedDisplayProtocols
+            $desktopDisplayProtocolSettings.setDefaultDisplayProtocol($defaultDisplayProtocol)
+            $desktopDisplayProtocolSettings.setEnableHTMLAccess($enableHTMLAccess)
+            $desktopDisplayProtocolSettings.setAllowUsersToChooseProtocol($allowUsersToChooseProtocol)
+
+            $desktopPCoIPDisplaySettings = $desktopSettingsService.getDesktopPCoIPDisplaySettingsHelper()
+            $desktopPCoIPDisplaySettings.setRenderer3D($renderer3D)
+            #setEnableGRIDvGPUs is not exists, because this property cannot be updated.
+            $desktopPCoIPDisplaySettings.getDataObject().EnableGRIDvGPUs = $enableGRIDvGPUs
+            $desktopPCoIPDisplaySettings.setVRamSizeMB($vRamSizeMB)
+            $desktopPCoIPDisplaySettings.setMaxNumberOfMonitors($maxNumberOfMonitors)
+            $desktopPCoIPDisplaySettings.setMaxResolutionOfAnyOneMonitor($maxResolutionOfAnyOneMonitor)
+            $desktopDisplayProtocolSettings.setPcoipDisplaySettings($desktopPCoIPDisplaySettings.getDataObject())
+            $desktopSettingsHelper.setDisplayProtocolSettings($desktopDisplayProtocolSettings.getDataObject())
+
+            $desktopMirageConfigOverrides = $desktopSettingsService.getDesktopMirageConfigurationOverridesHelper()
+            $desktopMirageConfigOverrides.setEnabled($enabled)
+            $desktopMirageConfigOverrides.setOverrideGlobalSetting($overrideGlobalSetting)
+            $desktopMirageConfigOverrides.setUrl($url)
+            $desktopSettingsHelper.setMirageConfigurationOverrides($desktopMirageConfigOverrides.getDataObject())
+            $desktopSettings = $desktopSettingsHelper.getDataObject()
+        }
+        $desktopFlashSettings = $desktopSettingsService.getDesktopAdobeFlashSettingsHelper()
+        $desktopFlashSettings.setQuality($quality)
+        $desktopFlashSettings.setThrottling($throttling)
+        $desktopSettingsHelper.setFlashSettings($desktopFlashSettings.getDataObject())
+    }
+
+    $desktopSpecObj.DesktopSettings = $desktopSettings
+
+    if ($globalEntitlement) {
+        $QueryFilterEquals = New-Object VMware.Hv.QueryFilterEquals
+        $QueryFilterEquals.memberName = 'base.displayName'
+        $QueryFilterEquals.value = $globalEntitlement
+        $defn = New-Object VMware.Hv.QueryDefinition
+        $defn.queryEntityType = 'GlobalEntitlementSummaryView'
+        $defn.Filter = $QueryFilterEquals
+        $query_service_helper = New-Object VMware.Hv.QueryServiceService
+        try {
+            $queryResults = $query_service_helper.QueryService_Query($services,$defn)
+            $globalEntitlementid = $queryResults.Results.id
+            if ($globalEntitlementid.length -eq 1) {
+                $desktopGlobalEntitlementData = New-Object VMware.Hv.DesktopGlobalEntitlementData -Property @{'globalEntitlement'= $globalEntitlementid;}
+            }
+        }
+        catch {
+            Write-Host "GlobalEntitlement " $_
+        }
+    }
     if ($desktopAutomatedDesktopSpec) {
       $desktopSpecObj.AutomatedDesktopSpec = $desktopAutomatedDesktopSpec
     }
@@ -3495,11 +4303,11 @@ function New-HVPool {
 
     # Please uncomment below code, if you want save desktopSpec object to json file
     <#
-    $myDebug = convertto-json -InputObject $desktopSpecObj -depth 12
-    $myDebug | out-file -filepath c:\temp\copieddesktop.json
-   #>
+      $myDebug = convertto-json -InputObject $desktopSpecObj -depth 12
+      $myDebug | out-file -filepath c:\temp\copieddesktop.json
+    #>
     $desktop_helper = New-Object VMware.Hv.DesktopService
-    if ($pscmdlet.ShouldProcess($desktopSpecObj)) {
+    if ($pscmdlet.ShouldProcess($desktopSpecObj.base.name)) {
       $id = $desktop_helper.Desktop_create($services,$desktopSpecObj)
     } 
     return $desktopSpecObj
@@ -3509,7 +4317,6 @@ function New-HVPool {
     $desktopSpecObj = $null
     [System.gc]::collect()
   }
-
 }
 
 function Get-HVPoolProvisioningData {
@@ -3530,6 +4337,12 @@ function Get-HVPoolProvisioningData {
     }
     $vmObject.Template = $templateVM.id
     $dataCenterID = $templateVM.datacenter
+    if ($dataCenter -and $dataCenterID) {
+        $VmTemplateInfo = $vm_template_helper.VmTemplate_ListByDatacenter($dataCenterID)
+        if (! ($VmTemplateInfo.Path -like "/$dataCenter/*")) {
+            throw "$template not exists in datacenter: [$dataCenter]"
+        }
+    }
     $vmObject.datacenter = $dataCenterID
   }
   if ($parentVM) {
@@ -3541,6 +4354,12 @@ function Get-HVPoolProvisioningData {
     }
     $vmObject.ParentVm = $parentVmObj.id
     $dataCenterID = $parentVmObj.datacenter
+    if ($dataCenter -and $dataCenterID) {
+        $baseImageVmInfo = $base_imageVm_helper.BaseImageVm_ListByDatacenter($services,$dataCenterID)
+        if (! ($baseImageVmInfo.Path -like "/$dataCenter/*")) {
+            throw "$parentVM not exists in datacenter: [$dataCenter]"
+        }
+    }
     $vmObject.datacenter = $dataCenterID
   }
   if ($snapshotVM) {
@@ -3559,7 +4378,9 @@ function Get-HVPoolProvisioningData {
     $folderList += $folders
     while ($folderList.Length -gt 0) {
       $item = $folderList[0]
-      if ($item -and !$_.folderdata.incompatiblereasons.inuse -and !$_.folderdata.incompatiblereasons.viewcomposerreplicafolder -and (($item.folderdata.path -eq $vmFolder)    -or ($item.folderdata.name -eq $vmFolder))) {
+      if ($item -and !$_.folderdata.incompatiblereasons.inuse -and `
+		!$_.folderdata.incompatiblereasons.viewcomposerreplicafolder -and `
+		(($item.folderdata.path -eq $vmFolder) -or ($item.folderdata.name -eq $vmFolder))) {
         $vmObject.VmFolder = $item.id
         break
       }
@@ -3595,26 +4416,54 @@ function Get-HVPoolProvisioningData {
 
 function Get-HVPoolStorageObject {
   param(
-    [Parameter(Mandatory = $false)]
-    [VMware.Hv.DesktopVirtualCenterStorageSettings]$StorageObject,
-
     [Parameter(Mandatory = $true)]
-    [VMware.Hv.HostOrClusterId]$HostClusterID
+    [VMware.Hv.HostOrClusterId[]]$HostClusterIDs,
+	
+	[Parameter(Mandatory = $false)]
+    [VMware.Hv.DesktopVirtualCenterStorageSettings]$StorageObject
   )
+  $datastoreList = $null
   if (!$storageObject) {
+    $datastore_helper = New-Object VMware.Hv.DatastoreService
+    foreach ($hostClusterID in $hostClusterIDs){
+        $datastoreList += $datastore_helper.Datastore_ListDatastoresByHostOrCluster($services,$hostClusterID)
+    }
     $storageObject = New-Object VMware.Hv.DesktopVirtualCenterStorageSettings
     $storageAcceleratorList = @{
-      'useViewStorageAccelerator' = $false
+      'useViewStorageAccelerator' = $useViewStorageAccelerator
     }
     $desktopViewStorageAcceleratorSettings = New-Object VMware.Hv.DesktopViewStorageAcceleratorSettings -Property $storageAcceleratorList
     $storageObject.viewStorageAcceleratorSettings = $desktopViewStorageAcceleratorSettings
-    $desktopSpaceReclamationSettings = New-Object VMware.Hv.DesktopSpaceReclamationSettings -Property @{ 'reclaimVmDiskSpace' = $false }
+    $desktopSpaceReclamationSettings = New-Object VMware.Hv.DesktopSpaceReclamationSettings -Property @{ 'reclaimVmDiskSpace' = $reclaimVmDiskSpace; 'reclamationThresholdGB' = $reclamationThresholdGB}
     $desktopPersistentDiskSettings = New-Object VMware.Hv.DesktopPersistentDiskSettings -Property @{ 'redirectWindowsProfile' = $false }
     $desktopNonPersistentDiskSettings = New-Object VMware.Hv.DesktopNonPersistentDiskSettings -Property @{ 'redirectDisposableFiles' = $false }
+    if ($LinkedClone) {
+      if ($blackoutTimes) {
+        $storageObject.viewStorageAcceleratorSettings.BlackoutTimes = $blackoutTimes
+      }
+      if ($useViewStorageAccelerator) {
+        $storageObject.viewStorageAcceleratorSettings.ViewComposerDiskTypes = $viewComposerDiskTypes
+        $storageObject.viewStorageAcceleratorSettings.RegenerateViewStorageAcceleratorDays = $regenerateViewStorageAcceleratorDays
+      }
+      $desktopPersistentDiskSettings.RedirectWindowsProfile = $redirectWindowsProfile
+      if ($redirectWindowsProfile) {
+        $desktopPersistentDiskSettings.UseSeparateDatastoresPersistentAndOSDisks = $useSeparateDatastoresPersistentAndOSDisks
+        $desktopPersistentDiskSettings.DiskSizeMB = $diskSizeMB
+        $desktopPersistentDiskSettings.DiskDriveLetter = $diskDriveLetter
+      }
+      if ($useSeparateDatastoresPersistentAndOSDisks) {
+        if ($persistentDiskStorageOvercommit -and  ($persistentDiskDatastores.Length -ne  $persistentDiskStorageOvercommit.Length) ) {
+          throw "Parameters persistentDiskDatastores length: [$persistentDiskDatastores.Length] and persistentDiskStorageOvercommit length: [$persistentDiskStorageOvercommit.Length] should be of same size"
+        }
+        $desktopPersistentDiskSettings.PersistentDiskDatastores = Get_Datastore -DatastoreInfoList $datastoreList -DatastoreNames $PersistentDiskDatastores -DsStorageOvercommit $persistentDiskStorageOvercommit
+      }
+      $desktopNonPersistentDiskSettings.RedirectDisposableFiles = $redirectDisposableFiles
+      $desktopNonPersistentDiskSettings.DiskSizeMB = $nonPersistentDiskSizeMB
+      $desktopNonPersistentDiskSettings.DiskDriveLetter = $nonPersistentDiskDriveLetter
+    }
 
     $desktopViewComposerStorageSettingsList = @{
-      'useSeparateDatastoresReplicaAndOSDisks' = $false;
-      'useNativeSnapshots' = $false;
+      'useNativeSnapshots' = $useNativeSnapshots;
       'spaceReclamationSettings' = $desktopSpaceReclamationSettings;
       'persistentDiskSettings' = $desktopPersistentDiskSettings;
       'nonPersistentDiskSettings' = $desktopNonPersistentDiskSettings
@@ -3624,17 +4473,13 @@ function Get-HVPoolStorageObject {
     }
   }
   if ($datastores) {
-    $datastore_helper = New-Object VMware.Hv.DatastoreService
-    $datastoreList = $datastore_helper.Datastore_ListDatastoresByHostOrCluster($services,$hostClusterID)
-    $datastoresSelected = @()
-    foreach ($ds in $datastores) {
-      $datastoresSelected += ($datastoreList | Where-Object { ($_.DatastoreData.Path -eq $ds) -or ($_.datastoredata.name -eq $ds) }).id
+    if ($StorageOvercommit -and  ($datastores.Length -ne  $StorageOvercommit.Length) ) {
+      throw "Parameters datastores length: [$datastores.Length] and StorageOvercommit length: [$StorageOvercommit.Length] should be of same size"
     }
-    foreach ($ds in $datastoresSelected) {
-      $myDatastores = New-Object VMware.Hv.DesktopVirtualCenterDatastoreSettings
-      $myDatastores.Datastore = $ds
-      $mydatastores.StorageOvercommit = 'UNBOUNDED'
-      $storageObject.Datastores += $myDatastores
+	$storageObject.Datastores = Get-HVDatastore -DatastoreInfoList $datastoreList -DatastoreNames $datastores -DsStorageOvercommit $StorageOvercommit
+	if ($useSeparateDatastoresReplicaAndOSDisks) {
+      $storageObject.ViewComposerStorageSettings.UseSeparateDatastoresReplicaAndOSDisks = $UseSeparateDatastoresReplicaAndOSDisks
+      $storageObject.ViewComposerStorageSettings.ReplicaDiskDatastore =  ($datastoreInfoList | Where-Object { ($_.datastoredata.name -eq $replicaDiskDatastore) -or ($_.datastoredata.path -eq $replicaDiskDatastore)}).id
     }
   }
   if ($storageObject.Datastores.Count -eq 0) {
@@ -3642,6 +4487,40 @@ function Get-HVPoolStorageObject {
   }
   if ($useVSAN) { $storageObject.useVSAN = $useVSAN }
   return $storageObject
+}
+
+function Get-HVDatastore {
+  param(
+    [Parameter(Mandatory = $true)]
+    [VMware.Hv.DatastoreInfo[]]
+    $DatastoreInfoList,
+
+    [Parameter(Mandatory = $true)]
+    [string[]]
+    $DatastoreNames,
+
+    [Parameter(Mandatory = $false)]
+    [string[]]
+    $DsStorageOvercommit
+
+  )
+  $datastoresSelected = @()
+  foreach ($ds in $datastoreNames) {
+    $datastoresSelected += ($datastoreInfoList | Where-Object { ($_.DatastoreData.Path -eq $ds) -or ($_.datastoredata.name -eq $ds) }).id
+  }
+  $Datastores = $null
+  if (! $DsStorageOvercommit) {
+      $DsStorageOvercommit += 'UNBOUNDED'
+  }
+  $StorageOvercommitCnt = 0
+  foreach ($ds in $datastoresSelected) {
+    $myDatastores = New-Object VMware.Hv.DesktopVirtualCenterDatastoreSettings
+    $myDatastores.Datastore = $ds
+    $mydatastores.StorageOvercommit = $DsStorageOvercommit[$StorageOvercommitCnt]
+    $Datastores += $myDatastores
+    $StorageOvercommitCnt++
+  }
+  return $Datastores
 }
 
 function Get-HVPoolNetworkSetting {
@@ -3684,7 +4563,7 @@ function Get-HVPoolCustomizationSetting {
       $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator_helper.InstantCloneEngineDomainAdministrator_List($services) | Where-Object { $_.namesData.dnsName -match $netBiosName })
       if (![string]::IsNullOrWhitespace($domainAdmin)) {
         $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator | Where-Object { $_.base.userName -eq $domainAdmin }).id
-      } else {
+      } elseIf ($null -ne $instantCloneEngineDomainAdministrator) {
         $instantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator[0].id
       }
       if ($null -eq $instantCloneEngineDomainAdministrator) {
@@ -3699,7 +4578,7 @@ function Get-HVPoolCustomizationSetting {
         $ViewComposerDomainAdministratorID = ($viewComposerDomainAdministrator_helper.ViewComposerDomainAdministrator_List($services,$vcID) | Where-Object { $_.base.domain -match $netBiosName })
         if (![string]::IsNullOrWhitespace($domainAdmin)) {
             $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministratorID | Where-Object { $_.base.userName -ieq $domainAdmin }).id
-        } else {
+        } elseIf ($null -ne $ViewComposerDomainAdministratorID) {
             $ViewComposerDomainAdministratorID = $ViewComposerDomainAdministratorID[0].id
         }
         if ($null -eq $ViewComposerDomainAdministratorID) {
@@ -3716,14 +4595,15 @@ function Get-HVPoolCustomizationSetting {
             throw "No Sysprep Customization Spec found with Name: [$sysPrepName]"
           }
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings.CustomizationSpec = $sysPrepIds[0].id
-        } elseif ($custType -eq 'QUICK_PREP') {
+          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
+        } elseIf ($custType -eq 'QUICK_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'QUICK_PREP'
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings = Get-CustomizationObject
         } else {
           throw "The customization type: [$custType] is not supported for LinkedClone Pool"
         }
         $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.DomainAdministrator = $ViewComposerDomainAdministratorID
-      } elseif ($FullClone) {
+      } elseIf ($FullClone) {
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings = Get-CustomizationObject
@@ -3734,7 +4614,7 @@ function Get-HVPoolCustomizationSetting {
             throw "No Sysprep Customization Spec found with Name: [$sysPrepName]"
           }
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings.CustomizationSpec = $sysPrepIds[0].id
-        } elseif ($custType -eq 'NONE') {
+        } elseIf ($custType -eq 'NONE') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.NoCustomizationSettings = Get-CustomizationObject
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.NoCustomizationSettings.DoNotPowerOnVMsAfterCreation = $false
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = "NONE"
@@ -3751,7 +4631,7 @@ function Get-HVPoolCustomizationSetting {
 function Get-CustomizationObject {
   if ($InstantClone) {
     return New-Object VMware.Hv.DesktopCloneprepCustomizationSettings
-  } elseif ($LinkedClone) {
+  } elseIf ($LinkedClone) {
     if ($custType -eq 'QUICK_PREP') {
       return New-Object VMware.Hv.DesktopQuickPrepCustomizationSettings
     } else {
@@ -3790,7 +4670,7 @@ function Get-DesktopSpec {
     if ($provisioningType -ne 'VIRTUAL_CENTER') {
       $desktop_spec_helper.getDataObject().AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings = $desktop_helper.getDesktopViewComposerStorageSettingsHelper().getDataObject()
     }
-  } elseif ($poolType -eq 'MANUAL') {
+  } elseIf ($poolType -eq 'MANUAL') {
     $desktop_spec_helper.getDataObject().ManualDesktopSpec.userAssignment = $desktop_helper.getDesktopUserAssignmentHelper().getDataObject()
     $desktop_spec_helper.getDataObject().ManualDesktopSpec.viewStorageAcceleratorSettings = $desktop_helper.getDesktopViewStorageAcceleratorSettingsHelper().getDataObject()
     $desktop_spec_helper.getDataObject().ManualDesktopSpec.virtualCenterManagedCommonSettings = $desktop_helper.getDesktopVirtualCenterManagedCommonSettingsHelper().getDataObject()
@@ -3799,6 +4679,119 @@ function Get-DesktopSpec {
   }
   return $desktop_spec_helper.getDataObject()
 
+}
+
+function Test-HVDesktopSpec {
+  param(
+    [Parameter(Mandatory = $true)]
+    $JsonObject
+  )
+  if ($null -eq $jsonObject.type) {
+    Throw "Pool type is empty, need to be configure in json file"
+  }
+  if ($null -eq $jsonObject.Base.Name) {
+    Throw "Pool name is empty, need to be configure in json file"
+  }
+  if ($null -eq $jsonObject.Base.AccessGroup) {
+    Throw "AccessGroup of pool is empty, need to be configure in json file"
+  }
+  if ($jsonObject.type -eq "AUTOMATED") {
+     if (! (($jsonObject.AutomatedDesktopSpec.UserAssignment.UserAssignment -eq "FLOATING") -or ($jsonObject.AutomatedDesktopSpec.UserAssignment.UserAssignment -eq "DEDICATED")) ) {
+        Throw "UserAssignment must be FLOATING or DEDICATED"
+     }
+     if ($jsonObject.AutomatedDesktopSpec.ProvisioningType -eq $null) {
+        Throw "Pool Provisioning type is empty, need to be configure in json file"
+     }
+     $provisionTypeArray = @('VIRTUAL_CENTER', 'VIEW_COMPOSER', 'INSTANT_CLONE_ENGINE')
+     if (! ($provisionTypeArray  -contains $jsonObject.AutomatedDesktopSpec.provisioningType)) {
+        Throw "ProvisioningType of pool is invalid"
+     }
+     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.EnableProvisioning) {
+        Throw "Whether to enable provisioning immediately or not, need to configure in json file"
+     }
+     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.StopProvisioningOnError) {
+        Throw "Whether to stop provisioning immediately or not on error, need to configure in json file"
+     }
+     if ($null -eq $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod) {
+        Throw "Determines how the VMs in the desktop are named, need to configure in json file"
+     }
+     if ($null -ne $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod) {
+        $namingMethodArray = @('PATTERN','SPECIFIED')
+        if (! ($namingMethodArray -contains $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod)) {
+            Throw "NamingMethod property must to be one of these SPECIFIED or PATTERN"
+        }
+        if (($null -eq $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings) -and ($null -eq $jsonObject.AutomatedDesktopSpec.VmNamingSpec.specificNamingSpec)) {
+            Throw "Naming pattern (or) Specified name settings need to be configure in json file"
+        }
+     }
+     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.UseVSan) {
+        Throw "Must specify whether to use virtual SAN or not"
+     }
+     $jsonTemplate = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Template
+     $jsonParentVm = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ParentVm
+     $jsonSnapshot = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Snapshot
+     $jsonVmFolder = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.VmFolder
+     $jsonHostOrCluster = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.HostOrCluster
+     $ResourcePool = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ResourcePool
+     if (! (($null -ne $jsonTemplate) -or (($null -ne $jsonParentVm) -and ($null -ne $jsonSnapshot) ))) {
+        Throw "Must specify Template or (ParentVm and Snapshot) names in json file"
+     }
+     if ($null -eq $jsonVmFolder) {
+        Throw "Must specify VM folder in json file to deploy the VMs"
+     }
+     if ($null -eq $jsonHostOrCluster) {
+        Throw "Must specify Host or cluster in json file to deploy the VMs"
+     }
+     if ($null -eq $resourcePool) {
+        Throw "Must specify Resource pool in json file to deploy the VMs"
+     }
+     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.Datastores) {
+        Throw "Must specify datastores names in json file"
+     }
+     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterManagedCommonSettings.transparentPageSharingScope) {
+        Throw "Must specify transparent page sharing scope in json file"
+     }
+     $jsonCustomizationType = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CustomizationType
+     switch ($jsonCustomizationType) {
+        "NONE" {
+            if ($null -eq $jsonObject.AutomatedDesktopSpec.CustomizationSettings.noCustomizationSettings) {
+                Throw "Specify noCustomization Settings in json file"
+            }
+        }
+        "QUICK_PREP" {
+            if ($null -eq $jsonObject.AutomatedDesktopSpec.CustomizationSettings.quickprepCustomizationSettings) {
+                Throw "Specify quickprep CustomizationSettings in json file"
+            }
+        }
+        "SYS_PREP" {
+            if ($null -eq $jsonObject.AutomatedDesktopSpec.CustomizationSettings.sysprepCustomizationSettings) {
+                Throw "Specify sysprep CustomizationSettings in json file"
+            }
+        }
+        "CLONE_PREP" {
+            if ($null -eq $jsonObject.AutomatedDesktopSpec.CustomizationSettings.cloneprepCustomizationSettings) {
+                Throw "Specify ClonePrep CustomizationSettings in json file"
+            }
+        }
+     }
+  } elseIf ($jsonObject.Type -eq "MANUAL") {
+    $jsonUserAssignment = $jsonObject.ManualDesktopSpec.UserAssignment.UserAssignment
+    if (! (($jsonUserAssignment -eq "FLOATING") -or ($jsonUserAssignment -eq "DEDICATED")) ) {
+        Throw "UserAssignment must be FLOATING or DEDICATED"
+    }
+    $jsonSource = @('VIRTUAL_CENTER','UNMANAGED')
+    if (! ($jsonSource -contains $jsonObject.ManualDesktopSpec.Source)) {
+        Throw "The Source of machines must be VIRTUAL_CENTER or UNMANAGED"
+    }
+    if ($null -eq $jsonObject.ManualDesktopSpec.Machines) {
+        Throw "Specify list of machines to add to this desktop during creation"
+    }
+  }
+  elseIf ($jsonObject.type -eq "RDS") {
+    if ($null -eq $jsonObject.RdsDesktopSpec.Farm) {
+        Throw "Specify Farm needed to create RDS Desktop"
+    }
+  }
 }
 
 function Remove-HVFarm {
@@ -3900,7 +4893,7 @@ function Remove-HVFarm {
     }
     $farm_service_helper = New-Object VMware.Hv.FarmService
     foreach ($item in $farmList) {
-      if ($pscmdlet.ShouldProcess($item)) {
+      if ($pscmdlet.ShouldProcess($item.Name)) {
         $farm_service_helper.Farm_Delete($services, $item.id)
       }
       Write-Host "Farm Deleted: " $item.Name
@@ -4044,7 +5037,7 @@ function Remove-HVPool {
         }
       }
       Write-Host "Deleting Pool: " $item.Name
-      if ($pscmdlet.ShouldProcess($deleteSpec)) {
+      if ($pscmdlet.ShouldProcess($item.Name)) {
         $desktop_service_helper.Desktop_Delete($services,$item.id,$deleteSpec)
       }
     }
@@ -4177,7 +5170,7 @@ function Set-HVFarm {
       try {
         $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
       } catch {
-        Write-Error "Make sure Get-HVFarm advanced function is loaded, $_"
+        Write-Error "Make sure Get-HVFarmSummary advanced function is loaded, $_"
         break
       }
       if ($farmSpecObj) {
@@ -4651,7 +5644,7 @@ function Start-HVFarm {
             $updates = @()
             $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
             $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
-            if ($pscmdlet.ShouldProcess($spec)) {
+            if ($pscmdlet.ShouldProcess($farmList.$item)) {
               $farm_service_helper.Farm_Update($services,$item,$updates)
               $farm_service_helper.Farm_Recompose($services,$item,$spec)
             }
@@ -4939,20 +5932,20 @@ function Start-HVPool {
           $spec = Get-HVTaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRebalanceSpec' -desktopId $item
           if ($null -ne $spec) {
             # make sure current task on VMs, must be None
-            if ($pscmdlet.ShouldProcess($spec)) {
+            if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Rebalance($services,$item,$spec)
             }
-            Write-Host "Performed rebalance task on Pool: $PoolList.item"
+            Write-Host "Performed rebalance task on Pool: $PoolList.$item"
           }
         }
         'REFRESH' {
           $spec = Get-HVTaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRefreshSpec' -desktopId $item
           if ($null -ne $spec) {
             # make sure current task on VMs, must be None
-            if ($pscmdlet.ShouldProcess($spec)) {
+            if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Refresh($services,$item,$spec)
             }
-            Write-Host "Performed refresh task on Pool: $PoolList.item"
+            Write-Host "Performed refresh task on Pool: $PoolList.$item"
           }
         }
         'RECOMPOSE' {
@@ -4968,10 +5961,10 @@ function Start-HVPool {
             $updates = @()
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
-            if ($pscmdlet.ShouldProcess($spec)) {
+            if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Update($services,$item,$updates)
             }
-            Write-Host "Performed recompose task on Pool: $PoolList.item"
+            Write-Host "Performed recompose task on Pool: $PoolList.$item"
           }
         }
         'PUSH_IMAGE' {
@@ -4986,10 +5979,10 @@ function Start-HVPool {
             $spec.Settings.LogoffSetting = $logoffSetting
             $spec.Settings.StopOnFirstError = $stopOnFirstError
             if ($startTime) { $spec.Settings.startTime = $startTime }
-            if ($pscmdlet.ShouldProcess($spec)) {
+            if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_SchedulePushImage($services,$item,$spec)
             }
-            Write-Host "Performed push_image task on Pool: $PoolList.item"
+            Write-Host "Performed push_image task on Pool: $PoolList.$item"
           }
         }
         'CANCEL_PUSH_IMAGE' {
@@ -4997,10 +5990,10 @@ function Start-HVPool {
             Write-Error "$poolList.$item is not a INSTANT CLONE pool"
             break
           } else {
-            if ($pscmdlet.ShouldProcess($spec)) {
+            if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_CancelScheduledPushImage($services,$item)
             }
-            Write-Host "Performed cancel_push_image task on Pool: $PoolList.item"
+            Write-Host "Performed cancel_push_image task on Pool: $PoolList.$item"
           }
         }
       }
