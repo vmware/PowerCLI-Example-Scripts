@@ -176,7 +176,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
 
 .EXAMPLE
     Add managed manual VMs to existing manual pool
-    Add-HVDesktop -PoolName 'ManualPool' -Machines 'manualPool1', 'manualPool2'.
+    Add-HVDesktop -PoolName 'ManualPool' -Machines 'manualPool1', 'manualPool2' -Confirm:$false
 
 .EXAMPLE
     Add virtual machines to automated specific named dedicated pool
@@ -368,7 +368,7 @@ function Add-HVRDSServer {
 
 .EXAMPLE
     Add RDSServers to manual farm
-    Add-HVRDSServer -Farm "manualFarmTest" -RdsServers "vm-for-rds","vm-for-rds-2"
+    Add-HVRDSServer -Farm "manualFarmTest" -RdsServers "vm-for-rds","vm-for-rds-2" -Confirm:$false
 
 .OUTPUTS
     None
@@ -1915,11 +1915,11 @@ function New-HVFarm {
 
 .EXAMPLE
     Creates new linkedClone farm by using json file 
-    New-HVFarm -Spec C:\VMWare\Specs\LinkedClone.json
+    New-HVFarm -Spec C:\VMWare\Specs\LinkedClone.json -Confirm:$false
 
 .EXAMPLE
     Creates new manual farm by using rdsServers names
-    New-HVFarm -Manual -FarmName "manualFarmTest" -FarmDisplayName "manualFarmTest" -Description "Manual PS Test" -RdsServers "vm-for-rds.eng.vmware.com","vm-for-rds-2.eng.vmware.com"
+    New-HVFarm -Manual -FarmName "manualFarmTest" -FarmDisplayName "manualFarmTest" -Description "Manual PS Test" -RdsServers "vm-for-rds.eng.vmware.com","vm-for-rds-2.eng.vmware.com" -Confirm:$false
 
 .OUTPUTS
   None
@@ -2260,7 +2260,7 @@ function New-HVFarm {
         break
       }
       try {
-        Test-HVFarmSpec -JsonObject $jsonObject
+        Test-HVFarmSpec -PoolObject $jsonObject
       } catch {
         Write-Error "Json object validation failed, $_"
         break
@@ -2522,7 +2522,14 @@ function New-HVFarm {
 
     if ($pscmdlet.ShouldProcess($farmSpecObj.data.name)) {
       $Id = $farm_service_helper.Farm_Create($services, $farmSpecObj)
-    }   
+    } else {
+	  try {
+        Test-HVFarmSpec -PoolObject $farmSpecObj
+      } catch {
+        Write-Error "FarmSpec object validation failed, $_"
+		break
+      }
+	}
     return $farmSpecObj
   }
 
@@ -2535,77 +2542,77 @@ function New-HVFarm {
 function Test-HVFarmSpec {
   param(
     [Parameter(Mandatory = $true)]
-    $JsonObject
+    $PoolObject
   )
-  if ($null -eq $jsonObject.Type) {
-    Throw "Specify type of farm in json file"
+  if ($null -eq $PoolObject.Type) {
+    Throw "Specify type of farm"
   }
   $jsonFarmTypeArray = @('AUTOMATED','MANUAL')
-  if (! ($jsonFarmTypeArray -contains $jsonObject.Type)) {
+  if (! ($jsonFarmTypeArray -contains $PoolObject.Type)) {
     Throw "Farm type must be AUTOMATED or MANUAL"
   }
-  if ($null -eq $jsonObject.Data.Name) {
-    Throw "Specify farm name in json file"
+  if ($null -eq $PoolObject.Data.Name) {
+    Throw "Specify farm name"
   }
-  if ($null -eq $jsonObject.Data.AccessGroup) {
-    Throw "Specify horizon access group in json file"
+  if ($null -eq $PoolObject.Data.AccessGroup) {
+    Throw "Specify horizon access group"
   }
-  if ($jsonObject.Type -eq "AUTOMATED"){
-    $jsonProvisioningType = $jsonObject.AutomatedFarmSpec.ProvisioningType
+  if ($PoolObject.Type -eq "AUTOMATED"){
+    $jsonProvisioningType = $PoolObject.AutomatedFarmSpec.ProvisioningType
     if ($null -eq $jsonProvisioningType) {
-        Throw "Must specify provisioningType in json file"
+        Throw "Must specify provisioningType"
     }
-    if ($null -eq $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.namingMethod) {
-        Throw "Must specify naming method to PATTERN in json file"
+    if ($null -eq $PoolObject.AutomatedFarmSpec.RdsServerNamingSpec.namingMethod) {
+        Throw "Must specify naming method to PATTERN"
     }
-    if ($null -eq  $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings) {
-        Throw "Specify Naming pattern settings in json file"
+    if ($null -eq  $PoolObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings) {
+        Throw "Specify Naming pattern settings"
     }
-    if ($null -eq $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.namingPattern) {
-        Throw "Specify specified naming pattern in json file"
+    if ($null -eq $PoolObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.namingPattern) {
+        Throw "Specify specified naming pattern"
     }
-    if ($null -eq $jsonObject.AutomatedFarmSpec.virtualCenterProvisioningSettings.enableProvisioning) {
-        Throw "Specify Whether to enable provisioning in json file"
+    if ($null -eq $PoolObject.AutomatedFarmSpec.virtualCenterProvisioningSettings.enableProvisioning) {
+        Throw "Specify Whether to enable provisioning or not"
     }
-    if ($null -eq $jsonObject.AutomatedFarmSpec.virtualCenterProvisioningSettings.stopProvisioningOnError) {
-        Throw "Specify Whether provisioning on all VMs stops on error in json file"
+    if ($null -eq $PoolObject.AutomatedFarmSpec.virtualCenterProvisioningSettings.stopProvisioningOnError) {
+        Throw "Specify Whether provisioning on all VMs stops on error"
     }
-    $jsonTemplate = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Template
-    $jsonParentVm = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ParentVm
-    $jsonSnapshot = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Snapshot
-    $jsonVmFolder = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.VmFolder
-    $jsonHostOrCluster = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.HostOrCluster
-    $ResourcePool = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ResourcePool
+    $jsonTemplate = $PoolObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Template
+    $jsonParentVm = $PoolObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ParentVm
+    $jsonSnapshot = $PoolObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Snapshot
+    $jsonVmFolder = $PoolObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.VmFolder
+    $jsonHostOrCluster = $PoolObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.HostOrCluster
+    $ResourcePool = $PoolObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ResourcePool
     if (!( ($null -ne $jsonTemplate) -or (($null -ne $jsonParentVm) -and ($null -ne $jsonSnapshot) )) ) {
-       Throw "Must specify Template or (ParentVm and Snapshot) names in json file"
+       Throw "Must specify Template or (ParentVm and Snapshot) names"
     }
     if ($null -eq $jsonVmFolder) {
-       Throw "Must specify VM folder in json file to deploy the VMs"
+       Throw "Must specify VM folder to deploy the VMs"
     }
     if ($null -eq $jsonHostOrCluster) {
-       Throw "Must specify Host or cluster in json file to deploy the VMs"
+       Throw "Must specify Host or cluster to deploy the VMs"
     }
     if ($null -eq $resourcePool) {
-       Throw "Must specify Resource pool in json file to deploy the VMs"
+       Throw "Must specify Resource pool to deploy the VMs"
     }
-    if ($null -eq $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.Datastores) {
-       Throw "Must specify datastores names in json file"
+    if ($null -eq $PoolObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.Datastores) {
+       Throw "Must specify datastores names"
     }
-    if ($null -eq $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.useVSan) {
+    if ($null -eq $PoolObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.useVSan) {
        Throw "Must specify whether to use virtual SAN or not"
     }
-    if ($null -eq $jsonObject.AutomatedFarmSpec.CustomizationSettings.customizationType) {
-        Throw "Specify Type of customization to use in json file"
+    if ($null -eq $PoolObject.AutomatedFarmSpec.CustomizationSettings.customizationType) {
+        Throw "Specify customization type"
     }
-    if ($null -eq $jsonObject.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings) {
-        Throw "Specify Sysprep customization settings in json file"
+    if ($null -eq $PoolObject.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings) {
+        Throw "Specify sysPrep customization settings"
     }
-    if ($null -eq $jsonObject.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType) {
-        Throw "Specify MaxSessionsType in json file"
+    if ($null -eq $PoolObject.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType) {
+        Throw "Specify MaxSessionsType"
     }
-  } elseif ($jsonObject.Type -eq "MANUAL") {
-    if ($null -eq $jsonObject.manualFarmSpec.rdsServers) {
-        Throw "Specify rdsServers name in json file"
+  } elseif ($PoolObject.Type -eq "MANUAL") {
+    if ($null -eq $PoolObject.manualFarmSpec.rdsServers) {
+        Throw "Specify rdsServers name"
     }
   }
 }
@@ -2788,9 +2795,17 @@ function Get-HVFarmCustomizationSetting {
       throw "No Composer Domain Administrator found with netBiosName: [$netBiosName]"
     }
     $ADDomain_service_helper = New-Object VMware.Hv.ADDomainService
-    $adDomianId = ($ADDomain_service_helper.ADDomain_List($services) | Where-Object { $_.NetBiosName -eq $netBiosName } | Select-Object -Property id)
-    if ($null -eq $adDomianId) {
-      throw "No Domain found with netBiosName: [$netBiosName]"
+    $ADDomains = $ADDomain_service_helper.ADDomain_List($services)
+    if ($netBiosName) {
+      $adDomianId = ( $ADDomains| Where-Object { $_.NetBiosName -eq $netBiosName } | Select-Object -Property id)
+      if ($null -eq $adDomianId) {
+        throw "No Domain found with netBiosName: [$netBiosName]"
+      }
+    } else {
+      $adDomianId = ( $ADDomains[0] | Select-Object -Property id)
+      if ($null -eq $adDomianId) {
+        throw "No Domain configured in view administrator UI"
+      }
     }
     $ad_containder_service_helper = New-Object VMware.Hv.AdContainerService
     $adContainerId = ($ad_containder_service_helper.ADContainer_ListByDomain($services, $adDomianId.id) | Where-Object { $_.Rdn -eq $adContainer } | Select-Object -Property id).id
@@ -3055,7 +3070,7 @@ function New-HVPool {
 
 .EXAMPLE
    Create new automated linked clone pool by using JSON spec file
-   New-HVPool -Spec C:\VMWare\Specs\LinkedClone.json
+   New-HVPool -Spec C:\VMWare\Specs\LinkedClone.json -Confirm:$false
 
 .EXAMPLE
    Clones new pool by using existing pool configuration
@@ -3729,7 +3744,8 @@ function New-HVPool {
       }
       
 	  try {
-        Test-HVDesktopSpec -JsonObject $jsonObject
+	    #Json object validation
+        Test-HVPoolSpec -PoolObject $jsonObject
       } catch {
         Write-Error "Json object validation failed, $_"
         break
@@ -3765,21 +3781,20 @@ function New-HVPool {
             $FullClone = $true
           }
           switch ($custType) {
-              'SYS_PREP' {
-                $sysprepCustomizationSettings = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings
-                $sysPrepName = $sysprepCustomizationSettings.customizationSpec
-                $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
-              }
-              'QUICK_PREP' {
-                $powerOffScriptName= $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptName
-                $powerOffScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptParameters
-                $postSynchronizationScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PostSynchronizationScriptName
-                $postSynchronizationScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PostSynchronizationScriptParameters
-              }
-              'NONE' {
-                $doNotPowerOnVMsAfterCreation = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.NoCustomizationSettings.DoNotPowerOnVMsAfterCreation
-              }
-
+            'SYS_PREP' {
+              $sysprepCustomizationSettings = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings
+              $sysPrepName = $sysprepCustomizationSettings.customizationSpec
+              $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
+            }
+            'QUICK_PREP' {
+              $powerOffScriptName= $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptName
+              $powerOffScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptParameters
+              $postSynchronizationScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PostSynchronizationScriptName
+              $postSynchronizationScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PostSynchronizationScriptParameters
+            }
+            'NONE' {
+              $doNotPowerOnVMsAfterCreation = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.NoCustomizationSettings.DoNotPowerOnVMsAfterCreation
+            }
           }
         }
         $namingMethod = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod
@@ -3927,8 +3942,12 @@ function New-HVPool {
               $allowMultipleSessionsPerUser = $jsonObject.DesktopSettings.logoffSettings.allowMultipleSessionsPerUser
               $deleteOrRefreshMachineAfterLogoff = $jsonObject.DesktopSettings.logoffSettings.deleteOrRefreshMachineAfterLogoff
               $refreshOsDiskAfterLogoff = $jsonObject.DesktopSettings.logoffSettings.refreshOsDiskAfterLogoff
-              $refreshPeriodDaysForReplicaOsDisk = $jsonObject.DesktopSettings.logoffSettings.refreshPeriodDaysForReplicaOsDisk
-              $refreshThresholdPercentageForReplicaOsDisk = $jsonObject.DesktopSettings.logoffSettings.refreshThresholdPercentageForReplicaOsDisk
+              if ($jsonObject.DesktopSettings.logoffSettings.refreshPeriodDaysForReplicaOsDisk) {
+                $refreshPeriodDaysForReplicaOsDisk = $jsonObject.DesktopSettings.logoffSettings.refreshPeriodDaysForReplicaOsDisk
+              }
+              if ($jsonObject.DesktopSettings.logoffSettings.refreshThresholdPercentageForReplicaOsDisk) {
+               $refreshThresholdPercentageForReplicaOsDisk = $jsonObject.DesktopSettings.logoffSettings.refreshThresholdPercentageForReplicaOsDisk
+              }
             }
 
             if ($null -ne $jsonObject.DesktopSettings.displayProtocolSettings) {
@@ -3938,7 +3957,9 @@ function New-HVPool {
               if ($null -ne $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings) {
                 $renderer3D = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.renderer3D
                 $enableGRIDvGPUs = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.enableGRIDvGPUs
-                $vRamSizeMB = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.vRamSizeMB
+                if ($jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.vRamSizeMB) {
+                 $vRamSizeMB = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.vRamSizeMB
+                }
                 $maxNumberOfMonitors = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.maxNumberOfMonitors
                 $maxResolutionOfAnyOneMonitor = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.maxResolutionOfAnyOneMonitor
               }
@@ -3947,8 +3968,12 @@ function New-HVPool {
 
             if ($null -ne $jsonObject.DesktopSettings.mirageConfigurationOverrides) {
               $overrideGlobalSetting = $jsonObject.DesktopSettings.mirageConfigurationOverrides.overrideGlobalSetting
-              $enabled = $jsonObject.DesktopSettings.mirageConfigurationOverrides.enabled
-              $url = $jsonObject.DesktopSettings.mirageConfigurationOverrides.url
+              if ($jsonObject.DesktopSettings.mirageConfigurationOverrides.enabled) {
+               $enabled = $jsonObject.DesktopSettings.mirageConfigurationOverrides.enabled
+              }
+              if ($jsonObject.DesktopSettings.mirageConfigurationOverrides.url) {
+               $url = $jsonObject.DesktopSettings.mirageConfigurationOverrides.url
+              }
             }
           }
           if ($null -ne $jsonObject.DesktopSettings.flashSettings) {
@@ -4309,7 +4334,15 @@ function New-HVPool {
     $desktop_helper = New-Object VMware.Hv.DesktopService
     if ($pscmdlet.ShouldProcess($desktopSpecObj.base.name)) {
       $id = $desktop_helper.Desktop_create($services,$desktopSpecObj)
-    } 
+    } else {
+	  try {
+	    #DesktopSpec validation
+        Test-HVPoolSpec -PoolObject $desktopSpecObj
+      } catch {
+        Write-Error "DesktopSpec object validation failed, $_"
+        break
+      }
+	}
     return $desktopSpecObj
   }
 
@@ -4354,12 +4387,6 @@ function Get-HVPoolProvisioningData {
     }
     $vmObject.ParentVm = $parentVmObj.id
     $dataCenterID = $parentVmObj.datacenter
-    if ($dataCenter -and $dataCenterID) {
-        $baseImageVmInfo = $base_imageVm_helper.BaseImageVm_ListByDatacenter($services,$dataCenterID)
-        if (! ($baseImageVmInfo.Path -like "/$dataCenter/*")) {
-            throw "$parentVM not exists in datacenter: [$dataCenter]"
-        }
-    }
     $vmObject.datacenter = $dataCenterID
   }
   if ($snapshotVM) {
@@ -4546,9 +4573,17 @@ function Get-HVPoolCustomizationSetting {
     # View Composer and Instant Clone Engine Active Directory container for QuickPrep and ClonePrep. This must be set for Instant Clone Engine or SVI sourced desktops.
     if ($InstantClone -or $LinkedClone) {
         $ad_domain_helper = New-Object VMware.Hv.ADDomainService
-        $adDomianId = ($ad_domain_helper.ADDomain_List($services) | Where-Object { $_.NetBiosName -eq $netBiosName } | Select-Object -Property id)
-        if ($null -eq $adDomianId) {
-          throw "No Domain found with netBiosName: [$netBiosName]"
+        $ADDomains = $ad_domain_helper.ADDomain_List($services)
+        if ($netBiosName) {
+          $adDomianId = ($ADDomains | Where-Object { $_.NetBiosName -eq $netBiosName } | Select-Object -Property id)
+          if ($null -eq $adDomianId) {
+            throw "No Domain found with netBiosName: [$netBiosName]"
+          }
+        } else {
+          $adDomianId = ($ADDomains[0] | Select-Object -Property id)
+          if ($null -eq $adDomianId) {
+            throw "No Domain configured in view administrator UI"
+          }
         }
         $ad_container_helper = New-Object VMware.Hv.AdContainerService
         $adContainerId = ($ad_container_helper.ADContainer_ListByDomain($services,$adDomianId.id) | Where-Object { $_.Rdn -eq $adContainer } | Select-Object -Property id).id
@@ -4681,115 +4716,115 @@ function Get-DesktopSpec {
 
 }
 
-function Test-HVDesktopSpec {
+function Test-HVPoolSpec {
   param(
     [Parameter(Mandatory = $true)]
-    $JsonObject
+    $PoolObject
   )
-  if ($null -eq $jsonObject.type) {
-    Throw "Pool type is empty, need to be configure in json file"
+  if ($null -eq $PoolObject.type) {
+    Throw "Pool type is empty, need to be configured"
   }
-  if ($null -eq $jsonObject.Base.Name) {
-    Throw "Pool name is empty, need to be configure in json file"
+  if ($null -eq $PoolObject.Base.Name) {
+    Throw "Pool name is empty, need to be configured"
   }
-  if ($null -eq $jsonObject.Base.AccessGroup) {
-    Throw "AccessGroup of pool is empty, need to be configure in json file"
+  if ($null -eq $PoolObject.Base.AccessGroup) {
+    Throw "AccessGroup of pool is empty, need to be configured"
   }
-  if ($jsonObject.type -eq "AUTOMATED") {
-     if (! (($jsonObject.AutomatedDesktopSpec.UserAssignment.UserAssignment -eq "FLOATING") -or ($jsonObject.AutomatedDesktopSpec.UserAssignment.UserAssignment -eq "DEDICATED")) ) {
+  if ($PoolObject.type -eq "AUTOMATED") {
+     if (! (($PoolObject.AutomatedDesktopSpec.UserAssignment.UserAssignment -eq "FLOATING") -or ($PoolObject.AutomatedDesktopSpec.UserAssignment.UserAssignment -eq "DEDICATED")) ) {
         Throw "UserAssignment must be FLOATING or DEDICATED"
      }
-     if ($jsonObject.AutomatedDesktopSpec.ProvisioningType -eq $null) {
-        Throw "Pool Provisioning type is empty, need to be configure in json file"
+     if ($PoolObject.AutomatedDesktopSpec.ProvisioningType -eq $null) {
+        Throw "Pool Provisioning type is empty, need to be configured"
      }
      $provisionTypeArray = @('VIRTUAL_CENTER', 'VIEW_COMPOSER', 'INSTANT_CLONE_ENGINE')
-     if (! ($provisionTypeArray  -contains $jsonObject.AutomatedDesktopSpec.provisioningType)) {
+     if (! ($provisionTypeArray  -contains $PoolObject.AutomatedDesktopSpec.provisioningType)) {
         Throw "ProvisioningType of pool is invalid"
      }
-     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.EnableProvisioning) {
-        Throw "Whether to enable provisioning immediately or not, need to configure in json file"
+     if ($null -eq $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.EnableProvisioning) {
+        Throw "Whether to enable provisioning immediately or not, need to be configured"
      }
-     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.StopProvisioningOnError) {
-        Throw "Whether to stop provisioning immediately or not on error, need to configure in json file"
+     if ($null -eq $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.StopProvisioningOnError) {
+        Throw "Whether to stop provisioning immediately or not on error, need to be configured"
      }
-     if ($null -eq $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod) {
-        Throw "Determines how the VMs in the desktop are named, need to configure in json file"
+     if ($null -eq $PoolObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod) {
+        Throw "Determines how the VMs in the desktop are named, need to be configured"
      }
-     if ($null -ne $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod) {
+     if ($null -ne $PoolObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod) {
         $namingMethodArray = @('PATTERN','SPECIFIED')
-        if (! ($namingMethodArray -contains $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod)) {
+        if (! ($namingMethodArray -contains $PoolObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod)) {
             Throw "NamingMethod property must to be one of these SPECIFIED or PATTERN"
         }
-        if (($null -eq $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings) -and ($null -eq $jsonObject.AutomatedDesktopSpec.VmNamingSpec.specificNamingSpec)) {
-            Throw "Naming pattern (or) Specified name settings need to be configure in json file"
+        if (($null -eq $PoolObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings) -and ($null -eq $PoolObject.AutomatedDesktopSpec.VmNamingSpec.specificNamingSpec)) {
+            Throw "Naming pattern (or) Specified name settings need to be configured"
         }
      }
-     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.UseVSan) {
+     if ($null -eq $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.UseVSan) {
         Throw "Must specify whether to use virtual SAN or not"
      }
-     $jsonTemplate = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Template
-     $jsonParentVm = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ParentVm
-     $jsonSnapshot = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Snapshot
-     $jsonVmFolder = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.VmFolder
-     $jsonHostOrCluster = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.HostOrCluster
-     $ResourcePool = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ResourcePool
+     $jsonTemplate = $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Template
+     $jsonParentVm = $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ParentVm
+     $jsonSnapshot = $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.Snapshot
+     $jsonVmFolder = $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.VmFolder
+     $jsonHostOrCluster = $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.HostOrCluster
+     $ResourcePool = $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.virtualCenterProvisioningData.ResourcePool
      if (! (($null -ne $jsonTemplate) -or (($null -ne $jsonParentVm) -and ($null -ne $jsonSnapshot) ))) {
-        Throw "Must specify Template or (ParentVm and Snapshot) names in json file"
+        Throw "Must specify Template or (ParentVm and Snapshot) names"
      }
      if ($null -eq $jsonVmFolder) {
-        Throw "Must specify VM folder in json file to deploy the VMs"
+        Throw "Must specify VM folder to deploy the VMs"
      }
      if ($null -eq $jsonHostOrCluster) {
-        Throw "Must specify Host or cluster in json file to deploy the VMs"
+        Throw "Must specify HostOrCluster to deploy the VMs"
      }
      if ($null -eq $resourcePool) {
-        Throw "Must specify Resource pool in json file to deploy the VMs"
+        Throw "Must specify Resource pool to deploy the VMs"
      }
-     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.Datastores) {
-        Throw "Must specify datastores names in json file"
+     if ($null -eq $PoolObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.Datastores) {
+        Throw "Must specify datastores names"
      }
-     if ($null -eq $jsonObject.AutomatedDesktopSpec.VirtualCenterManagedCommonSettings.transparentPageSharingScope) {
-        Throw "Must specify transparent page sharing scope in json file"
+     if ($null -eq $PoolObject.AutomatedDesktopSpec.VirtualCenterManagedCommonSettings.transparentPageSharingScope) {
+        Throw "Must specify transparent page sharing scope"
      }
-     $jsonCustomizationType = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CustomizationType
+     $jsonCustomizationType = $PoolObject.AutomatedDesktopSpec.CustomizationSettings.CustomizationType
      switch ($jsonCustomizationType) {
         "NONE" {
-            if ($null -eq $jsonObject.AutomatedDesktopSpec.CustomizationSettings.noCustomizationSettings) {
-                Throw "Specify noCustomization Settings in json file"
+            if ($null -eq $PoolObject.AutomatedDesktopSpec.CustomizationSettings.noCustomizationSettings) {
+                Throw "Specify noCustomization Settings"
             }
         }
         "QUICK_PREP" {
-            if ($null -eq $jsonObject.AutomatedDesktopSpec.CustomizationSettings.quickprepCustomizationSettings) {
-                Throw "Specify quickprep CustomizationSettings in json file"
+            if ($null -eq $PoolObject.AutomatedDesktopSpec.CustomizationSettings.quickprepCustomizationSettings) {
+                Throw "Specify quickPrep customizationSettings"
             }
         }
         "SYS_PREP" {
-            if ($null -eq $jsonObject.AutomatedDesktopSpec.CustomizationSettings.sysprepCustomizationSettings) {
-                Throw "Specify sysprep CustomizationSettings in json file"
+            if ($null -eq $PoolObject.AutomatedDesktopSpec.CustomizationSettings.sysprepCustomizationSettings) {
+                Throw "Specify sysPrep customizationSettings"
             }
         }
         "CLONE_PREP" {
-            if ($null -eq $jsonObject.AutomatedDesktopSpec.CustomizationSettings.cloneprepCustomizationSettings) {
-                Throw "Specify ClonePrep CustomizationSettings in json file"
+            if ($null -eq $PoolObject.AutomatedDesktopSpec.CustomizationSettings.cloneprepCustomizationSettings) {
+                Throw "Specify clonePrep customizationSettings"
             }
         }
      }
-  } elseIf ($jsonObject.Type -eq "MANUAL") {
-    $jsonUserAssignment = $jsonObject.ManualDesktopSpec.UserAssignment.UserAssignment
+  } elseIf ($PoolObject.Type -eq "MANUAL") {
+    $jsonUserAssignment = $PoolObject.ManualDesktopSpec.UserAssignment.UserAssignment
     if (! (($jsonUserAssignment -eq "FLOATING") -or ($jsonUserAssignment -eq "DEDICATED")) ) {
         Throw "UserAssignment must be FLOATING or DEDICATED"
     }
     $jsonSource = @('VIRTUAL_CENTER','UNMANAGED')
-    if (! ($jsonSource -contains $jsonObject.ManualDesktopSpec.Source)) {
+    if (! ($jsonSource -contains $PoolObject.ManualDesktopSpec.Source)) {
         Throw "The Source of machines must be VIRTUAL_CENTER or UNMANAGED"
     }
-    if ($null -eq $jsonObject.ManualDesktopSpec.Machines) {
-        Throw "Specify list of machines to add to this desktop during creation"
+    if ($null -eq $PoolObject.ManualDesktopSpec.Machines) {
+        Throw "Specify list of virtual machines to be added to this pool"
     }
   }
-  elseIf ($jsonObject.type -eq "RDS") {
-    if ($null -eq $jsonObject.RdsDesktopSpec.Farm) {
-        Throw "Specify Farm needed to create RDS Desktop"
+  elseIf ($PoolObject.type -eq "RDS") {
+    if ($null -eq $PoolObject.RdsDesktopSpec.Farm) {
+        Throw "Specify farm needed to create RDS desktop"
     }
   }
 }
@@ -4813,7 +4848,7 @@ function Remove-HVFarm {
 
 .EXAMPLE
    Delete a given farm. For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
-   Remove-HVFarm -FarmName 'Farm-01' -HvServer $hvServer
+   Remove-HVFarm -FarmName 'Farm-01' -HvServer $hvServer -Confirm:$false
 
 .EXAMPLE
    Deletes a given Farm object(s). For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
@@ -4930,7 +4965,7 @@ function Remove-HVPool {
 
 .EXAMPLE
    Deletes pool from disk with given parameters PoolName etc.
-   Remove-HVPool -HvServer $hvServer -PoolName 'FullClone' -DeleteFromDisk
+   Remove-HVPool -HvServer $hvServer -PoolName 'FullClone' -DeleteFromDisk -Confirm:$false
 
 .EXAMPLE
    Deletes specified pool from disk
@@ -5088,7 +5123,7 @@ function Set-HVFarm {
 
 .EXAMPLE
     Updates farm configuration by using json file
-    Set-HVFarm -FarmName 'Farm-01' -Spec 'C:\Edit-HVFarm\ManualEditFarm.json'
+    Set-HVFarm -FarmName 'Farm-01' -Spec 'C:\Edit-HVFarm\ManualEditFarm.json' -Confirm:$false
 
 .EXAMPLE
     Updates farm configuration with given parameters key and value
@@ -5290,7 +5325,7 @@ function Set-HVPool {
 
 .EXAMPLE
     Updates pool configuration by using json file
-    Set-HVPool -PoolName 'ManualPool' -Spec 'C:\Edit-HVPool\EditPool.json'
+    Set-HVPool -PoolName 'ManualPool' -Spec 'C:\Edit-HVPool\EditPool.json' -Confirm:$false
 
 .EXAMPLE
     Updates pool configuration with given parameters key and value
@@ -5500,7 +5535,7 @@ function Start-HVFarm {
 
 .EXAMPLE
     Requests a recompose of RDS Servers in the specified automated farm
-    Start-HVFarm -Recompose -Farm 'Farm-01' -LogoffSetting FORCE_LOGOFF -ParentVM 'View-Agent-Win8' -SnapshotVM 'Snap_USB'
+    Start-HVFarm -Recompose -Farm 'Farm-01' -LogoffSetting FORCE_LOGOFF -ParentVM 'View-Agent-Win8' -SnapshotVM 'Snap_USB' -Confirm:$false
 
 .EXAMPLE
     Requests a recompose task for automated farm in specified time
@@ -5776,7 +5811,7 @@ function Start-HVPool {
 
 .EXAMPLE
     Requests a refresh of machines in the specified pool
-    Start-HVPool -Refresh -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF
+    Start-HVPool -Refresh -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -Confirm:$false
 
 .EXAMPLE
     Requests a rebalance of machines in a pool with specified time
@@ -6414,7 +6449,7 @@ function Get-HVMachineSummary {
   return $machineList
 }
 
-function Get-HVDesktopSpec {
+function Get-HVPoolSpec {
 <#
 .Synopsis
    Gets desktop specification
@@ -6431,11 +6466,11 @@ function Get-HVDesktopSpec {
 
 .EXAMPLE
    Converts DesktopInfo to DesktopSpec
-   Get-HVDesktopSpec -DesktopInfo $DesktopInfoObj
+   Get-HVPoolSpec -DesktopInfo $DesktopInfoObj
 
 .EXAMPLE
    Converts DesktopInfo to DesktopSpec and also dumps json object
-   Get-HVPool -PoolName 'LnkClnJson' | Get-HVDesktopSpec -FilePath "C:\temp\LnkClnJson.json"
+   Get-HVPool -PoolName 'LnkClnJson' | Get-HVPoolSpec -FilePath "C:\temp\LnkClnJson.json"
 
 .OUTPUTS
   Returns desktop specification
@@ -6763,4 +6798,4 @@ function Get-HVInternalName {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVDesktopSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
