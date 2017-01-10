@@ -5683,7 +5683,7 @@ function Start-HVFarm {
               $farm_service_helper.Farm_Update($services,$item,$updates)
               $farm_service_helper.Farm_Recompose($services,$item,$spec)
             }
-            Write-Host "Performed recompose task on farm: $farmList.item"
+            Write-Host "Performed recompose task on farm: " $farmList.$item
           }
         }
       }
@@ -5970,7 +5970,7 @@ function Start-HVPool {
             if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Rebalance($services,$item,$spec)
             }
-            Write-Host "Performed rebalance task on Pool: $PoolList.$item"
+            Write-Host "Performed rebalance task on Pool: " $PoolList.$item
           }
         }
         'REFRESH' {
@@ -5980,7 +5980,7 @@ function Start-HVPool {
             if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Refresh($services,$item,$spec)
             }
-            Write-Host "Performed refresh task on Pool: $PoolList.$item"
+            Write-Host "Performed refresh task on Pool: " $PoolList.$item
           }
         }
         'RECOMPOSE' {
@@ -5999,7 +5999,7 @@ function Start-HVPool {
             if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Update($services,$item,$updates)
             }
-            Write-Host "Performed recompose task on Pool: $PoolList.$item"
+            Write-Host "Performed recompose task on Pool: " $PoolList.$item
           }
         }
         'PUSH_IMAGE' {
@@ -6017,7 +6017,7 @@ function Start-HVPool {
             if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_SchedulePushImage($services,$item,$spec)
             }
-            Write-Host "Performed push_image task on Pool: $PoolList.$item"
+            Write-Host "Performed push_image task on Pool: " $PoolList.$item
           }
         }
         'CANCEL_PUSH_IMAGE' {
@@ -6028,7 +6028,7 @@ function Start-HVPool {
             if ($pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_CancelScheduledPushImage($services,$item)
             }
-            Write-Host "Performed cancel_push_image task on Pool: $PoolList.$item"
+            Write-Host "Performed cancel_push_image task on Pool: " $PoolList.$item
           }
         }
       }
