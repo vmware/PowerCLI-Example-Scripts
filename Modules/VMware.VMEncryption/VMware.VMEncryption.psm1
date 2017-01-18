@@ -274,7 +274,7 @@ Function Set-vMotionEncryptionConfig {
         [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
         [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine]$VM,
 
-        [Parameter(Mandatory=$True]
+        [Parameter(Mandatory=$True)]
         [ValidateSet("disabled", "opportunistic", "required")]
         [String]$Encryption
     )
