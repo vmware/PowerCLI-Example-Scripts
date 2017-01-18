@@ -5253,10 +5253,6 @@ function Get-HVMachineSummary {
   }
 
   $machineList = Find-HVMachine -Param $PSBoundParameters
-  if (!$machineList) {
-    Write-Host "No Virtual Machine(s) Found with given search parameters"
-    break
-  }
   return $machineList
 }
 
