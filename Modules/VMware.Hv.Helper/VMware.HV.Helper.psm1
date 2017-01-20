@@ -2920,6 +2920,78 @@ function New-HVPool {
     This is a list of tags that access to the desktop is restricted to.
     No list means that the desktop can be accessed from any connection server.
 
+.PARAMETER PowerPolicy
+    Power policy for the machines in the desktop after logoff.
+	This setting is only relevant for managed machines
+
+.PARAMETER AutomaticLogoffPolicy
+    Automatically log-off policy after disconnect. 
+	This property has a default value of "NEVER".
+
+.PARAMETER AutomaticLogoffMinutes
+    The timeout in minutes for automatic log-off after disconnect.
+	This property is required if automaticLogoffPolicy is set to "AFTER".
+
+.PARAMETER AllowUsersToResetMachines
+    Whether users are allowed to reset/restart their machines. 
+
+.PARAMETER AllowMultipleSessionsPerUser
+    Whether multiple sessions are allowed per user in case of Floating User Assignment.
+
+.PARAMETER DeleteOrRefreshMachineAfterLogoff
+	Whether machines are to be deleted or refreshed after logoff in case of Floating User Assignment.
+
+.PARAMETER RefreshOsDiskAfterLogoff
+	Whether and when to refresh the OS disks for dedicated-assignment, linked-clone machines. 
+
+.PARAMETER RefreshPeriodDaysForReplicaOsDisk
+    Regular interval at which to refresh the OS disk.
+
+.PARAMETER RefreshThresholdPercentageForReplicaOsDisk
+	With the 'AT_SIZE' option for refreshOsDiskAfterLogoff, the size of the linked clone's OS disk in the datastore is compared to its maximum allowable size.
+
+.PARAMETER SupportedDisplayProtocols
+	The list of supported display protocols for the desktop. 
+
+.PARAMETER DefaultDisplayProtocol
+    The default display protocol for the desktop. For a managed desktop, this will default to "PCOIP". For an unmanaged desktop, this will default to "RDP". 
+
+.PARAMETER AllowUsersToChooseProtocol
+    Whether the users can choose the protocol. 
+
+.PARAMETER Renderer3D
+    Specify 3D rendering dependent types hardware, software, vsphere client etc.
+
+.PARAMETER EnableGRIDvGPUs
+    Whether GRIDvGPUs enabled or not
+
+.PARAMETER VRamSizeMB
+    VRAM size for View managed 3D rendering. More VRAM can improve 3D performance.
+
+.PARAMETER MaxNumberOfMonitors
+    The greater these values are, the more memory will be consumed on the associated ESX hosts
+
+.PARAMETER MaxResolutionOfAnyOneMonitor
+    The greater these values are, the more memory will be consumed on the associated ESX hosts.
+
+.PARAMETER EnableHTMLAccess
+    HTML Access, enabled by VMware Blast technology, allows users to connect to View machines from Web browsers.
+
+.PARAMETER Quality
+    This setting determines the image quality that the flash movie will render. Lower quality results in less bandwidth usage.
+
+.PARAMETER Throttling
+    This setting affects the frame rate of the flash movie. If enabled, the frames per second will be reduced based on the aggressiveness level.
+
+.PARAMETER OverrideGlobalSetting
+    Mirage configuration specified here will be used for this Desktop
+    
+.PARAMETER Enabled
+	Whether a Mirage server is enabled. 
+
+.PARAMETER Url
+    The URL of the Mirage server. This should be in the form "<(DNS name)|(IPv4)|(IPv6)><:(port)>". IPv6 addresses must be enclosed in square brackets.
+
 .PARAMETER Vcenter
     Virtual Center server-address (IP or FQDN) where the pool virtual machines are located. This should be same as provided to the Connection Server while adding the vCenter server.
 
@@ -2953,6 +3025,60 @@ function New-HVPool {
 .PARAMETER UseVSAN
     Whether to use vSphere VSAN. This is applicable for vSphere 5.5 or later.
     Applicable to Full, Linked, Instant Clone Pools.
+
+.PARAMETER UseSeparateDatastoresReplicaAndOSDisks
+    Whether to use separate datastores for replica and OS disks.
+	
+.PARAMETER ReplicaDiskDatastore
+    Datastore to store replica disks for View Composer and Instant clone engine sourced machines. 
+
+.PARAMETER UseNativeSnapshots
+    Native NFS Snapshots is a hardware feature, specify whether to use or not
+
+.PARAMETER ReclaimVmDiskSpace
+    virtual machines can be configured to use a space efficient disk format that supports reclamation of unused disk space.
+
+.PARAMETER ReclamationThresholdGB
+    Initiate reclamation when unused space on VM exceeds the threshold.
+
+.PARAMETER RedirectWindowsProfile
+    Windows profiles will be redirected to persistent disks, which are not affected by View Composer operations such as refresh, recompose and rebalance.
+
+.PARAMETER UseSeparateDatastoresPersistentAndOSDisks
+    Whether to use separate datastores for persistent and OS disks. This must be false if redirectWindowsProfile is false.
+
+.PARAMETER PersistentDiskDatastores
+    Name of the Persistent disk datastore
+
+.PARAMETER PersistentDiskStorageOvercommit
+    Storage overcommit determines how view places new VMs on the selected datastores. 
+
+.PARAMETER DiskSizeMB
+    Size of the persistent disk in MB.
+
+.PARAMETER DiskDriveLetter
+    Persistent disk drive letter.
+
+.PARAMETER RedirectDisposableFiles
+    Redirect disposable files to a non-persistent disk that will be deleted automatically when a user's session ends.
+
+.PARAMETER NonPersistentDiskSizeMB
+    Size of the non persistent disk in MB.
+
+.PARAMETER NonPersistentDiskDriveLetter
+    Non persistent disk drive letter.
+
+.PARAMETER UseViewStorageAccelerator
+    Whether to use View Storage Accelerator.
+
+.PARAMETER ViewComposerDiskTypes
+    Disk types to enable for the View Storage Accelerator feature.
+
+.PARAMETER RegenerateViewStorageAcceleratorDays
+    How often to regenerate the View Storage Accelerator cache.
+
+.PARAMETER BlackoutTimes
+    A list of blackout times.
 
 .PARAMETER StopOnProvisioningError
     Set to true to stop provisioning of all VMs on error.
@@ -3039,6 +3165,21 @@ function New-HVPool {
     The customization spec to use.
     Applicable to Full, Linked Clone Pools.
 
+.PARAMETER PowerOffScriptName
+    Power off script. ClonePrep/QuickPrep can run a customization script on instant/linked clone machines before they are powered off. Provide the path to the script on the parent virtual machine.
+    Applicable to Linked, Instant Clone pools.
+
+.PARAMETER PowerOffScriptParameters
+    Power off script parameters. Example: p1 p2 p3 
+    Applicable to Linked, Instant Clone pools.
+
+.PARAMETER PostSynchronizationScriptName
+    Post synchronization script. ClonePrep/QuickPrep can run a customization script on instant/linked clone machines after they are created or recovered or a new image is pushed. Provide the path to the script on the parent virtual machine.
+    Applicable to Linked, Instant Clone pools.
+
+.PARAMETER PostSynchronizationScriptParameters
+    Post synchronization script parameters. Example: p1 p2 p3 
+    Applicable to Linked, Instant Clone pools.
 .PARAMETER Source
     Source of the Virtual machines for manual pool.
     Supported values are 'VIRTUAL_CENTER','UNMANAGED'.
@@ -3366,6 +3507,7 @@ function New-HVPool {
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [string]
     $datacenter,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastore if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
@@ -3379,12 +3521,14 @@ function New-HVPool {
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [string[]]
     $StorageOvercommit = $null,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.useVSAN if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [boolean]
     $UseVSAN =  $false,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.useSeparateDatastoresReplicaAndOSDisks if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -3397,21 +3541,24 @@ function New-HVPool {
     [string]
     $ReplicaDiskDatastore,
 
-	#desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.replicaDiskDatastore if LINKED_CLONE, INSTANT_CLONE
+	#desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.UseNativeSnapshots if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
     $UseNativeSnapshots = $false,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.spaceReclamationSettings.reclaimVmDiskSpace if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
     $ReclaimVmDiskSpace = $false,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.spaceReclamationSettings.reclamationThresholdGB if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateRange(0,[Int]::MaxValue)]
     [int]
     $ReclamationThresholdGB =  1,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.redirectWindowsProfile if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -3435,11 +3582,13 @@ function New-HVPool {
     [ValidateRange(128,[Int]::MaxValue)]
     [int]
     $DiskSizeMB = 2048,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.diskDriveLetter if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidatePattern("^[D-Z]$")]
     [string]
     $DiskDriveLetter = "D",
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.nonPersistentDiskSettings.redirectDisposableFiles if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [boolean]
@@ -3450,6 +3599,7 @@ function New-HVPool {
     [ValidateRange(512,[Int]::MaxValue)]
     [int]
     $NonPersistentDiskSizeMB = 4096,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.nonPersistentDiskSettings.diskDriveLetter if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidatePattern("^[D-Z]|Auto$")]
@@ -3483,6 +3633,7 @@ function New-HVPool {
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [VMware.Hv.DesktopNetworkInterfaceCardSettings[]]
     $Nics,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.enableProvsioning if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -3599,10 +3750,12 @@ function New-HVPool {
     [ValidateSet('CLONE_PREP','QUICK_PREP','SYS_PREP','NONE')]
     [string]
     $CustType,
+
     #desktopSpec.automatedDesktopSpec.customizationSettings.reusePreExistingAccounts if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     [Boolean]
     $ReusePreExistingAccounts = $false,
+
     #desktopSpec.automatedDesktopSpec.customizationSettings.sysprepCustomizationSettings.customizationSpec if LINKED_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = "FULL_CLONE")]
@@ -3641,6 +3794,7 @@ function New-HVPool {
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     [string]
     $PostSynchronizationScriptParameters,
+
     #manual desktop
     [Parameter(Mandatory = $true,ParameterSetName = 'MANUAL')]
     [ValidateSet('VIRTUAL_CENTER','UNMANAGED')]
@@ -3787,7 +3941,7 @@ function New-HVPool {
               $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
             }
             'QUICK_PREP' {
-              $powerOffScriptName= $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptName
+              $powerOffScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptName
               $powerOffScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptParameters
               $postSynchronizationScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PostSynchronizationScriptName
               $postSynchronizationScriptParameters = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PostSynchronizationScriptParameters
@@ -4299,8 +4453,8 @@ function New-HVPool {
     }
 
     $desktopSpecObj.DesktopSettings = $desktopSettings
-
-    if ($globalEntitlement) {
+    $info = $services.PodFederation.PodFederation_get()
+    if ($globalEntitlement -and ("ENABLED" -eq $info.localPodStatus.status)) {
         $QueryFilterEquals = New-Object VMware.Hv.QueryFilterEquals
         $QueryFilterEquals.memberName = 'base.displayName'
         $QueryFilterEquals.value = $globalEntitlement
@@ -4606,6 +4760,10 @@ function Get-HVPoolCustomizationSetting {
       }
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings = Get-CustomizationObject
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.InstantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator
+      $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.powerOffScriptName = $powerOffScriptName
+      $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.powerOffScriptParameters = $powerOffScriptParameters
+      $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.postSynchronizationScriptName = $postSynchronizationScriptName
+      $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.postSynchronizationScriptParameters = $postSynchronizationScriptParameters
     }
     else {
       if ($LinkedClone) {
@@ -4634,6 +4792,10 @@ function Get-HVPoolCustomizationSetting {
         } elseIf ($custType -eq 'QUICK_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'QUICK_PREP'
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings = Get-CustomizationObject
+          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.powerOffScriptName = $powerOffScriptName
+          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.powerOffScriptParameters = $powerOffScriptParameters
+          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.postSynchronizationScriptName = $postSynchronizationScriptName
+          $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.postSynchronizationScriptParameters = $postSynchronizationScriptParameters
         } else {
           throw "The customization type: [$custType] is not supported for LinkedClone Pool"
         }
@@ -5200,7 +5362,7 @@ function Set-HVFarm {
   }
 
   process {
-    $farmList = @()
+    $farmList = @{}
     if ($farmName) {
       try {
         $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
@@ -5214,7 +5376,7 @@ function Set-HVFarm {
             Write-Error "Start/Stop operation is not supported for farm with name : [$farmObj.Data.Name]"
             return
           }
-          $farmList += $farmObj.id
+          $farmList.add($farmObj.id, $farmObj.data.name)
         }
       } else {
         Write-Error "Unable to retrieve FarmSummaryView with given farmName [$farmName]"
@@ -5227,14 +5389,14 @@ function Set-HVFarm {
             Write-Error "Start/Stop operation is not supported for farm with name : [$item.Data.Name]"
             return
           }
-          $farmList += $item.id
+          $farmList.add($item.id, $item.data.name)
         }
         elseif ($item.GetType().name -eq 'FarmInfo') {
           if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.Type)) {
             Write-Error "Start/Stop operation is not supported for farm with name : [$item.Data.Name]"
             return
           }
-          $farmList += $item.id
+          $farmList.add($item.id, $item.data.name)
         }
         else {
           Write-Error "In pipeline did not get object of expected type FarmSummaryView/FarmInfo"
@@ -5271,11 +5433,11 @@ function Set-HVFarm {
             -value $false
     }
     $farm_service_helper = New-Object VMware.Hv.FarmService
-    foreach ($item in $farmList) {
-      if ($pscmdlet.ShouldProcess($updates)) {
+    foreach ($item in $farmList.Keys) {
+      if ($pscmdlet.ShouldProcess($farmList.$item)) {
         $farm_service_helper.Farm_Update($services,$item,$updates)
       }
-      Write-Host "Updated Farm Member $updates.Key with value $updates.value"
+      Write-Host "Update successful for farm: " $farmList.$item
     }
   }
 
@@ -5408,7 +5570,7 @@ function Set-HVPool {
   }
 
   process {
-    $poolList = @()
+    $poolList = @{}
     if ($poolName) {
       try {
         $desktopPools = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
@@ -5422,24 +5584,24 @@ function Set-HVPool {
             Write-Error "Start/Stop operation is not supported for Poll with name : [$item.DesktopSummaryData.Name]"
             return
           }
-          $poolList += $desktopObj.id
+          $poolList.add($desktopObj.id, $desktopObj.DesktopSummaryData.Name)
         }
       }
-    } elseif ($PSCmdlet.MyInvocation.ExpectingInput) {
+    } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Pool) {
       foreach ($item in $pool) {
         if ($item.GetType().name -eq 'DesktopInfo') {
           if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.Type)) {
             Write-Error "Start/Stop operation is not supported for Pool with name : [$item.Base.Name]"
             return
           }
-          $poolList += $item.id
+          $poolList.add($item.id, $item.Base.Name)
         }
         elseif ($item.GetType().name -eq 'DesktopSummaryView') {
           if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.DesktopSummaryData.Type)) {
             Write-Error "Start/Stop operation is not supported for Poll with name : [$item.DesktopSummaryData.Name]"
             return
           }
-          $poolList += $item.id
+          $poolList.add($item.id, $item.DesktopSummaryData.Name)
         }
         else {
           Write-Error "In pipeline did not get object of expected type DesktopSummaryView/DesktopInfo"
@@ -5480,12 +5642,12 @@ function Set-HVPool {
         -value $false
     }
     $desktop_helper = New-Object VMware.Hv.DesktopService
-    foreach ($item in $poolList) {
-      if ($pscmdlet.ShouldProcess($updates)) {
+    foreach ($item in $poolList.Keys) {
+      if ($pscmdlet.ShouldProcess($poolList.$item)) {
        $desktop_helper.Desktop_Update($services,$item,$updates)
       }
-      Write-Host "Updated Pool member $updates.key with value $updates.value"
     }
+    Write-Host "Update successful for Pool: " $poolList.$item
   }
 
   end {
@@ -6798,4 +6960,722 @@ function Get-HVInternalName {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
+
+function Get-UserInfo {
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [String]
+    $UserName
+  )
+
+  if ($UserName -match '^.+?[@].+?$') {
+    $info = $UserName -split "@"
+    $Domain = $info[1]
+    $Name = $Info[0]
+  } else {
+    $info = $UserName -split "\\"
+    $Domain = $info[0]
+    $Name = $Info[1]
+  }
+  return @{'Name' = $Name; 'Domain' = $Domain}
+}
+
+function New-HVEntitlement {
+<#
+.Synopsis
+   Associates a user/group with a resource
+
+.DESCRIPTION
+   This represents a simple association between a single user/group and a resource that they can be assigned.
+
+.PARAMETER User
+   User prinicipal name of user or group
+
+.PARAMETER ResourceName
+   The resource(Application, Pool etc.) name
+
+.PARAMETER Resource
+   Object(s) of the resource(Application, Desktop etc) to entitle
+
+.PARAMETER ResourceType
+   Type of Resource(Application, Desktop etc)
+
+.PARAMETER Type
+   Whether or not this is a group or a user.
+
+.PARAMETER HvServer
+   Reference to Horizon View Server. If the value is not passed or null then
+   first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Associate a user/group with a pool 
+   New-HVEntitlement  -User 'administrator@adviewdev.eng.vmware.com' -ResourceName 'InsClnPol' -Confirm:$false
+
+.EXAMPLE
+   Associate a user/group with a application
+   New-HVEntitlement  -User 'adviewdev\administrator' -ResourceName 'Calculator' -ResourceType Application
+
+.EXAMPLE 
+   Associate a user/group with a URLRedirection settings
+   New-HVEntitlement  -User 'adviewdev.eng.vmware.com\administrator' -ResourceName 'UrlSetting1' -ResourceType URLRedirection
+     
+.EXAMPLE
+   Associate a user/group with a desktop entitlement
+   New-HVEntitlement  -User 'adviewdev.eng.vmware.com\administrator' -ResourceName 'GE1' -ResourceType GlobalEntitlement
+
+.EXAMPLE
+   Associate a user/group with a application entitlement
+   New-HVEntitlement  -User 'adviewdev\administrator' -ResourceName 'GEAPP1' -ResourceType GlobalApplicationEntitlement
+
+.EXAMPLE
+   Associate a user/group with list of pools
+   $pools = Get-HVPool; $pools | New-HVEntitlement  -User 'adviewdev\administrator' -Confirm:$false
+      
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [String]
+    $User,
+
+    [Parameter(Mandatory = $true,ParameterSetName ='Default')]
+    [ValidateNotNullOrEmpty()]
+    [String]
+    $ResourceName,
+
+    [Parameter(Mandatory = $true,ValueFromPipeline = $true,ParameterSetName ='PipeLine')]
+    $Resource,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('Application','Desktop','GlobalApplicationEntitlement','GlobalEntitlement',
+    'URLRedirection')]
+    [String]
+    $ResourceType = 'Desktop',
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('User','Group')]
+    [String]
+    $Type = 'User',
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+  process {
+    $userInfo = Get-UserInfo -UserName $User
+    $UserOrGroupName = $userInfo.Name
+    $Domain = $userInfo.Domain
+    $IsGroup = ($Type -eq 'Group')
+    $filter1 = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
+    $filter2 = Get-HVQueryFilter 'base.domain' -Eq $Domain
+    $filter3 = Get-HVQueryFilter 'base.group' -Eq $IsGroup
+    $andFilter = Get-HVQueryFilter -And -Filters @($filter1, $filter2, $filter3)
+    $results = Get-HVQueryResult -EntityType ADUserOrGroupSummaryView -Filter $andFilter -HvServer $HvServer
+    if ($results.length -ne 1) {
+      Write-Host "Unable to find specific user or group with given search parameters"
+      return
+    }
+    $ResourceObjs = $null
+    $info = $services.PodFederation.PodFederation_get()
+    switch($ResourceType){
+      "Desktop" {
+        if ($ResourceName) {
+          $ResourceObjs = Get-HVPool -PoolName $ResourceName
+          if (! $ResourceObjs) {
+            Write-Host "No pool found with given resourceName: " $ResourceName
+            return
+          }
+        } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Resource) {
+          foreach ($item in $Resource) {
+            if ($item.GetType().name -eq 'DesktopInfo') {
+              $ResourceObjs += ,$item
+            }
+            elseif ($item.GetType().name -eq 'DesktopSummaryView') {
+              $ResourceObjs += ,$item
+            }
+            else {
+              Write-Error "In pipeline didn't received object(s) of expected type DesktopSummaryView/DesktopInfo"
+              return
+            }
+          }
+        }
+      }
+      "Application" {
+        if ($ResourceName) {
+          $eqFilter = Get-HVQueryFilter 'data.name' -Eq $ResourceName
+          $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -Filter $eqFilter -HvServer $HvServer
+          if (! $ResourceObjs) {
+            Write-Host "No Application found with given resourceName: " $ResourceName
+            return
+          }
+        } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Resource) {
+          foreach ($item in $Resource) {
+            if ($item.GetType().name -eq 'ApplicationInfo') {
+              $ResourceObjs += ,$item
+            
+            } else {
+              Write-Error "In pipeline didn't received object(s) of expected type ApplicationInfo"
+              return
+            }
+          }
+        }
+      }
+      "URLRedirection" {
+        if ($ResourceName) {
+          $UrlRedirectionList = $services.URLRedirection.URLRedirection_List()
+          $ResourceObjs = $UrlRedirectionList | Where-Object { $_.urlRedirectionData.displayName -like $ResourceName}
+          if (! $ResourceObjs) {
+            Write-Host "No URLRedirectionData found with given resourceName: " $ResourceName
+            return
+          }
+        } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Resource) {
+          foreach ($item in $Resource) {
+            if ($item.GetType().name -eq 'URLRedirectionInfo') {
+              $ResourceObjs += ,$item
+            } else {
+              Write-Error "In pipeline didn't received object(s) of expected type URLRedirectionInfo"
+              return
+            }
+          }
+        }
+      }
+      "GlobalApplicationEntitlement" {
+        if ("ENABLED" -eq $info.localPodStatus.status) {
+          if ($ResourceName) {
+            $eqFilter = Get-HVQueryFilter 'base.displayName' -Eq $ResourceName
+            $ResourceObjs = Get-HVQueryResult -EntityType GlobalApplicationEntitlementInfo -Filter $eqFilter -HvServer $HvServer
+            if (! $ResourceObjs) {
+              Write-Host "No globalApplicationEntitlementInfo found with given resourceName: " $ResourceName
+              return
+            } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Resource) {
+              foreach ($item in $Resource) {
+                if ($item.GetType().name -eq 'GlobalApplicationEntitlementInfo') {
+                  $ResourceObjs += ,$item
+                } else {
+                  Write-Error "In pipeline didn't received object(s) of expected type globalApplicationEntitlementInfo"
+                  return
+                }
+              }
+            }
+          }
+        } else {
+          Write-Host "Multi-DataCenter-View/CPA is not enabled"
+          return
+        }
+      }
+      "GlobalEntitlement" {
+        if ("ENABLED" -eq $info.localPodStatus.status) {
+          if ($ResourceName) {
+            $eqFilter = Get-HVQueryFilter 'base.displayName' -Eq $ResourceName
+            $ResourceObjs = Get-HVQueryResult -EntityType GlobalEntitlementSummaryView -Filter $eqFilter -HvServer $HvServer
+            if (! $ResourceObjs) {
+              Write-Host "No globalEntitlementSummary found with given resourceName: " $ResourceName
+              return
+            } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Resource) {
+              foreach ($item in $Resource) {
+                if ($item.GetType().name -eq 'GlobalEntitlementSummaryView') {
+                  $ResourceObjs += ,$item
+                } else {
+                  Write-Error "In pipeline didn't received object(s) of expected type GlobalEntitlementSummaryView"
+                  return
+                }
+              }
+            }
+          }
+        } else {
+          Write-Host "Multi-DataCenter-View/CPA is not enabled"
+          return
+        }
+      }
+    }
+    $base = New-Object VMware.HV.UserEntitlementBase
+    $base.UserOrGroup = $results.id
+    foreach ($ResourceObj in $ResourceObjs) {
+      $base.Resource = $ResourceObj.id
+      if ($pscmdlet.ShouldProcess($User)) {
+        $id = $services.UserEntitlement.UserEntitlement_Create($base)
+      }
+    }
+    Write-host $ResourceObjs.Length " resource(s) entitled with User or group: " $User
+  }
+  end {
+    [System.gc]::collect()
+  }
+}
+
+
+function Get-HVEntitlement {
+<#
+.Synopsis
+   Gets association data between a user/group and a resource
+
+.DESCRIPTION
+   Provides entitlement Info between a single user/group and a resource that they can be assigned.
+
+.PARAMETER User
+   User prinicipal name of user or group
+
+.PARAMETER ResourceName
+   The resource(Application, Pool etc.) name
+
+.PARAMETER Resource
+   Object(s) of the resource(Application, Desktop etc) to entitle
+
+.PARAMETER ResourceType
+   Type of Resource(Application, Desktop etc)
+
+.PARAMETER Type
+   Whether or not this is a group or a user.
+
+.PARAMETER HvServer
+   Reference to Horizon View Server. If the value is not passed or null then
+   first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Gets all the entitlements related to application pool 
+   Get-HVEntitlement -ResourceType Application
+
+.EXAMPLE
+   Gets entitlements specific to user or group name and application resource
+   Get-HVEntitlement -User 'adviewdev.eng.vmware.com\administrator' -ResourceName 'calculator' -ResourceType Application
+
+.EXAMPLE 
+   Gets entitlements specific to user or group and URLRedirection resource
+   Get-HVEntitlement -User 'adviewdev.eng.vmware.com\administrator' -ResourceName 'UrlSetting1' -ResourceType URLRedirection
+     
+.EXAMPLE
+   Gets entitlements specific to user or group and GlobalEntitlement resource
+   Get-HVEntitlement -User 'administrator@adviewdev.eng.vmware.com' -ResourceName 'GE1' -ResourceType GlobalEntitlement
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+
+   [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+  param(
+    [Parameter(Mandatory = $false)]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [String]
+    $User,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('User','Group')]
+    [String]
+    $Type = 'User',
+
+    [Parameter(Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [String]
+    $ResourceName,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('Application','Desktop','GlobalApplicationEntitlement','GlobalEntitlement',
+    'URLRedirection')]
+    [String]
+    $ResourceType = 'Desktop',
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+  process {
+    $AndFilter = @()
+    $results = @()
+    $ResourceObjs = $null
+    if ($User) {
+      $userInfo = Get-UserInfo -UserName $User
+      $UserOrGroupName = $userInfo.Name
+      $Domain = $userInfo.Domain
+      $nameFilter = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
+      $AndFilter += $nameFilter
+      $doaminFilter = Get-HVQueryFilter 'base.domain' -Eq $Domain
+      $AndFilter += $doaminFilter
+    }
+    $IsGroup = ($Type -eq 'Group')
+    $groupFilter = Get-HVQueryFilter 'base.group' -Eq $IsGroup
+    $AndFilter += $groupFilter
+    $info = $services.PodFederation.PodFederation_get()
+    $cpaEnabled = ("ENABLED" -eq $info.localPodStatus.status)
+    switch($ResourceType) {
+      "Desktop" {
+        if ($ResourceName) {
+          $ResourceObjs = Get-HVPool -PoolName $ResourceName -HvServer $HvServer
+          if (! $ResourceObjs) {
+            Write-Host "No pool found with given resourceName: " $ResourceName
+            return
+          }
+          $AndFilter += Get-HVQueryFilter 'localData.desktops' -Contains ([VMware.Hv.DesktopId[]]$ResourceObjs.Id)
+        }
+        $AndFilter = Get-HVQueryFilter -And -Filters $AndFilter
+        $results = (Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $AndFilter -HvServer $HvServer)
+        $results = $results | where {$_.localData.desktops -ne $null}
+      }
+      "Application" {
+        if ($ResourceName) {
+          $eqFilter = Get-HVQueryFilter 'data.name' -Eq $ResourceName
+          $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -Filter $eqFilter -HvServer $HvServer
+          if (! $ResourceObjs) {
+            Write-Host "No Application found with given resourceName: " $ResourceName
+            return
+          }
+          $AndFilter += Get-HVQueryFilter 'localData.applications' -Contains ([VMware.Hv.ApplicationId[]]$ResourceObjs.Id)
+        }
+        $AndFilter = Get-HVQueryFilter -And -Filters $AndFilter
+        $results = (Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $AndFilter -HvServer $HvServer)
+        $results = $results | where {$_.localData.applications -ne $null}
+      }
+      "URLRedirection" {
+        $localFilter = @()
+        $globalFilter = @()
+        $localFilter += $AndFilter
+        $globalFilter += $AndFilter
+        if ($ResourceName) {
+          $UrlRedirectionList = $services.URLRedirection.URLRedirection_List()
+          $ResourceObjs = $UrlRedirectionList | Where-Object { $_.urlRedirectionData.displayName -like $ResourceName}
+          if (! $ResourceObjs) {
+            Write-Host "No URLRedirectionData found with given resourceName: " $ResourceName
+            return
+          }
+          $localFilter +=  Get-HVQueryFilter 'localData.urlRedirectionSettings' -Contains ([VMware.Hv.URLRedirectionId[]]$ResourceObjs.Id)
+          if ($cpaEnabled) {
+            $globalFilter += Get-HVQueryFilter 'globalData.urlRedirectionSettings' -Contains ([VMware.Hv.URLRedirectionId[]]$ResourceObjs.Id)
+          }
+        }
+        $localFilter = Get-HVQueryFilter -And -Filters $localFilter
+        $localResults = Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $localFilter -HvServer $HvServer
+        $results += ($localResults | where {$_.localData.urlRedirectionSettings -ne $null})
+        if ($cpaEnabled) {
+          $globalFilter = Get-HVQueryFilter -And -Filters $globalFilter
+          $globalResults = Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $globalFilter -HvServer $HvServer
+          $globalResults = $globalResults | where {$_.globalData.urlRedirectionSettings -ne $null}
+          $results +=  $globalResults
+        }
+      }
+      "GlobalApplicationEntitlement" {
+        if (! $cpaEnabled) {
+          Write-Host "Multi-DataCenter-View/CPA is not enabled"
+          return
+        }
+        if ($ResourceName) {
+          $eqFilter = Get-HVQueryFilter 'base.displayName' -Eq $ResourceName
+          $ResourceObjs = Get-HVQueryResult -EntityType GlobalApplicationEntitlementInfo -Filter $eqFilter -HvServer $HvServer
+          if (! $ResourceObjs) {
+            Write-Host "No globalApplicationEntitlementInfo found with given resourceName: " $ResourceName
+            return
+          }
+          $AndFilter += Get-HVQueryFilter 'globalData.globalApplicationEntitlements' -Contains ([VMware.Hv.GlobalApplicationEntitlementId[]]$ResourceObjs.Id)
+        }
+        $AndFilter = Get-HVQueryFilter -And -Filters $AndFilter
+        $results = (Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $AndFilter -HvServer $HvServer)
+        $results = $results| where {$_.globalData.globalApplicationEntitlements -ne $null}
+      }
+      "GlobalEntitlement" {
+        if (! $cpaEnabled) {
+          Write-Host "Multi-DataCenter-View/CPA is not enabled"
+          return
+        }
+        if ($ResourceName) {
+          $eqFilter = Get-HVQueryFilter 'base.displayName' -Eq $ResourceName
+          $ResourceObjs = Get-HVQueryResult -EntityType GlobalEntitlementSummaryView -Filter $eqFilter -HvServer $HvServer
+          if (! $ResourceObjs) {
+            Write-Host "No globalEntitlementSummary found with given resourceName: " $ResourceName
+            return
+          }
+          $AndFilter += Get-HVQueryFilter 'globalData.globalEntitlements' -Contains ([VMware.Hv.GlobalEntitlementId[]]$ResourceObjs.Id)
+        }
+        $AndFilter = Get-HVQueryFilter -And -Filters $AndFilter
+        $results = (Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $AndFilter -HvServer $HvServer) 
+        $results = $results | where {$_.globalData.globalEntitlements -ne $null}
+      }
+    }
+    if (! $results) {
+      Write-Host "Get-HVEntitlement: No entitlements found with given search parameters"
+      break
+    }
+    return $results
+  }
+  end {
+    [System.gc]::collect()
+  }
+}
+
+function Remove-HVEntitlement {
+<#
+.Synopsis
+   Deletes association data between a user/group and a resource
+
+.DESCRIPTION
+   Removes entitlement between a single user/group and a resource that already been assigned.
+
+.PARAMETER User
+   User prinicipal name of user or group
+
+.PARAMETER ResourceName
+   The resource(Application, Pool etc.) name
+
+.PARAMETER Resource
+   Object(s) of the resource(Application, Desktop etc) to entitle
+
+.PARAMETER ResourceType
+   Type of Resource(Application, Desktop etc)
+
+.PARAMETER Type
+   Whether or not this is a group or a user.
+
+.PARAMETER HvServer
+   Reference to Horizon View Server. If the value is not passed or null then
+   first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Deletes entitlement between a user/group and a pool resource 
+   Remove-HVEntitlement -User 'administrator@adviewdev'  -ResourceName LnkClnJSon -Confirm:$false
+
+.EXAMPLE
+   Deletes entitlement between a user/group and a Application resource
+   Remove-HVEntitlement -User 'adviewdev\puser2' -ResourceName 'calculator' -ResourceType Application
+
+.EXAMPLE 
+   Deletes entitlement between a user/group and a GlobalApplicationEntitlement resource
+   Remove-HVEntitlement -User 'adviewdev\administrator' -ResourceName 'GEAPP1' -ResourceType GlobalApplicationEntitlement
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+
+   [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [String]
+    $User,
+
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [String]
+    $ResourceName,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('User','Group')]
+    [String]
+    $Type = 'User',
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('Application','Desktop','GlobalApplicationEntitlement','GlobalEntitlement',
+    'URLRedirection')]
+    [String]
+    $ResourceType = 'Desktop',
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+  process {
+    $AndFilter = @()
+    $results = $null
+    $userInfo = Get-UserInfo -UserName $User
+    $UserOrGroupName = $userInfo.Name
+    $Domain = $userInfo.Domain
+    $nameFilter = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
+    $doaminFilter = Get-HVQueryFilter 'base.domain' -Eq $Domain
+    $IsGroup = ($Type -eq 'Group')
+    $groupFilter = Get-HVQueryFilter 'base.group' -Eq $IsGroup
+    [VMware.Hv.UserEntitlementId[]] $userEntitlements = $null
+    if ($ResourceName) {
+      $info = $services.PodFederation.PodFederation_get()
+      switch($ResourceType) {
+        "Desktop" {
+          $ResourceObjs = Get-HVPool -PoolName $ResourceName -HvServer $HvServer
+          if (! $ResourceObjs) {
+            Write-Host "No pool found with given resourceName: " $ResourceName
+            return
+          }
+          $AndFilter += Get-HVQueryFilter 'localData.desktops' -Contains ([VMware.HV.DesktopId[]] $ResourceObjs.Id)
+          $filters = Get-HVQueryFilter -And -Filters $AndFilter
+          $results = Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $filters -HvServer $HvServer
+          if ($results) {
+            foreach ($result in $Results) {
+              $userEntitlements = $result.localData.desktopUserEntitlements
+              if ($pscmdlet.ShouldProcess($User)) {
+                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+              }
+              Write-Host $userEntitlements.Length " desktopUserEntitlement(s) are removed for UserOrGroup " $user
+            }
+          }
+        }
+        "Application" {
+          $eqFilter = Get-HVQueryFilter 'data.name' -Eq $ResourceName
+          $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -Filter $eqFilter -HvServer $HvServer
+          if (! $ResourceObjs) {
+            Write-Host "No Application found with given resourceName: " $ResourceName
+            return
+          }
+          $AndFilter += Get-HVQueryFilter 'localData.applications' -Contains ([VMware.HV.ApplicationId[]] $ResourceObjs.Id)
+          $AndFilter = Get-HVQueryFilter -And -Filters $AndFilter
+          $results = Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $AndFilter -HvServer $HvServer
+          if ($results) {
+            foreach ($result in $Results) {
+              $userEntitlements = $result.localData.applicationUserEntitlements
+              if ($pscmdlet.ShouldProcess($User)) {
+                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+              }
+              Write-Host $userEntitlements.Length " applicationUserEntitlement(s) are removed for UserOrGroup " $user
+            }
+          }
+        }
+        "URLRedirection" {
+          $UrlRedirectionList = $services.URLRedirection.URLRedirection_List()
+          $ResourceObjs = $UrlRedirectionList | Where-Object { $_.urlRedirectionData.displayName -like $ResourceName}
+          if (! $ResourceObjs) {
+            Write-Host "No URLRedirectionData found with given resourceName: " $ResourceName
+            return
+          }
+          $localFilter = @()
+          $localFilter += $AndFilter
+          $localFilter +=  (Get-HVQueryFilter 'localData.urlRedirectionSettings' -Contains ([VMware.HV.URLRedirectionId[]]$ResourceObjs.Id))
+          $localFilter = Get-HVQueryFilter -And -Filters $localFilter
+          $results = Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $localFilter -HvServer $HvServer
+          if ("ENABLED" -eq $info.localPodStatus.status) {
+            $globalFilter = @()
+            $globalFilter += $AndFilter
+            $globalFilter += Get-HVQueryFilter 'globalData.urlRedirectionSettings' -Contains ([VMware.HV.URLRedirectionId[]]$ResourceObjs.Id)
+            $globalFilter = Get-HVQueryFilter -And -Filters $globalFilter
+            $results += Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $globalFilter -HvServer $HvServer
+          }
+          if ($results) {
+            foreach ($result in $Results) {
+              if ($result.GetType().Name -eq 'EntitledUserOrGroupLocalSummaryView') {
+                $userEntitlements = $result.localData.urlRedirectionUserEntitlements
+                if ($pscmdlet.ShouldProcess($User)) {
+                  $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+                }
+              } else {
+                $userEntitlements = $result.globalData.urlRedirectionUserEntitlements
+                if ($pscmdlet.ShouldProcess($User)) {
+                  $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+                }
+              }
+              Write-Host $userEntitlements.Length " urlRedirectionUserEntitlement(s) are removed for UserOrGroup " $user
+            }
+          }
+        }
+        "GlobalApplicationEntitlement" {
+          if ("ENABLED" -ne $info.localPodStatus.status) {
+            Write-Host "Multi-DataCenter-View/CPA is not enabled"
+            return
+          }
+          $eqFilter = Get-HVQueryFilter 'base.displayName' -Eq $ResourceName
+          $ResourceObjs = Get-HVQueryResult -EntityType GlobalApplicationEntitlementInfo -Filter $eqFilter -HvServer $HvServer
+          if (! $ResourceObjs) {
+              Write-Host "No globalApplicationEntitlementInfo found with given resourceName: " $ResourceName
+              return
+          }
+          $AndFilter += Get-HVQueryFilter 'globalData.globalApplicationEntitlements' -Contains ([VMware.Hv.GlobalApplicationEntitlementId[]]$ResourceObjs.Id)
+          $AndFilter = Get-HVQueryFilter -And -Filters $AndFilter
+          $results = Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $AndFilter -HvServer $HvServer
+          if ($results) {
+            foreach ($result in $Results) {
+              $userEntitlements = $result.globalData.globalUserApplicationEntitlements
+              if ($pscmdlet.ShouldProcess($User)) {
+                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+              }
+              Write-Host $userEntitlements.Length " GlobalApplicationEntitlement(s) are removed for UserOrGroup " $user
+            }
+          }
+        }
+        "GlobalEntitlement" {
+          if ("ENABLED" -ne $info.localPodStatus.status) {
+            Write-Host "Multi-DataCenter-View/CPA is not enabled"
+            return
+          }
+          $eqFilter = Get-HVQueryFilter 'base.displayName' -Eq $ResourceName
+          $ResourceObjs = Get-HVQueryResult -EntityType GlobalEntitlementSummaryView -Filter $eqFilter -HvServer $HvServer
+          if (! $ResourceObjs) {
+              Write-Host "No globalEntitlementSummary found with given resourceName: " $ResourceName
+              return
+          }
+          $AndFilter += Get-HVQueryFilter 'globalData.globalEntitlements' -Contains ([VMware.Hv.GlobalEntitlementId[]]$ResourceObjs.Id)
+          $AndFilter = Get-HVQueryFilter -And -Filters $AndFilter
+          $results = Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $AndFilter -HvServer $HvServer
+          if ($results) {
+            foreach ($result in $Results) {
+              $userEntitlements = $result.globalData.globalUserEntitlements
+              if ($pscmdlet.ShouldProcess($User)) {
+                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+              }
+              Write-Host $userEntitlements.Length " GlobalEntitlement(s) are removed for UserOrGroup " $user
+            }
+            
+          }
+        }
+      }
+    }
+    if (! $results) {
+      Write-Host "Remove-HVEntitlement: No entitlements found with given search parameters"
+      return
+    }
+  }
+  end {
+    [System.gc]::collect()
+  }
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement
