@@ -1941,7 +1941,7 @@ function New-HVFarm {
     New-HVFarm -Spec C:\VMWare\Specs\LinkedClone.json -Confirm:$false
 
 .EXAMPLE
-    Creates new linkedClone farm by using json file 
+    Creates new instantClone farm by using json file 
     New-HVFarm -Spec C:\VMWare\Specs\InstantCloneFarm.json -Confirm:$false
 
 .EXAMPLE
@@ -5810,14 +5810,14 @@ function Start-HVFarm {
 .PARAMETER Recompose
     Switch for recompose operation. Requests a recompose of RDS Servers in the specified 'AUTOMATED' farm. This marks the RDS Servers for recompose, which is performed asynchronously.
 
-.PARAMETER Schedule_Maintenance
-    Switch for Schedule_Maintenance operation. Requests for scheduling maintenance operation on RDS Servers in the specified Instant clone farm. This marks the RDS Servers for scheduled maintenance, which is performed according to the schedule.
+.PARAMETER ScheduleMaintenance
+    Switch for ScheduleMaintenance operation. Requests for scheduling maintenance operation on RDS Servers in the specified Instant clone farm. This marks the RDS Servers for scheduled maintenance, which is performed according to the schedule.
 
-.PARAMETER Cancel_Maintenance
+.PARAMETER CancelMaintenance
     Switch for cancelling maintenance operation. Requests for cancelling a scheduled maintenance operation on the specified Instant clone farm. This stops further maintenance operation on the given farm.
 
 .PARAMETER StartTime
-    Specifies when to start the recompose/Schedule_Maintenance operation. If unset, the recompose operation will begin immediately.
+    Specifies when to start the recompose/ScheduleMaintenance operation. If unset, the recompose operation will begin immediately.
     For IMMEDIATE maintenance if unset, maintenance will begin immediately. For RECURRING maintenance if unset, will be calculated based on recurring maintenance configuration. If in the past, maintenance will begin immediately.
 
 .PARAMETER LogoffSetting
@@ -5877,16 +5877,16 @@ function Start-HVFarm {
     Start-HVFarm -Farm 'Farm-01' -Recompose -LogoffSetting 'FORCE_LOGOFF' -ParentVM 'ParentVM' -SnapshotVM 'SnapshotVM' -StartTime $myTime
 
 .EXAMPLE
-    Requests a Schedule_Maintenance task for instant-clone farm. Schedules an IMMEDIATE maintenance.
-    Start-HVFarm -Farm 'ICFarm-01' -Schedule_Maintenance -MaintenanceMode IMMEDIATE
+    Requests a ScheduleMaintenance task for instant-clone farm. Schedules an IMMEDIATE maintenance.
+    Start-HVFarm -Farm 'ICFarm-01' -ScheduleMaintenance -MaintenanceMode IMMEDIATE
 
 .EXAMPLE
-    Requests a Schedule_Maintenance task for instant-clone farm. Schedules a recurring weekly maintenace every Saturday night at 23:30 and updates the parentVM and snapshot.
-    Start-HVFarm -Schedule_Maintenance -Farm 'ICFarm-01' -MaintenanceMode RECURRING -MaintenancePeriod WEEKLY -MaintenanceStartTime '11:30' -StartInt 6 -EveryInt 1 -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_Updated'
+    Requests a ScheduleMaintenance task for instant-clone farm. Schedules a recurring weekly maintenace every Saturday night at 23:30 and updates the parentVM and snapshot.
+    Start-HVFarm -ScheduleMaintenance -Farm 'ICFarm-01' -MaintenanceMode RECURRING -MaintenancePeriod WEEKLY -MaintenanceStartTime '11:30' -StartInt 6 -EveryInt 1 -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_Updated'
 
 .EXAMPLE
-    Requests a Cancel_Maintenance task for instant-clone farm. Cancels recurring maintenance.
-    Start-HVFarm -Cancel_Maintenance -Farm 'ICFarm-01' -MaintenanceMode RECURRING
+    Requests a CancelMaintenance task for instant-clone farm. Cancels recurring maintenance.
+    Start-HVFarm -CancelMaintenance -Farm 'ICFarm-01' -MaintenanceMode RECURRING
 
 .OUTPUTS
     None
@@ -5913,58 +5913,58 @@ function Start-HVFarm {
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
     [switch]$Recompose,
 
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
-    [switch]$Schedule_Maintenance,
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
+    [switch]$ScheduleMaintenance,
 
-    [Parameter(Mandatory = $false,ParameterSetName = 'CANCEL_MAINTENANCE')]
-    [switch]$Cancel_Maintenance,
+    [Parameter(Mandatory = $false,ParameterSetName = 'CANCELMAINTENANCE')]
+    [switch]$CancelMaintenance,
 
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [System.DateTime]$StartTime,
 
     [Parameter(Mandatory = $true,ParameterSetName = 'RECOMPOSE')]
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [ValidateSet('FORCE_LOGOFF','WAIT_FOR_LOGOFF')]
     [string]$LogoffSetting = 'FORCE_LOGOFF',
 
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [boolean]$StopOnFirstError = $true,
 
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
     [string []]$Servers,
 
     [Parameter(Mandatory = $true,ParameterSetName = 'RECOMPOSE')]
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [string]$ParentVM,
 
     [Parameter(Mandatory = $true,ParameterSetName = 'RECOMPOSE')]
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [string]$SnapshotVM,
 
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [string]$Vcenter,
 
-    [Parameter(Mandatory = $true,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
-    [Parameter(Mandatory = $true,ParameterSetName = 'CANCEL_MAINTENANCE')]
+    [Parameter(Mandatory = $true,ParameterSetName = 'SCHEDULEMAINTENANCE')]
+    [Parameter(Mandatory = $true,ParameterSetName = 'CANCELMAINTENANCE')]
     [ValidateSet('IMMEDIATE','RECURRING')]
     [string]$MaintenanceMode,
 
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [ValidatePattern('^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$')]
     [string]$MaintenanceStartTime,
 
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [ValidateSet('DAILY','WEEKLY','MONTHLY')]
     [string]$MaintenancePeriod,
 
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [ValidateRange(1, 31)]
     [int]$StartInt,
 
-    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULE_MAINTENANCE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [ValidateRange(1, 100)]
     [int]$EveryInt = 1,
 
@@ -6068,9 +6068,9 @@ function Start-HVFarm {
             Write-Host "Performed recompose task on farm: " $farmList.$item
           }
         }
-        'SCHEDULE_MAINTENANCE' {
+        'SCHEDULEMAINTENANCE' {
           if ($farmSource.$item -ne 'INSTANT_CLONE_ENGINE') {
-            Write-Error "SCHEDULE_MAINTENANCE operation is not supported for farm with name [$farmList.$item]. It is only supported for instant-clone farms."
+            Write-Error "SCHEDULEMAINTENANCE operation is not supported for farm with name [$farmList.$item]. It is only supported for instant-clone farms."
             break
           } else {
             $spec = New-Object VMware.Hv.FarmMaintenanceSpec
@@ -6108,21 +6108,21 @@ function Start-HVFarm {
                 try {
                     $spec.ImageMaintenanceSettings = Set-HVFarmSpec -vcId $vcId -spec $spec.ImageMaintenanceSettings
                 } catch {
-                    Write-Error "SCHEDULE_MAINTENANCE task failed with error: $_"
+                    Write-Error "SCHEDULEMAINTENANCE task failed with error: $_"
                     break
                 }
             }
             # call scheduleMaintenance service on farm
             if ($pscmdlet.ShouldProcess($farmList.$item)) {
               $farm_service_helper.Farm_ScheduleMaintenance($services, $item, $spec)
-              Write-Host "Performed SCHEDULE_MAINTENANCE task on farm: " $farmList.$item
+              Write-Host "Performed SCHEDULEMAINTENANCE task on farm: " $farmList.$item
             }
           }
         }
-        'CANCEL_MAINTENANCE' {
+        'CANCELMAINTENANCE' {
             if ($pscmdlet.ShouldProcess($farmList.$item)) {
               $farm_service_helper.Farm_CancelScheduleMaintenance($services, $item, $MaintenanceMode)
-              Write-Host "Performed CANCEL_MAINTENANCE task on farm: " $farmList.$item
+              Write-Host "Performed CANCELMAINTENANCE task on farm: " $farmList.$item
             }
           }
         }
