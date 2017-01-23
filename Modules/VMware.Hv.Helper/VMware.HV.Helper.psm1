@@ -1800,6 +1800,9 @@ function New-HVFarm {
 .PARAMETER LinkedClone
    Switch to Create Automated Linked Clone farm.
 
+.PARAMETER InstantClone
+   Switch to Create Automated Instant Clone farm.
+
 .PARAMETER Manual
    Switch to Create Manual farm.
 
@@ -1824,38 +1827,38 @@ function New-HVFarm {
 
 .PARAMETER ParentVM
     Base image VM for RDS Servers.
-    Applicable only to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER SnapshotVM
     Base image snapshot for RDS Servers.
 
 .PARAMETER VmFolder
     VM folder to deploy the RDSServers to.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER HostOrCluster
     Host or cluster to deploy the RDSServers in.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER ResourcePool
     Resource pool to deploy the RDSServers.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER Datastores
     Datastore names to store the RDSServer.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER UseVSAN
     Whether to use vSphere VSAN. This is applicable for vSphere 5.5 or later.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER EnableProvisioning
     Set to true to enable provision of RDSServers immediately in farm.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER StopOnProvisioningError
     Set to true to stop provisioning of all RDSServers on error.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER TransparentPageSharingScope
     The transparent page sharing scope.
@@ -1864,7 +1867,7 @@ function New-HVFarm {
 .PARAMETER NamingMethod
     Determines how the VMs in the farm are named.
     Set PATTERN to use naming pattern.
-    The default value is PATTERN. Curentlly only PATTERN is allowed.
+    The default value is PATTERN. Currently only PATTERN is allowed.
 
 .PARAMETER NamingPattern
     RDS Servers will be named according to the specified naming pattern.
@@ -1879,25 +1882,41 @@ function New-HVFarm {
 .PARAMETER MaximumCount
     Maximum number of Servers in the farm.
     The default value is 1.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER AdContainer
     This is the Active Directory container which the Servers will be added to upon creation.
     The default value is 'CN=Computers'.
-    Applicable to Linked Clone farm.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER NetBiosName
     Domain Net Bios Name.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER DomainAdmin
     Domain Administrator user name which will be used to join the domain.
     Default value is null.
-    Applicable to Linked Clone farms.
+    Applicable to Linked Clone and Instant Clone farms.
 
 .PARAMETER SysPrepName
     The customization spec to use.
     Applicable to Linked Clone farms.
+
+.PARAMETER PowerOffScriptName
+    Power off script. ClonePrep can run a customization script on instant-clone machines before they are powered off. Provide the path to the script on the parent virtual machine.
+    Applicable to Instant Clone farms.
+
+.PARAMETER PowerOffScriptParameters
+    Power off script parameters. Example: p1 p2 p3 
+    Applicable to Instant Clone farms.
+
+.PARAMETER PostSynchronizationScriptName
+    Post synchronization script. ClonePrep can run a customization script on instant-clone machines after they are created or recovered or a new image is pushed. Provide the path to the script on the parent virtual machine.
+    Applicable to Instant Clone farms.
+
+.PARAMETER PostSynchronizationScriptParameters
+    Post synchronization script parameters. Example: p1 p2 p3 
+    Applicable to Instant Clone farms.
 
 .PARAMETER RdsServers
     List of existing registered RDS server names to add into manual farm.
@@ -1911,11 +1930,19 @@ function New-HVFarm {
 
 .EXAMPLE
     Creates new linkedClone farm by using naming pattern 
-    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description  'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
+    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description 'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
+
+.EXAMPLE
+    Creates new linkedClone farm by using naming pattern 
+    New-HVFarm -InstantClone -FarmName 'ICFarmCL' -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_5' -VmFolder 'Instant_Clone_VMs' -HostOrCluster 'vimal-cluster' -ResourcePool 'vimal-cluster' -Datastores 'datastore1' -FarmDisplayName 'IC Farm using CL' -Description 'created IC Farm from PS command-line' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "ICFarmCL-" -NetBiosName "ad-vimalg"
 
 .EXAMPLE
     Creates new linkedClone farm by using json file 
     New-HVFarm -Spec C:\VMWare\Specs\LinkedClone.json -Confirm:$false
+
+.EXAMPLE
+    Creates new linkedClone farm by using json file 
+    New-HVFarm -Spec C:\VMWare\Specs\InstantCloneFarm.json -Confirm:$false
 
 .EXAMPLE
     Creates new manual farm by using rdsServers names
@@ -1945,6 +1972,10 @@ function New-HVFarm {
     [switch]
     $LinkedClone,
 
+    [Parameter(Mandatory = $true,ParameterSetName = "INSTANT_CLONE")]
+    [switch]
+    $InstantClone,
+
     [Parameter(Mandatory = $true,ParameterSetName = 'MANUAL')]
     [switch]
     $Manual,
@@ -1952,6 +1983,7 @@ function New-HVFarm {
     #farmSpec.farmData.name
     [Parameter(Mandatory = $true,ParameterSetName = 'MANUAL')]
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $true,ParameterSetName = "INSTANT_CLONE")]
     [string]
     $FarmName,
 
@@ -2040,108 +2072,129 @@ function New-HVFarm {
     [string]
     $Url,
 
-    #farmSpec.automatedfarmSpec.virtualCenter if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenter if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $Vcenter,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVM if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVM if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $ParentVM,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshotVM if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshotVM if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $SnapshotVM,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.vmFolder if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.vmFolder if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $VmFolder,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.hostOrCluster if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.hostOrCluster if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $HostOrCluster,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.resourcePool if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.resourcePool if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $ResourcePool,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.dataCenter if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.dataCenter if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $dataCenter,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastore if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastore if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
     [string[]]
     $Datastores,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores.storageOvercommit if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores.storageOvercommit if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [string[]]
     $StorageOvercommit = $null,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.useVSAN if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.useVSAN if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
     $UseVSAN = $false,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.enableProvsioning if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.enableProvsioning if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
     $EnableProvisioning = $true,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.stopOnProvisioningError if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.stopOnProvisioningError if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
     $StopOnProvisioningError = $true,
 
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $TransparentPageSharingScope = 'VM',
 
-    #farmSpec.automatedfarmSpec.rdsServerNamingSpec.namingMethod if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #farmSpec.automatedfarmSpec.rdsServerNamingSpec.namingMethod if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [ValidateSet('PATTERN')]
     [string]
     $NamingMethod = 'PATTERN',
 
-    #farmSpec.automatedfarmSpec.rdsServerNamingSpec.patternNamingSettings.namingPattern if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.rdsServerNamingSpec.patternNamingSettings.namingPattern if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $NamingPattern = $farmName + '{n:fixed=4}',
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.minReadyVMsOnVComposerMaintenance if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.minReadyVMsOnVComposerMaintenance if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [int]
     $MinReady = 0,
 
-    #farmSpec.automatedfarmSpec.rdsServerNamingSpec.patternNamingSettings.maxNumberOfRDSServers if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.rdsServerNamingSpec.patternNamingSettings.maxNumberOfRDSServers if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [int]
     $MaximumCount = 1,
 
-	#farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.useSeparateDatastoresReplicaAndOSDisks
+	#farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.useSeparateDatastoresReplicaAndOSDisks if INSTANT_CLONE, LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
     $UseSeparateDatastoresReplicaAndOSDisks = $false,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.replicaDiskDatastore
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.replicaDiskDatastore, if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $ReplicaDiskDatastore,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.useNativeSnapshots
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.useNativeSnapshots, if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
     $UseNativeSnapshots = $false,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.spaceReclamationSettings.reclaimVmDiskSpace
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.spaceReclamationSettings.reclaimVmDiskSpace, if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
     $ReclaimVmDiskSpace = $false,
 
@@ -2156,18 +2209,23 @@ function New-HVFarm {
     [VMware.Hv.FarmBlackoutTime[]]
     $BlackoutTimes,
 
-    #farmSpec.automatedfarmSpec.customizationSettings.adContainer if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.customizationSettings.adContainer if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = "INSTANT_CLONE")]
     [string]
     $AdContainer = 'CN=Computers',
 
     #farmSpec.automatedfarmSpec.customizationSettings.domainAdministrator
+    #farmSpec.automatedfarmSpec.customizationSettings.cloneprepCustomizationSettings.instantCloneEngineDomainAdministrator
     [Parameter(Mandatory = $true,ParameterSetName = 'LINKED_CLONE')]
+    [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $NetBiosName,
 
     #farmSpec.automatedfarmSpec.customizationSettings.domainAdministrator
+    #farmSpec.automatedfarmSpec.customizationSettings.cloneprepCustomizationSettings.instantCloneEngineDomainAdministrator
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = "INSTANT_CLONE")]
     [string]
     $DomainAdmin = $null,
 
@@ -2181,14 +2239,36 @@ function New-HVFarm {
     [string]
     $SysPrepName,
 
-    #farmSpec.automatedfarmSpec.rdsServerMaxSessionsData.maxSessionsType if LINKED_CLONE
+    #desktopSpec.automatedfarmSpec.customizationSettings.cloneprepCustomizationSettings.powerOffScriptName if INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [string]
+    $PowerOffScriptName,
+
+    #farmSpec.automatedfarmSpec.customizationSettings.cloneprepCustomizationSettings.powerOffScriptParameters if INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [string]
+    $PowerOffScriptParameters,
+
+    #farmSpec.automatedfarmSpec.customizationSettings.cloneprepCustomizationSettings.postSynchronizationScriptName if INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [string]
+    $PostSynchronizationScriptName,
+
+    #farmSpec.automatedfarmSpec.customizationSettings.cloneprepCustomizationSettings.postSynchronizationScriptParameters if INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [string]
+    $PostSynchronizationScriptParameters,
+
+    #farmSpec.automatedfarmSpec.rdsServerMaxSessionsData.maxSessionsType if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = "INSTANT_CLONE")]
     [ValidateSet("UNLIMITED", "LIMITED")]
     [string]
     $MaxSessionsType = "UNLIMITED",
 
-    #farmSpec.automatedfarmSpec.rdsServerMaxSessionsData.maxSessionsType if LINKED_CLONE
+    #farmSpec.automatedfarmSpec.rdsServerMaxSessionsData.maxSessionsType if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = "INSTANT_CLONE")]
     [ValidateRange(1, [int]::MaxValue)]
     [int]
     $MaxSessions,
@@ -2225,6 +2305,9 @@ function New-HVFarm {
   #                ADContainerId
   #                FarmSysprepCustomizationSettings
   #                      CustomizationSpecId
+  #                FarmCloneprepCustomizationSettings
+  #                      InstantCloneEngineDomainAdministratorId
+  #
   #   FarmManualfarmSpec
   #        RDSServerId[]
   #
@@ -2271,14 +2354,31 @@ function New-HVFarm {
         if ($null -ne $jsonObject.AutomatedFarmSpec.VirtualCenter) {
           $vCenter = $jsonObject.AutomatedFarmSpec.VirtualCenter
         }
-        $linkedClone = $true
+
         $netBiosName = $jsonObject.NetBiosName
-        if ($null -ne $jsonObject.AutomatedFarmSpec.CustomizationSettings.DomainAdministrator) {
-            $domainAdministrator = $jsonObject.AutomatedFarmSpec.CustomizationSettings.DomainAdministrator
+        if (!$jsonObject.AutomatedFarmSpec.CustomizationSettings.AdContainer) {
+          Write-Host "adContainer was empty using CN=Computers"
+        } else {
+          $AdContainer = $jsonObject.AutomatedFarmSpec.CustomizationSettings.AdContainer
         }
-        $adContainer = $jsonObject.AutomatedFarmSpec.CustomizationSettings.AdContainer
-        $reusePreExistingAccounts = $jsonObject.AutomatedFarmSpec.CustomizationSettings.ReusePreExistingAccounts
-        $sysPrepName = $jsonObject.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings.CustomizationSpec
+
+        #populate customization settings attributes based on the cutomizationType
+        if ($jsonObject.AutomatedFarmSpec.ProvisioningType -eq "INSTANT_CLONE_ENGINE") {
+          $InstantClone = $true
+          if ($null -ne $jsonObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings) {
+            $DomainAdmin = $jsonObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.InstantCloneEngineDomainAdministrator
+            $powerOffScriptName = $jsonObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.PowerOffScriptName
+            $powerOffScriptParameters = $jsonObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.PowerOffScriptParameters
+            $postSynchronizationScriptName = $jsonObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.PostSynchronizationScriptName
+            $postSynchronizationScriptParameters = $jsonObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.PostSynchronizationScriptParameters
+          }
+        } elseif ($jsonObject.AutomatedFarmSpec.ProvisioningType -eq "VIEW_COMPOSER") {
+            $LinkedClone = $true
+            $DomainAdmin = $jsonObject.AutomatedFarmSpec.CustomizationSettings.domainAdministrator
+            $reusePreExistingAccounts = $jsonObject.AutomatedFarmSpec.CustomizationSettings.ReusePreExistingAccounts
+            $sysprepCustomizationSettings = $jsonObject.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings
+            $sysPrepName = $sysprepCustomizationSettings.CustomizationSpec
+        }
 
         $namingMethod = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.NamingMethod
         $namingPattern = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.namingPattern
@@ -2305,25 +2405,33 @@ function New-HVFarm {
           $storageOvercommit += $dtStore.StorageOvercommit
         }
         $useVSan =  $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.UseVSan
-        $useSeparateDatastoresReplicaAndOSDisks = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.UseSeparateDatastoresReplicaAndOSDisks
-        if ($useSeparateDatastoresReplicaAndOSDisks) {
+        
+        ## ViewComposerStorageSettings for Linked-Clone farms
+        if ($LinkedClone -or $InstantClone) {
+          $useSeparateDatastoresReplicaAndOSDisks = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.UseSeparateDatastoresReplicaAndOSDisks
+          if ($useSeparateDatastoresReplicaAndOSDisks) {
             $replicaDiskDatastore = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.ReplicaDiskDatastore
-        }
-        $useNativeSnapshots = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.UseNativeSnapshots
-        $reclaimVmDiskSpace = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.ReclaimVmDiskSpace
-        if ($reclaimVmDiskSpace) {
-            $ReclamationThresholdGB = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.ReclamationThresholdGB
-            if ($null -ne $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.blackoutTimes) {
-                $blackoutTimesList = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.blackoutTimes
-                foreach ($blackout in $blackoutTimesList) {
-                    $blackoutObj  = New-Object VMware.Hv.DesktopBlackoutTime
-                    $blackoutObj.Days = $blackout.Days
-                    $blackoutObj.StartTime = $blackout.StartTime
-                    $blackoutObj.EndTime = $blackoutObj.EndTime
-                    $blackoutTimes += $blackoutObj
+          }
+          if ($LinkedClone) {
+            #For Instant clone desktops, this setting can only be set to false
+            $useNativeSnapshots = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.UseNativeSnapshots
+            $reclaimVmDiskSpace = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.ReclaimVmDiskSpace
+            if ($reclaimVmDiskSpace) {
+                $ReclamationThresholdGB = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.ReclamationThresholdGB
+                if ($null -ne $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.blackoutTimes) {
+                    $blackoutTimesList = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.virtualCenterStorageSettings.ViewComposerStorageSettings.SpaceReclamationSettings.blackoutTimes
+                    foreach ($blackout in $blackoutTimesList) {
+                        $blackoutObj  = New-Object VMware.Hv.DesktopBlackoutTime
+                        $blackoutObj.Days = $blackout.Days
+                        $blackoutObj.StartTime = $blackout.StartTime
+                        $blackoutObj.EndTime = $blackoutObj.EndTime
+                        $blackoutTimes += $blackoutObj
+                    }
                 }
             }
+          }
         }
+
         $maxSessionsType = $jsonObject.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType
         if ($maxSessionsType -eq "LIMITED") {
             $maxSessions = $jsonObject.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessions
@@ -2370,7 +2478,10 @@ function New-HVFarm {
     if ($linkedClone) {
       $farmType = 'AUTOMATED'
       $provisioningType = 'VIEW_COMPOSER'
-    } elseif ($manual) {
+    } elseif ($InstantClone) {
+      $farmType = 'AUTOMATED'
+      $provisioningType = 'INSTANT_CLONE_ENGINE'
+    }elseif ($manual) {
       $farmType = 'MANUAL'
     }
 
@@ -2601,11 +2712,15 @@ function Test-HVFarmSpec {
     if ($null -eq $PoolObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.useVSan) {
        Throw "Must specify whether to use virtual SAN or not"
     }
-    if ($null -eq $PoolObject.AutomatedFarmSpec.CustomizationSettings.customizationType) {
+    $customizationType = $PoolObject.AutomatedFarmSpec.CustomizationSettings.customizationType
+    if ($null -eq $customizationType) {
         Throw "Specify customization type"
     }
-    if ($null -eq $PoolObject.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings) {
+    if ($customizationType -eq 'SYS_PREP' -and $null -eq $PoolObject.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings) {
         Throw "Specify sysPrep customization settings"
+    }
+    if ($customizationType -eq 'CLONE_PREP' -and $null -eq $PoolObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings) {
+        Throw "Specify clone customization settings"
     }
     if ($null -eq $PoolObject.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType) {
         Throw "Specify MaxSessionsType"
@@ -2751,9 +2866,11 @@ function Get-HVFarmStorageObject {
       $StorageObject.Datastores += $datastoresObj
     }
     if ($useSeparateDatastoresReplicaAndOSDisks) {
+        $StorageObject.ViewComposerStorageSettings.UseSeparateDatastoresReplicaAndOSDisks = $UseSeparateDatastoresReplicaAndOSDisks
         $FarmReplicaDiskDatastore = ($datastoreList | Where-Object { $_.datastoredata.name -eq $replicaDiskDatastore }).id
+        $StorageObject.ViewComposerStorageSettings.ReplicaDiskDatastore = $FarmReplicaDiskDatastore
     }
-    $StorageObject.ViewComposerStorageSettings.ReplicaDiskDatastore = $FarmReplicaDiskDatastore
+
   }
   if ($storageObject.Datastores.Count -eq 0) {
     throw "No datastores found with name: [$datastores]"
@@ -2784,52 +2901,77 @@ function Get-HVFarmCustomizationSetting {
     [VMware.Hv.VirtualCenterId]$VcID
   )
   if (!$customObject) {
-    $ViewComposerDomainAdministrator_service_helper = New-Object VMware.Hv.ViewComposerDomainAdministratorService
-    $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministrator_service_helper.ViewComposerDomainAdministrator_List($services, $vcID) | Where-Object { $_.base.domain -match $netBiosName })
-    if (! [string]::IsNullOrWhitespace($domainAdmin)) {
-      $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministratorID | Where-Object { $_.base.userName -ieq $domainAdmin }).id
-    } elseif ($null -ne $ViewComposerDomainAdministratorID) {
-      $ViewComposerDomainAdministratorID = $ViewComposerDomainAdministratorID[0].id
+    # View Composer and Instant Clone Engine Active Directory container for QuickPrep and ClonePrep. This must be set for Instant Clone Engine or SVI sourced desktops.
+    if ($InstantClone -or $LinkedClone) {
+        $ad_domain_helper = New-Object VMware.Hv.ADDomainService
+        $ADDomains = $ad_domain_helper.ADDomain_List($services)
+        if ($netBiosName) {
+          $adDomianId = ($ADDomains | Where-Object { $_.NetBiosName -eq $netBiosName } | Select-Object -Property id)
+          if ($null -eq $adDomianId) {
+            throw "No Domain found with netBiosName: [$netBiosName]"
+          }
+        } else {
+          $adDomianId = ($ADDomains[0] | Select-Object -Property id)
+          if ($null -eq $adDomianId) {
+            throw "No Domain configured in view administrator UI"
+          }
+        }
+        $ad_container_helper = New-Object VMware.Hv.AdContainerService
+        $adContainerId = ($ad_container_helper.ADContainer_ListByDomain($services,$adDomianId.id) | Where-Object { $_.Rdn -eq $adContainer } | Select-Object -Property id).id
+        if ($null -eq $adContainerId) {
+          throw "No AdContainer found with name: [$adContainer]"
+        }
+        $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.AdContainer = $adContainerId
     }
-    if ($null -eq $ViewComposerDomainAdministratorID) {
-      throw "No Composer Domain Administrator found with netBiosName: [$netBiosName]"
-    }
-    $ADDomain_service_helper = New-Object VMware.Hv.ADDomainService
-    $ADDomains = $ADDomain_service_helper.ADDomain_List($services)
-    if ($netBiosName) {
-      $adDomianId = ( $ADDomains| Where-Object { $_.NetBiosName -eq $netBiosName } | Select-Object -Property id)
-      if ($null -eq $adDomianId) {
-        throw "No Domain found with netBiosName: [$netBiosName]"
+
+    if ($InstantClone) {
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CustomizationType = 'CLONE_PREP'
+      $instantCloneEngineDomainAdministrator_helper = New-Object VMware.Hv.InstantCloneEngineDomainAdministratorService
+      $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator_helper.InstantCloneEngineDomainAdministrator_List($services) | Where-Object { $_.namesData.dnsName -match $netBiosName })
+      if (![string]::IsNullOrWhitespace($domainAdmin)) {
+        $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator | Where-Object { $_.base.userName -eq $domainAdmin }).id
+      } elseIf ($null -ne $instantCloneEngineDomainAdministrator) {
+        $instantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator[0].id
       }
-    } else {
-      $adDomianId = ( $ADDomains[0] | Select-Object -Property id)
-      if ($null -eq $adDomianId) {
-        throw "No Domain configured in view administrator UI"
+      if ($null -eq $instantCloneEngineDomainAdministrator) {
+        throw "No Instant Clone Engine Domain Administrator found with netBiosName: [$netBiosName]"
       }
-    }
-    $ad_containder_service_helper = New-Object VMware.Hv.AdContainerService
-    $adContainerId = ($ad_containder_service_helper.ADContainer_ListByDomain($services, $adDomianId.id) | Where-Object { $_.Rdn -eq $adContainer } | Select-Object -Property id).id
-    if ($null -eq $adContainerId) {
-      throw "No AdContainer found with name: [$adContainer]"
-    }
-    #Support only Sysprep Customization
-    $sysprepCustomizationSettings = $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings = New-Object VMware.Hv.FarmClonePrepCustomizationSettings
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.InstantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.powerOffScriptName = $powerOffScriptName
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.powerOffScriptParameters = $powerOffScriptParameters
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.postSynchronizationScriptName = $postSynchronizationScriptName
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.postSynchronizationScriptParameters = $postSynchronizationScriptParameters
+      $customObject = $farmSpecObj.AutomatedFarmSpec.CustomizationSettings
+    } elseif ($LinkedClone) {
+      $ViewComposerDomainAdministrator_service_helper = New-Object VMware.Hv.ViewComposerDomainAdministratorService
+      $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministrator_service_helper.ViewComposerDomainAdministrator_List($services, $vcID) | Where-Object { $_.base.domain -match $netBiosName })
+      if (! [string]::IsNullOrWhitespace($domainAdmin)) {
+        $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministratorID | Where-Object { $_.base.userName -ieq $domainAdmin }).id
+      } elseif ($null -ne $ViewComposerDomainAdministratorID) {
+        $ViewComposerDomainAdministratorID = $ViewComposerDomainAdministratorID[0].id
+      }
+      if ($null -eq $ViewComposerDomainAdministratorID) {
+        throw "No Composer Domain Administrator found with netBiosName: [$netBiosName]"
+      }
 
-    # Get SysPrep CustomizationSpec ID
-    $CustomizationSpec_service_helper = New-Object VMware.Hv.CustomizationSpecService
-    $sysPrepIds = $CustomizationSpec_service_helper.CustomizationSpec_List($services, $vcID) | Where-Object { $_.customizationSpecData.name -eq $sysPrepName } | Select-Object -Property id
-    if ($sysPrepIds.Count -eq 0) {
-      throw "No Sysprep Customization spec found with Name: [$sysPrepName]"
+      #Support only Sysprep Customization
+      $sysprepCustomizationSettings = $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings
+      
+      # Get SysPrep CustomizationSpec ID
+      $CustomizationSpec_service_helper = New-Object VMware.Hv.CustomizationSpecService
+      $sysPrepIds = $CustomizationSpec_service_helper.CustomizationSpec_List($services, $vcID) | Where-Object { $_.customizationSpecData.name -eq $sysPrepName } | Select-Object -Property id
+      if ($sysPrepIds.Count -eq 0) {
+        throw "No Sysprep Customization spec found with Name: [$sysPrepName]"
+      }
+      $sysprepCustomizationSettings.CustomizationSpec = $sysPrepIds[0].id
+
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.DomainAdministrator = $ViewComposerDomainAdministratorID
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings = $sysprepCustomizationSettings
+      $customObject = $farmSpecObj.AutomatedFarmSpec.CustomizationSettings
     }
-    $sysprepCustomizationSettings.CustomizationSpec = $sysPrepIds[0].id
-
-    $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
-    $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.DomainAdministrator = $ViewComposerDomainAdministratorID
-    $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.AdContainer = $adContainerId
-    $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
-    $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings = $sysprepCustomizationSettings
-
-    $customObject = $farmSpecObj.AutomatedFarmSpec.CustomizationSettings
   }
   return $customObject
 }
@@ -5658,10 +5800,10 @@ function Set-HVPool {
 function Start-HVFarm {
 <#
 .SYNOPSIS
-    Perform maintenance tasks on the farm(s).
+    Performs maintenance tasks on the farm(s).
 
 .DESCRIPTION
-    This function is used to perform maintenance tasks like enable/disable, start/stop and recompose the farm.
+    This function is used to perform maintenance tasks like enable/disable, start/stop and recompose the farm. This function is also used for scheduling maintenance operation on instant-clone farm(s).
 
 .PARAMETER Farm
     Name/Object(s) of the farm. Object(s) should be of type FarmSummaryView/FarmInfo.
@@ -5669,16 +5811,23 @@ function Start-HVFarm {
 .PARAMETER Recompose
     Switch for recompose operation. Requests a recompose of RDS Servers in the specified 'AUTOMATED' farm. This marks the RDS Servers for recompose, which is performed asynchronously.
 
+.PARAMETER ScheduleMaintenance
+    Switch for ScheduleMaintenance operation. Requests for scheduling maintenance operation on RDS Servers in the specified Instant clone farm. This marks the RDS Servers for scheduled maintenance, which is performed according to the schedule.
+
+.PARAMETER CancelMaintenance
+    Switch for cancelling maintenance operation. Requests for cancelling a scheduled maintenance operation on the specified Instant clone farm. This stops further maintenance operation on the given farm.
+
 .PARAMETER StartTime
-    Specifies when to start the operation. If unset, the operation will begin immediately.
+    Specifies when to start the recompose/scheduleMaintenance operation. If unset, the recompose operation will begin immediately.
+    For IMMEDIATE maintenance if unset, maintenance will begin immediately. For RECURRING maintenance if unset, will be calculated based on recurring maintenance configuration. If in the past, maintenance will begin immediately.
 
 .PARAMETER LogoffSetting
     Determines when to perform the operation on machines which have an active session. This property will be one of:
-    "FORCE_LOGOFF" - Users will be forced to log off when the system is ready to operate on their RDS Servers. Before being forcibly logged off, users may have a grace period in which to save their work (Global Settings).
+    "FORCE_LOGOFF" - Users will be forced to log off when the system is ready to operate on their RDS Servers. Before being forcibly logged off, users may have a grace period in which to save their work (Global Settings). This is the default value.
     "WAIT_FOR_LOGOFF" - Wait for connected users to disconnect before the task starts. The operation starts immediately on RDS Servers without active sessions.
 
 .PARAMETER StopOnFirstError
-    Indicates that the operation should stop on first error.
+    Indicates that the operation should stop on first error. Defaults to true.
 
 .PARAMETER Servers
     The RDS Server(s) id to recompose. Provide a comma separated list for multiple RDSServerIds.
@@ -5692,6 +5841,30 @@ function Start-HVFarm {
 .PARAMETER Vcenter
     Virtual Center server-address (IP or FQDN) of the given farm. This should be same as provided to the Connection Server while adding the vCenter server.
 
+.PARAMETER MaintenanceMode
+    The mode of schedule maintenance for Instant Clone Farm. This property will be one of:
+    "IMMEDIATE"	- All server VMs will be refreshed once, immediately or at user scheduled time.
+    "RECURRING"	- All server VMs will be periodically refreshed based on MaintenancePeriod and MaintenanceStartTime.
+
+.PARAMETER MaintenanceStartTime
+    Configured start time for the recurring maintenance. This property must be in the form hh:mm in 24 hours format.
+
+.PARAMETER MaintenancePeriod
+    This represents the frequency at which to perform recurring maintenance. This property will be one of:
+    "DAILY"	- Daily recurring maintenance
+    "WEEKLY" - Weekly recurring maintenance
+    "MONTHLY" - Monthly recurring maintenance
+
+.PARAMETER StartInt
+    Start index for weekly or monthly maintenance. Weekly: 1-7 (Sun-Sat), Monthly: 1-31.
+    This property is required if maintenancePeriod is set to "WEEKLY"or "MONTHLY".
+    This property has values 1-7 for maintenancePeriod "WEEKLY".
+    This property has values 1-31 for maintenancePeriod "MONTHLY".
+
+.PARAMETER EveryInt
+    How frequently to repeat maintenance, expressed as a multiple of the maintenance period. e.g. Every 2 weeks.
+    This property has a default value of 1. This property has values 1-100.
+
 .PARAMETER HvServer
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
@@ -5703,6 +5876,18 @@ function Start-HVFarm {
     Requests a recompose task for automated farm in specified time
     $myTime = Get-Date '10/03/2016 12:30:00'
     Start-HVFarm -Farm 'Farm-01' -Recompose -LogoffSetting 'FORCE_LOGOFF' -ParentVM 'ParentVM' -SnapshotVM 'SnapshotVM' -StartTime $myTime
+
+.EXAMPLE
+    Requests a ScheduleMaintenance task for instant-clone farm. Schedules an IMMEDIATE maintenance.
+    Start-HVFarm -Farm 'ICFarm-01' -ScheduleMaintenance -MaintenanceMode IMMEDIATE
+
+.EXAMPLE
+    Requests a ScheduleMaintenance task for instant-clone farm. Schedules a recurring weekly maintenace every Saturday night at 23:30 and updates the parentVM and snapshot.
+    Start-HVFarm -ScheduleMaintenance -Farm 'ICFarm-01' -MaintenanceMode RECURRING -MaintenancePeriod WEEKLY -MaintenanceStartTime '11:30' -StartInt 6 -EveryInt 1 -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_Updated'
+
+.EXAMPLE
+    Requests a CancelMaintenance task for instant-clone farm. Cancels recurring maintenance.
+    Start-HVFarm -CancelMaintenance -Farm 'ICFarm-01' -MaintenanceMode RECURRING
 
 .OUTPUTS
     None
@@ -5729,27 +5914,60 @@ function Start-HVFarm {
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
     [switch]$Recompose,
 
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
+    [switch]$ScheduleMaintenance,
+
+    [Parameter(Mandatory = $false,ParameterSetName = 'CANCELMAINTENANCE')]
+    [switch]$CancelMaintenance,
+
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [System.DateTime]$StartTime,
 
     [Parameter(Mandatory = $true,ParameterSetName = 'RECOMPOSE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [ValidateSet('FORCE_LOGOFF','WAIT_FOR_LOGOFF')]
-    [string]$LogoffSetting,
+    [string]$LogoffSetting = 'FORCE_LOGOFF',
 
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [boolean]$StopOnFirstError = $true,
 
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
     [string []]$Servers,
 
     [Parameter(Mandatory = $true,ParameterSetName = 'RECOMPOSE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [string]$ParentVM,
 
     [Parameter(Mandatory = $true,ParameterSetName = 'RECOMPOSE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [string]$SnapshotVM,
 
     [Parameter(Mandatory = $false,ParameterSetName = 'RECOMPOSE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [string]$Vcenter,
+
+    [Parameter(Mandatory = $true,ParameterSetName = 'SCHEDULEMAINTENANCE')]
+    [Parameter(Mandatory = $true,ParameterSetName = 'CANCELMAINTENANCE')]
+    [ValidateSet('IMMEDIATE','RECURRING')]
+    [string]$MaintenanceMode,
+
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
+    [ValidatePattern('^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$')]
+    [string]$MaintenanceStartTime,
+
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
+    [ValidateSet('DAILY','WEEKLY','MONTHLY')]
+    [string]$MaintenancePeriod,
+
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
+    [ValidateRange(1, 31)]
+    [int]$StartInt,
+
+    [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
+    [ValidateRange(1, 100)]
+    [int]$EveryInt = 1,
 
     [Parameter(Mandatory = $false)]
     $HvServer = $null
@@ -5773,23 +5991,26 @@ function Start-HVFarm {
         $id = $farm.id
         $name = $farm.data.name
         $type = $farm.type
+        $source = $farm.source
       }
       elseif ($farm.GetType().name -eq 'FarmSummaryView') {
         $id = $farm.id
         $name = $farm.data.name
         $type = $farm.data.type
+        $source = $farm.data.source
       }
       elseif ($farm.GetType().name -eq 'String') {
         try {
-          $farmSpecObj = Get-HVFarm -farmName $farm -hvServer $hvServer
+          $farmSpecObj = Get-HVFarmSummary -farmName $farm -hvServer $hvServer
         } catch {
-          Write-Error "Make sure Get-HVFarm advanced function is loaded, $_"
+          Write-Error "Make sure Get-HVFarmSummary advanced function is loaded, $_"
           break
         }
         if ($farmSpecObj) {
           $id = $farmSpecObj.id
           $name = $farmSpecObj.data.name
           $type = $farmSpecObj.data.type
+          $source = $farmSpecObj.data.source
         } else {
           Write-Error "Unable to retrieve FarmSummaryView with given farmName [$farm]"
           break
@@ -5798,7 +6019,7 @@ function Start-HVFarm {
         Write-Error "In pipeline did not get object of expected type FarmSummaryView/FarmInfo"
         break
       }
-      if ($type -eq 'AUTOMATED') {
+      if (!$source) {
         $source = 'VIEW_COMPOSER'
       }
       $farmList.Add($id,$name)
@@ -5848,7 +6069,64 @@ function Start-HVFarm {
             Write-Host "Performed recompose task on farm: " $farmList.$item
           }
         }
-      }
+        'SCHEDULEMAINTENANCE' {
+          if ($farmSource.$item -ne 'INSTANT_CLONE_ENGINE') {
+            Write-Error "SCHEDULEMAINTENANCE operation is not supported for farm with name [$farmList.$item]. It is only supported for instant-clone farms."
+            break
+          } else {
+            $spec = New-Object VMware.Hv.FarmMaintenanceSpec
+            $spec.MaintenanceMode = $MaintenanceMode
+            $spec.ScheduledTime = $StartTime
+            if ($MaintenanceMode -eq "RECURRING") {
+                $spec.RecurringMaintenanceSettings = New-Object VMware.Hv.FarmRecurringMaintenanceSettings
+                $spec.RecurringMaintenanceSettings.MaintenancePeriod = $MaintenancePeriod
+                $spec.RecurringMaintenanceSettings.EveryInt = $EveryInt
+                if (!$MaintenanceStartTime) {
+                    Write-Error "MaintenanceStartTime must be defined for MaintenanceMode = RECURRING."
+                    break;
+                } else {
+                    $spec.RecurringMaintenanceSettings.StartTime = $MaintenanceStartTime
+                }
+                if ($MaintenancePeriod -ne 'DAILY') {
+                    if (!$StartInt) {
+                        Write-Error "StartInt must be defined for MaintenancePeriod WEEKLY or MONTHLY."
+                        break;
+                    } else {
+                        $spec.RecurringMaintenanceSettings.StartInt = $StartInt
+                    }
+                }
+            }
+            #image settings are specified
+            if ($ParentVM -and $SnapshotVM) {
+                $spec.ImageMaintenanceSettings = New-Object VMware.Hv.FarmImageMaintenanceSettings
+                $spec.ImageMaintenanceSettings.LogoffSetting = $LogoffSetting
+                $spec.ImageMaintenanceSettings.StopOnFirstError = $StopOnFirstError
+                $vcId = Get-VcenterID -services $services -vCenter $Vcenter
+                if ($null -eq $vcId) {
+                    Write-Error "VCenter is required if you specify ParentVM name."
+                    break
+                }
+                try {
+                    $spec.ImageMaintenanceSettings = Set-HVFarmSpec -vcId $vcId -spec $spec.ImageMaintenanceSettings
+                } catch {
+                    Write-Error "SCHEDULEMAINTENANCE task failed with error: $_"
+                    break
+                }
+            }
+            # call scheduleMaintenance service on farm
+            if ($pscmdlet.ShouldProcess($farmList.$item)) {
+              $farm_service_helper.Farm_ScheduleMaintenance($services, $item, $spec)
+              Write-Host "Performed SCHEDULEMAINTENANCE task on farm: " $farmList.$item
+            }
+          }
+        }
+        'CANCELMAINTENANCE' {
+            if ($pscmdlet.ShouldProcess($farmList.$item)) {
+              $farm_service_helper.Farm_CancelScheduleMaintenance($services, $item, $MaintenanceMode)
+              Write-Host "Performed CancelMaintenance task on farm: " $farmList.$item
+            }
+          }
+        }
       return
     }
   }
