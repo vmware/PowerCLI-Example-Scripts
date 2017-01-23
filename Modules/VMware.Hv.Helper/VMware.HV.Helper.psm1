@@ -6001,16 +6001,16 @@ function Start-HVFarm {
       }
       elseif ($farm.GetType().name -eq 'String') {
         try {
-          $farmSpecObj = Get-HVFarmSummary -farmName $farm -hvServer $hvServer
+          $farmSpecObj = Get-HVFarm -farmName $farm -hvServer $hvServer
         } catch {
-          Write-Error "Make sure Get-HVFarmSummary advanced function is loaded, $_"
+          Write-Error "Make sure Get-HVFarm advanced function is loaded, $_"
           break
         }
         if ($farmSpecObj) {
           $id = $farmSpecObj.id
           $name = $farmSpecObj.data.name
-          $type = $farmSpecObj.data.type
-          $source = $farmSpecObj.data.source
+          $type = $farmSpecObj.type
+          $source = $farmSpecObj.source
         } else {
           Write-Error "Unable to retrieve FarmSummaryView with given farmName [$farm]"
           break
