@@ -54,6 +54,17 @@ function Get-ViewAPIService {
   return $null
 }
 
+function Get-HVConfirmFlag {
+  Param(
+    [Parameter(Mandatory = $true)]
+    $keys
+  )
+  if (($keys -contains 'Confirm') -or ($keys -contains 'WhatIf')) {
+    return $true
+  }
+  return $false
+}
+
 function Get-VcenterID {
   param(
     [Parameter(Mandatory = $true)]
@@ -237,6 +248,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
   }
 
   process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     try {
       $desktopPool = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
     } catch {
@@ -294,7 +306,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
             return
           }
         }
-        if ($pscmdlet.ShouldProcess($machines)) {
+        if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($machines)) {
           $desktop_service_helper.Desktop_AddMachinesToManualDesktop($services,$id,$machineList)
         }
         return $machineList
@@ -409,6 +421,7 @@ function Add-HVRDSServer {
   }
 
   process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     try {
       $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
     } catch {
@@ -432,7 +445,7 @@ function Add-HVRDSServer {
       'MANUAL' {
         try {
           $serverList = Get-RegisteredRDSServer -services $services -serverList $rdsServers
-          if ($pscmdlet.ShouldProcess($rdsServers)) {
+          if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($rdsServers)) {
             $farm_service_helper.Farm_AddRDSServers($services, $id, $serverList)
           }
           return $serverList
@@ -2321,7 +2334,7 @@ function New-HVFarm {
   }
 
   process {
-
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     if ($farmName) {
       try {
         $sourceFarm = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
@@ -2630,7 +2643,7 @@ function New-HVFarm {
     $myDebug | out-file -filepath c:\temp\copiedfarm.json
     #>
 
-    if ($pscmdlet.ShouldProcess($farmSpecObj.data.name)) {
+    if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($farmSpecObj.data.name)) {
       $Id = $farm_service_helper.Farm_Create($services, $farmSpecObj)
     } else {
 	  try {
@@ -4016,7 +4029,7 @@ function New-HVPool {
   }
 
   process {
-
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     if ($poolName) {
       try {
         $sourcePool = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
@@ -4627,7 +4640,7 @@ function New-HVPool {
       $myDebug | out-file -filepath c:\temp\copieddesktop.json
     #>
     $desktop_helper = New-Object VMware.Hv.DesktopService
-    if ($pscmdlet.ShouldProcess($desktopSpecObj.base.name)) {
+    if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($desktopSpecObj.base.name)) {
       $id = $desktop_helper.Desktop_create($services,$desktopSpecObj)
     } else {
 	  try {
@@ -5201,6 +5214,7 @@ function Remove-HVFarm {
     }
   }
   process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $farmList = @()
     if ($farmName) {
       try {
@@ -5231,7 +5245,7 @@ function Remove-HVFarm {
     }
     $farm_service_helper = New-Object VMware.Hv.FarmService
     foreach ($item in $farmList) {
-      if ($pscmdlet.ShouldProcess($item.Name)) {
+      if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($item.Name)) {
         $farm_service_helper.Farm_Delete($services, $item.id)
       }
       Write-Host "Farm Deleted: " $item.Name
@@ -5323,6 +5337,7 @@ function Remove-HVPool {
   }
 
   process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $poolList = @()
     if ($poolName) {
       try {
@@ -5375,7 +5390,7 @@ function Remove-HVPool {
         }
       }
       Write-Host "Deleting Pool: " $item.Name
-      if ($pscmdlet.ShouldProcess($item.Name)) {
+      if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($item.Name)) {
         $desktop_service_helper.Desktop_Delete($services,$item.id,$deleteSpec)
       }
     }
@@ -5503,6 +5518,7 @@ function Set-HVFarm {
   }
 
   process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $farmList = @{}
     if ($farmName) {
       try {
@@ -5575,7 +5591,7 @@ function Set-HVFarm {
     }
     $farm_service_helper = New-Object VMware.Hv.FarmService
     foreach ($item in $farmList.Keys) {
-      if ($pscmdlet.ShouldProcess($farmList.$item)) {
+      if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($farmList.$item)) {
         $farm_service_helper.Farm_Update($services,$item,$updates)
       }
       Write-Host "Update successful for farm: " $farmList.$item
@@ -5711,6 +5727,7 @@ function Set-HVPool {
   }
 
   process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $poolList = @{}
     if ($poolName) {
       try {
@@ -5784,7 +5801,7 @@ function Set-HVPool {
     }
     $desktop_helper = New-Object VMware.Hv.DesktopService
     foreach ($item in $poolList.Keys) {
-      if ($pscmdlet.ShouldProcess($poolList.$item)) {
+      if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
        $desktop_helper.Desktop_Update($services,$item,$updates)
       }
     }
@@ -5981,6 +5998,7 @@ function Start-HVFarm {
   }
 
   process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $farmList = @{}
     $farmType = @{}
     $farmSource = @{}
@@ -6061,7 +6079,7 @@ function Start-HVFarm {
             $updates = @()
             $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
             $updates += Get-MapEntry -key 'automatedFarmData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
-            if ($pscmdlet.ShouldProcess($farmList.$item)) {
+            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($farmList.$item)) {
               $farm_service_helper.Farm_Update($services,$item,$updates)
               $farm_service_helper.Farm_Recompose($services,$item,$spec)
             }
@@ -6113,14 +6131,14 @@ function Start-HVFarm {
                 }
             }
             # call scheduleMaintenance service on farm
-            if ($pscmdlet.ShouldProcess($farmList.$item)) {
+            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($farmList.$item)) {
               $farm_service_helper.Farm_ScheduleMaintenance($services, $item, $spec)
               Write-Host "Performed SCHEDULEMAINTENANCE task on farm: " $farmList.$item
             }
           }
         }
         'CANCELMAINTENANCE' {
-            if ($pscmdlet.ShouldProcess($farmList.$item)) {
+            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($farmList.$item)) {
               $farm_service_helper.Farm_CancelScheduleMaintenance($services, $item, $MaintenanceMode)
               Write-Host "Performed CANCELMAINTENANCE task on farm: " $farmList.$item
             }
@@ -6353,7 +6371,7 @@ function Start-HVPool {
   }
 
   process {
-
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $poolList = @{}
     $poolType = @{}
     $poolSource = @{}
@@ -6406,7 +6424,7 @@ function Start-HVPool {
           $spec = Get-HVTaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRebalanceSpec' -desktopId $item
           if ($null -ne $spec) {
             # make sure current task on VMs, must be None
-            if ($pscmdlet.ShouldProcess($poolList.$item)) {
+            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Rebalance($services,$item,$spec)
             }
             Write-Host "Performed rebalance task on Pool: " $PoolList.$item
@@ -6416,7 +6434,7 @@ function Start-HVPool {
           $spec = Get-HVTaskSpec -Source $poolSource.$item -poolName $poolList.$item -operation $operation -taskSpecName 'DesktopRefreshSpec' -desktopId $item
           if ($null -ne $spec) {
             # make sure current task on VMs, must be None
-            if ($pscmdlet.ShouldProcess($poolList.$item)) {
+            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Refresh($services,$item,$spec)
             }
             Write-Host "Performed refresh task on Pool: " $PoolList.$item
@@ -6435,7 +6453,7 @@ function Start-HVPool {
             $updates = @()
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
-            if ($pscmdlet.ShouldProcess($poolList.$item)) {
+            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Update($services,$item,$updates)
             }
             Write-Host "Performed recompose task on Pool: " $PoolList.$item
@@ -6453,7 +6471,7 @@ function Start-HVPool {
             $spec.Settings.LogoffSetting = $logoffSetting
             $spec.Settings.StopOnFirstError = $stopOnFirstError
             if ($startTime) { $spec.Settings.startTime = $startTime }
-            if ($pscmdlet.ShouldProcess($poolList.$item)) {
+            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_SchedulePushImage($services,$item,$spec)
             }
             Write-Host "Performed push_image task on Pool: " $PoolList.$item
@@ -6464,7 +6482,7 @@ function Start-HVPool {
             Write-Error "$poolList.$item is not a INSTANT CLONE pool"
             break
           } else {
-            if ($pscmdlet.ShouldProcess($poolList.$item)) {
+            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_CancelScheduledPushImage($services,$item)
             }
             Write-Host "Performed cancel_push_image task on Pool: " $PoolList.$item
@@ -7360,6 +7378,7 @@ function New-HVEntitlement {
     }
   }
   process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $userInfo = Get-UserInfo -UserName $User
     $UserOrGroupName = $userInfo.Name
     $Domain = $userInfo.Domain
@@ -7490,7 +7509,7 @@ function New-HVEntitlement {
     $base.UserOrGroup = $results.id
     foreach ($ResourceObj in $ResourceObjs) {
       $base.Resource = $ResourceObj.id
-      if ($pscmdlet.ShouldProcess($User)) {
+      if (!$confirmFlag -OR $pscmdlet.ShouldProcess($User)) {
         $id = $services.UserEntitlement.UserEntitlement_Create($base)
       }
     }
@@ -7802,6 +7821,7 @@ function Remove-HVEntitlement {
     }
   }
   process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $AndFilter = @()
     $results = $null
     $userInfo = Get-UserInfo -UserName $User
@@ -7827,7 +7847,7 @@ function Remove-HVEntitlement {
           if ($results) {
             foreach ($result in $Results) {
               $userEntitlements = $result.localData.desktopUserEntitlements
-              if ($pscmdlet.ShouldProcess($User)) {
+              if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                 $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
               }
               Write-Host $userEntitlements.Length " desktopUserEntitlement(s) are removed for UserOrGroup " $user
@@ -7847,7 +7867,7 @@ function Remove-HVEntitlement {
           if ($results) {
             foreach ($result in $Results) {
               $userEntitlements = $result.localData.applicationUserEntitlements
-              if ($pscmdlet.ShouldProcess($User)) {
+              if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                 $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
               }
               Write-Host $userEntitlements.Length " applicationUserEntitlement(s) are removed for UserOrGroup " $user
@@ -7877,12 +7897,12 @@ function Remove-HVEntitlement {
             foreach ($result in $Results) {
               if ($result.GetType().Name -eq 'EntitledUserOrGroupLocalSummaryView') {
                 $userEntitlements = $result.localData.urlRedirectionUserEntitlements
-                if ($pscmdlet.ShouldProcess($User)) {
+                if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                   $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
                 }
               } else {
                 $userEntitlements = $result.globalData.urlRedirectionUserEntitlements
-                if ($pscmdlet.ShouldProcess($User)) {
+                if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                   $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
                 }
               }
@@ -7907,7 +7927,7 @@ function Remove-HVEntitlement {
           if ($results) {
             foreach ($result in $Results) {
               $userEntitlements = $result.globalData.globalUserApplicationEntitlements
-              if ($pscmdlet.ShouldProcess($User)) {
+              if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                 $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
               }
               Write-Host $userEntitlements.Length " GlobalApplicationEntitlement(s) are removed for UserOrGroup " $user
@@ -7931,7 +7951,7 @@ function Remove-HVEntitlement {
           if ($results) {
             foreach ($result in $Results) {
               $userEntitlements = $result.globalData.globalUserEntitlements
-              if ($pscmdlet.ShouldProcess($User)) {
+              if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                 $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
               }
               Write-Host $userEntitlements.Length " GlobalEntitlement(s) are removed for UserOrGroup " $user
