@@ -83,3 +83,36 @@ Function Get-VAMIHealth {
 
     $healthResult
 }
+
+Function Get-VAMIAccess {
+<#
+    .NOTES
+    ===========================================================================
+	 Created by:   	William Lam
+     Date:          Jan 25, 2016
+	 Organization: 	VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+	.SYNOPSIS
+		This function retrieves access information from VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+	.DESCRIPTION
+		Function to return VAMI access interfaces (Console,DCUI,Bash Shell & SSH)
+	.EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMIAccess
+#>
+    $consoleAccess = (Get-CisService -Name 'com.vmware.appliance.access.consolecli').get()
+    $dcuiAccess = (Get-CisService -Name 'com.vmware.appliance.access.dcui').get()
+    $shellAccess = (Get-CisService -Name 'com.vmware.appliance.access.shell').get()
+    $sshAccess = (Get-CisService -Name 'com.vmware.appliance.access.ssh').get()
+
+    $accessResult = "" | Select Console, DCUI, BashShell, SSH
+    $accessResult.Console = $consoleAccess
+    $accessResult.DCUI = $dcuiAccess
+    $accessResult.BashShell = $shellAccess.enabled
+    $accessResult.SSH = $sshAccess
+
+    $accessResult
+}
