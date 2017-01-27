@@ -88,9 +88,9 @@ Function Get-VAMIAccess {
 <#
     .NOTES
     ===========================================================================
-	 Created by:   	William Lam
+     Created by:   	William Lam
      Date:          Jan 25, 2016
-	 Organization: 	VMware
+     Organization: 	VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
@@ -115,4 +115,48 @@ Function Get-VAMIAccess {
     $accessResult.SSH = $sshAccess
 
     $accessResult
+}
+
+Function Get-VAMITime {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:   	William Lam
+     Date:          Jan 27, 2016
+     Organization: 	VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+	.SYNOPSIS
+		This function retrieves the time and NTP info from VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+	.DESCRIPTION
+		Function to return current Time and NTP information
+	.EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMITime
+#>
+    $systemTimeAPI = Get-CisService -Name 'com.vmware.appliance.system.time'
+    $timeResults = $systemTimeAPI.get()
+
+    $timeResult = "" | Select Timezone, Date, CurrentTime, Mode, NTPServers, NTPStatus
+    $timeResult.Timezone = $timeResults.timezone
+    $timeResult.Date = $timeResults.date
+    $timeResult.CurrentTime = $timeResults.time
+
+    $timeSync = (Get-CisService -Name 'com.vmware.appliance.techpreview.timesync').get()
+    $timeSyncMode = $timeSync.mode
+
+    $timeResult.Mode = $timeSyncMode
+
+    if($timeSyncMode -eq "NTP") {
+        $ntpServers = (Get-CisService -Name 'com.vmware.appliance.techpreview.ntp').get()
+        $timeResult.NTPServers = $ntpServers.servers
+        $timeResult.NTPStatus = $ntpServers.status
+    } else {
+        $timeResult.NTPServers = "N/A"
+        $timeResult.NTPStatus = "N/A"
+    }
+
+    $timeResult
 }
