@@ -2,9 +2,9 @@
 <#
     .NOTES
     ===========================================================================
-     Created by:   	William Lam
+     Created by:    William Lam
      Date:          Jan 20, 2016
-     Organization: 	VMware
+     Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
@@ -39,9 +39,9 @@ Function Get-VAMIHealth {
 <#
     .NOTES
     ===========================================================================
-     Created by:   	William Lam
-     Date:          Jan 20, 2016
-     Organization: 	VMware
+     Created by:    William Lam
+     Date:          Jan 25, 2016
+     Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
@@ -88,9 +88,9 @@ Function Get-VAMIAccess {
 <#
     .NOTES
     ===========================================================================
-     Created by:   	William Lam
-     Date:          Jan 25, 2016
-     Organization: 	VMware
+     Created by:    William Lam
+     Date:          Jan 26, 2016
+     Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
@@ -121,9 +121,9 @@ Function Get-VAMITime {
 <#
     .NOTES
     ===========================================================================
-     Created by:   	William Lam
+     Created by:    William Lam
      Date:          Jan 27, 2016
-     Organization: 	VMware
+     Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
