@@ -1961,6 +1961,10 @@ function New-HVFarm {
     Creates new manual farm by using rdsServers names
     New-HVFarm -Manual -FarmName "manualFarmTest" -FarmDisplayName "manualFarmTest" -Description "Manual PS Test" -RdsServers "vm-for-rds.eng.vmware.com","vm-for-rds-2.eng.vmware.com" -Confirm:$false
 
+.EXAMPLE
+    Creates new instant clone farm by reading few parameters from json and few parameters from command line.
+    New-HVFarm -Spec C:\VMWare\Specs\AutomatedInstantCloneFarm.json -FarmName 'InsPool' -NamingPattern 'InsFarm-'
+
 .OUTPUTS
   None
 
@@ -1997,6 +2001,7 @@ function New-HVFarm {
     [Parameter(Mandatory = $true,ParameterSetName = 'MANUAL')]
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $true,ParameterSetName = "INSTANT_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'JSON_FILE')]
     [string]
     $FarmName,
 
@@ -2172,6 +2177,7 @@ function New-HVFarm {
     #farmSpec.automatedfarmSpec.rdsServerNamingSpec.patternNamingSettings.namingPattern if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'JSON_FILE')]
     [string]
     $NamingPattern = $farmName + '{n:fixed=4}',
 
@@ -2393,7 +2399,9 @@ function New-HVFarm {
         }
 
         $namingMethod = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.NamingMethod
-        $namingPattern = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.namingPattern
+        if (! $NamingPattern) {
+          $namingPattern = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.namingPattern
+        }
         $maximumCount = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.maxNumberOfRDSServers
         $enableProvisioning = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.EnableProvisioning
         $stopProvisioningOnError = $jsonObject.AutomatedFarmSpec.VirtualCenterProvisioningSettings.StopProvisioningOnError
@@ -2461,7 +2469,9 @@ function New-HVFarm {
       $farmDisplayName = $jsonObject.Data.DisplayName
       $description = $jsonObject.Data.Description
       $accessGroup = $jsonObject.Data.AccessGroup
-      $farmName = $jsonObject.Data.name
+      if (! $FarmName) {
+        $farmName = $jsonObject.Data.name
+      }
       if ($null -ne $jsonObject.Data.Enabled) {
         $enable = $jsonObject.Data.Enabled
       }
@@ -2940,10 +2950,16 @@ function Get-HVFarmCustomizationSetting {
       $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CustomizationType = 'CLONE_PREP'
       $instantCloneEngineDomainAdministrator_helper = New-Object VMware.Hv.InstantCloneEngineDomainAdministratorService
       $insDomainAdministrators = $instantCloneEngineDomainAdministrator_helper.InstantCloneEngineDomainAdministrator_List($services)
-      $instantCloneEngineDomainAdministrator = ($insDomainAdministrators | Where-Object { $_.namesData.dnsName -match $netBiosName })
-      if (![string]::IsNullOrWhitespace($domainAdmin)) {
-        $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator | Where-Object { $_.base.userName -eq $domainAdmin }).id
+      $strFilterSet = @()
+      if (![string]::IsNullOrWhitespace($netBiosName)) {
+        $strFilterSet += '$_.namesData.dnsName -match $netBiosName'
       }
+      if (![string]::IsNullOrWhitespace($domainAdmin)) {
+        $strFilterSet += '$_.base.userName -eq $domainAdmin'
+      }
+      $whereClause =  [string]::Join(' -and ', $strFilterSet)
+      $scriptBlock = [Scriptblock]::Create($whereClause)
+      $instantCloneEngineDomainAdministrator = $insDomainAdministrators | Where $scriptBlock
       If ($null -ne $instantCloneEngineDomainAdministrator) {
         $instantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator[0].id
       } elseif ($null -ne  $insDomainAdministrators) {
@@ -2961,11 +2977,21 @@ function Get-HVFarmCustomizationSetting {
       $customObject = $farmSpecObj.AutomatedFarmSpec.CustomizationSettings
     } elseif ($LinkedClone) {
       $ViewComposerDomainAdministrator_service_helper = New-Object VMware.Hv.ViewComposerDomainAdministratorService
-      $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministrator_service_helper.ViewComposerDomainAdministrator_List($services, $vcID) | Where-Object { $_.base.domain -match $netBiosName })
-      if (! [string]::IsNullOrWhitespace($domainAdmin)) {
-        $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministratorID | Where-Object { $_.base.userName -ieq $domainAdmin }).id
-      } elseif ($null -ne $ViewComposerDomainAdministratorID) {
+      $lcDomainAdministrators = $ViewComposerDomainAdministrator_service_helper.ViewComposerDomainAdministrator_List($services, $vcID)
+      $strFilterSet = @()
+      if (![string]::IsNullOrWhitespace($netBiosName)) {
+        $strFilterSet += '$_.base.domain -match $netBiosName'
+      }
+      if (![string]::IsNullOrWhitespace($domainAdmin)) {
+        $strFilterSet += '$_.base.userName -ieq $domainAdmin'
+      }
+      $whereClause =  [string]::Join(' -and ', $strFilterSet)
+      $scriptBlock = [Scriptblock]::Create($whereClause)
+      $ViewComposerDomainAdministratorID = $lcDomainAdministrators | Where $scriptBlock
+      if ($null -ne $ViewComposerDomainAdministratorID) {
         $ViewComposerDomainAdministratorID = $ViewComposerDomainAdministratorID[0].id
+      } elseif ($null -ne $lcDomainAdministrators) {
+        $ViewComposerDomainAdministratorID = $lcDomainAdministrators[0].id
       }
       if ($null -eq $ViewComposerDomainAdministratorID) {
         throw "No Composer Domain Administrator found with netBiosName: [$netBiosName]"
@@ -3393,6 +3419,10 @@ function New-HVPool {
   Create new unmanaged manual pool from unmanaged VirtualMachines.
   New-HVPool -MANUAL -PoolName 'unmangedVMWare' -PoolDisplayName 'unMngPl' -Description 'unmanaged Manual Pool creation' -UserAssignment FLOATING -Source UNMANAGED -VM 'myphysicalmachine.vmware.com'
 
+.EXAMPLE
+  Creates new instant clone pool by reading few parameters from json and few parameters from command line.
+  New-HVPool -spec 'C:\Json\InstantClone.json' -PoolName 'InsPool1'-NamingPattern 'INSPool-'
+
 .OUTPUTS
   None
 
@@ -3447,6 +3477,7 @@ function New-HVPool {
     [Parameter(Mandatory = $true,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $true,ParameterSetName = 'RDS')]
     [Parameter(Mandatory = $true,ParameterSetName = 'CLONED_POOL')]
+    [Parameter(Mandatory = $true,ParameterSetName = 'JSON_FILE')]
     [string]
     $PoolName,
 
@@ -3722,14 +3753,17 @@ function New-HVPool {
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
     $RedirectWindowsProfile = $true,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.useSeparateDatastoresPersistentAndOSDisks if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [boolean]
     $UseSeparateDatastoresPersistentAndOSDisks = $false,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.PersistentDiskDatastores if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [string[]]
     $PersistentDiskDatastores,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewComposerStorageSettings.persistentDiskSettings.PersistentDiskDatastores if LINKED_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [string[]]
@@ -3827,6 +3861,7 @@ function New-HVPool {
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'CLONED_POOL')]
+    [Parameter(Mandatory = $true,ParameterSetName = 'JSON_FILE')]
     [string]
     $NamingPattern = $poolName + '{n:fixed=4}',
 
@@ -4112,7 +4147,9 @@ function New-HVPool {
         $namingMethod = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod
         $transparentPageSharingScope = $jsonObject.AutomatedDesktopSpec.virtualCenterManagedCommonSettings.TransparentPageSharingScope
         if ($namingMethod -eq "PATTERN") {
-          $namingPattern = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.namingPattern
+          if (!$namingPattern) {
+            $namingPattern = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.namingPattern
+          }
           $maximumCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.maxNumberOfMachines
           $spareCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.numberOfSpareMachines
           $provisioningTime = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.provisioningTime
@@ -4232,7 +4269,9 @@ function New-HVPool {
       $poolDisplayName = $jsonObject.base.DisplayName
       $description = $jsonObject.base.Description
       $accessGroup = $jsonObject.base.AccessGroup
-      $poolName = $jsonObject.base.name
+      if (!$poolName) {
+        $poolName = $jsonObject.base.name
+      }
 
 	  <#
       # Populate desktop settings
@@ -4908,10 +4947,16 @@ function Get-HVPoolCustomizationSetting {
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'CLONE_PREP'
       $instantCloneEngineDomainAdministrator_helper = New-Object VMware.Hv.InstantCloneEngineDomainAdministratorService
       $insDomainAdministrators = $instantCloneEngineDomainAdministrator_helper.InstantCloneEngineDomainAdministrator_List($services)
-      $instantCloneEngineDomainAdministrator = ($insDomainAdministrators | Where-Object { $_.namesData.dnsName -match $netBiosName })
-      if (![string]::IsNullOrWhitespace($domainAdmin)) {
-        $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator | Where-Object { $_.base.userName -eq $domainAdmin }).id
+      $strFilterSet = @()
+      if (![string]::IsNullOrWhitespace($netBiosName)) {
+        $strFilterSet += '$_.namesData.dnsName -match $netBiosName'
       }
+      if (![string]::IsNullOrWhitespace($domainAdmin)) {
+        $strFilterSet += '$_.base.userName -eq $domainAdmin'
+      }
+      $whereClause =  [string]::Join(' -and ', $strFilterSet)
+      $scriptBlock = [Scriptblock]::Create($whereClause)
+      $instantCloneEngineDomainAdministrator = $insDomainAdministrators | Where $scriptBlock
       If ($null -ne $instantCloneEngineDomainAdministrator) {
         $instantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator[0].id
       } elseif ($null -ne $insDomainAdministrators) {
@@ -4930,14 +4975,24 @@ function Get-HVPoolCustomizationSetting {
     else {
       if ($LinkedClone) {
         $viewComposerDomainAdministrator_helper = New-Object VMware.Hv.ViewComposerDomainAdministratorService
-        $ViewComposerDomainAdministratorID = ($viewComposerDomainAdministrator_helper.ViewComposerDomainAdministrator_List($services,$vcID) | Where-Object { $_.base.domain -match $netBiosName })
+        $lcDomainAdministrators = $viewComposerDomainAdministrator_helper.ViewComposerDomainAdministrator_List($services,$vcID)
+        $strFilterSet = @()
+        if (![string]::IsNullOrWhitespace($netBiosName)) {
+          $strFilterSet += '$_.base.domain -match $netBiosName'
+        }
         if (![string]::IsNullOrWhitespace($domainAdmin)) {
-            $ViewComposerDomainAdministratorID = ($ViewComposerDomainAdministratorID | Where-Object { $_.base.userName -ieq $domainAdmin }).id
-        } elseIf ($null -ne $ViewComposerDomainAdministratorID) {
-            $ViewComposerDomainAdministratorID = $ViewComposerDomainAdministratorID[0].id
+          $strFilterSet += '$_.base.userName -ieq $domainAdmin'
+        }
+        $whereClause =  [string]::Join(' -and ', $strFilterSet)
+        $scriptBlock = [Scriptblock]::Create($whereClause)
+        $ViewComposerDomainAdministratorID = $lcDomainAdministrators | Where $scriptBlock
+        If ($null -ne $ViewComposerDomainAdministratorID) {
+          $ViewComposerDomainAdministratorID = $ViewComposerDomainAdministratorID[0].id
+        } elseif ($null -ne $lcDomainAdministrators) {
+           $ViewComposerDomainAdministratorID = $lcDomainAdministrators[0].id
         }
         if ($null -eq $ViewComposerDomainAdministratorID) {
-            throw "No Composer Domain Administrator found with netBiosName: [$netBiosName]"
+          throw "No Composer Domain Administrator found with netBiosName: [$netBiosName]"
         }
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
