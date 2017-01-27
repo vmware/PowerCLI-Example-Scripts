@@ -2939,11 +2939,15 @@ function Get-HVFarmCustomizationSetting {
     if ($InstantClone) {
       $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CustomizationType = 'CLONE_PREP'
       $instantCloneEngineDomainAdministrator_helper = New-Object VMware.Hv.InstantCloneEngineDomainAdministratorService
-      $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator_helper.InstantCloneEngineDomainAdministrator_List($services) | Where-Object { $_.namesData.dnsName -match $netBiosName })
+      $insDomainAdministrators = $instantCloneEngineDomainAdministrator_helper.InstantCloneEngineDomainAdministrator_List($services)
+      $instantCloneEngineDomainAdministrator = ($insDomainAdministrators | Where-Object { $_.namesData.dnsName -match $netBiosName })
       if (![string]::IsNullOrWhitespace($domainAdmin)) {
         $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator | Where-Object { $_.base.userName -eq $domainAdmin }).id
-      } elseIf ($null -ne $instantCloneEngineDomainAdministrator) {
+      }
+      If ($null -ne $instantCloneEngineDomainAdministrator) {
         $instantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator[0].id
+      } elseif ($null -ne  $insDomainAdministrators) {
+        $instantCloneEngineDomainAdministrator = $insDomainAdministrators[0].id
       }
       if ($null -eq $instantCloneEngineDomainAdministrator) {
         throw "No Instant Clone Engine Domain Administrator found with netBiosName: [$netBiosName]"
@@ -4903,11 +4907,15 @@ function Get-HVPoolCustomizationSetting {
     if ($InstantClone) {
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'CLONE_PREP'
       $instantCloneEngineDomainAdministrator_helper = New-Object VMware.Hv.InstantCloneEngineDomainAdministratorService
-      $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator_helper.InstantCloneEngineDomainAdministrator_List($services) | Where-Object { $_.namesData.dnsName -match $netBiosName })
+      $insDomainAdministrators = $instantCloneEngineDomainAdministrator_helper.InstantCloneEngineDomainAdministrator_List($services)
+      $instantCloneEngineDomainAdministrator = ($insDomainAdministrators | Where-Object { $_.namesData.dnsName -match $netBiosName })
       if (![string]::IsNullOrWhitespace($domainAdmin)) {
         $instantCloneEngineDomainAdministrator = ($instantCloneEngineDomainAdministrator | Where-Object { $_.base.userName -eq $domainAdmin }).id
-      } elseIf ($null -ne $instantCloneEngineDomainAdministrator) {
+      }
+      If ($null -ne $instantCloneEngineDomainAdministrator) {
         $instantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator[0].id
+      } elseif ($null -ne $insDomainAdministrators) {
+        $instantCloneEngineDomainAdministrator = $insDomainAdministrators[0].id
       }
       if ($null -eq $instantCloneEngineDomainAdministrator) {
         throw "No Instant Clone Engine Domain Administrator found with netBiosName: [$netBiosName]"
@@ -6093,7 +6101,9 @@ function Start-HVFarm {
           } else {
             $spec = New-Object VMware.Hv.FarmMaintenanceSpec
             $spec.MaintenanceMode = $MaintenanceMode
-            $spec.ScheduledTime = $StartTime
+            if ($startTime) {
+              $spec.ScheduledTime = $StartTime
+            }
             if ($MaintenanceMode -eq "RECURRING") {
                 $spec.RecurringMaintenanceSettings = New-Object VMware.Hv.FarmRecurringMaintenanceSettings
                 $spec.RecurringMaintenanceSettings.MaintenancePeriod = $MaintenancePeriod
