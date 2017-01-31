@@ -160,3 +160,53 @@ Function Get-VAMITime {
 
     $timeResult
 }
+
+Function Get-VAMINetwork {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Date:          Jan 31, 2016
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+	.SYNOPSIS
+		This function retrieves access information from VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+	.DESCRIPTION
+		Function to return VAMI access interfaces (Console,DCUI,Bash Shell & SSH)
+	.EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMINetwork
+#>
+    $netResults = @()
+
+    $Hostname = (Get-CisService -Name 'com.vmware.appliance.networking.dns.hostname').get()
+    $dns = (Get-CisService -Name 'com.vmware.appliance.networking.dns.servers').get()
+
+    Write-Host "Hostname: " $hostname
+    Write-Host "DNS Servers: " $dns.servers
+
+    $interfaces = (Get-CisService -Name 'com.vmware.appliance.networking.interfaces').list()
+    foreach ($interface in $interfaces) {
+        $interfaceResult = "" | Select Inteface, MAC, Status, Mode, IP, Prefix, Gateway, Updateable
+
+        $interfaceResult.Inteface = $interface.name
+        $interfaceResult.MAC = $interface.mac
+        $interfaceResult.Status = $interface.status
+
+        $ipv4API = (Get-CisService -Name 'com.vmware.appliance.techpreview.networking.ipv4')
+        $spec = $ipv4API.Help.get.interfaces.CreateExample()
+        $spec+= $interface.name
+        $ipv4result = $ipv4API.get($spec)
+
+        $interfaceResult.Mode = $ipv4result.mode
+        $interfaceResult.IP = $ipv4result.address
+        $interfaceResult.Prefix = $ipv4result.prefix
+        $interfaceResult.Gateway = $ipv4result.default_gateway
+        $interfaceResult.Updateable = $ipv4result.updateable
+        $netResults += $interfaceResult
+    }
+    $netResults
+}
