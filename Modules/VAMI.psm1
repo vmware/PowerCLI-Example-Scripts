@@ -46,10 +46,10 @@ Function Get-VAMIHealth {
      Twitter:       @lamw
 	===========================================================================
     .SYNOPSIS
-		This function retrieves health information from VAMI interface (5480)
+        This function retrieves health information from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
     .DESCRIPTION
-		Function to return VAMI health
+        Function to return VAMI health
     .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMIHealth
@@ -95,10 +95,10 @@ Function Get-VAMIAccess {
      Twitter:       @lamw
 	===========================================================================
     .SYNOPSIS
-		This function retrieves access information from VAMI interface (5480)
+        This function retrieves access information from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
     .DESCRIPTION
-		Function to return VAMI access interfaces (Console,DCUI,Bash Shell & SSH)
+        Function to return VAMI access interfaces (Console,DCUI,Bash Shell & SSH)
     .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMIAccess
@@ -128,10 +128,10 @@ Function Get-VAMITime {
      Twitter:       @lamw
 	===========================================================================
     .SYNOPSIS
-		This function retrieves the time and NTP info from VAMI interface (5480)
+        This function retrieves the time and NTP info from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
     .DESCRIPTION
-		Function to return current Time and NTP information
+        Function to return current Time and NTP information
     .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMITime
@@ -170,10 +170,10 @@ Function Get-VAMINetwork {
      Twitter:       @lamw
 	===========================================================================
     .SYNOPSIS
-		This function retrieves network information from VAMI interface (5480)
+        This function retrieves network information from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
     .DESCRIPTION
-		Function to return networking information including details for each interface
+        Function to return networking information including details for each interface
     .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMINetwork
