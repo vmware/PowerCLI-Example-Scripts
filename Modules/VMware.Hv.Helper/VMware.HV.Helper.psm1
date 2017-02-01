@@ -2399,7 +2399,7 @@ function New-HVFarm {
         }
 
         $namingMethod = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.NamingMethod
-        if (! $NamingPattern) {
+        if ($NamingPattern -eq '{n:fixed=4}') {
           $namingPattern = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.namingPattern
         }
         $maximumCount = $jsonObject.AutomatedFarmSpec.RdsServerNamingSpec.patternNamingSettings.maxNumberOfRDSServers
@@ -2998,6 +2998,7 @@ function Get-HVFarmCustomizationSetting {
       }
 
       #Support only Sysprep Customization
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings = New-Object VMware.Hv.FarmSysprepCustomizationSettings
       $sysprepCustomizationSettings = $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.SysprepCustomizationSettings
       
       # Get SysPrep CustomizationSpec ID
@@ -3477,7 +3478,7 @@ function New-HVPool {
     [Parameter(Mandatory = $true,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $true,ParameterSetName = 'RDS')]
     [Parameter(Mandatory = $true,ParameterSetName = 'CLONED_POOL')]
-    [Parameter(Mandatory = $true,ParameterSetName = 'JSON_FILE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'JSON_FILE')]
     [string]
     $PoolName,
 
@@ -3861,7 +3862,7 @@ function New-HVPool {
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'CLONED_POOL')]
-    [Parameter(Mandatory = $true,ParameterSetName = 'JSON_FILE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'JSON_FILE')]
     [string]
     $NamingPattern = $poolName + '{n:fixed=4}',
 
@@ -4147,7 +4148,7 @@ function New-HVPool {
         $namingMethod = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.NamingMethod
         $transparentPageSharingScope = $jsonObject.AutomatedDesktopSpec.virtualCenterManagedCommonSettings.TransparentPageSharingScope
         if ($namingMethod -eq "PATTERN") {
-          if (!$namingPattern) {
+          if ($NamingPattern -eq '{n:fixed=4}') {
             $namingPattern = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.namingPattern
           }
           $maximumCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.maxNumberOfMachines
