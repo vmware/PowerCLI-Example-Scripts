@@ -24,13 +24,14 @@
     $ts = [timespan]::fromseconds($systemUptimeAPI.get().toString())
     $uptime = $ts.ToString("hh\:mm\:ss\,fff")
 
-    $summaryResult = "" | Select Product, Type, Version, Build, InstallTime, Uptime
-    $summaryResult.Product = $results.product
-    $summaryResult.Type = $results.type
-    $summaryResult.Version = $results.version
-    $summaryResult.Build = $results.build
-    $summaryResult.InstallTime = $results.install_time
-    $summaryResult.Uptime = $uptime
+    $summaryResult = New-Object PSObject -Property @{
+        Product = $results.product;
+        Type = $results.type;
+        Version = $results.version;
+        Build = $results.build;
+        InstallTime = $results.install_time;
+        Uptime = $uptime
+    }
 
     $summaryResult
 }
@@ -71,15 +72,16 @@ Function Get-VAMIHealth {
     }
     $healthSoftwareUpdates = (Get-CisService -Name 'com.vmware.appliance.health.softwarepackages').get()
 
-    $healthResult = "" | Select HealthOverall, HealthLastCheck, HealthCPU, HealthMem, HealthSwap, HealthStorage, HealthVCDB, HealthSoftware
-    $healthResult.HealthOverall = $healthOverall
-    $healthResult.HealthLastCheck = $healthLastCheck
-    $healthResult.HealthCPU = $healthCPU
-    $healthResult.HealthMem = $healthMem
-    $healthResult.HealthSwap = $healthSwap
-    $healthResult.HealthStorage = $healthStorage
-    $healthResult.HealthVCDB = $healthVCDB
-    $healthResult.HealthSoftware = $healthSoftwareUpdates
+    $healthResult = New-Object PSObject -Property @{
+        HealthOverall = $healthOverall;
+        HealthLastCheck = $healthLastCheck;
+        HealthCPU = $healthCPU;
+        HealthMem = $healthMem;
+        HealthSwap = $healthSwap;
+        HealthStorage = $healthStorage;
+        HealthVCDB = $healthVCDB;
+        HealthSoftware = $healthSoftwareUpdates
+    }
 
     $healthResult
 }
@@ -108,11 +110,12 @@ Function Get-VAMIAccess {
     $shellAccess = (Get-CisService -Name 'com.vmware.appliance.access.shell').get()
     $sshAccess = (Get-CisService -Name 'com.vmware.appliance.access.ssh').get()
 
-    $accessResult = "" | Select Console, DCUI, BashShell, SSH
-    $accessResult.Console = $consoleAccess
-    $accessResult.DCUI = $dcuiAccess
-    $accessResult.BashShell = $shellAccess.enabled
-    $accessResult.SSH = $sshAccess
+    $accessResult = New-Object PSObject -Property @{
+        Console = $consoleAccess;
+        DCUI = $dcuiAccess;
+        BashShell = $shellAccess.enabled;
+        SSH = $sshAccess
+    }
 
     $accessResult
 }
@@ -139,23 +142,22 @@ Function Get-VAMITime {
     $systemTimeAPI = Get-CisService -Name 'com.vmware.appliance.system.time'
     $timeResults = $systemTimeAPI.get()
 
-    $timeResult = "" | Select Timezone, Date, CurrentTime, Mode, NTPServers, NTPStatus
-    $timeResult.Timezone = $timeResults.timezone
-    $timeResult.Date = $timeResults.date
-    $timeResult.CurrentTime = $timeResults.time
-
     $timeSync = (Get-CisService -Name 'com.vmware.appliance.techpreview.timesync').get()
     $timeSyncMode = $timeSync.mode
 
-    $timeResult.Mode = $timeSyncMode
+    $timeResult  = New-Object PSObject -Property @{
+        Timezone = $timeResults.timezone;
+        Date = $timeResults.date;
+        CurrentTime = $timeResults.time;
+        Mode = $timeSyncMode;
+        NTPServers = "N/A";
+        NTPStatus = "N/A";
+    }
 
     if($timeSyncMode -eq "NTP") {
         $ntpServers = (Get-CisService -Name 'com.vmware.appliance.techpreview.ntp').get()
         $timeResult.NTPServers = $ntpServers.servers
         $timeResult.NTPStatus = $ntpServers.status
-    } else {
-        $timeResult.NTPServers = "N/A"
-        $timeResult.NTPStatus = "N/A"
     }
 
     $timeResult
@@ -190,22 +192,21 @@ Function Get-VAMINetwork {
 
     $interfaces = (Get-CisService -Name 'com.vmware.appliance.networking.interfaces').list()
     foreach ($interface in $interfaces) {
-        $interfaceResult = "" | Select Inteface, MAC, Status, Mode, IP, Prefix, Gateway, Updateable
-
-        $interfaceResult.Inteface = $interface.name
-        $interfaceResult.MAC = $interface.mac
-        $interfaceResult.Status = $interface.status
-
         $ipv4API = (Get-CisService -Name 'com.vmware.appliance.techpreview.networking.ipv4')
         $spec = $ipv4API.Help.get.interfaces.CreateExample()
         $spec+= $interface.name
         $ipv4result = $ipv4API.get($spec)
 
-        $interfaceResult.Mode = $ipv4result.mode
-        $interfaceResult.IP = $ipv4result.address
-        $interfaceResult.Prefix = $ipv4result.prefix
-        $interfaceResult.Gateway = $ipv4result.default_gateway
-        $interfaceResult.Updateable = $ipv4result.updateable
+        $interfaceResult = New-Object PSObject -Property @{
+            Inteface =  $interface.name;
+            MAC = $interface.mac;
+            Status = $interface.status;
+            Mode = $ipv4result.mode;
+            IP = $ipv4result.address;
+            Prefix = $ipv4result.prefix;
+            Gateway = $ipv4result.default_gateway;
+            Updateable = $ipv4result.updateable
+        }
         $netResults += $interfaceResult
     }
     $netResults
