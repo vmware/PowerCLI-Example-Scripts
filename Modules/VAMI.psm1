@@ -8,12 +8,12 @@
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
-	.SYNOPSIS
-		This function retrieves some basic information from VAMI interface (5480)
+    .SYNOPSIS
+        This function retrieves some basic information from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
-	.DESCRIPTION
-		Function to return basic VAMI summary info
-	.EXAMPLE
+    .DESCRIPTION
+        Function to return basic VAMI summary info
+    .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMISummary
 #>
@@ -32,7 +32,6 @@
         InstallTime = $results.install_time;
         Uptime = $uptime
     }
-
     $summaryResult
 }
 
@@ -46,12 +45,12 @@ Function Get-VAMIHealth {
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
-	.SYNOPSIS
+    .SYNOPSIS
 		This function retrieves health information from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
-	.DESCRIPTION
+    .DESCRIPTION
 		Function to return VAMI health
-	.EXAMPLE
+    .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMIHealth
 #>
@@ -82,7 +81,6 @@ Function Get-VAMIHealth {
         HealthVCDB = $healthVCDB;
         HealthSoftware = $healthSoftwareUpdates
     }
-
     $healthResult
 }
 
@@ -96,12 +94,12 @@ Function Get-VAMIAccess {
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
-	.SYNOPSIS
+    .SYNOPSIS
 		This function retrieves access information from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
-	.DESCRIPTION
+    .DESCRIPTION
 		Function to return VAMI access interfaces (Console,DCUI,Bash Shell & SSH)
-	.EXAMPLE
+    .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMIAccess
 #>
@@ -116,7 +114,6 @@ Function Get-VAMIAccess {
         BashShell = $shellAccess.enabled;
         SSH = $sshAccess
     }
-
     $accessResult
 }
 
@@ -130,12 +127,12 @@ Function Get-VAMITime {
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
-	.SYNOPSIS
+    .SYNOPSIS
 		This function retrieves the time and NTP info from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
-	.DESCRIPTION
+    .DESCRIPTION
 		Function to return current Time and NTP information
-	.EXAMPLE
+    .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMITime
 #>
@@ -159,7 +156,6 @@ Function Get-VAMITime {
         $timeResult.NTPServers = $ntpServers.servers
         $timeResult.NTPStatus = $ntpServers.status
     }
-
     $timeResult
 }
 
@@ -173,12 +169,12 @@ Function Get-VAMINetwork {
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
-	.SYNOPSIS
+    .SYNOPSIS
 		This function retrieves network information from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
-	.DESCRIPTION
+    .DESCRIPTION
 		Function to return networking information including details for each interface
-	.EXAMPLE
+    .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMINetwork
 #>
