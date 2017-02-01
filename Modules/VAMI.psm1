@@ -24,7 +24,7 @@
     $ts = [timespan]::fromseconds($systemUptimeAPI.get().toString())
     $uptime = $ts.ToString("hh\:mm\:ss\,fff")
 
-    $summaryResult = New-Object PSObject -Property @{
+    $summaryResult = [pscustomobject] @{
         Product = $results.product;
         Type = $results.type;
         Version = $results.version;
@@ -71,7 +71,7 @@ Function Get-VAMIHealth {
     }
     $healthSoftwareUpdates = (Get-CisService -Name 'com.vmware.appliance.health.softwarepackages').get()
 
-    $healthResult = New-Object PSObject -Property @{
+    $healthResult = [pscustomobject] @{
         HealthOverall = $healthOverall;
         HealthLastCheck = $healthLastCheck;
         HealthCPU = $healthCPU;
@@ -142,7 +142,7 @@ Function Get-VAMITime {
     $timeSync = (Get-CisService -Name 'com.vmware.appliance.techpreview.timesync').get()
     $timeSyncMode = $timeSync.mode
 
-    $timeResult  = New-Object PSObject -Property @{
+    $timeResult  = [pscustomobject] @{
         Timezone = $timeResults.timezone;
         Date = $timeResults.date;
         CurrentTime = $timeResults.time;
@@ -193,7 +193,7 @@ Function Get-VAMINetwork {
         $spec+= $interface.name
         $ipv4result = $ipv4API.get($spec)
 
-        $interfaceResult = New-Object PSObject -Property @{
+        $interfaceResult = [pscustomobject] @{
             Inteface =  $interface.name;
             MAC = $interface.mac;
             Status = $interface.status;
