@@ -207,3 +207,54 @@ Function Get-VAMINetwork {
     }
     $netResults
 }
+
+Function Get-VAMIDisks {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Date:          Feb 02, 2016
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+    .SYNOPSIS
+        This function retrieves VMDK disk number to partition mapping VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+    .DESCRIPTION
+        Function to return VMDK disk number to OS partition mapping
+    .EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMIDisks
+#>
+    $storageAPI = Get-CisService -Name 'com.vmware.appliance.system.storage'
+    $disks = $storageAPI.list()
+
+    foreach ($disk in $disks | sort {[int]$_.disk.toString()}) {
+        $disk | Select Disk, Partition
+    }
+}
+
+Function Start-VAMIDiskResize {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Date:          Feb 02, 2016
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+    .SYNOPSIS
+        This function triggers an OS partition resize after adding additional disk capacity
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+    .DESCRIPTION
+        Function triggers OS partition resize operation
+    .EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Start-VAMIDiskResize
+#>
+    $storageAPI = Get-CisService -Name 'com.vmware.appliance.system.storage'
+    Write-Host "Initiated OS partition resize operation ..."
+    $storageAPI.resize()
+}
