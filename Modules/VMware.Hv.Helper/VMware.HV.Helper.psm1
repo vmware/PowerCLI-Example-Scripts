@@ -5867,11 +5867,11 @@ function Set-HVPool {
     }
     $desktop_helper = New-Object VMware.Hv.DesktopService
     foreach ($item in $poolList.Keys) {
+      Write-Host "Updating the Pool: " $poolList.$item
       if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
        $desktop_helper.Desktop_Update($services,$item,$updates)
       }
     }
-    Write-Host "Update successful for Pool: " $poolList.$item
   }
 
   end {
@@ -8039,4 +8039,150 @@ function Remove-HVEntitlement {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement
+function Set-HVMachine {
+<#
+.Synopsis
+   Sets existing virtual Machine(s).
+
+.DESCRIPTION
+   This cmdlet allows user to edit Machine configuration by passing key/value pair.
+   Allows the machine in to Maintenance mode and vice versa
+
+.PARAMETER MachineName
+   The name of the Machine to edit.
+
+.PARAMETER Machine
+   Object(s) of the virtual Machine(s) to edit.
+
+.PARAMETER Maintenance
+   The virtual machine is in maintenance mode. Users cannot log in or use the virtual machine
+
+PARAMETER Key
+   Property names path separated by . (dot) from the root of machine info spec.
+
+.PARAMETER Value
+   Property value corresponds to above key name.
+
+.PARAMETER HvServer
+   Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+   first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Moving the machine in to Maintenance mode using machine name
+   Set-HVMachine -MachineName 'Agent_Praveen' -Maintenance ENTER_MAINTENANCE_MODE
+
+.EXAMPLE
+   Moving the machine in to Maintenance mode using machine object(s)
+   Get-HVMachine -MachineName 'Agent_Praveen' | Set-HVMachine -Maintenance ENTER_MAINTENANCE_MODE
+
+.EXAMPLE
+   Moving the machine in to Maintenance mode using machine object(s)
+   $machine = Get-HVMachine -MachineName 'Agent_Praveen'; Set-HVMachine -Machine $machine -Maintenance EXIT_MAINTENANCE_MODE
+
+.OUTPUTS
+  None
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    
+    [Parameter(Mandatory = $true ,ParameterSetName = 'option')]
+    [string]
+    $MachineName,
+
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'pipeline')]
+    $Machine,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('ENTER_MAINTENANCE_MODE', 'EXIT_MAINTENANCE_MODE')]
+    [string]
+    $Maintenance,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Key,
+
+    [Parameter(Mandatory = $false)]
+    $Value,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
+    $machineList = @{}
+    if ($machineName) {
+      try {
+        $machines = Get-HVMachineSummary -MachineName $machineName -hvServer $hvServer
+      } catch {
+        Write-Error "Make sure Get-HVMachineSummary advanced function is loaded, $_"
+        break
+      }
+      if ($machines) {
+        foreach ($macineObj in $machines) {
+          $machineList.add($macineObj.id, $macineObj.base.Name)
+        }
+      }
+    } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Machine) {
+      foreach ($item in $machine) {
+        if (($item.GetType().name -eq 'MachineNamesView') -or ($item.GetType().name -eq 'MachineInfo')) {
+          $machineList.add($item.id, $item.Base.Name)
+        } else {
+          Write-Error "In pipeline did not get object of expected type MachineNamesView/MachineInfo"
+          [System.gc]::collect()
+          return
+        }
+      }
+    }
+    $updates = @()
+    if ($key -and $value) {
+      $updates += Get-MapEntry -key $key -value $value
+    } elseif ($key -or $value) {
+      Write-Error "Both key:[$key] and value:[$value] needs to be specified"
+    }
+ 
+    if ($Maintenance) {
+      if ($Maintenance -eq 'ENTER_MAINTENANCE_MODE') {
+        $updates += Get-MapEntry -key 'managedMachineData.inMaintenanceMode' -value $true
+      } else {
+        $updates += Get-MapEntry -key 'managedMachineData.inMaintenanceMode' -value $false
+      }
+    }
+    $machine_helper = New-Object VMware.Hv.MachineService
+    foreach ($item in $machineList.Keys) {
+      Write-Host "Updating the Machine: " $machineList.$item
+      if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($machineList.$item)) {
+       $machine_helper.Machine_Update($services,$item,$updates)
+      }
+    }
+  }
+
+  end {
+    [System.gc]::collect()
+  }
+  
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine
