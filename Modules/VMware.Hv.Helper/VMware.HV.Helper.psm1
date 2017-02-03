@@ -4362,6 +4362,8 @@ function New-HVPool {
         $DesktopVirtualCenterNetworkingSettings = $DesktopVirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings
         $DesktopVirtualCenterManagedCommonSettings = $clonePool.AutomatedDesktopData.virtualCenterManagedCommonSettings
         $DesktopCustomizationSettings = $clonePool.AutomatedDesktopData.CustomizationSettings
+        $CurrentImageState =`
+          $clonePool.AutomatedDesktopData.provisioningStatusData.instantCloneProvisioningStatusData.instantCloneCurrentImageState
       }
 	  elseIf ($clonePool.ManualDesktopData) {
         if (! $VM) {
@@ -4380,8 +4382,8 @@ function New-HVPool {
             break
         }
       }
-      if ($provisioningType -eq 'INSTANT_CLONE_ENGINE' -and $poolType -eq 'AUTOMATED') {
-        Write-Error "Cloning is not supported for instant clone pools"
+      if ($provisioningType -eq 'INSTANT_CLONE_ENGINE' -and $poolType -eq 'AUTOMATED' -and  $CurrentImageState -ne 'READY') {
+        Write-Error "Instant clone pool's Current Image State should be in 'READY' state, otherwise cloning is not supported"
         break
       }
     } else {
