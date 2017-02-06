@@ -258,3 +258,128 @@ Function Start-VAMIDiskResize {
     Write-Host "Initiated OS partition resize operation ..."
     $storageAPI.resize()
 }
+
+Function Get-VAMIStatsList {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Date:          Feb 06, 2016
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+    .SYNOPSIS
+        This function retrieves list avialable monitoring metrics in VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+    .DESCRIPTION
+        Function to return list of available monitoring metrics that can be queried
+    .EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMIStatsList
+#>
+    $monitoringAPI = Get-CisService -Name 'com.vmware.appliance.monitoring'
+    $ids = $monitoringAPI.list() | Select id | Sort-Object -Property id
+
+    foreach ($id in $ids) {
+        $id
+    }
+}
+
+Function Get-VAMIStorageUsed {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Date:          Feb 06, 2016
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+    .SYNOPSIS
+        This function retrieves the individaul OS partition storage utilization
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+    .DESCRIPTION
+        Function to return individual OS partition storage utilization
+    .EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMIStorageUsed
+#>
+    $monitoringAPI = Get-CisService 'com.vmware.appliance.monitoring'
+    $querySpec = $monitoringAPI.help.query.item.CreateExample()
+
+    # List of IDs from Get-VAMIStatsList to query
+    $querySpec.Names = @(
+    "storage.used.filesystem.autodeploy",
+    "storage.used.filesystem.boot",
+    "storage.used.filesystem.coredump",
+    "storage.used.filesystem.imagebuilder",
+    "storage.used.filesystem.invsvc",
+    "storage.used.filesystem.log",
+    "storage.used.filesystem.netdump",
+    "storage.used.filesystem.root",
+    "storage.used.filesystem.updatemgr",
+    "storage.used.filesystem.vcdb_core_inventory",
+    "storage.used.filesystem.vcdb_seat",
+    "storage.used.filesystem.vcdb_transaction_log",
+    "storage.totalsize.filesystem.autodeploy",
+    "storage.totalsize.filesystem.boot",
+    "storage.totalsize.filesystem.coredump",
+    "storage.totalsize.filesystem.imagebuilder",
+    "storage.totalsize.filesystem.invsvc",
+    "storage.totalsize.filesystem.log",
+    "storage.totalsize.filesystem.netdump",
+    "storage.totalsize.filesystem.root",
+    "storage.totalsize.filesystem.updatemgr",
+    "storage.totalsize.filesystem.vcdb_core_inventory",
+    "storage.totalsize.filesystem.vcdb_seat",
+    "storage.totalsize.filesystem.vcdb_transaction_log"
+    )
+
+    # Tuple (Filesystem Name, Used, Total) to store results
+    $storageStats = @{
+    "autodeploy"=@{"name"="/storage/autodeploy";"used"=0;"total"=0};
+    "boot"=@{"name"="/boot";"used"=0;"total"=0};
+    "coredump"=@{"name"="/storage/core";"used"=0;"total"=0};
+    "imagebuilder"=@{"name"="/storage/imagebuilder";"used"=0;"total"=0};
+    "invsvc"=@{"name"="/storage/invsvc";"used"=0;"total"=0};
+    "log"=@{"name"="/storage/log";"used"=0;"total"=0};
+    "netdump"=@{"name"="/storage/netdump";"used"=0;"total"=0};
+    "root"=@{"name"="/";"used"=0;"total"=0};
+    "updatemgr"=@{"name"="/storage/updatemgr";"used"=0;"total"=0};
+    "vcdb_core_inventory"=@{"name"="/storage/db";"used"=0;"total"=0};
+    "vcdb_seat"=@{"name"="/storage/seat";"used"=0;"total"=0};
+    "vcdb_transaction_log"=@{"name"="/storage/dblog";"used"=0;"total"=0}
+    }
+
+    $querySpec.interval = "DAY1"
+    $querySpec.function = "MAX"
+    $querySpec.start_time = ((get-date).AddDays(-1))
+    $querySpec.end_time = (Get-Date)
+    $queryResults = $monitoringAPI.query($querySpec) | Select * -ExcludeProperty Help
+
+    foreach ($queryResult in $queryResults) {
+        # Update hash if its used storage results
+        if($queryResult.name -match "used") {
+            $key = (($queryResult.name).toString()).split(".")[-1]
+            $value = [Math]::Round([int]($queryResult.data[1]).toString()/1MB,2)
+            $storageStats[$key]["used"] = $value
+        # Update hash if its total storage results
+        } else {
+            $key = (($queryResult.name).toString()).split(".")[-1]
+            $value = [Math]::Round([int]($queryResult.data[1]).toString()/1MB,2)
+            $storageStats[$key]["total"] = $value
+        }
+    }
+
+    $storageResults = @()
+    foreach ($key in $storageStats.keys | Sort-Object -Property name) {
+        $statResult = [pscustomobject] @{
+            Filesystem = $storageStats[$key].name;
+            Used = $storageStats[$key].used;
+            Total = $storageStats[$key].total
+        }
+        $storageResults += $statResult
+    }
+    $storageResults
+}
