@@ -5377,7 +5377,7 @@ function Remove-HVPool {
     ConfirmImpact = 'High'
   )]
   param(
-    [Parameter(Mandatory = $false,ParameterSetName = 'option')]
+    [Parameter(Mandatory = $true,ParameterSetName = 'option')]
     [string] $poolName,
 
     # PoolObject
@@ -5420,7 +5420,7 @@ function Remove-HVPool {
         Write-Error "No desktopsummarydata found with pool name: [$pool]"
         break
       }
-    } elseif ($PSCmdlet.MyInvocation.ExpectingInput) {
+    } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Pool) {
       foreach ($item in $pool) {
         if ($item.GetType().name -eq 'DesktopSummaryView') {
           $poolList += @{id = $item.id; name = $item.desktopSummaryData.name}
@@ -8185,4 +8185,453 @@ PARAMETER Key
   
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine
+function New-HVGlobalEntitlement {
+
+ <#
+.Synopsis
+   Creates a Global Entitlement.
+
+.DESCRIPTION
+   Global entitlements are used to route users to their resources across multiple pods.
+   These are persisted in a global ldap instance that is replicated across all pods in a linked mode view set.
+
+.PARAMETER DisplayName
+   Display Name of Global Entitlement.
+
+.PARAMETER Type
+   Specify whether to create desktop/app global entitlement
+
+.PARAMETER Description
+   Description of Global Entitlement.
+
+.PARAMETER Scope
+   Scope for this global entitlement. Visibility and Placement policies are defined by this value.
+
+.PARAMETER Dedicated
+   Specifies whether dedicated/floating resources associated with this global entitlement.
+
+.PARAMETER FromHome
+   This value defines the starting location for resource placement and search.
+   When true, a pod in the user's home site is used to start the search. When false, the current site is used.
+
+.PARAMETER RequireHomeSite
+   This value determines whether we fail if a home site isn't defined for this global entitlement. 
+
+.PARAMETER MultipleSessionAutoClean
+   This value is used to determine if automatic session clean up is enabled.
+   This cannot be enabled when this Global Entitlement is associated with a Desktop that has dedicated user assignment.
+
+.PARAMETER Enabled
+   If this Global Entitlement is enabled.
+
+.PARAMETER SupportedDisplayProtocols
+   The set of supported display protocols for the global entitlement.
+
+.PARAMETER DefaultDisplayProtocol
+   The default display protocol for the global entitlement.
+
+.PARAMETER AllowUsersToChooseProtocol
+   Whether the users can choose the protocol used.
+
+.PARAMETER AllowUsersToResetMachines
+   Whether users are allowed to reset/restart their machines.
+
+.PARAMETER EnableHTMLAccess
+   If set to true, the desktops that are associated with this GlobalEntitlement must also have HTML Access enabled.
+
+.PARAMETER HvServer
+   Reference to Horizon View Server. If the value is not passed or null then
+   first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Creates new global application entitlement
+   New-HVGlobalEntitlement -DisplayName 'GE_APP' -Type APPLICATION_ENTITLEMENT
+
+.EXAMPLE
+   Creates new global desktop entitlement
+   New-HVGlobalEntitlement -DisplayName 'GE_DESKTOP' -Type DESKTOP_ENTITLEMENT
+      
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+[CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [String]
+    $DisplayName,
+
+    [Parameter(Mandatory = $true)]
+    [ValidateSet('DESKTOP_ENTITLEMENT','APPLICATION_ENTITLEMENT')]
+    [String]
+    $Type,
+    
+    [Parameter(Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [String]
+    $Description,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('LOCAL','SITE','ANY')]
+    [String]
+    $Scope = "ANY",
+
+    [Parameter(Mandatory = $false)]
+    [Boolean]
+    $Dedicated,
+
+    [Parameter(Mandatory = $false)]
+    [Boolean]
+    $FromHome,
+
+    [Parameter(Mandatory = $false)]
+    [Boolean]
+    $RequireHomeSite,
+
+    [Parameter(Mandatory = $false)]
+    [Boolean]
+    $MultipleSessionAutoClean,
+
+    [Parameter(Mandatory = $false)]
+    [Boolean]
+    $Enabled,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('RDP', 'PCOIP', 'BLAST')]
+    [String[]]
+    $SupportedDisplayProtocols = @("PCOIP","BLAST"),
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("PCOIP",'RDP',"BLAST")]
+    [String]
+    $DefaultDisplayProtocol =  'PCOIP',
+
+    [Parameter(Mandatory = $false)]
+    [Boolean]
+    $AllowUsersToChooseProtocol = $true,
+
+    [Parameter(Mandatory = $false)]
+    [Boolean]
+    $AllowUsersToResetMachines = $false,
+
+    [Parameter(Mandatory = $false)]
+    [Boolean]
+    $EnableHTMLAccess = $false,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+  process {
+    $info = $services.PodFederation.PodFederation_get()
+    if ("ENABLED" -ne $info.localPodStatus.status) {
+      Write-Host "Multi-DataCenter-View/CPA is not enabled"
+      return
+    }
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
+    if ($Type -eq 'DESKTOP_ENTITLEMENT') {
+     $GeService = New-Object VMware.HV.GlobalEntitlementService
+     $geBaseHelper = $GeService.getGlobalEntitlementBaseHelper()
+     $geBase = $geBaseHelper.getDataObject()
+     $geBase.Dedicated = $dedicated
+     $geBase.AllowUsersToResetMachines = $AllowUsersToResetMachines
+    } else {
+     $GeService = New-Object VMware.Hv.GlobalApplicationEntitlementService
+     $geBaseHelper = $GeService.getGlobalApplicationEntitlementBaseHelper()
+     $geBase = $geBaseHelper.getDataObject()
+    }
+    $geBase.DisplayName = $displayName
+    if ($description) {
+      $geBaseHelper.setDescription($Description)
+    }
+    $geBase.Scope = $Scope
+    $geBase.FromHome = $fromHome
+    $geBase.RequireHomeSite = $requireHomeSite
+    $geBase.MultipleSessionAutoClean = $multipleSessionAutoClean
+    $geBase.Enabled = $enabled
+    $geBase.DefaultDisplayProtocol = $defaultDisplayProtocol
+    $geBase.AllowUsersToChooseProtocol = $AllowUsersToChooseProtocol
+    $geBase.EnableHTMLAccess = $enableHTMLAccess
+    $geBase.SupportedDisplayProtocols = $supportedDisplayProtocols
+    Write-Host "Creating new global entitlement with DisplayName: " $DisplayName
+    if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($displayName)) {
+      if ($type -eq 'DESKTOP_ENTITLEMENT') {
+        $GeService.GlobalEntitlement_Create($services, $geBase)
+      } else {
+        $GeService.GlobalApplicationEntitlement_Create($services, $geBase)
+      }
+    }
+  }
+  end {
+    [System.gc]::collect()
+  }
+
+}
+
+
+function Find-HVGlobalEntitlement {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    $Param,
+    [Parameter(Mandatory = $true)]
+    [String]
+    $Type
+  )
+
+  # This translates the function arguments into the View API properties that must be queried
+  $GeSelectors = @{
+    'displayName' = 'base.displayName';
+    'description' = 'base.description';
+  }
+
+  $params = $Param
+
+  $query_service_helper = New-Object VMware.Hv.QueryServiceService
+  $query = New-Object VMware.Hv.QueryDefinition
+
+  $wildCard = $false
+  #Only supports wild card '*'
+  if ($params['displayName'] -and $params['displayName'].contains('*')) {
+    $wildcard = $true
+  }
+  
+  # build the query values
+  $query.queryEntityType = $Type
+  if (! $wildcard) {
+    [VMware.Hv.queryfilter[]]$filterSet = @()
+    foreach ($setting in $GeSelectors.Keys) {
+      if ($null -ne $params[$setting]) {
+        $equalsFilter = New-Object VMware.Hv.QueryFilterEquals
+        $equalsFilter.memberName = $GeSelectors[$setting]
+        $equalsFilter.value = $params[$setting]
+        $filterSet += $equalsFilter
+      }
+    }
+    if ($filterSet.Count -gt 0) {
+      $andFilter = New-Object VMware.Hv.QueryFilterAnd
+      $andFilter.Filters = $filterset
+      $query.Filter = $andFilter
+    }
+    $queryResults = $query_service_helper.QueryService_Query($services,$query)
+    $GeList = $queryResults.results
+  }
+  if ($wildcard -or [string]::IsNullOrEmpty($GeList)) {
+    $query.Filter = $null
+    $queryResults = $query_service_helper.QueryService_Query($services,$query)
+    $strFilterSet = @()
+    foreach ($setting in $GeSelectors.Keys) {
+      if ($null -ne $params[$setting]) {
+        if ($wildcard -and ($setting -eq 'displayName') ) {
+          $strFilterSet += '($_.' + $GeSelectors[$setting] + ' -like "' + $params[$setting] + '")'
+        } else {
+          $strFilterSet += '($_.' + $GeSelectors[$setting] + ' -eq "' + $params[$setting] + '")'
+        }
+      }
+    }
+    $whereClause =  [string]::Join(' -and ', $strFilterSet)
+    $scriptBlock = [Scriptblock]::Create($whereClause)
+    $GeList = $queryResults.results | where $scriptBlock
+  }
+  Return $GeList
+}
+
+function Get-HVGlobalEntitlement {
+
+ <#
+.Synopsis
+
+.DESCRIPTION
+   Global entitlements are used to route users to their resources across multiple pods.
+
+.PARAMETER DisplayName
+   Display Name of Global Entitlement.
+
+.PARAMETER Description
+   Description of Global Entitlement.
+
+.PARAMETER HvServer
+   Reference to Horizon View Server. If the value is not passed or null then
+   first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Retrieves global application/desktop entitlement(s) with displayName 'GEAPP'
+   Get-HVGlobalEntitlement -DisplayName 'GEAPP'
+      
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+[CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+  param(
+    [Parameter(Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [String]
+    $DisplayName,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [String]
+    $Description,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+  process {
+    $info = $services.PodFederation.PodFederation_get()
+    if ("ENABLED" -ne $info.localPodStatus.status) {
+      Write-Host "Multi-DataCenter-View/CPA is not enabled"
+      return
+    }
+    $result = @()
+    $result += Find-HVGlobalEntitlement -Param $psboundparameters -Type 'GlobalEntitlementSummaryView'
+    $result += Find-HVGlobalEntitlement -Param $psboundparameters -Type 'GlobalApplicationEntitlementInfo'
+    if (! $result) {
+      Write-Host "Get-HVGlobalEntitlement: No global entitlement Found with given search parameters"
+      break
+    }
+    return $result
+  }
+  end {
+    [System.gc]::collect()
+  }
+}
+
+
+function Remove-HVGlobalEntitlement {
+
+ <#
+.Synopsis
+  Deletes a Global Entitlement.
+
+.DESCRIPTION
+
+.PARAMETER DisplayName
+   Display Name of Global Entitlement.
+
+.PARAMETER HvServer
+   Reference to Horizon View Server. If the value is not passed or null then
+   first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Deletes global application/desktop entitlement with displayName 'GE_APP'
+   Remove-HVGlobalEntitlement -DisplayName 'GE_APP'
+
+.EXAMPLE
+   Deletes global application/desktop entitlement(s), if displayName matches with 'GE_*'
+   Get-HVGlobalEntitlement -DisplayName 'GE_*' | Remove-HVGlobalEntitlement
+      
+
+.NOTES
+    Author                      : Praveen Mathamsetty.
+    Author email                : pmathamsetty@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.0.3
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+[CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+  param(
+    [Parameter(Mandatory = $true, ParameterSetName = 'Default')]
+    [ValidateNotNullOrEmpty()]
+    [String]
+    $DisplayName,
+
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'pipeline')]
+    $GlobalEntitlement,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+  process {
+    $info = $services.PodFederation.PodFederation_get()
+    if ("ENABLED" -ne $info.localPodStatus.status) {
+      Write-Host "Multi-DataCenter-View/CPA is not enabled"
+      return
+    }
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
+    $GeList = @()
+    if ($DisplayName) {
+      try {
+        $GeList = Get-HVGlobalEntitlement -DisplayName $DisplayName -hvServer $hvServer
+      } catch {
+        Write-Error "Make sure Get-HVGlobalEntitlement advanced function is loaded, $_"
+        break
+      }
+    } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $GlobalEntitlement) {
+      foreach ($item in $GlobalEntitlement) {
+        if (($item.GetType().name -ne 'GlobalEntitlementSummaryView') -and ($item.GetType().name -ne 'GlobalApplicationEntitlementInfo')) {
+          Write-Error "In pipeline did not get object of expected type GlobalApplicationEntitlementInfo/GlobalEntitlementSummaryView"
+          [System.gc]::collect()
+          return
+        }
+        $GeList += ,$item
+      }
+    }
+    foreach ($item in  $GeList) {
+      Write-Host "Deleting global entitlement with DisplayName: " $item.base.displayName
+      if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($item.base.displayName)) {
+        if ($item.GetType().Name -eq 'GlobalEntitlementSummaryView') {
+          $services.GlobalEntitlement.GlobalEntitlement_Delete($item.id)
+        } else {
+          $services.GlobalApplicationEntitlement.GlobalApplicationEntitlement_Delete($item.id)
+        }
+      }
+    }
+  }
+  end {
+    [System.gc]::collect()
+  }
+
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement
