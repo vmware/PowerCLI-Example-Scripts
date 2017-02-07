@@ -8458,8 +8458,10 @@ function Get-HVGlobalEntitlement {
 
  <#
 .Synopsis
+  Gets Global Entitlement(s) with given search parameters.
 
 .DESCRIPTION
+   Queries and returns global entitlement(s) and global application entitlement(s).
    Global entitlements are used to route users to their resources across multiple pods.
 
 .PARAMETER DisplayName
@@ -8541,6 +8543,8 @@ function Remove-HVGlobalEntitlement {
   Deletes a Global Entitlement.
 
 .DESCRIPTION
+   Deletes global entitlement(s) and global application entitlement(s). 
+   Optionally, user can pipe the global entitlement(s) as input to this function.
 
 .PARAMETER DisplayName
    Display Name of Global Entitlement.
