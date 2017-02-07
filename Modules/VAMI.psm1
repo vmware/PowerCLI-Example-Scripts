@@ -383,3 +383,145 @@ Function Get-VAMIStorageUsed {
     }
     $storageResults
 }
+
+Function Get-VAMIService {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Date:          Feb 08, 2016
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+    .SYNOPSIS
+        This function retrieves list of services in VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+    .DESCRIPTION
+        Function to return list of services and their description
+    .EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMIService
+    .EXAMPLE
+        Get-VAMIService -Name rbd
+#>
+    param(
+        [Parameter(
+            Mandatory=$false,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)
+        ]
+        [String]$Name
+    )
+
+    if($Name -ne "") {
+        $vMonAPI = Get-CisService 'com.vmware.appliance.vmon.service'
+
+        try {
+            $serviceStatus = $vMonAPI.get($name,0)
+            $serviceString = [pscustomobject] @{
+                Name = $name;
+                State = $serviceStatus.state;
+                Health = "";
+                Startup = $serviceStatus.startup_type
+            }
+            if($serviceStatus.health -eq $null) { $serviceString.Health = "N/A"} else { $serviceString.Health = $serviceStatus.health }
+            $serviceString
+        } catch {
+            Write-Error $Error[0].exception.Message
+        }
+    } else {
+        $vMonAPI = Get-CisService 'com.vmware.appliance.vmon.service'
+        $services = $vMonAPI.list_details()
+
+        $serviceResult = @()
+        foreach ($key in $services.keys | Sort-Object -Property Value) {
+            $serviceString = [pscustomobject] @{
+                Name = $key;
+                State =  $services[$key].state;
+                Health = "N/A";
+                Startup = $services[$key].Startup_type
+            }
+            if($services[$key].health -eq $null) { $serviceString.Health = "N/A"} else { $serviceString.Health = $services[$key].health }
+
+            $serviceResult += $serviceString
+        }
+        $serviceResult
+    }
+}
+
+Function Start-VAMIService {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Date:          Feb 08, 2016
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+    .SYNOPSIS
+        This function retrieves list of services in VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+    .DESCRIPTION
+        Function to return list of services and their description
+    .EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Start-VAMIService -Name rbd
+#>
+    param(
+        [Parameter(
+            Mandatory=$true,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)
+        ]
+        [String]$Name
+    )
+
+    $vMonAPI = Get-CisService 'com.vmware.appliance.vmon.service'
+
+    try {
+        Write-Host "Starting $name service ..."
+        $vMonAPI.start($name)
+    } catch {
+        Write-Error $Error[0].exception.Message
+    }
+}
+
+Function Stop-VAMIService {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Date:          Feb 08, 2016
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+    .SYNOPSIS
+        This function retrieves list of services in VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+    .DESCRIPTION
+        Function to return list of services and their description
+    .EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Stop-VAMIService -Name rbd
+#>
+    param(
+        [Parameter(
+            Mandatory=$true,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)
+        ]
+        [String]$Name
+    )
+
+    $vMonAPI = Get-CisService 'com.vmware.appliance.vmon.service'
+
+    try {
+        Write-Host "Stopping $name service ..."
+        $vMonAPI.stop($name)
+    } catch {
+        Write-Error $Error[0].exception.Message
+    }
+}
