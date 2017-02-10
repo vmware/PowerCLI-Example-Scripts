@@ -7576,13 +7576,13 @@ function New-HVEntitlement {
     }
     $base = New-Object VMware.HV.UserEntitlementBase
     $base.UserOrGroup = $results.id
+    Write-host $ResourceObjs.Length " resource(s) will be entitled with UserOrGroup: " $User
     foreach ($ResourceObj in $ResourceObjs) {
       $base.Resource = $ResourceObj.id
       if (!$confirmFlag -OR $pscmdlet.ShouldProcess($User)) {
         $id = $services.UserEntitlement.UserEntitlement_Create($base)
       }
     }
-    Write-host $ResourceObjs.Length " resource(s) entitled with User or group: " $User
   }
   end {
     [System.gc]::collect()
@@ -7916,10 +7916,10 @@ function Remove-HVEntitlement {
           if ($results) {
             foreach ($result in $Results) {
               $userEntitlements = $result.localData.desktopUserEntitlements
+              Write-Host $userEntitlements.Length " desktopUserEntitlement(s) will be removed for UserOrGroup " $user
               if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                 $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
               }
-              Write-Host $userEntitlements.Length " desktopUserEntitlement(s) are removed for UserOrGroup " $user
             }
           }
         }
@@ -7936,10 +7936,10 @@ function Remove-HVEntitlement {
           if ($results) {
             foreach ($result in $Results) {
               $userEntitlements = $result.localData.applicationUserEntitlements
+              Write-Host $userEntitlements.Length " applicationUserEntitlement(s) will be removed for UserOrGroup " $user
               if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                 $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
               }
-              Write-Host $userEntitlements.Length " applicationUserEntitlement(s) are removed for UserOrGroup " $user
             }
           }
         }
@@ -7966,16 +7966,17 @@ function Remove-HVEntitlement {
             foreach ($result in $Results) {
               if ($result.GetType().Name -eq 'EntitledUserOrGroupLocalSummaryView') {
                 $userEntitlements = $result.localData.urlRedirectionUserEntitlements
+                Write-Host $userEntitlements.Length " urlRedirectionUserEntitlement(s) will be removed for UserOrGroup " $user
                 if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                   $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
                 }
               } else {
                 $userEntitlements = $result.globalData.urlRedirectionUserEntitlements
+                Write-Host $userEntitlements.Length " urlRedirectionUserEntitlement(s) will be removed for UserOrGroup " $user
                 if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                   $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
                 }
               }
-              Write-Host $userEntitlements.Length " urlRedirectionUserEntitlement(s) are removed for UserOrGroup " $user
             }
           }
         }
@@ -7996,10 +7997,10 @@ function Remove-HVEntitlement {
           if ($results) {
             foreach ($result in $Results) {
               $userEntitlements = $result.globalData.globalUserApplicationEntitlements
+              Write-Host $userEntitlements.Length " GlobalApplicationEntitlement(s) will be removed for UserOrGroup " $user
               if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                 $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
               }
-              Write-Host $userEntitlements.Length " GlobalApplicationEntitlement(s) are removed for UserOrGroup " $user
             }
           }
         }
@@ -8020,10 +8021,10 @@ function Remove-HVEntitlement {
           if ($results) {
             foreach ($result in $Results) {
               $userEntitlements = $result.globalData.globalUserEntitlements
+              Write-Host $userEntitlements.Length " GlobalEntitlement(s) will be removed for UserOrGroup " $user
               if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                 $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
               }
-              Write-Host $userEntitlements.Length " GlobalEntitlement(s) are removed for UserOrGroup " $user
             }
             
           }
