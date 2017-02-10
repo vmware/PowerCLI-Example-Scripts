@@ -928,7 +928,7 @@ function Get-HVFarm {
     Switch to get list of FarmSummaryView or FarmInfo objects in the result. If it is true a list of FarmInfo objects is returned ohterwise a list of FarmSummaryView objects is returned.
 
 .PARAMETER HvServer
-    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
+    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
      Get-HVFarm -FarmName 'Farm-01'
@@ -1034,7 +1034,7 @@ function Get-HVFarmSummary {
     search for farms which are enabled
 
 .PARAMETER HvServer
-    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
+    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
      Get-HVFarmSummary -FarmName 'Farm-01'
@@ -1215,7 +1215,7 @@ function Get-HVPool {
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the pools from. If the value is not passed or null then
-    first element from global:DefaultHVServers would be considered inplace of hvServer
+    first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Get-HVPool -PoolName 'mypool' -PoolType MANUAL -UserAssignment FLOATING -Enabled $true -ProvisioningEnabled $true
@@ -1345,7 +1345,7 @@ function Get-HVPoolSummary {
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the pools from. If the value is not passed or null then
-    first element from global:DefaultHVServers would be considered inplace of hvServer
+    first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Get-HVPoolSummary -PoolName 'mypool' -PoolType MANUAL -UserAssignment FLOATING -Enabled $true -ProvisioningEnabled $true
@@ -1692,7 +1692,7 @@ function Get-HVQueryResult {
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the data from. If the value is not passed or null then
-    first element from global:DefaultHVServers would be considered inplace of hvServer
+    first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
     Get-HVQueryResult DesktopSummaryView
@@ -1939,7 +1939,7 @@ function New-HVFarm {
     Path of the JSON specification file.
 
 .PARAMETER HvServer
-    Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
+    Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
     New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description 'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
@@ -3389,7 +3389,7 @@ function New-HVPool {
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the pools from. If the value is not passed or null then
-    first element from global:DefaultHVServers would be considered inplace of hvServer.
+    first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
    C:\PS>New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
@@ -5227,7 +5227,7 @@ function Remove-HVFarm {
     Object(s) of the farm to be deleted. Object(s) should be of type FarmSummaryView/FarmInfo.
 
 .PARAMETER HvServer
-    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
+    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
    Remove-HVFarm -FarmName 'Farm-01' -HvServer $hvServer -Confirm:$false
@@ -5504,7 +5504,7 @@ function Set-HVFarm {
     Path of the JSON specification file containing key/value pair.
 
 .PARAMETER HvServer
-    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
+    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
     Set-HVFarm -FarmName 'Farm-01' -Spec 'C:\Edit-HVFarm\ManualEditFarm.json' -Confirm:$false
@@ -5949,7 +5949,7 @@ function Start-HVFarm {
     This property has a default value of 1. This property has values 1-100.
 
 .PARAMETER HvServer
-    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
+    Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
     Start-HVFarm -Recompose -Farm 'Farm-01' -LogoffSetting FORCE_LOGOFF -ParentVM 'View-Agent-Win8' -SnapshotVM 'Snap_USB' -Confirm:$false
@@ -6772,7 +6772,7 @@ function Get-HVMachine {
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
-    first element from global:DefaultHVServers would be considered inplace of hvServer
+    first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Get-HVDesktop -PoolName 'ManualPool'
@@ -6893,7 +6893,7 @@ function Get-HVMachineSummary {
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
-    first element from global:DefaultHVServers would be considered inplace of hvServer
+    first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Get-HVDesktopSummary -PoolName 'ManualPool'
@@ -6984,7 +6984,7 @@ function Get-HVPoolSpec {
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
-    first element from global:DefaultHVServers would be considered inplace of hvServer
+    first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Get-HVPoolSpec -DesktopInfo $DesktopInfoObj
@@ -7220,7 +7220,7 @@ function Get-HVInternalName {
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
-    first element from global:DefaultHVServers would be considered inplace of hvServer
+    first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Get-HVInternalName -EntityId $entityId
@@ -7354,13 +7354,13 @@ function New-HVEntitlement {
    This represents a simple association between a single user/group and a resource that they can be assigned.
 
 .PARAMETER User
-   User prinicipal name of user or group
+   User principal name of user or group
 
 .PARAMETER ResourceName
-   The resource(Application, Pool etc.) name
+   The resource(Application, Desktop etc.) name
 
 .PARAMETER Resource
-   Object(s) of the resource(Application, Desktop etc) to entitle
+   Object(s) of the resource(Application, Desktop etc.) to entitle
 
 .PARAMETER ResourceType
    Type of Resource(Application, Desktop etc)
@@ -7370,7 +7370,7 @@ function New-HVEntitlement {
 
 .PARAMETER HvServer
    Reference to Horizon View Server. If the value is not passed or null then
-   first element from global:DefaultHVServers would be considered inplace of hvServer
+   first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    New-HVEntitlement  -User 'administrator@adviewdev.eng.vmware.com' -ResourceName 'InsClnPol' -Confirm:$false
@@ -7599,23 +7599,23 @@ function Get-HVEntitlement {
    Provides entitlement Info between a single user/group and a resource that they can be assigned.
 
 .PARAMETER User
-   User prinicipal name of user or group
+   User principal name of user or group
 
 .PARAMETER ResourceName
    The resource(Application, Pool etc.) name
 
 .PARAMETER Resource
-   Object(s) of the resource(Application, Desktop etc) to entitle
+   Object(s) of the resource(Application, Desktop etc.) to entitle
 
 .PARAMETER ResourceType
-   Type of Resource(Application, Desktop etc)
+   Type of Resource(Application, Desktop etc.)
 
 .PARAMETER Type
    Whether or not this is a group or a user.
 
 .PARAMETER HvServer
    Reference to Horizon View Server. If the value is not passed or null then
-   first element from global:DefaultHVServers would be considered inplace of hvServer
+   first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Get-HVEntitlement -ResourceType Application
@@ -7811,13 +7811,13 @@ function Remove-HVEntitlement {
    Removes entitlement between a single user/group and a resource that already been assigned.
 
 .PARAMETER User
-   User prinicipal name of user or group
+   User principal name of user or group
 
 .PARAMETER ResourceName
-   The resource(Application, Pool etc.) name
+   The resource(Application, Desktop etc.) name
 
 .PARAMETER Resource
-   Object(s) of the resource(Application, Desktop etc) to entitle
+   Object(s) of the resource(Application, Desktop etc.) to entitle
 
 .PARAMETER ResourceType
    Type of Resource(Application, Desktop etc)
@@ -7827,7 +7827,7 @@ function Remove-HVEntitlement {
 
 .PARAMETER HvServer
    Reference to Horizon View Server. If the value is not passed or null then
-   first element from global:DefaultHVServers would be considered inplace of hvServer
+   first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Remove-HVEntitlement -User 'administrator@adviewdev'  -ResourceName LnkClnJSon -Confirm:$false
@@ -8066,7 +8066,7 @@ PARAMETER Key
 
 .PARAMETER HvServer
    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
-   first element from global:DefaultHVServers would be considered inplace of hvServer
+   first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Set-HVMachine -MachineName 'Agent_Praveen' -Maintenance ENTER_MAINTENANCE_MODE
@@ -8242,7 +8242,7 @@ function New-HVGlobalEntitlement {
 
 .PARAMETER HvServer
    Reference to Horizon View Server. If the value is not passed or null then
-   first element from global:DefaultHVServers would be considered inplace of hvServer
+   first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    New-HVGlobalEntitlement -DisplayName 'GE_APP' -Type APPLICATION_ENTITLEMENT
@@ -8473,7 +8473,7 @@ function Get-HVGlobalEntitlement {
 
 .PARAMETER HvServer
    Reference to Horizon View Server. If the value is not passed or null then
-   first element from global:DefaultHVServers would be considered inplace of hvServer
+   first element from global:DefaultHVServers would be considered in-place of hvServer
 
 .EXAMPLE
    Get-HVGlobalEntitlement -DisplayName 'GEAPP'
