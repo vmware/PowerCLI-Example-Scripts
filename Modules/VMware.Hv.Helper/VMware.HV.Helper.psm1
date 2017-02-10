@@ -186,20 +186,20 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
     View API service object of Connect-HVServer cmdlet.
 
 .EXAMPLE
-    Add managed manual VMs to existing manual pool
     Add-HVDesktop -PoolName 'ManualPool' -Machines 'manualPool1', 'manualPool2' -Confirm:$false
+    Add managed manual VMs to existing manual pool
 
 .EXAMPLE
-    Add virtual machines to automated specific named dedicated pool
     Add-HVDesktop -PoolName 'SpecificNamed' -Machines 'vm-01', 'vm-02' -Users 'user1', 'user2'
+    Add virtual machines to automated specific named dedicated pool
 
 .EXAMPLE
-    Add machines to automated specific named Floating pool
     Add-HVDesktop -PoolName 'SpecificNamed' -Machines 'vm-03', 'vm-04'
+    Add machines to automated specific named Floating pool
 
 .EXAMPLE
-    Add machines to unmanged manual pool
     Add-HVDesktop -PoolName 'Unmanaged' -Machines 'desktop-1.eng.vmware.com'
+    Add machines to unmanged manual pool
 
 .NOTES
     Author                      : Praveen Mathamsetty.
@@ -379,8 +379,8 @@ function Add-HVRDSServer {
     View API service object of Connect-HVServer cmdlet.
 
 .EXAMPLE
-    Add RDSServers to manual farm
     Add-HVRDSServer -Farm "manualFarmTest" -RdsServers "vm-for-rds","vm-for-rds-2" -Confirm:$false
+    Add RDSServers to manual farm
 
 .OUTPUTS
     None
@@ -483,21 +483,21 @@ function Connect-HVEvent {
    Password corresponds to 'dbUserName' user.
 
 .EXAMPLE
-   Connecting to the database with default username configured on Connection Server $hvServer.
    Connect-HVEvent -HvServer $hvServer
+   Connecting to the database with default username configured on Connection Server $hvServer.
 
 .EXAMPLE
-   Connecting to the database configured on Connection Server $hvServer with customised user name 'system'.
    $hvDbServer = Connect-HVEvent -HvServer $hvServer -DbUserName 'system'
+   Connecting to the database configured on Connection Server $hvServer with customised user name 'system'.
 
 .EXAMPLE
-   Connecting to the database with customised user name and password.
    $hvDbServer = Connect-HVEvent -HvServer $hvServer -DbUserName 'system' -DbPassword 'censored'
+   Connecting to the database with customised user name and password.
 
 .EXAMPLE
+   C:\PS>$password = Read-Host 'Database Password' -AsSecureString
+   C:\PS>$hvDbServer = Connect-HVEvent -HvServer $hvServer -DbUserName 'system' -DbPassword $password
    Connecting to the database with customised user name and password, with password being a SecureString.
-   $password = Read-Host 'Database Password' -AsSecureString
-   $hvDbServer = Connect-HVEvent -HvServer $hvServer -DbUserName 'system' -DbPassword $password
 
 .OUTPUTS
    Returns a custom object that has database connection as 'dbConnection' property.
@@ -614,8 +614,8 @@ function Disconnect-HVEvent {
    Connection object returned by Connect-HVEvent advanced function. This is a mandatory input.
 
 .EXAMPLE
-   Disconnecting the database connection on $hvDbServer.
    Disconnect-HVEvent -HvDbServer $hvDbServer
+   Disconnecting the database connection on $hvDbServer.
 
 .OUTPUTS
    None
@@ -704,15 +704,15 @@ function Get-HVEvent {
    String that can applied in filtering on 'Message' column.
 
 .EXAMPLE
+   C:\PS>$e = Get-HVEvent -hvDbServer $hvDbServer
+   C:\PS>$e.Events
    Querying all the database events on database $hvDbServer.
-   $e = Get-HVEvent -hvDbServer $hvDbServer
-   $e.Events
 
 .EXAMPLE
+   C:\PS>$e = Get-HVEvent -HvDbServer $hvDbServer -TimePeriod 'all' -FilterType 'startsWith' -UserFilter 'aduser' -SeverityFilter 'err' -TimeFilter 'HH:MM:SS.fff' -ModuleFilter 'broker' -MessageFilter 'aduser'
+   C:\PS>$e.Events | Export-Csv -Path 'myEvents.csv' -NoTypeInformation
    Querying all the database events where user name startswith 'aduser', severity is of 'err' type, having module name as 'broker', message starting with 'aduser' and time starting with 'HH:MM:SS.fff'.
    The resulting events will be exported to a csv file 'myEvents.csv'.
-   $e = Get-HVEvent -HvDbServer $hvDbServer -TimePeriod 'all' -FilterType 'startsWith' -UserFilter 'aduser' -SeverityFilter 'err' -TimeFilter 'HH:MM:SS.fff' -ModuleFilter 'broker' -MessageFilter 'aduser'
-   $e.Events | Export-Csv -Path 'myEvents.csv' -NoTypeInformation
 
 .OUTPUTS
    Returns a custom object that has events information in 'Events' property. Events property will have events information with five columns: UserName, Severity, EventTime, Module and Message.
@@ -931,24 +931,24 @@ function Get-HVFarm {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-     Queries and returns farmInfo based on given parameter farmName
      Get-HVFarm -FarmName 'Farm-01'
+     Queries and returns farmInfo based on given parameter farmName
 
 .EXAMPLE
-     Queries and returns farmInfo based on given parameters farmName, farmDisplayName
      Get-HVFarm -FarmName 'Farm-01' -FarmDisplayName 'Sales RDS Farm'
+     Queries and returns farmInfo based on given parameters farmName, farmDisplayName
 
 .EXAMPLE
-     Queries and returns farmInfo based on given parameters farmName, farmType
      Get-HVFarm -FarmName 'Farm-01' -FarmType 'MANUAL'
+     Queries and returns farmInfo based on given parameters farmName, farmType
 
 .EXAMPLE
-     Queries and returns farmInfo based on given parameters farmName, FarmType etc
      Get-HVFarm -FarmName 'Farm-01' -FarmType 'MANUAL' -Enabled $true
+     Queries and returns farmInfo based on given parameters farmName, FarmType etc
 
 .EXAMPLE
-     Queries and returns farmInfo based on parameter farmName with wild character *
      Get-HVFarm -FarmName 'Farm-0*'
+     Queries and returns farmInfo based on parameter farmName with wild character *
 
 .OUTPUTs
     Returns the list of FarmInfo object matching the query criteria.
@@ -1037,24 +1037,24 @@ function Get-HVFarmSummary {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-     Queries and returns farmSummary objects based on given parameter farmName
      Get-HVFarmSummary -FarmName 'Farm-01'
+     Queries and returns farmSummary objects based on given parameter farmName
 
 .EXAMPLE
-     Queries and returns farmSummary objects based on given parameters farmName, farmDisplayName
      Get-HVFarmSummary -FarmName 'Farm-01' -FarmDisplayName 'Sales RDS Farm'
+     Queries and returns farmSummary objects based on given parameters farmName, farmDisplayName
 
 .EXAMPLE
-     Queries and returns farmSummary objects based on given parameters farmName, farmType
      Get-HVFarmSummary -FarmName 'Farm-01' -FarmType 'MANUAL'
+     Queries and returns farmSummary objects based on given parameters farmName, farmType
 
 .EXAMPLE
-     Queries and returns farmSummary objects based on given parameters farmName, FarmType etc
      Get-HVFarmSummary -FarmName 'Farm-01' -FarmType 'MANUAL' -Enabled $true
+     Queries and returns farmSummary objects based on given parameters farmName, FarmType etc
 
 .EXAMPLE
-     Queries and returns farmSummary objects based on given parameter farmName with wild character *
      Get-HVFarmSummary -FarmName 'Farm-0*'
+     Queries and returns farmSummary objects based on given parameter farmName with wild character *
 
 .OUTPUTs
     Returns the list of FarmSummary object matching the query criteria.
@@ -1218,20 +1218,20 @@ function Get-HVPool {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Queries and returns pool object(s) based on given parameters poolName, poolType etc.
    Get-HVPool -PoolName 'mypool' -PoolType MANUAL -UserAssignment FLOATING -Enabled $true -ProvisioningEnabled $true
+   Queries and returns pool object(s) based on given parameters poolName, poolType etc.
 
 .EXAMPLE
-   Queries and returns pool object(s) based on given parameters poolType and userAssignment
    Get-HVPool -PoolType AUTOMATED -UserAssignment FLOATING
+   Queries and returns pool object(s) based on given parameters poolType and userAssignment
 
 .EXAMPLE
-   Queries and returns pool object(s) based on given parameters poolName, PoolType etc.
    Get-HVPool -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false
+   Queries and returns pool object(s) based on given parameters poolName, PoolType etc.
 
 .EXAMPLE
-   Queries and returns pool object(s) based on given parameters poolName and HvServer etc.
    Get-HVPool -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false -HvServer $mycs
+   Queries and returns pool object(s) based on given parameters poolName and HvServer etc.
 
 .OUTPUTS
    Returns list of objects of type DesktopInfo
@@ -1348,20 +1348,20 @@ function Get-HVPoolSummary {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Queries and returns desktopSummaryView based on given parameters poolName, poolType etc.
    Get-HVPoolSummary -PoolName 'mypool' -PoolType MANUAL -UserAssignment FLOATING -Enabled $true -ProvisioningEnabled $true
+   Queries and returns desktopSummaryView based on given parameters poolName, poolType etc.
 
 .EXAMPLE
-   Queries and returns desktopSummaryView based on given parameters poolType, userAssignment.
    Get-HVPoolSummary -PoolType AUTOMATED -UserAssignment FLOATING
+   Queries and returns desktopSummaryView based on given parameters poolType, userAssignment.
 
 .EXAMPLE
-   Queries and returns desktopSummaryView based on given parameters poolName, poolType, userAssignment etc.
    Get-HVPoolSummary -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false
+   Queries and returns desktopSummaryView based on given parameters poolName, poolType, userAssignment etc.
 
 .EXAMPLE
-   Queries and returns desktopSummaryView based on given parameters poolName, HvServer etc.
    Get-HVPoolSummary -PoolName 'myrds' -PoolType RDS -UserAssignment DEDICATED -Enabled $false -HvServer $mycs
+   Queries and returns desktopSummaryView based on given parameters poolName, HvServer etc.
 
 .OUTPUTS
    Returns list of DesktopSummaryView
@@ -1535,41 +1535,41 @@ function Get-HVQueryFilter {
 
 
 .EXAMPLE
-    Creates queryFilterEquals with given parameters memberName(position 0) and memberValue(position 2)
     Get-HVQueryFilter data.name -Eq vmware
+    Creates queryFilterEquals with given parameters memberName(position 0) and memberValue(position 2)
 
 .EXAMPLE
-    Creates queryFilterEquals with given parameters memberName and memberValue
     Get-HVQueryFilter -MemberName data.name -Eq -MemberValue vmware
+    Creates queryFilterEquals with given parameters memberName and memberValue
 
 .EXAMPLE
-    Creates queryFilterNotEquals filter with given parameters memberName and memberValue
     Get-HVQueryFilter data.name -Ne vmware
+    Creates queryFilterNotEquals filter with given parameters memberName and memberValue
 
 .EXAMPLE
-    Creates queryFilterContains with given parameters memberName and memberValue
     Get-HVQueryFilter data.name -Contains vmware
+    Creates queryFilterContains with given parameters memberName and memberValue
 
 .EXAMPLE
-    Creates queryFilterStartsWith with given parameters memberName and memberValue
     Get-HVQueryFilter data.name -Startswith vmware
+    Creates queryFilterStartsWith with given parameters memberName and memberValue
 
 .EXAMPLE
+    C:\PS>$filter = Get-HVQueryFilter data.name -Startswith vmware
+    C:\PS>Get-HVQueryFilter -Not $filter
     Creates queryFilterNot with given parameter filter
-    $filter = Get-HVQueryFilter data.name -Startswith vmware
-    Get-HVQueryFilter -Not $filter
 
 .EXAMPLE
+    C:\PS>$filter1 = Get-HVQueryFilter data.name -Startswith vmware
+    C:\PS>$filter2 = Get-HVQueryFilter data.name -Contains pool
+    C:\PS>Get-HVQueryFilter -And @($filter1, $filter2)
     Creates queryFilterAnd with given parameter filters array
-    $filter1 = Get-HVQueryFilter data.name -Startswith vmware
-    $filter2 = Get-HVQueryFilter data.name -Contains pool
-    Get-HVQueryFilter -And @($filter1, $filter2)
 
 .EXAMPLE
+    C:\PS>$filter1 = Get-HVQueryFilter data.name -Startswith vmware
+    C:\PS>$filter2 = Get-HVQueryFilter data.name -Contains pool
+    C:\PS>Get-HVQueryFilter -Or @($filter1, $filter2)
     Creates queryFilterOr with given parameter filters array
-    $filter1 = Get-HVQueryFilter data.name -Startswith vmware
-    $filter2 = Get-HVQueryFilter data.name -Contains pool
-    Get-HVQueryFilter -Or @($filter1, $filter2)
 
 .OUTPUTS
     Returns the QueryFilter object
@@ -1695,25 +1695,25 @@ function Get-HVQueryResult {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-    Returns query results of entityType DesktopSummaryView(position 0)
     Get-HVQueryResult DesktopSummaryView
+    Returns query results of entityType DesktopSummaryView(position 0)
 
 .EXAMPLE
-    Returns query results of entityType DesktopSummaryView(position 0) with given filter(position 1)
     Get-HVQueryResult DesktopSummaryView (Get-HVQueryFilter data.name -Eq vmware)
+    Returns query results of entityType DesktopSummaryView(position 0) with given filter(position 1)
 
 .EXAMPLE
-    Returns query results of entityType DesktopSummaryView with given filter
     Get-HVQueryResult -EntityType DesktopSummaryView -Filter (Get-HVQueryFilter desktopSummaryData.name -Eq vmware)
+    Returns query results of entityType DesktopSummaryView with given filter
 
 .EXAMPLE
+    C:\PS>$myFilter = Get-HVQueryFilter data.name -Contains vmware
+    C:\PS>Get-HVQueryResult -EntityType DesktopSummaryView -Filter $myFilter -SortBy desktopSummaryData.displayName -SortDescending $false
     Returns query results of entityType DesktopSummaryView with given filter and also sorted based on dispalyName
-    $myFilter = Get-HVQueryFilter data.name -Contains vmware
-    Get-HVQueryResult -EntityType DesktopSummaryView -Filter $myFilter -SortBy desktopSummaryData.displayName -SortDescending $false
 
 .EXAMPLE
-    Returns query results of entityType DesktopSummaryView, maximum count equal to limit
     Get-HVQueryResult DesktopSummaryView -Limit 10
+    Returns query results of entityType DesktopSummaryView, maximum count equal to limit
 
 .OUTPUTS
     Returns the list of objects of entityType
@@ -1942,28 +1942,28 @@ function New-HVFarm {
     Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-    Creates new linkedClone farm by using naming pattern 
     New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description 'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
+    Creates new linkedClone farm by using naming pattern
 
 .EXAMPLE
-    Creates new linkedClone farm by using naming pattern 
     New-HVFarm -InstantClone -FarmName 'ICFarmCL' -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_5' -VmFolder 'Instant_Clone_VMs' -HostOrCluster 'vimal-cluster' -ResourcePool 'vimal-cluster' -Datastores 'datastore1' -FarmDisplayName 'IC Farm using CL' -Description 'created IC Farm from PS command-line' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "ICFarmCL-" -NetBiosName "ad-vimalg"
+    Creates new linkedClone farm by using naming pattern 
 
 .EXAMPLE
-    Creates new linkedClone farm by using json file 
     New-HVFarm -Spec C:\VMWare\Specs\LinkedClone.json -Confirm:$false
+    Creates new linkedClone farm by using json file
 
-.EXAMPLE
-    Creates new instantClone farm by using json file 
+.EXAMPLE 
     New-HVFarm -Spec C:\VMWare\Specs\InstantCloneFarm.json -Confirm:$false
+    Creates new instantClone farm by using json file
 
 .EXAMPLE
-    Creates new manual farm by using rdsServers names
     New-HVFarm -Manual -FarmName "manualFarmTest" -FarmDisplayName "manualFarmTest" -Description "Manual PS Test" -RdsServers "vm-for-rds.eng.vmware.com","vm-for-rds-2.eng.vmware.com" -Confirm:$false
+    Creates new manual farm by using rdsServers names
 
 .EXAMPLE
-    Creates new instant clone farm by reading few parameters from json and few parameters from command line.
     New-HVFarm -Spec C:\VMWare\Specs\AutomatedInstantCloneFarm.json -FarmName 'InsPool' -NamingPattern 'InsFarm-'
+    Creates new instant clone farm by reading few parameters from json and few parameters from command line.
 
 .OUTPUTS
   None
@@ -3365,6 +3365,7 @@ function New-HVPool {
 .PARAMETER PostSynchronizationScriptParameters
     Post synchronization script parameters. Example: p1 p2 p3 
     Applicable to Linked, Instant Clone pools.
+
 .PARAMETER Source
     Source of the Virtual machines for manual pool.
     Supported values are 'VIRTUAL_CENTER','UNMANAGED'.
@@ -3391,38 +3392,38 @@ function New-HVPool {
     first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
+   C:\PS>New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
    Create new automated linked clone pool with naming method pattern
-   New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
 
 .EXAMPLE
-   Create new automated linked clone pool by using JSON spec file
    New-HVPool -Spec C:\VMWare\Specs\LinkedClone.json -Confirm:$false
+   Create new automated linked clone pool by using JSON spec file
 
 .EXAMPLE
-   Clones new pool by using existing pool configuration
-   Get-HVPool -PoolName 'vmwarepool' | New-HVPool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
+   C:\PS>Get-HVPool -PoolName 'vmwarepool' | New-HVPool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
    (OR)
-   $vmwarepool = Get-HVPool -PoolName 'vmwarepool';  New-HVPool -ClonePool $vmwarepool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
+   C:\PS>$vmwarepool = Get-HVPool -PoolName 'vmwarepool';  New-HVPool -ClonePool $vmwarepool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
+   Clones new pool by using existing pool configuration
 
 .EXAMPLE
-  Create new automated instant clone pool with naming method pattern
   New-HVPool -InstantClone -PoolName "InsPoolvmware" -PoolDisplayName "insPool" -Description "create instant pool" -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster  'CS-1' -ResourcePool 'CS-1' -NamingMethod PATTERN -Datastores 'datastore1' -NamingPattern "inspool2" -NetBiosName 'adviewdev' -DomainAdmin root
+  Create new automated instant clone pool with naming method pattern
 
 .EXAMPLE
-  Create new automated full clone pool with naming method pattern
   New-HVPool -FullClone -PoolName "FullClone" -PoolDisplayName "FullClonePra" -Description "create full clone" -UserAssignment DEDICATED -Template 'powerCLI-VM-TEMPLATE' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1'  -Datastores 'datastore1' -NamingMethod PATTERN -NamingPattern 'FullCln1' -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
+  Create new automated full clone pool with naming method pattern
 
 .EXAMPLE
-  Create new managed manual pool from virtual center managed VirtualMachines.
   New-HVPool -MANUAL -PoolName 'manualVMWare' -PoolDisplayName 'MNLPUL' -Description 'Manual pool creation' -UserAssignment FLOATING -Source VIRTUAL_CENTER -VM 'PowerCLIVM1', 'PowerCLIVM2'
+  Create new managed manual pool from virtual center managed VirtualMachines.
 
 .EXAMPLE
-  Create new unmanaged manual pool from unmanaged VirtualMachines.
   New-HVPool -MANUAL -PoolName 'unmangedVMWare' -PoolDisplayName 'unMngPl' -Description 'unmanaged Manual Pool creation' -UserAssignment FLOATING -Source UNMANAGED -VM 'myphysicalmachine.vmware.com'
+  Create new unmanaged manual pool from unmanaged VirtualMachines.
 
 .EXAMPLE
-  Creates new instant clone pool by reading few parameters from json and few parameters from command line.
   New-HVPool -spec 'C:\Json\InstantClone.json' -PoolName 'InsPool1'-NamingPattern 'INSPool-'
+  Creates new instant clone pool by reading few parameters from json and few parameters from command line.
 
 .OUTPUTS
   None
@@ -5229,17 +5230,17 @@ function Remove-HVFarm {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-   Delete a given farm. For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
    Remove-HVFarm -FarmName 'Farm-01' -HvServer $hvServer -Confirm:$false
+   Delete a given farm. For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
 
 .EXAMPLE
-   Deletes a given Farm object(s). For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
    $farm_array | Remove-HVFarm -HvServer $hvServer
+   Deletes a given Farm object(s). For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
 
 .EXAMPLE
+   C:\PS>$farm1 = Get-HVFarm -FarmName 'Farm-01'
+   C:\PS>Remove-HVFarm -Farm $farm1
    Deletes a given Farm object. For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
-   $farm1 = Get-HVFarm -FarmName 'Farm-01'
-   Remove-HVFarm -Farm $farm1
 
 .OUTPUTS
    None
@@ -5347,16 +5348,16 @@ function Remove-HVPool {
     Logs off a session forcibly to virtual machine(s). This operation will also log off a locked session.
 
 .EXAMPLE
-   Deletes pool from disk with given parameters PoolName etc.
    Remove-HVPool -HvServer $hvServer -PoolName 'FullClone' -DeleteFromDisk -Confirm:$false
+   Deletes pool from disk with given parameters PoolName etc.
 
 .EXAMPLE
-   Deletes specified pool from disk
    $pool_array | Remove-HVPool -HvServer $hvServer  -DeleteFromDisk
+   Deletes specified pool from disk
 
 .EXAMPLE
-   Deletes specified pool and VM(s) associations are removed from view Manager
    Remove-HVPool -Pool $pool1
+   Deletes specified pool and VM(s) associations are removed from view Manager
 
 .OUTPUTS
    None
@@ -5506,24 +5507,24 @@ function Set-HVFarm {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-    Updates farm configuration by using json file
     Set-HVFarm -FarmName 'Farm-01' -Spec 'C:\Edit-HVFarm\ManualEditFarm.json' -Confirm:$false
+    Updates farm configuration by using json file
 
 .EXAMPLE
-    Updates farm configuration with given parameters key and value
     Set-HVFarm -FarmName 'Farm-01' -Key 'base.description' -Value 'updated description'
+    Updates farm configuration with given parameters key and value
 
 .EXAMPLE
-    Updates farm(s) configuration with given parameters key and value
     $farm_array | Set-HVFarm -Key 'base.description' -Value 'updated description'
+    Updates farm(s) configuration with given parameters key and value
 
 .EXAMPLE
-    Enables provisioning to specified farm
     Set-HVFarm -farm 'Farm2' -Start
+    Enables provisioning to specified farm
 
 .EXAMPLE
-    Enables specified farm
     Set-HVFarm -farm 'Farm2' -Enable
+    Enables specified farm
 
 .OUTPUTS
     None
@@ -5709,28 +5710,28 @@ function Set-HVPool {
     Path of the JSON specification file containing key/value pair.
 
 .EXAMPLE
-    Updates pool configuration by using json file
     Set-HVPool -PoolName 'ManualPool' -Spec 'C:\Edit-HVPool\EditPool.json' -Confirm:$false
+    Updates pool configuration by using json file
 
 .EXAMPLE
-    Updates pool configuration with given parameters key and value
     Set-HVPool -PoolName 'RDSPool' -Key 'base.description' -Value 'update description'
+    Updates pool configuration with given parameters key and value
 
 .Example
-    Disables specified pool
     Set-HVPool  -PoolName 'LnkClone' -Disable
+    Disables specified pool
 
 .Example
-    Enables specified pool
     Set-HVPool  -PoolName 'LnkClone' -Enable
+    Enables specified pool
 
 .Example
-    Enables provisioning to specified pool
     Set-HVPool  -PoolName 'LnkClone' -Start
+    Enables provisioning to specified pool
 
 .Example
-    Disables provisioning to specified pool
     Set-HVPool  -PoolName 'LnkClone' -Stop
+    Disables provisioning to specified pool
 
 .OUTPUTS
     None
@@ -5951,25 +5952,25 @@ function Start-HVFarm {
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered inplace of hvServer.
 
 .EXAMPLE
-    Requests a recompose of RDS Servers in the specified automated farm
     Start-HVFarm -Recompose -Farm 'Farm-01' -LogoffSetting FORCE_LOGOFF -ParentVM 'View-Agent-Win8' -SnapshotVM 'Snap_USB' -Confirm:$false
+    Requests a recompose of RDS Servers in the specified automated farm
 
 .EXAMPLE
+    C:\PS>$myTime = Get-Date '10/03/2016 12:30:00'
+    C:\PS>Start-HVFarm -Farm 'Farm-01' -Recompose -LogoffSetting 'FORCE_LOGOFF' -ParentVM 'ParentVM' -SnapshotVM 'SnapshotVM' -StartTime $myTime
     Requests a recompose task for automated farm in specified time
-    $myTime = Get-Date '10/03/2016 12:30:00'
-    Start-HVFarm -Farm 'Farm-01' -Recompose -LogoffSetting 'FORCE_LOGOFF' -ParentVM 'ParentVM' -SnapshotVM 'SnapshotVM' -StartTime $myTime
 
 .EXAMPLE
-    Requests a ScheduleMaintenance task for instant-clone farm. Schedules an IMMEDIATE maintenance.
     Start-HVFarm -Farm 'ICFarm-01' -ScheduleMaintenance -MaintenanceMode IMMEDIATE
+    Requests a ScheduleMaintenance task for instant-clone farm. Schedules an IMMEDIATE maintenance.
 
 .EXAMPLE
-    Requests a ScheduleMaintenance task for instant-clone farm. Schedules a recurring weekly maintenace every Saturday night at 23:30 and updates the parentVM and snapshot.
     Start-HVFarm -ScheduleMaintenance -Farm 'ICFarm-01' -MaintenanceMode RECURRING -MaintenancePeriod WEEKLY -MaintenanceStartTime '11:30' -StartInt 6 -EveryInt 1 -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_Updated'
+    Requests a ScheduleMaintenance task for instant-clone farm. Schedules a recurring weekly maintenace every Saturday night at 23:30 and updates the parentVM and snapshot.
 
 .EXAMPLE
-    Requests a CancelMaintenance task for instant-clone farm. Cancels recurring maintenance.
     Start-HVFarm -CancelMaintenance -Farm 'ICFarm-01' -MaintenanceMode RECURRING
+    Requests a CancelMaintenance task for instant-clone farm. Cancels recurring maintenance.
 
 .OUTPUTS
     None
@@ -6331,25 +6332,25 @@ function Start-HVPool {
     View API service object of Connect-HVServer cmdlet.
 
 .EXAMPLE
-    Requests a recompose of machines in the specified pool
     Start-HVPool -Recompose -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -ParentVM 'View-Agent-Win8' -SnapshotVM 'Snap_USB'
+    Requests a recompose of machines in the specified pool
 
 .EXAMPLE
-    Requests a refresh of machines in the specified pool
     Start-HVPool -Refresh -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -Confirm:$false
+    Requests a refresh of machines in the specified pool
 
 .EXAMPLE
+    C:\PS>$myTime = Get-Date '10/03/2016 12:30:00'
+    C:\PS>Start-HVPool -Rebalance -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -StartTime $myTime
     Requests a rebalance of machines in a pool with specified time
-    $myTime = Get-Date '10/03/2016 12:30:00'
-    Start-HVPool -Rebalance -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -StartTime $myTime
 
 .EXAMPLE
-    Requests an update of push image operation on the specified Instant Clone Engine sourced pool
     Start-HVPool -SchedulePushImage -Pool 'InstantPool' -LogoffSetting FORCE_LOGOFF -ParentVM 'InsParentVM' -SnapshotVM 'InsSnapshotVM'
+    Requests an update of push image operation on the specified Instant Clone Engine sourced pool
 
 .EXAMPLE
-    Requests a cancellation of the current scheduled push image operation on the specified Instant Clone Engine sourced pool
     Start-HVPool -CancelPushImage -Pool 'InstantPool'
+    Requests a cancellation of the current scheduled push image operation on the specified Instant Clone Engine sourced pool
 
 .OUTPUTS
     None
@@ -6774,20 +6775,20 @@ function Get-HVMachine {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Queries VM(s) with given parameter poolName
    Get-HVDesktop -PoolName 'ManualPool'
+   Queries VM(s) with given parameter poolName
 
 .EXAMPLE
-   Queries VM(s) with given parameter machineName
    Get-HVDesktop -MachineName 'PowerCLIVM'
+   Queries VM(s) with given parameter machineName
 
 .EXAMPLE
-   Queries VM(s) with given parameter vm state
    Get-HVDesktop -State CUSTOMIZING
+   Queries VM(s) with given parameter vm state
 
 .EXAMPLE
-   Queries VM(s) with given parameter dnsName with wildcard character *
    Get-HVDesktop -DnsName 'powercli-*'
+   Queries VM(s) with given parameter dnsName with wildcard character *
 
 .OUTPUTS
   Returns list of objects of type MachineInfo
@@ -6895,20 +6896,20 @@ function Get-HVMachineSummary {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Queries VM(s) with given parameter poolName
    Get-HVDesktopSummary -PoolName 'ManualPool'
+   Queries VM(s) with given parameter poolName
 
 .EXAMPLE
-   Queries VM(s) with given parameter machineName
    Get-HVDesktopSummary -MachineName 'PowerCLIVM'
+   Queries VM(s) with given parameter machineName
 
 .EXAMPLE
-   Queries VM(s) with given parameter vm state
    Get-HVDesktopSummary -State CUSTOMIZING
+   Queries VM(s) with given parameter vm state
 
 .EXAMPLE
-   Queries VM(s) with given parameter dnsName with wildcard character *
    Get-HVDesktopSummary -DnsName 'powercli-*'
+   Queries VM(s) with given parameter dnsName with wildcard character *
 
 .OUTPUTS
   Returns list of objects of type MachineNamesView
@@ -6986,12 +6987,12 @@ function Get-HVPoolSpec {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Converts DesktopInfo to DesktopSpec
    Get-HVPoolSpec -DesktopInfo $DesktopInfoObj
+   Converts DesktopInfo to DesktopSpec
 
 .EXAMPLE
-   Converts DesktopInfo to DesktopSpec and also dumps json object
    Get-HVPool -PoolName 'LnkClnJson' | Get-HVPoolSpec -FilePath "C:\temp\LnkClnJson.json"
+   Converts DesktopInfo to DesktopSpec and also dumps json object
 
 .OUTPUTS
   Returns desktop specification
@@ -7222,8 +7223,8 @@ function Get-HVInternalName {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Decodes Horizon API Id and returns human readable name
    Get-HVInternalName -EntityId $entityId
+   Decodes Horizon API Id and returns human readable name
 
 .OUTPUTS
   Returns human readable name
@@ -7372,28 +7373,28 @@ function New-HVEntitlement {
    first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Associate a user/group with a pool 
    New-HVEntitlement  -User 'administrator@adviewdev.eng.vmware.com' -ResourceName 'InsClnPol' -Confirm:$false
+   Associate a user/group with a pool 
 
 .EXAMPLE
-   Associate a user/group with a application
    New-HVEntitlement  -User 'adviewdev\administrator' -ResourceName 'Calculator' -ResourceType Application
+   Associate a user/group with a application
 
 .EXAMPLE 
-   Associate a user/group with a URLRedirection settings
    New-HVEntitlement  -User 'adviewdev.eng.vmware.com\administrator' -ResourceName 'UrlSetting1' -ResourceType URLRedirection
+   Associate a user/group with a URLRedirection settings
      
 .EXAMPLE
-   Associate a user/group with a desktop entitlement
    New-HVEntitlement  -User 'adviewdev.eng.vmware.com\administrator' -ResourceName 'GE1' -ResourceType GlobalEntitlement
+   Associate a user/group with a desktop entitlement
 
 .EXAMPLE
-   Associate a user/group with a application entitlement
    New-HVEntitlement  -User 'adviewdev\administrator' -ResourceName 'GEAPP1' -ResourceType GlobalApplicationEntitlement
+   Associate a user/group with a application entitlement
 
 .EXAMPLE
-   Associate a user/group with list of pools
    $pools = Get-HVPool; $pools | New-HVEntitlement  -User 'adviewdev\administrator' -Confirm:$false
+   Associate a user/group with list of pools
       
 
 .NOTES
@@ -7617,20 +7618,20 @@ function Get-HVEntitlement {
    first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Gets all the entitlements related to application pool 
    Get-HVEntitlement -ResourceType Application
+   Gets all the entitlements related to application pool 
 
 .EXAMPLE
-   Gets entitlements specific to user or group name and application resource
    Get-HVEntitlement -User 'adviewdev.eng.vmware.com\administrator' -ResourceName 'calculator' -ResourceType Application
+   Gets entitlements specific to user or group name and application resource
 
 .EXAMPLE 
-   Gets entitlements specific to user or group and URLRedirection resource
    Get-HVEntitlement -User 'adviewdev.eng.vmware.com\administrator' -ResourceName 'UrlSetting1' -ResourceType URLRedirection
+   Gets entitlements specific to user or group and URLRedirection resource
      
 .EXAMPLE
-   Gets entitlements specific to user or group and GlobalEntitlement resource
    Get-HVEntitlement -User 'administrator@adviewdev.eng.vmware.com' -ResourceName 'GE1' -ResourceType GlobalEntitlement
+   Gets entitlements specific to user or group and GlobalEntitlement resource
 
 .NOTES
     Author                      : Praveen Mathamsetty.
@@ -7829,16 +7830,16 @@ function Remove-HVEntitlement {
    first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Deletes entitlement between a user/group and a pool resource 
    Remove-HVEntitlement -User 'administrator@adviewdev'  -ResourceName LnkClnJSon -Confirm:$false
+   Deletes entitlement between a user/group and a pool resource 
 
 .EXAMPLE
-   Deletes entitlement between a user/group and a Application resource
    Remove-HVEntitlement -User 'adviewdev\puser2' -ResourceName 'calculator' -ResourceType Application
+   Deletes entitlement between a user/group and a Application resource
 
 .EXAMPLE 
-   Deletes entitlement between a user/group and a GlobalApplicationEntitlement resource
    Remove-HVEntitlement -User 'adviewdev\administrator' -ResourceName 'GEAPP1' -ResourceType GlobalApplicationEntitlement
+   Deletes entitlement between a user/group and a GlobalApplicationEntitlement resource
 
 .NOTES
     Author                      : Praveen Mathamsetty.
@@ -8068,16 +8069,16 @@ PARAMETER Key
    first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Moving the machine in to Maintenance mode using machine name
    Set-HVMachine -MachineName 'Agent_Praveen' -Maintenance ENTER_MAINTENANCE_MODE
+   Moving the machine in to Maintenance mode using machine name
 
 .EXAMPLE
-   Moving the machine in to Maintenance mode using machine object(s)
    Get-HVMachine -MachineName 'Agent_Praveen' | Set-HVMachine -Maintenance ENTER_MAINTENANCE_MODE
+   Moving the machine in to Maintenance mode using machine object(s)
 
 .EXAMPLE
-   Moving the machine in to Maintenance mode using machine object(s)
    $machine = Get-HVMachine -MachineName 'Agent_Praveen'; Set-HVMachine -Machine $machine -Maintenance EXIT_MAINTENANCE_MODE
+   Moving the machine in to Maintenance mode using machine object(s)
 
 .OUTPUTS
   None
@@ -8244,12 +8245,12 @@ function New-HVGlobalEntitlement {
    first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Creates new global application entitlement
    New-HVGlobalEntitlement -DisplayName 'GE_APP' -Type APPLICATION_ENTITLEMENT
+   Creates new global application entitlement
 
 .EXAMPLE
-   Creates new global desktop entitlement
    New-HVGlobalEntitlement -DisplayName 'GE_DESKTOP' -Type DESKTOP_ENTITLEMENT
+   Creates new global desktop entitlement
       
 
 .NOTES
@@ -8475,8 +8476,8 @@ function Get-HVGlobalEntitlement {
    first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Retrieves global application/desktop entitlement(s) with displayName 'GEAPP'
    Get-HVGlobalEntitlement -DisplayName 'GEAPP'
+   Retrieves global application/desktop entitlement(s) with displayName 'GEAPP'
       
 
 .NOTES
@@ -8554,12 +8555,12 @@ function Remove-HVGlobalEntitlement {
    first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Deletes global application/desktop entitlement with displayName 'GE_APP'
    Remove-HVGlobalEntitlement -DisplayName 'GE_APP'
+   Deletes global application/desktop entitlement with displayName 'GE_APP'
 
 .EXAMPLE
-   Deletes global application/desktop entitlement(s), if displayName matches with 'GE_*'
    Get-HVGlobalEntitlement -DisplayName 'GE_*' | Remove-HVGlobalEntitlement
+   Deletes global application/desktop entitlement(s), if displayName matches with 'GE_*'
       
 
 .NOTES
