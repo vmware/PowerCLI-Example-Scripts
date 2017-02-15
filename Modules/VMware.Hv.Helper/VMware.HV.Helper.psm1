@@ -7357,7 +7357,8 @@ function New-HVEntitlement {
    User principal name of user or group
 
 .PARAMETER ResourceName
-   The resource(Application, Desktop etc.) name
+   The resource(Application, Desktop etc.) name.
+   Supports only wildcard character '*' when resource type is desktop.
 
 .PARAMETER Resource
    Object(s) of the resource(Application, Desktop etc.) to entitle
@@ -7602,7 +7603,8 @@ function Get-HVEntitlement {
    User principal name of user or group
 
 .PARAMETER ResourceName
-   The resource(Application, Pool etc.) name
+   The resource(Application, Desktop etc.) name.
+   Supports only wildcard character '*' when resource type is desktop.
 
 .PARAMETER Resource
    Object(s) of the resource(Application, Desktop etc.) to entitle
@@ -7814,7 +7816,8 @@ function Remove-HVEntitlement {
    User principal name of user or group
 
 .PARAMETER ResourceName
-   The resource(Application, Desktop etc.) name
+   The resource(Application, Desktop etc.) name.
+   Supports only wildcard character '*' when resource type is desktop.
 
 .PARAMETER Resource
    Object(s) of the resource(Application, Desktop etc.) to entitle
