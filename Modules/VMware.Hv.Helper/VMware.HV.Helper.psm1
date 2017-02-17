@@ -6163,6 +6163,8 @@ function Start-HVFarm {
             if ($startTime) {
               $spec.ScheduledTime = $StartTime
             }
+            $spec.LogoffSetting = $LogoffSetting
+            $spec.StopOnFirstError = $StopOnFirstError
             if ($MaintenanceMode -eq "RECURRING") {
                 $spec.RecurringMaintenanceSettings = New-Object VMware.Hv.FarmRecurringMaintenanceSettings
                 $spec.RecurringMaintenanceSettings.MaintenancePeriod = $MaintenancePeriod
@@ -6185,8 +6187,6 @@ function Start-HVFarm {
             #image settings are specified
             if ($ParentVM -and $SnapshotVM) {
                 $spec.ImageMaintenanceSettings = New-Object VMware.Hv.FarmImageMaintenanceSettings
-                $spec.ImageMaintenanceSettings.LogoffSetting = $LogoffSetting
-                $spec.ImageMaintenanceSettings.StopOnFirstError = $StopOnFirstError
                 $vcId = Get-VcenterID -services $services -vCenter $Vcenter
                 if ($null -eq $vcId) {
                     Write-Error "VCenter is required if you specify ParentVM name."
