@@ -423,7 +423,7 @@ function Add-HVRDSServer {
   process {
     $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     try {
-      $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
+      $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer -suppressInfo $true
     } catch {
       Write-Error "Make sure Get-HVFarmSummary advanced function is loaded, $_"
       break
@@ -924,8 +924,8 @@ function Get-HVFarm {
 .PARAMETER Enabled
     search for farms which are enabled
 
-.PARAMETER Full
-    Switch to get list of FarmSummaryView or FarmInfo objects in the result. If it is true a list of FarmInfo objects is returned ohterwise a list of FarmSummaryView objects is returned.
+.PARAMETER SuppressInfo
+    Suppress text info, when no farm found with given search parameters
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
@@ -987,6 +987,10 @@ function Get-HVFarm {
     [boolean]
     $Enabled,
 
+	[Parameter(Mandatory = $false)]
+    [boolean]
+    $SuppressInfo = $false,
+
     [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
@@ -998,8 +1002,10 @@ function Get-HVFarm {
   }
   $farmList = Find-HVFarm -Param $PSBoundParameters
   if (! $farmList) {
-    Write-Host "Get-HVFarm: No Farm Found with given search parameters"
-    break
+    if (! $SuppressInfo) {
+      Write-Host "Get-HVFarm: No Farm Found with given search parameters"
+	}
+    return $farmList
   }
   $farm_service_helper = New-Object VMware.Hv.FarmService
   $queryResults = @()
@@ -1020,18 +1026,21 @@ function Get-HVFarmSummary {
     This function queries the specified Connection Server for farms which are configured on the server. If no farm is configured on the specified connection server or no farm matches the given search criteria, it will return null.
 
 .PARAMETER FarmName
-    farmName to be searched
+    FarmName to be searched
 
 .PARAMETER FarmDisplayName
-    farmDisplayName to be searched
+    FarmDisplayName to be searched
 
 .PARAMETER FarmType
-    farmType to be searched. It can take following values:
+    FarmType to be searched. It can take following values:
     "AUTOMATED"	- search for automated farms only
     'MANUAL' - search for manual farms only
 
 .PARAMETER Enabled
-    search for farms which are enabled
+    Search for farms which are enabled
+
+.PARAMETER SuppressInfo
+    Suppress text info, when no farm found with given search parameters
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
@@ -1093,6 +1102,10 @@ function Get-HVFarmSummary {
     [boolean]
     $Enabled,
 
+	[Parameter(Mandatory = $false)]
+    [boolean]
+    $SuppressInfo = $false,
+
     [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
@@ -1102,7 +1115,10 @@ function Get-HVFarmSummary {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
   }
-  Return Find-HVFarm -Param $PSBoundParameters
+  $farmList = Find-HVFarm -Param $PSBoundParameters
+  if (!$farmList -and !$SuppressInfo) {
+    Write-Host "Get-HVFarmSummary: No Farm Found with given search parameters"
+  }
 }
 
 function Find-HVFarm {
@@ -1213,6 +1229,9 @@ function Get-HVPool {
    If the value is true then only pools which are enabled would be returned.
    If the value is false then only pools which are disabled would be returned.
 
+.PARAMETER SuppressInfo
+   Suppress text info, when no pool found with given search parameters
+
 .PARAMETER HvServer
     Reference to Horizon View Server to query the pools from. If the value is not passed or null then
     first element from global:DefaultHVServers would be considered in-place of hvServer
@@ -1280,6 +1299,10 @@ function Get-HVPool {
     $ProvisioningEnabled,
 
     [Parameter(Mandatory = $false)]
+    [boolean]
+    $SuppressInfo = $false,
+
+    [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
 
@@ -1290,8 +1313,10 @@ function Get-HVPool {
   }
   $poolList = Find-HVPool -Param $PSBoundParameters
   if (! $poolList) {
-    Write-Host "Get-HVPool: No Pool Found with given search parameters"
-    break
+    if (! $SuppressInfo) {
+      Write-Host "Get-HVPool: No Pool Found with given search parameters"
+	}
+    return $poolList
   }
   $queryResults = @()
   $desktop_helper = New-Object VMware.Hv.DesktopService
@@ -1342,6 +1367,9 @@ function Get-HVPoolSummary {
    If the value is not provided then then filter will not be applied.
    If the value is true then only pools which are enabled would be returned.
    If the value is false then only pools which are disabled would be returned.
+
+.PARAMETER SuppressInfo
+   Suppress text info, when no pool found with given search parameters
 
 .PARAMETER HvServer
     Reference to Horizon View Server to query the pools from. If the value is not passed or null then
@@ -1410,6 +1438,10 @@ function Get-HVPoolSummary {
     $ProvisioningEnabled,
 
     [Parameter(Mandatory = $false)]
+    [boolean]
+    $SuppressInfo = $false,
+
+    [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
 
@@ -1418,7 +1450,11 @@ function Get-HVPoolSummary {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
   }
-  Return Find-HVPool -Param $psboundparameters
+  $pool_list = Find-HVPool -Param $psboundparameters
+  if (!$pool_list -and !$suppressInfo) {
+	Write-Host "Get-HVPoolSummary: No Pool Found with given search parameters"
+  }
+  Return $pool_list
 }
 
 function Find-HVPool {
@@ -2343,7 +2379,7 @@ function New-HVFarm {
     $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     if ($farmName) {
       try {
-        $sourceFarm = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
+        $sourceFarm = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer -suppressInfo $true
       } catch {
         Write-Error "Make sure Get-HVFarmSummary advanced function is loaded, $_"
         break
@@ -4073,7 +4109,7 @@ function New-HVPool {
     $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     if ($poolName) {
       try {
-        $sourcePool = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
+        $sourcePool = Get-HVPoolSummary -poolName $poolName -suppressInfo $true -hvServer $hvServer
       } catch {
         Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
         break
@@ -5285,7 +5321,7 @@ function Remove-HVFarm {
     $farmList = @()
     if ($farmName) {
       try {
-        $farmSpecObj = Get-HVFarm -farmName $farmName -hvServer $hvServer
+        $farmSpecObj = Get-HVFarm -farmName $farmName -hvServer $hvServer -SuppressInfo $true
       } catch {
         Write-Error "Make sure Get-HVFarm advanced function is loaded, $_"
         break
@@ -5408,7 +5444,7 @@ function Remove-HVPool {
     $poolList = @()
     if ($poolName) {
       try {
-        $myPools = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
+        $myPools = Get-HVPoolSummary -poolName $poolName -suppressInfo $true -hvServer $hvServer
       } catch {
         Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
         break
@@ -5589,7 +5625,7 @@ function Set-HVFarm {
     $farmList = @{}
     if ($farmName) {
       try {
-        $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer
+        $farmSpecObj = Get-HVFarmSummary -farmName $farmName -hvServer $hvServer -suppressInfo $true
       } catch {
         Write-Error "Make sure Get-HVFarmSummary advanced function is loaded, $_"
         break
@@ -5798,7 +5834,7 @@ function Set-HVPool {
     $poolList = @{}
     if ($poolName) {
       try {
-        $desktopPools = Get-HVPoolSummary -poolName $poolName -hvServer $hvServer
+        $desktopPools = Get-HVPoolSummary -poolName $poolName -suppressInfo $true -hvServer $hvServer
       } catch {
         Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
         break
@@ -5811,6 +5847,9 @@ function Set-HVPool {
           }
           $poolList.add($desktopObj.id, $desktopObj.DesktopSummaryData.Name)
         }
+      }  else {
+        Write-Error "No desktopsummarydata found with pool name: [$poolName]"
+        break
       }
     } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Pool) {
       foreach ($item in $pool) {
@@ -6085,7 +6124,7 @@ function Start-HVFarm {
       }
       elseif ($farm.GetType().name -eq 'String') {
         try {
-          $farmSpecObj = Get-HVFarm -farmName $farm -hvServer $hvServer
+          $farmSpecObj = Get-HVFarm -farmName $farm -hvServer $hvServer -SuppressInfo $true
         } catch {
           Write-Error "Make sure Get-HVFarm advanced function is loaded, $_"
           break
@@ -6458,7 +6497,7 @@ function Start-HVPool {
           $type = $item.desktopsummarydata.type
         } elseif ($item.GetType().name -eq 'String') {
           try {
-            $poolObj = Get-HVPoolSummary -poolName $item -hvServer $hvServer
+            $poolObj = Get-HVPoolSummary -poolName $item -suppressInfo $true -hvServer $hvServer
           } catch {
             Write-Error "Make sure Get-HVPoolSummary advanced function is loaded, $_"
             break
@@ -6661,7 +6700,7 @@ function Find-HVMachine {
 
   try {
     if ($params['PoolName']) {
-      $poolObj = Get-HVPoolSummary -poolName $params['PoolName'] -hvServer $params['HvServer']
+      $poolObj = Get-HVPoolSummary -poolName $params['PoolName'] -suppressInfo $true -hvServer $params['HvServer']
       if ($poolObj.Length -ne 1) {
         Write-Host "Failed to retrieve specific pool object with given PoolName : " $params['PoolName']
         break;
@@ -6891,6 +6930,9 @@ function Get-HVMachineSummary {
    If the value is null or not provided then filter will not be applied,
    otherwise the virtual machines which has display name same as value will be returned.
 
+.PARAMETER SuppressInfo
+   Suppress text info, when no machine found with given search parameters
+
 .PARAMETER HvServer
     Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
     first element from global:DefaultHVServers would be considered in-place of hvServer
@@ -6957,6 +6999,10 @@ function Get-HVMachineSummary {
     [string]
     $JsonFilePath,
 
+	[Parameter(Mandatory = $false)]
+	[boolean]
+	$SuppressInfo = $false,
+
     [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
@@ -6968,6 +7014,9 @@ function Get-HVMachineSummary {
   }
 
   $machineList = Find-HVMachine -Param $PSBoundParameters
+  if (!$machineList -and !$SuppressInfo) {
+    Write-Host "Get-HVMachineSummary: No machine(s) found with given search parameters"
+  }
   return $machineList
 }
 
@@ -7467,7 +7516,7 @@ function New-HVEntitlement {
     switch($ResourceType){
       "Desktop" {
         if ($ResourceName) {
-          $ResourceObjs = Get-HVPool -PoolName $ResourceName
+          $ResourceObjs = Get-HVPool -PoolName $ResourceName -suppressInfo $true -HvServer $HvServer
           if (! $ResourceObjs) {
             Write-Host "No pool found with given resourceName: " $ResourceName
             return
@@ -7704,7 +7753,7 @@ function Get-HVEntitlement {
     switch($ResourceType) {
       "Desktop" {
         if ($ResourceName) {
-          $ResourceObjs = Get-HVPool -PoolName $ResourceName -HvServer $HvServer
+          $ResourceObjs = Get-HVPool -PoolName $ResourceName -suppressInfo $true -HvServer $HvServer
           if (! $ResourceObjs) {
             Write-Host "No pool found with given resourceName: " $ResourceName
             return
@@ -7908,7 +7957,7 @@ function Remove-HVEntitlement {
       $info = $services.PodFederation.PodFederation_get()
       switch($ResourceType) {
         "Desktop" {
-          $ResourceObjs = Get-HVPool -PoolName $ResourceName -HvServer $HvServer
+          $ResourceObjs = Get-HVPool -PoolName $ResourceName -suppressInfo $true -HvServer $HvServer
           if (! $ResourceObjs) {
             Write-Host "No pool found with given resourceName: " $ResourceName
             return
@@ -8140,7 +8189,7 @@ PARAMETER Key
     $machineList = @{}
     if ($machineName) {
       try {
-        $machines = Get-HVMachineSummary -MachineName $machineName -hvServer $hvServer
+        $machines = Get-HVMachineSummary -MachineName $machineName -suppressInfo $true -hvServer $hvServer
       } catch {
         Write-Error "Make sure Get-HVMachineSummary advanced function is loaded, $_"
         break
@@ -8475,6 +8524,9 @@ function Get-HVGlobalEntitlement {
 .PARAMETER Description
    Description of Global Entitlement.
 
+.PARAMETER SuppressInfo
+    Suppress text info, when no global entitlement(s) found with given search parameters
+
 .PARAMETER HvServer
    Reference to Horizon View Server. If the value is not passed or null then
    first element from global:DefaultHVServers would be considered in-place of hvServer
@@ -8511,6 +8563,10 @@ function Get-HVGlobalEntitlement {
     $Description,
 
     [Parameter(Mandatory = $false)]
+    [boolean]
+    $SuppressInfo = $false,
+
+    [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
   begin {
@@ -8529,9 +8585,8 @@ function Get-HVGlobalEntitlement {
     $result = @()
     $result += Find-HVGlobalEntitlement -Param $psboundparameters -Type 'GlobalEntitlementSummaryView'
     $result += Find-HVGlobalEntitlement -Param $psboundparameters -Type 'GlobalApplicationEntitlementInfo'
-    if (! $result) {
+    if (!$result -and !$SuppressInfo) {
       Write-Host "Get-HVGlobalEntitlement: No global entitlement Found with given search parameters"
-      break
     }
     return $result
   }
@@ -8611,7 +8666,7 @@ function Remove-HVGlobalEntitlement {
     $GeList = @()
     if ($DisplayName) {
       try {
-        $GeList = Get-HVGlobalEntitlement -DisplayName $DisplayName -hvServer $hvServer
+        $GeList = Get-HVGlobalEntitlement -DisplayName $DisplayName -suppressInfo $true -hvServer $hvServer
       } catch {
         Write-Error "Make sure Get-HVGlobalEntitlement advanced function is loaded, $_"
         break
