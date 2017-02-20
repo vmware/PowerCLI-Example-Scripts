@@ -1119,6 +1119,7 @@ function Get-HVFarmSummary {
   if (!$farmList -and !$SuppressInfo) {
     Write-Host "Get-HVFarmSummary: No Farm Found with given search parameters"
   }
+  Return $farmList
 }
 
 function Find-HVFarm {
