@@ -6888,7 +6888,7 @@ function Get-HVMachine {
 
   $machineList = Find-HVMachine -Param $PSBoundParameters
   if (!$machineList) {
-    Write-Host "No Virtual Machine(s) Found with given search parameters"
+    Write-Host "Get-HVMachine: No Virtual Machine(s) Found with given search parameters"
     break
   }
   $queryResults = @()
