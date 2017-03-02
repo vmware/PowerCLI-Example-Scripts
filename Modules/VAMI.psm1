@@ -3,7 +3,6 @@
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Jan 20, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -40,7 +39,6 @@ Function Get-VAMIHealth {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Jan 25, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -89,7 +87,6 @@ Function Get-VAMIAccess {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Jan 26, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -122,7 +119,6 @@ Function Get-VAMITime {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Jan 27, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -164,7 +160,6 @@ Function Get-VAMINetwork {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Jan 31, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -213,7 +208,6 @@ Function Get-VAMIDisks {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Feb 02, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -240,7 +234,6 @@ Function Start-VAMIDiskResize {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Feb 02, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -264,7 +257,6 @@ Function Get-VAMIStatsList {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Feb 06, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -291,7 +283,6 @@ Function Get-VAMIStorageUsed {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Feb 06, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -389,7 +380,6 @@ Function Get-VAMIService {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Feb 08, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -455,7 +445,6 @@ Function Start-VAMIService {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Feb 08, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -493,7 +482,6 @@ Function Stop-VAMIService {
     .NOTES
     ===========================================================================
      Created by:    William Lam
-     Date:          Feb 08, 2016
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
@@ -524,4 +512,38 @@ Function Stop-VAMIService {
     } catch {
         Write-Error $Error[0].exception.Message
     }
+}
+
+Function Get-VAMIBackupSize {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+	.SYNOPSIS
+		This function retrieves the backup size of the VCSA from VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+	.DESCRIPTION
+		Function to return the current backup size of the VCSA (common and core data)
+	.EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMIBackupSize
+#>
+    $recoveryAPI = Get-CisService 'com.vmware.appliance.recovery.backup.parts'
+    $backupParts = $recoveryAPI.list() | select id
+
+    $estimateBackupSize = 0
+    $backupPartSizes = ""
+    foreach ($backupPart in $backupParts) {
+        $partId = $backupPart.id.value
+        $partSize = $recoveryAPI.get($partId)
+        $estimateBackupSize += $partSize
+        $backupPartSizes += $partId + " data is " + $partSize + " MB`n"
+    }
+
+    Write-Host "Estimated Backup Size: $estimateBackupSize MB"
+    Write-Host $backupPartSizes
 }
