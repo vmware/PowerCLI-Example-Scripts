@@ -547,3 +547,170 @@ Function Get-VAMIBackupSize {
     Write-Host "Estimated Backup Size: $estimateBackupSize MB"
     Write-Host $backupPartSizes
 }
+
+Function Get-VAMIUser {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+	.SYNOPSIS
+		This function retrieves VAMI local users using VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+	.DESCRIPTION
+		Function to retrieve VAMI local users
+	.EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMIUser
+#>
+    param(
+        [Parameter(
+            Mandatory=$false,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)
+        ]
+        [String]$Name
+    )
+
+    $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
+
+    $userResults = @()
+
+    if($Name -ne "") {
+        try {
+            $user = $userAPI.get($name)
+
+            $userString = [pscustomobject] @{
+                User = $user.username
+                Name = $user.fullname
+                Email = $user.email
+                Status = $user.status
+                PasswordStatus = $user.passwordstatus
+                Role = $user.role
+            }
+            $userResults += $userString
+        } catch {
+            Write-Error $Error[0].exception.Message
+        }
+    } else {
+        $users = $userAPI.list()
+
+        foreach ($user in $users) {
+            $userString = [pscustomobject] @{
+                User = $user.username
+                Name = $user.fullname
+                Email = $user.email
+                Status = $user.status
+                PasswordStatus = $user.passwordstatus
+                Role = $user.role
+            }
+            $userResults += $userString
+        }
+    }
+    $userResults
+}
+
+Function New-VAMIUser {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+	.SYNOPSIS
+		This function to create new VAMI local user using VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+	.DESCRIPTION
+		Function to create a new VAMI local user
+	.EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        New-VAMIUser -name lamw -fullname "William Lam" -role "operator" -email "lamw@virtuallyghetto.com" -password "VMware1!"
+#>
+    param(
+        [Parameter(
+            Mandatory=$true)
+        ]
+        [String]$name,
+        [Parameter(
+            Mandatory=$true)
+        ]
+        [String]$fullname,
+        [Parameter(
+            Mandatory=$true)
+        ]
+        [ValidateSet("admin","operator","superAdmin")][String]$role,
+        [Parameter(
+            Mandatory=$false)
+        ]
+        [String]$email="",
+        [Parameter(
+            Mandatory=$true)
+        ]
+        [String]$password
+    )
+
+    $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
+    $createSpec = $userAPI.Help.add.config.CreateExample()
+
+    $createSpec.username = $name
+    $createSpec.fullname = $fullname
+    $createSpec.role = $role
+    $createSpec.email = $email
+    $createSpec.password = [VMware.VimAutomation.Cis.Core.Types.V1.Secret]$password
+
+    try {
+        Write-Host "Creating new user $name ..."
+        $userAPI.add($createSpec)
+    } catch {
+        Write-Error $Error[0].exception.Message
+    }
+}
+
+Function Remove-VAMIUser {
+<#
+    .NOTES
+    ===========================================================================
+     Created by:    William Lam
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+	===========================================================================
+	.SYNOPSIS
+		This function to remove VAMI local user using VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+	.DESCRIPTION
+		Function to remove VAMI local user
+	.EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Get-VAMIAccess
+#>
+    param(
+        [Parameter(
+            Mandatory=$true)
+        ]
+        [String]$name,
+        [Parameter(
+            Mandatory=$false)
+        ]
+        [boolean]$confirm=$false
+    )
+
+    if(!$confirm) {
+        $answer = Read-Host -Prompt "Do you want to delete user $name (Y or N)"
+        if($answer -eq "Y" -or $answer -eq "y") {
+            $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
+
+            try {
+                Write-Host "Deleting user $name ..."
+                $userAPI.delete($name)
+            } catch {
+                Write-Error $Error[0].exception.Message
+            }
+        }
+    }
+}
