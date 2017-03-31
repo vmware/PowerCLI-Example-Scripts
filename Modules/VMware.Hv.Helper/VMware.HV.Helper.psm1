@@ -1,7 +1,7 @@
 #Script Module : VMware.Hv.Helper
-#Version       : 1.0
+#Version       : 1.1
 
-#Copyright © 2016 VMware, Inc. All Rights Reserved.
+#Copyright Â© 2016 VMware, Inc. All Rights Reserved.
 
 #Permission is hereby granted, free of charge, to any person obtaining a copy of
 #this software and associated documentation files (the "Software"), to deal in
@@ -204,11 +204,11 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
 .NOTES
     Author                      : Praveen Mathamsetty.
     Author email                : pmathamsetty@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
     Dependencies                : Make sure pool already exists before adding VMs to it.
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 
@@ -386,13 +386,13 @@ function Add-HVRDSServer {
     None
 
 .NOTES
-    Author                      : Ankit Gupta.
+    Author                      : Ankit Gupta, Praveen Mathamsetty
     Author email                : guptaa@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
     Dependencies                : Make sure farm already exists before adding RDSServers to it.
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -505,10 +505,10 @@ function Connect-HVEvent {
 .NOTES
     Author                      : Paramesh Oddepally.
     Author email                : poddepally@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -623,10 +623,10 @@ function Disconnect-HVEvent {
 .NOTES
     Author                      : Paramesh Oddepally.
     Author email                : poddepally@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -720,10 +720,10 @@ function Get-HVEvent {
 .NOTES
     Author                      : Paramesh Oddepally.
     Author email                : poddepally@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -954,12 +954,12 @@ function Get-HVFarm {
     Returns the list of FarmInfo object matching the query criteria.
 
 .NOTES
-    Author                      : Ankit Gupta.
+    Author                      : Ankit Gupta, Praveen Mathamsetty
     Author email                : guptaa@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -1071,10 +1071,10 @@ function Get-HVFarmSummary {
 .NOTES
     Author                      : Praveen Mathamsetty.
     Author email                : pmathamsetty@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -1259,10 +1259,10 @@ function Get-HVPool {
 .NOTES
     Author                      : Praveen Mathamsetty.
     Author email                : pmathamsetty@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -1398,10 +1398,10 @@ function Get-HVPoolSummary {
 .NOTES
     Author                      : Praveen Mathamsetty.
     Author email                : pmathamsetty@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -1614,10 +1614,10 @@ function Get-HVQueryFilter {
 .NOTES
     Author                      : Kummara Ramamohan.
     Author email                : kramamohan@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -1758,10 +1758,10 @@ function Get-HVQueryResult {
 .NOTES
     Author                      : Kummara Ramamohan.
     Author email                : kramamohan@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -2006,12 +2006,12 @@ function New-HVFarm {
   None
 
 .NOTES
-    Author                      : Ankit Gupta.
+    Author                      : Ankit Gupta, Praveen Mathamsetty
     Author email                : guptaa@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -3468,10 +3468,10 @@ function New-HVPool {
 .NOTES
     Author                      : Praveen Mathamsetty.
     Author email                : pmathamsetty@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -5283,12 +5283,12 @@ function Remove-HVFarm {
    None
 
 .NOTES
-    Author                      : Ankit Gupta.
+    Author                      : Ankit Gupta, Praveen Mathamsetty
     Author email                : guptaa@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -5405,7 +5405,7 @@ function Remove-HVPool {
     Version                     : 1.0
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -5567,12 +5567,12 @@ function Set-HVFarm {
     None
 
 .NOTES
-    Author                      : Ankit Gupta.
+    Author                      : Ankit Gupta, Praveen Mathamsetty
     Author email                : guptaa@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -5776,10 +5776,10 @@ function Set-HVPool {
 .NOTES
     Author                      : Praveen Mathamsetty.
     Author email                : pmathamsetty@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -6016,12 +6016,12 @@ function Start-HVFarm {
     None
 
 .NOTES
-    Author                      : Ankit Gupta.
+    Author                      : Ankit Gupta, Praveen Mathamsetty
     Author email                : guptaa@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -6398,10 +6398,10 @@ function Start-HVPool {
 .NOTES
     Author                      : Praveen Mathamsetty.
     Author email                : pmathamsetty@vmware.com
-    Version                     : 1.0
+    Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -6839,7 +6839,7 @@ function Get-HVMachine {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.0.3
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -7053,7 +7053,7 @@ function Get-HVPoolSpec {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.0.3
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -7285,7 +7285,7 @@ function Get-HVInternalName {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.0.3
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -7454,7 +7454,7 @@ function New-HVEntitlement {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.0.3
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -7691,7 +7691,7 @@ function Get-HVEntitlement {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.0.3
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -7900,7 +7900,7 @@ function Remove-HVEntitlement {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.0.3
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -8143,7 +8143,7 @@ PARAMETER Key
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.0.3
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -8313,7 +8313,7 @@ function New-HVGlobalEntitlement {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.0.3
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
@@ -8543,7 +8543,7 @@ function Get-HVGlobalEntitlement {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.0.3
+    Horizon View Server Version : 7.0.2, 7.1.0
     PowerCLI Version            : PowerCLI 6.5
     PowerShell Version          : 5.0
 #>
