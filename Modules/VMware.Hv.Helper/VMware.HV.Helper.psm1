@@ -5256,5 +5256,70 @@ function Get-HVMachineSummary {
   return $machineList
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool
+function Get-HVPodSessions {
+<#
+.Synopsis
+   Gets the total amount of sessions for all Pods in a Federation
+
+.DESCRIPTION
+   Gets the total amout of current sessions (connected and disconnected) for all Pods in a Federation (CPA)
+   based on the global query service.
+   The default object response is used which contains both success and fault information as well as the
+   session count per pod and the ID of each pod.
+
+.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Get-HVPodSessions
+
+.OUTPUTS
+  Returns list of objects of type GlobalSessionPodSessionCounter
+
+.NOTES
+    Author                      : Rasmus Sjoerslev
+    Author email                : rasmus.sjorslev@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2
+    PowerCLI Version            : PowerCLI 6.5
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+
+  $query_service_helper = New-Object VMware.Hv.GlobalSessionQueryServiceService
+  $count_spec = New-Object VMware.Hv.GlobalSessionQueryServiceCountSpec
+  $queryResults = @()
+
+  foreach ($pod in $services.Pod.Pod_List()) {
+	  $count_spec.Pod = $pod.Id
+	  $info = $query_service_helper.GlobalSessionQueryService_GetCountWithSpec($services,$count_spec)
+	  
+	  foreach ($res in $info) {
+		  if ($pod.Id.Id -eq $res.Id.Id) {
+			  $queryResults += $res
+		  }
+	  }
+  }
+  return $queryResults
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,Get-HVPodSessions
 
