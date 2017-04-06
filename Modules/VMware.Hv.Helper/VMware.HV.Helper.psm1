@@ -5256,7 +5256,7 @@ function Get-HVMachineSummary {
   return $machineList
 }
 
-function Get-HVPodSessions {
+function Get-HVPodSession {
 <#
 .Synopsis
    Gets the total amount of sessions for all Pods in a Federation
@@ -5272,7 +5272,7 @@ function Get-HVPodSessions {
     first element from global:DefaultHVServers would be considered inplace of hvServer
 
 .EXAMPLE
-   Get-HVPodSessions
+   Get-HVPodSession
 
 .OUTPUTS
   Returns list of objects of type GlobalSessionPodSessionCounter
@@ -5321,5 +5321,5 @@ function Get-HVPodSessions {
   return $queryResults
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,Get-HVPodSessions
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,Get-HVPodSession
 
