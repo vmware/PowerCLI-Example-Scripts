@@ -1,7 +1,7 @@
 Prerequisites/Steps to use this module:
 
 1. This module only works for Horizon product E.g. Horizon 7.0.2 and later.
-2. Install the latest version of Powershell, PowerCLI(6.5) or (later version via psgallary).
+2. Install the latest version of Powershell, PowerCLI(6.5) or (later version via psgallery).
 3. Import HorizonView module by running: Import-Module VMware.VimAutomation.HorizonView.
 4. Import "VMware.Hv.Helper" module by running: Import-Module -Name "location of this module" or Get-Module -ListAvailable 'VMware.Hv.Helper' | Import-Module.
 5. Get-Command -Module "This module Name" to list all available functions or Get-Command -Module 'VMware.Hv.Helper'.
