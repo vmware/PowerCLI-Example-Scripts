@@ -29,6 +29,10 @@
 							  <Label>User Assignment</Label>
                           </TableColumnHeader>
 						  <TableColumnHeader>
+                              <Width>8</Width>
+							  <Label>Entitled</Label>
+                          </TableColumnHeader>
+						  <TableColumnHeader>
                               <Width>7</Width>
 							  <Label>Enabled</Label>
                           </TableColumnHeader>
@@ -56,10 +60,23 @@
 								  <TableColumnItem>
                                       <ScriptBlock>$_.desktopSummaryData.userAssignment</ScriptBlock>
                                   </TableColumnItem>
-									<TableColumnItem>
+								  <TableColumnItem>
+                                      <ScriptBlock>
+									    $filterContains = Get-HVQueryFilter localData.desktops -contains ([VMware.Hv.DesktopId[]]$_.id)
+                                        $GlobalfilterContains = Get-HVQueryFilter localData.desktops -contains ([VMware.Hv.DesktopId[]]$_.id)
+                                        Try {   
+                                          $results += Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $filterContains
+                                          $results += Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $GlobalfilterContains
+                                        } Catch {
+                                          #Do nothing  
+                                        }
+                                        $results.length
+									  </ScriptBlock>
+                                  </TableColumnItem>
+								  <TableColumnItem>
                                       <ScriptBlock>$_.desktopSummaryData.enabled</ScriptBlock>
                                   </TableColumnItem>
-								  	<TableColumnItem>
+								  <TableColumnItem>
                                       <ScriptBlock>$_.desktopSummaryData.numSessions</ScriptBlock>
                                   </TableColumnItem>
                               </TableColumnItems>
@@ -95,6 +112,20 @@
 						  <ListItem>
 						  <Label>User Assignment</Label>
 						  <ScriptBlock>$_.desktopSummaryData.userAssignment</ScriptBlock>
+						  </ListItem>
+						  <ListItem>
+						  <Label>Entitled</Label>
+						  <ScriptBlock>
+						    $filterContains = Get-HVQueryFilter localData.desktops -contains ([VMware.Hv.DesktopId[]]$_.id)
+                            $GlobalfilterContains = Get-HVQueryFilter localData.desktops -contains ([VMware.Hv.DesktopId[]]$_.id)
+                            Try {   
+                              $results += Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $filterContains
+                              $results += Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $GlobalfilterContains
+                            } Catch {
+                              #Do nothing  
+                            }
+                            $results.length
+						  </ScriptBlock>
 						  </ListItem>
 						  <ListItem>
 						  <Label>Enabled</Label>
