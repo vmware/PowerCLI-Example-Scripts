@@ -1,0 +1,98 @@
+{
+    "Type":  "AUTOMATED",
+    "Data":  {
+                 "Name":  "ICFarmJson",
+                 "DisplayName":  "FarmJsonTest",
+                 "AccessGroup":  "Root",
+                 "Description":  "created IC Farm from PS via JSON",
+                 "Enabled":  null,
+                 "Deleting":  false,
+                 "Settings":  {
+								"DisconnectedSessionTimeoutPolicy" : "NEVER",
+								"DisconnectedSessionTimeoutMinutes" : 1,
+								"EmptySessionTimeoutPolicy" : "AFTER",
+								"EmptySessionTimeoutMinutes" : 1,
+								"LogoffAfterTimeout" : false
+							  },
+                 "Desktop":  null,
+                 "DisplayProtocolSettings":  {
+												"DefaultDisplayProtocol" : "PCOIP",
+												"AllowDisplayProtocolOverride" : false,
+												"EnableHTMLAccess" : false
+											 },
+                 "ServerErrorThreshold":  null,
+                 "MirageConfigurationOverrides":  {
+													"OverrideGlobalSetting" : false,
+													"Enabled" : false,
+													"Url" : null
+												  }
+             },
+    "AutomatedFarmSpec":  {
+                              "ProvisioningType":  "INSTANT_CLONE_ENGINE",
+                              "VirtualCenter":  null,
+                              "RdsServerNamingSpec":  {
+                                                          "NamingMethod":  "PATTERN",
+                                                          "PatternNamingSettings":  {
+                                                                                        "NamingPattern":  "ICFarmVMPS",
+                                                                                        "MaxNumberOfRDSServers":  1
+                                                                                    }
+                                                      },
+                              "VirtualCenterProvisioningSettings":  {
+                                                                        "EnableProvisioning":  true,
+                                                                        "StopProvisioningOnError":  true,
+                                                                        "MinReadyVMsOnVComposerMaintenance":  0,
+                                                                        "VirtualCenterProvisioningData":  {
+                                                                                                              "ParentVm":  "vm-rdsh-ic",
+                                                                                                              "Snapshot":  "snap_5",
+                                                                                                              "Datacenter":  null,
+                                                                                                              "VmFolder":  "Instant_Clone_VMs",
+                                                                                                              "HostOrCluster":  "vimal-cluster",
+                                                                                                              "ResourcePool":  "vimal-cluster"
+                                                                                                          },
+                                                                        "VirtualCenterStorageSettings":  {
+                                                                                                             "Datastores":  [
+                                                                                                                                {
+                                                                                                                                    "Datastore":  "Datastore1",
+                                                                                                                                    "StorageOvercommit":  "UNBOUNDED"
+                                                                                                                                }
+                                                                                                                            ],
+                                                                                                             "UseVSan":  false,
+                                                                                                             "ViewComposerStorageSettings":  {
+                                                                                                                                                 "UseSeparateDatastoresReplicaAndOSDisks":  false,
+                                                                                                                                                 "ReplicaDiskDatastore":  null,
+                                                                                                                                                 "UseNativeSnapshots":  false,
+                                                                                                                                                 "SpaceReclamationSettings":  {
+                                                                                                                                                                                  "ReclaimVmDiskSpace":  false,
+                                                                                                                                                                                  "ReclamationThresholdGB":  null,
+                                                                                                                                                                                  "BlackoutTimes":  null
+                                                                                                                                                                              }
+                                                                                                                                             }
+                                                                                                         },
+                                                                        "VirtualCenterNetworkingSettings":  {
+                                                                                                                "Nics":  null
+                                                                                                            }
+                                                                    },
+                              "VirtualCenterManagedCommonSettings":  {
+                                                                         "TransparentPageSharingScope":  "VM"
+                                                                     },
+                              "CustomizationSettings":  {
+                                                            "CustomizationType":  "CLONE_PREP",
+                                                            "DomainAdministrator":  null,
+                                                            "AdContainer":  "CN=Computers",
+                                                            "ReusePreExistingAccounts":  false,
+                                                            "ClonePrepCustomizationSettings":  {
+                                                                                                      "InstantCloneEngineDomainAdministrator":  null,
+                                                                                                      "PowerOffScriptName":  null,
+                                                                                                      "PowerOffScriptParameters":  null,
+                                                                                                      "PostSynchronizationScriptName":  null,
+                                                                                                      "PostSynchronizationScriptParameters":  null
+                                                                                             }
+                                                        },
+                              "RdsServerMaxSessionsData":  {
+                                                               "MaxSessionsType":  "UNLIMITED",
+                                                               "MaxSessions":  null
+                                                           }
+                          },
+    "ManualFarmSpec":  null,
+    "NetBiosName" : "ad-vimalg"
+}
