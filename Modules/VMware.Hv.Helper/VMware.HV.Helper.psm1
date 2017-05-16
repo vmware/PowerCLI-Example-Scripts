@@ -8789,6 +8789,7 @@ function Set-HVApplicationIcon {
 
     ===Tested Against Environment====
     Horizon View Server Version : 7.1
+    PowerCLI Version            : PowerCLI 6.5.1
     PowerShell Version          : 5.0
 #>
 
@@ -8911,6 +8912,7 @@ Function Remove-HVApplicationIcon {
 
     ===Tested Against Environment====
     Horizon View Server Version : 7.1
+    PowerCLI Version            : PowerCLI 6.5.1
     PowerShell Version          : 5.0
 #>
 
