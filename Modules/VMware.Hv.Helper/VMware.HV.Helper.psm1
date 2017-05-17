@@ -8711,10 +8711,13 @@ function Get-HVPodSession {
 .PARAMETER HvServer
     Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
     first element from global:DefaultHVServers would be considered inplace of hvServer
+
 .EXAMPLE
    Get-HVPodSession
+
 .OUTPUTS
   Returns list of objects of type GlobalSessionPodSessionCounter
+
 .NOTES
     Author                      : Rasmus Sjoerslev
     Author email                : rasmus.sjorslev@vmware.com
