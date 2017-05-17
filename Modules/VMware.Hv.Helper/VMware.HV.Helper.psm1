@@ -8758,4 +8758,225 @@ function Get-HVPodSession {
   return $queryResults
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession
+function Set-HVApplicationIcon {
+<#
+.SYNOPSIS
+   Used to create/update an icon association for a given application.
+
+.DESCRIPTION
+   This function is used to create an application icon and associate it with the given application. If the specified icon already exists in the LDAP, it will just updates the icon association to the application. Any of the existing customized icon association to the given application will be overwritten.
+
+.PARAMETER ApplicationName
+   Name of the application to which the association to be made.
+
+.PARAMETER IconPath
+   Path of the icon.
+
+.PARAMETER HvServer
+   View API service object of Connect-HVServer cmdlet.
+
+.EXAMPLE
+   Creating the icon I1 and associating with application A1. Same command is used for update icon also.
+   Set-HVApplicationIcon -ApplicationName A1 -IconPath C:\I1.ico -HvServer $hvServer
+
+.OUTPUTS
+   None
+
+.NOTES
+    Author                      : Paramesh Oddepally.
+    Author email                : poddepally@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.1
+    PowerCLI Version            : PowerCLI 6.5.1
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+   [Parameter(Mandatory = $true)]
+   [string] $ApplicationName,
+
+   [Parameter(Mandatory = $true)]
+   $IconPath,
+
+   [Parameter(Mandatory = $false)]
+   $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object."
+      break
+    }
+    Add-Type -AssemblyName System.Drawing
+  }
+
+  process {
+    try {
+      $appInfo = Get-HVQueryResult -EntityType ApplicationInfo -Filter (Get-HVQueryFilter data.name -Eq $ApplicationName) -HvServer $HvServer
+    } catch {
+      # EntityNotFound, InsufficientPermission, InvalidArgument, InvalidType, UnexpectedFault
+      Write-Error "Error in querying the ApplicationInfo for Application:[$ApplicationName] $_"
+      break
+    }
+
+    if ($null -eq $appInfo) {
+      Write-Error "No application found with specified name:[$ApplicationName]."
+      break
+    }
+
+    if (!(Test-Path $IconPath)) {
+      Write-Error "File:[$IconPath] does not exists"
+      break
+    }
+
+    $spec = New-Object VMware.Hv.ApplicationIconSpec
+    $base = New-Object VMware.Hv.ApplicationIconBase
+
+    try {
+      $fileHash = Get-FileHash -Path $IconPath -Algorithm MD5
+      $base.IconHash = $fileHash.Hash
+      $base.Data = (Get-Content $iconPath -Encoding byte)
+      $bitMap = [System.Drawing.Bitmap]::FromFile($iconPath)
+      $base.Width = $bitMap.Width
+      $base.Height = $bitMap.Height
+      $base.IconSource = "broker"
+      $base.Applications = @($appInfo.Id)
+      $spec.ExecutionData = $base
+    } catch {
+      Write-Error "Error in reading the icon parameters: $_"
+      break
+    }
+
+    if ($base.Height -gt 256 -or $base.Width -gt 256) {
+      Write-Error "Invalid image resolution. Maximum resolution for an icon should be 256*256."
+      break
+    }
+
+    $ApplicationIconHelper = New-Object VMware.Hv.ApplicationIconService
+    try {
+      $ApplicationIconId = $ApplicationIconHelper.ApplicationIcon_CreateAndAssociate($services, $spec)
+    } catch {
+        if ($_.Exception.InnerException.MethodFault.GetType().name.Equals('EntityAlreadyExists')) {
+           # This icon is already part of LDAP and associated with some other application(s).
+           # In this case, call updateAssociations
+           $applicationIconId = $_.Exception.InnerException.MethodFault.Id
+           Write-Host "Some application(s) already have an association for the specified icon."
+           $ApplicationIconHelper.ApplicationIcon_UpdateAssociations($services, $applicationIconId, @($appInfo.Id))
+           Write-Host "Successfully updated customized icon association for Application:[$ApplicationName]."
+           break
+        }
+        Write-Host "Error in associating customized icon for Application:[$ApplicationName] $_"
+        break
+    }
+    Write-Host "Successfully associated customized icon for Application:[$ApplicationName]."
+  }
+
+  end {
+    [System.gc]::collect()
+  }
+}
+
+Function Remove-HVApplicationIcon {
+<#
+.SYNOPSIS
+   Used to remove a customized icon association for a given application.
+
+.DESCRIPTION
+   This function is used to remove an application association to the given application. It will never remove the RDS system icons. If application doesnot have any customized icon, an error will be thrown.
+
+.PARAMETER ApplicationName
+   Name of the application to which customized icon needs to be removed.
+
+.PARAMETER HvServer
+   View API service object of Connect-HVServer cmdlet.
+
+.EXAMPLE
+   Removing the icon for an application A1.
+   Remove-HVApplicationIcon -ApplicationName A1 -HvServer $hvServer
+
+.OUTPUTS
+   None
+
+.NOTES
+    Author                      : Paramesh Oddepally.
+    Author email                : poddepally@vmware.com
+    Version                     : 1.1
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.1
+    PowerCLI Version            : PowerCLI 6.5.1
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+  param(
+    [Parameter(Mandatory = $true)]
+    [string] $ApplicationName,
+
+   [Parameter(Mandatory = $false)]
+   $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object."
+      break
+    }
+  }
+
+  process {
+    try {
+      $appInfo = Get-HVQueryResult -EntityType ApplicationInfo -Filter (Get-HVQueryFilter data.name -Eq $ApplicationName) -HvServer $HvServer
+    } catch {
+        # EntityNotFound, InsufficientPermission, InvalidArgument, InvalidType, UnexpectedFault
+        Write-Error "Error in querying the ApplicationInfo for Application:[$ApplicationName] $_"
+        break
+    }
+
+    if ($null -eq $appInfo) {
+      Write-Error "No application found with specified name:[$ApplicationName]"
+      break
+    }
+
+    [VMware.Hv.ApplicationIconId[]] $icons = $appInfo.Icons
+    [VMware.Hv.ApplicationIconId] $brokerIcon = $null
+    $ApplicationIconHelper = New-Object VMware.Hv.ApplicationIconService
+    Foreach ($icon in $icons) {
+      $applicationIconInfo = $ApplicationIconHelper.ApplicationIcon_Get($services, $icon)
+      if ($applicationIconInfo.Base.IconSource -eq "broker") {
+          $brokerIcon = $icon
+      }
+    }
+
+    if ($null -eq $brokerIcon) {
+       Write-Error "There is no customized icon for the Application:[$ApplicationName]."
+       break
+    }
+
+    try {
+       $ApplicationIconHelper.ApplicationIcon_RemoveAssociations($services, $brokerIcon, @($appInfo.Id))
+    } catch {
+       Write-Error "Error in removing the customized icon association for Application:[$ApplicationName] $_ "
+       break
+    }
+    Write-Host "Successfully removed customized icon association for Application:[$ApplicationName]."
+  }
+
+  end {
+    [System.gc]::collect()
+  }
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon
