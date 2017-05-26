@@ -1,17 +1,31 @@
 {
     "Type":  "AUTOMATED",
     "Data":  {
-                 "Name":  "LCFarmTest",
-                 "DisplayName":  "Ankit LC Farm Test",
+                 "Name":  "LCFarmJson",
+                 "DisplayName":  "FarmJsonTest",
                  "AccessGroup":  "Root",
-                 "Description":  "created LC Farm from PS",
+                 "Description":  "created LC Farm from PS via JSON",
                  "Enabled":  null,
                  "Deleting":  false,
-                 "Settings":  null,
+                 "Settings":  {
+								"DisconnectedSessionTimeoutPolicy" : "NEVER",
+								"DisconnectedSessionTimeoutMinutes" : 1,
+								"EmptySessionTimeoutPolicy" : "AFTER",
+								"EmptySessionTimeoutMinutes" : 1,
+								"LogoffAfterTimeout" : false
+							  },
                  "Desktop":  null,
-                 "DisplayProtocolSettings":  null,
+                 "DisplayProtocolSettings":  {
+												"DefaultDisplayProtocol" : "PCOIP",
+												"AllowDisplayProtocolOverride" : false,
+												"EnableHTMLAccess" : false
+											 },
                  "ServerErrorThreshold":  null,
-                 "MirageConfigurationOverrides":  null
+                 "MirageConfigurationOverrides":  {
+													"OverrideGlobalSetting" : false,
+													"Enabled" : false,
+													"Url" : null
+												  }
              },
     "AutomatedFarmSpec":  {
                               "ProvisioningType":  "VIEW_COMPOSER",
@@ -19,7 +33,7 @@
                               "RdsServerNamingSpec":  {
                                                           "NamingMethod":  "PATTERN",
                                                           "PatternNamingSettings":  {
-                                                                                        "NamingPattern":  "LCFarmVM_PS",
+                                                                                        "NamingPattern":  "LCFarmVMPS",
                                                                                         "MaxNumberOfRDSServers":  1
                                                                                     }
                                                       },
@@ -28,17 +42,17 @@
                                                                         "StopProvisioningOnError":  true,
                                                                         "MinReadyVMsOnVComposerMaintenance":  0,
                                                                         "VirtualCenterProvisioningData":  {
-                                                                                                              "ParentVm":  "Win_Server_2012_R2",
-                                                                                                              "Snapshot":  "Snap_RDS",
+                                                                                                              "ParentVm":  "RDSServer",
+                                                                                                              "Snapshot":  "RDS_SNAP1",
                                                                                                               "Datacenter":  null,
-                                                                                                              "VmFolder":  "AnkitPoolVM",
-                                                                                                              "HostOrCluster":  "cls",
-                                                                                                              "ResourcePool":  "cls"
+                                                                                                              "VmFolder":  "Praveen",
+                                                                                                              "HostOrCluster":  "CS-1",
+                                                                                                              "ResourcePool":  "CS-1"
                                                                                                           },
                                                                         "VirtualCenterStorageSettings":  {
                                                                                                              "Datastores":  [
                                                                                                                                 {
-                                                                                                                                    "Datastore":  "datastore1 (5)",
+                                                                                                                                    "Datastore":  "Datastore1",
                                                                                                                                     "StorageOvercommit":  "UNBOUNDED"
                                                                                                                                 }
                                                                                                                             ],
@@ -67,7 +81,7 @@
                                                             "AdContainer":  "CN=Computers",
                                                             "ReusePreExistingAccounts":  false,
                                                             "SysprepCustomizationSettings":  {
-                                                                                                 "CustomizationSpec":  "RDSH_Cust2"
+                                                                                                 "CustomizationSpec":  "PraveenCust"
                                                                                              }
                                                         },
                               "RdsServerMaxSessionsData":  {
@@ -76,5 +90,5 @@
                                                            }
                           },
     "ManualFarmSpec":  null,
-    "NetBiosName" : "adankit"
+    "NetBiosName" : "adviewdev"
 }
