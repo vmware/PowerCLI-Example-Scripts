@@ -1,15 +1,52 @@
 {
     "Base":  {
-                 "Name" : "InsClnJSON",
-                 "DisplayName":  "insPoolPr",
-                 "AccessGroup":  "ROOT",
-                 "Description":  "create instant pool"
+                 "Name" : "LnkClnJSon",
+                 "DisplayName":  "praveen linkedclone pool",
+                 "AccessGroup":  "Root",
+                 "Description":  "created linkedclone pool from ps"
              },
-    "DesktopSettings":  null,
+    "DesktopSettings":  {
+							"enabled": true,
+							"deleting": false,
+							"connectionServerRestrictions": null,
+							"logoffSettings":  {
+													"powerPolicy": "TAKE_NO_POWER_ACTION",
+													"automaticLogoffPolicy": "NEVER",
+													"automaticLogoffMinutes": 120,
+													"allowUsersToResetMachines": false,
+													"allowMultipleSessionsPerUser": false,
+													"deleteOrRefreshMachineAfterLogoff": "NEVER",
+													"refreshOsDiskAfterLogoff": "NEVER",
+													"refreshPeriodDaysForReplicaOsDisk": 5,
+													"refreshThresholdPercentageForReplicaOsDisk": 10
+											   },
+							"displayProtocolSettings": {
+															"supportedDisplayProtocols": ["RDP","PCOIP", "BLAST" ],
+															"defaultDisplayProtocol": "PCOIP",
+															"allowUsersToChooseProtocol": true,
+															"pcoipDisplaySettings": {
+																						"renderer3D": "DISABLED",
+																						"enableGRIDvGPUs": false,
+																						"vRamSizeMB": 96,
+																						"maxNumberOfMonitors": 3,
+																						"maxResolutionOfAnyOneMonitor": "WSXGA_PLUS"
+																					},
+															"enableHTMLAccess": true
+													   },
+							"flashSettings": {
+												"quality": "NO_CONTROL",
+												"throttling": "DISABLED"
+											 },
+							"mirageConfigurationOverrides": {
+																"overrideGlobalSetting": false,
+																"enabled": false,
+																"url": null
+															}
+	                    },
     "Type":  "AUTOMATED",
     "AutomatedDesktopSpec":  {
-                                 "ProvisioningType":  "INSTANT_CLONE_ENGINE",
-                                 "VirtualCenter": null,
+                                 "ProvisioningType":  "VIEW_COMPOSER",
+                                 "VirtualCenter":  null,
                                  "UserAssignment":  {
                                                         "UserAssignment":  "FLOATING",
                                                         "AutomaticAssignment":  true
@@ -17,7 +54,7 @@
                                  "VmNamingSpec":  {
                                                       "NamingMethod":  "PATTERN",
                                                       "PatternNamingSettings":  {
-                                                                                    "NamingPattern":  "inspoolJson1",
+                                                                                    "NamingPattern":  "patternPra1",
                                                                                     "MaxNumberOfMachines":  1,
                                                                                     "NumberOfSpareMachines":  1,
                                                                                     "ProvisioningTime":  "UP_FRONT",
@@ -33,7 +70,7 @@
                                                                                                                  "Template":  null,
                                                                                                                  "ParentVm":  "Agent_pra",
                                                                                                                  "Snapshot":  "kb-hotfix",
-                                                                                                                 "Datacenter":  null,
+                                                                                                                 "Datacenter":  "Dev-Dc",
                                                                                                                  "VmFolder":  "Praveen",
                                                                                                                  "HostOrCluster":  "CS-1",
                                                                                                                  "ResourcePool":  "CS-1"
@@ -52,7 +89,8 @@
                                                                                                                                                     "UseNativeSnapshots":  false,
                                                                                                                                                     "SpaceReclamationSettings":  {
                                                                                                                                                                                      "ReclaimVmDiskSpace":  false,
-                                                                                                                                                                                     "ReclamationThresholdGB":  null
+                                                                                                                                                                                     "ReclamationThresholdGB":  null,
+																																													"BlackoutTimes" : null
                                                                                                                                                                                  },
                                                                                                                                                     "PersistentDiskSettings":  {
                                                                                                                                                                                    "RedirectWindowsProfile":  false,
@@ -75,31 +113,42 @@
                                                                                                                                                    }
                                                                                                             },
                                                                            "VirtualCenterNetworkingSettings":  {
-                                                                                                                   "Nics":  null
+                                                                                                                   "Nics":  [
+                                                                                                                                   {
+                                                                                                                                       "Nic":  "nicName",
+                                                                                                                                       "NetworkLabelAssignmentSpecs":  [
+									{
+										"Enabled" : false,
+										"networkLabel" : null,
+										"maxLabelType" : null,
+										"maxLabel" : null
+									}
+								]
+                                                                                                                                   }
+                                                                                                                               ]
                                                                                                                }
                                                                        },
                                  "VirtualCenterManagedCommonSettings":  {
                                                                             "TransparentPageSharingScope":  "VM"
                                                                         },
                                  "CustomizationSettings":  {
-                                                               "CustomizationType":  "CLONE_PREP",
-                                                               "DomainAdministrator":  null,
+                                                               "CustomizationType":  "SYS_PREP",
+                                                               "DomainAdministrator":  "administrator",
                                                                "AdContainer":  "CN=Computers",
                                                                "ReusePreExistingAccounts":  false,
                                                                "NoCustomizationSettings":  null,
-                                                               "SysprepCustomizationSettings":  null,
-                                                               "QuickprepCustomizationSettings":  null,
-                                                               "CloneprepCustomizationSettings":  {
-                                                                                                      "InstantCloneEngineDomainAdministrator":  null,
+                                                               "SysprepCustomizationSettings":  {"customizationSpec" : "praveencust"},
+                                                               "QuickprepCustomizationSettings":  {
                                                                                                       "PowerOffScriptName":  null,
                                                                                                       "PowerOffScriptParameters":  null,
                                                                                                       "PostSynchronizationScriptName":  null,
                                                                                                       "PostSynchronizationScriptParameters":  null
-                                                                                                  }
+                                                                                                  },
+                                                               "CloneprepCustomizationSettings":  null
                                                            }
                              },
     "ManualDesktopSpec":  null,
     "RdsDesktopSpec":  null,
-    "GlobalEntitlementData":  null,
+    "GlobalEntitlementData": null,
     "NetBiosName" : "adviewdev"
 }
