@@ -8982,4 +8982,393 @@ Function Remove-HVApplicationIcon {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon
+function Get-HVGlobalSettings {
+<#
+.Synopsis
+   Gets a list of Global Settings
+
+.DESCRIPTION
+   Queries and returns the Global Settings for the pod of the specified HVServer. 
+
+.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+.EXAMPLE
+   Get-HVGlobalSettings
+
+.OUTPUTS
+   Returns list of object type VMware.Hv.GlobalSettingsInfo
+
+.NOTES
+    Author                      : Matt Frey.
+    Author email                : mfrey@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.1
+    PowerCLI Version            : PowerCLI 6.5.1
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+  
+    $globalSettings = $services.GlobalSettings.GlobalSettings_Get()
+  
+  }
+
+  end {
+    
+    Return $globalSettings
+
+  }
+}
+
+function Set-HVGlobalSettings {
+<#
+.SYNOPSIS
+    Sets the Global Settings of the Connection Server Pod
+
+.DESCRIPTION
+    This cmdlet allows user to set Global Settings by passing key/value pair or by passing specific parameters. Optionally, user can pass a JSON spec file.
+
+.PARAMETER Key
+    Property names path separated by . (dot) from the root of global settings spec.
+
+.PARAMETER Value
+    Property value corresponds to above key name.
+
+.PARAMETER HvServer
+    View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER Spec
+    Path of the JSON specification file containing key/value pair.
+
+.PARAMETER clientMaxSessionTimePolicy
+    Client max session lifetime policy.
+    "TIMEOUT_AFTER" Indicates that the client session times out after a configurable session length (in minutes)
+    "NEVER" Indicates no absolute client session length (sessions only end due to inactivity)
+
+.PARAMETER clientMaxSessionTimeMinutes
+    Determines how long a user can keep a session open after logging in to View Connection Server. The value is set in minutes. When a session times out, the session is terminated and the View client is disconnected from the resource. 
+    Default value is 600.
+    Minimum value is 5.
+    Maximum value is 600.
+    This property is required if clientMaxSessionTimePolicy is set to "TIMEOUT_AFTER"
+
+.PARAMETER clientIdleSessionTimeoutPolicy
+    Specifies the policy for the maximum time that a that a user can be idle before the broker takes measure to protect the session.
+    "TIMEOUT_AFTER" Indicates that the user session can be idle for a configurable max time (in minutes) before the broker takes measure to protect the session.
+    "NEVER" Indicates that the client session is never locked.
+
+.PARAMETER clientIdleSessionTimeoutMinutes
+    Determines how long a that a user can be idle before the broker takes measure to protect the session. The value is set in minutes. 
+    Default value is 15
+    This property is required if -clientIdleSessionTimeoutPolicy is set to "TIMEOUT_AFTER"
+
+.PARAMETER clientSessionTimeoutMinutes
+    Determines the maximum length of time that a Broker session will be kept active if there is no traffic between a client and the Broker. The value is set in minutes. 
+    Default value is 1200
+    Minimum value is 5
+
+.PARAMETER desktopSSOTimeoutPolicy
+    The single sign on setting for when a user connects to View Connection Server.
+    "DISABLE_AFTER" SSO is disabled the specified number of minutes after a user connects to View Connection Server.
+    "DISABLED" Single sign on is always disabled.
+    "ALWAYS_ENABLED" Single sign on is always enabled.
+
+.PARAMETER desktopSSOTimeoutMinutes
+    SSO is disabled the specified number of minutes after a user connects to View Connection Server.
+    Minimum value is 1
+    Maximum value is 999
+
+.PARAMETER applicationSSOTimeoutPolicy
+    The single sign on timeout policy for application sessions.
+    "DISABLE_AFTER" SSO is disabled the specified number of minutes after a user connects to View Connection Server.
+    "DISABLED" Single sign on is always disabled.
+    "ALWAYS_ENABLED" Single sign on is always enabled.
+
+.PARAMETER applicationSSOTimeoutMinutes
+    SSO is disabled the specified number of minutes after a user connects to View Connection Server.
+    Minimum value is 1
+    Maximum value is 999
+
+.PARAMETER viewAPISessionTimeoutMinutes
+    Determines how long (in minutes) an idle View API session continues before the session times out. Setting the View API session timeout to a high number of minutes increases the risk of unauthorized use of View API. Use caution when you allow an idle session to persist a long time. 
+    Default value is 10
+    Minimum value is 1
+    Maximum value is 4320
+
+.PARAMETER preLoginMessage
+    Displays a disclaimer or another message to View Client users when they log in. No message will be displayed if this is null.
+
+.PARAMETER displayWarningBeforeForcedLogoff
+    Displays a warning message when users are forced to log off because a scheduled or immediate update such as a machine-refresh operation is about to start. 
+    $TRUE or $FALSE
+
+.PARAMETER forcedLogoffMinutes
+    The number of minutes to wait after the warning is displayed and before logging off the user. 
+    Default value is 5
+    Minimum value is 1
+    Maximum value is 999999
+    This property is required if displayWarningBeforeForcedLogoff is $true
+
+.PARAMETER forcedLogoffMessage
+    The warning to be displayed before logging off the user.
+
+.PARAMETER enableServerInSingleUserMode
+    Permits certain RDSServer operating systems to be used for non-RDS Desktops.
+
+.PARAMETER storeCALOnBroker
+    Used for configuring whether or not to store the RDS Per Device CAL on Broker. 
+    $TRUE or $FALSE
+
+.PARAMETER storeCALOnClient
+    Used for configuring whether or not to store the RDS Per Device CAL on client devices. This value can be true only if the storeCALOnBroker is true. 
+    $TRUE or $FALSE
+
+.PARAMETER reauthSecureTunnelAfterInterruption
+    Reauthenticate secure tunnel connections after network interruption Determines if user credentials must be reauthenticated after a network interruption when View clients use secure tunnel connections to View resources. When you select this setting, if a secure tunnel connection ends during a session, View Client requires the user to reauthenticate before reconnecting. This setting offers increased security. For example, if a laptop is stolen and moved to a different network, the user cannot automatically gain access to the remote resource because the network connection was temporarily interrupted. When this setting is not selected, the client reconnects to the resource without requiring the user to reauthenticate. This setting has no effect when you use direct connection. 
+
+.PARAMETER messageSecurityMode
+    Determines if signing and verification of the JMS messages passed between View Manager components takes place. 
+    "DISABLED" Message security mode is disabled.
+    "MIXED" Message security mode is enabled but not enforced. You can use this mode to detect components in your View environment that predate View Manager 3.0. The log files generated by View Connection Server contain references to these components.
+    "ENABLED" Message security mode is enabled. Unsigned messages are rejected by View components. Message security mode is enabled by default. Note: View components that predate View Manager 3.0 are not allowed to communicate with other View components.
+    "ENHANCED" Message Security mode is Enhanced. Message signing and validation is performed based on the current Security Level and desktop Message Security mode.
+
+.PARAMETER enableIPSecForSecurityServerPairing
+    Determines whether to use Internet Protocol Security (IPSec) for connections between security servers and View Connection Server instances. By default, secure connections (using IPSec) for security server connections is enabled. 
+    $TRUE or $FALSE
+
+.EXAMPLE
+    Set-HVGlobalSettings 'ManualPool' -Spec 'C:\Set-HVGlobalSettings\Set-GlobalSettings.json'
+
+.EXAMPLE
+    Set-HVGlobalSettings -Key 'generalData.clientMaxSessionTimePolicy' -Value 'NEVER'
+
+.EXAMPLE
+    Set-HVGlobalSettings -clientMaxSessionTimePolicy "TIMEOUT_AFTER" -clientMaxSessionTimeMinutes 1200
+
+.OUTPUTS
+    None
+
+.NOTES
+    Author                      : Matt Frey.
+    Author email                : mfrey@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.1
+    PowerCLI Version            : PowerCLI 6.5.1
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    [string]$Key,
+
+    [Parameter(Mandatory = $false)]
+    $Value,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Spec,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('TIMEOUT_AFTER','NEVER')]
+    [string]$clientMaxSessionTimePolicy,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(5,600)]
+    [Int]$clientMaxSessionTimeMinutes,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('TIMEOUT_AFTER','NEVER')]
+    [string]$clientIdleSessionTimeoutPolicy,
+
+    [Parameter(Mandatory = $false)]
+    [Int]$clientIdleSessionTimeoutMinutes,
+
+    [Parameter(Mandatory = $false)]
+    [Int]$clientSessionTimeoutMinutes,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('DISABLE_AFTER','DISABLED','ALWAYS_ENABLED')]
+    [string]$desktopSSOTimeoutPolicy,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,999)]
+    [Int]$desktopSSOTimeoutMinutes,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('DISABLE_AFTER','DISABLED','ALWAYS_ENABLED')]
+    [string]$applicationSSOTimeoutPolicy,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,999)]
+    [Int]$applicationSSOTimeoutMinutes,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,4320)]
+    [Int]$viewAPISessionTimeoutMinutes,
+
+    [Parameter(Mandatory = $false)]
+    [string]$preLoginMessage,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]$displayWarningBeforeForcedLogoff,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,999999)]
+    [Int]$forcedLogoffTimeoutMinutes,
+
+    [Parameter(Mandatory = $false)]
+    [string]$forcedLogoffMessage,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]$enableServerInSingleUserMode,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]$storeCALOnBroker,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]$storeCALOnClient,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]$reauthSecureTunnelAfterInterruption,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('DISABLED','MIXED','ENABLED','ENHANCED')]
+    [string]$messageSecurityMode,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]$enableIPSecForSecurityServerPairing,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+    
+    $updates = @()
+    if ($key -and $value) {
+      $updates += Get-MapEntry -key $key -value $value
+    } elseif ($key -or $value) {
+      Write-Error "Both key:[$key] and value:[$value] needs to be specified"
+    }
+    if ($spec) {
+      try {
+        $specObject = Get-JsonObject -specFile $spec
+      } catch {
+        Write-Error "Json file exception, $_"
+        return
+      }
+      foreach ($member in ($specObject.PSObject.Members | Where-Object { $_.MemberType -eq 'NoteProperty' })) {
+        $updates += Get-MapEntry -key $member.name -value $member.value
+      }
+    }
+    if ($clientMaxSessionTimePolicy) {
+        $updates += Get-MapEntry -key 'generalData.clientMaxSessionTimePolicy' -Value $clientMaxSessionTimePolicy
+    }
+    if ($clientMaxSessionTimeMinutes) {
+        $updates += Get-MapEntry -key 'generalData.clientMaxSessionTimeMinutes' -Value $clientMaxSessionTimeMinutes
+    }
+    if ($clientIdleSessionTimeoutPolicy) {
+        $updates += Get-MapEntry -key 'generalData.clientIdleSessionTimeoutPolicy' -Value $clientIdleSessionTimeoutPolicy
+    }
+    if ($clientIdleSessionTimeoutMinutes) {
+        $updates += Get-MapEntry -key 'generalData.clientIdleSessionTimeoutMinutes' -Value $clientIdleSessionTimeoutMinutes
+    }
+    if ($clientSessionTimeoutMinutes) {
+        $updates += Get-MapEntry -key 'generalData.clientSessionTimeoutMinutes' -Value $clientSessionTimeoutMinutes
+    }
+    if ($desktopSSOTimeoutPolicy) {
+        $updates += Get-MapEntry -key 'generalData.desktopSSOTimeoutPolicy' -Value $desktopSSOTimeoutPolicy
+    }
+    if ($desktopSSOTimeoutMinutes) {
+        $updates += Get-MapEntry -key 'generalData.desktopSSOTimeoutMinutes' -Value $desktopSSOTimeoutMinutes
+    }
+    if ($applicationSSOTimeoutPolicy) {
+        $updates += Get-MapEntry -key 'generalData.applicationSSOTimeoutPolicy' -Value $applicationSSOTimeoutPolicy
+    }
+    if ($applicationSSOTimeoutMinutes) {
+        $updates += Get-MapEntry -key 'generalData.applicationSSOTimeoutMinutes' -Value $applicationSSOTimeoutMinutes
+    }
+    if ($viewAPISessionTimeoutMinutes) {
+        $updates += Get-MapEntry -key 'generalData.viewAPISessionTimeoutMinutes' -Value $viewAPISessionTimeoutMinutes
+    }
+    if ($preLoginMessage) {
+        $updates += Get-MapEntry -key 'generalData.preLoginMessage' -Value $preLoginMessage
+    }
+    if ($displayWarningBeforeForcedLogoff) {
+        $updates += Get-MapEntry -key 'generalData.displayWarningBeforeForcedLogoff' -Value $displayWarningBeforeForcedLogoff
+    }
+    if ($forcedLogoffTimeoutMinutes) {
+        $updates += Get-MapEntry -key 'generalData.forcedLogoffTimeoutMinutes' -Value $forcedLogoffTimeoutMinutes
+    }
+    if ($forcedLogoffMessage) {
+        $updates += Get-MapEntry -key 'generalData.forcedLogoffMessage' -Value $forcedLogoffMessage
+    }
+    if ($enableServerInSingleUserMode) {
+        $updates += Get-MapEntry -key 'generalData.enableServerInSingleUserMode' -Value $enableServerInSingleUserMode
+    }
+    if ($storeCALOnBroker) {
+        $updates += Get-MapEntry -key 'generalData.storeCALOnBroker' -Value $storeCALOnBroker
+    }
+    if ($storeCALOnClient) {
+        $updates += Get-MapEntry -key 'generalData.storeCALOnClient' -Value $storeCALOnClient
+    }
+    if ($reauthSecureTunnelAfterInterruption) {
+        $updates += Get-MapEntry -key 'securityData.reauthSecureTunnelAfterInterruption' -Value $reauthSecureTunnelAfterInterruption
+    }
+    if ($messageSecurityMode) {
+        $updates += Get-MapEntry -key 'securityData.messageSecurityMode' -Value $messageSecurityMode
+    }
+    if ($enableIPSecForSecurityServerPairing) {
+        $updates += Get-MapEntry -key 'securityData.enableIPSecForSecurityServerPairing' -Value $enableIPSecForSecurityServerPairing
+    }
+    
+    $global_settings_helper = New-Object VMware.Hv.GlobalSettingsService
+
+    $global_settings_helper.GlobalSettings_Update($services,$updates)
+
+  }
+
+  end {
+    [System.gc]::collect()
+  }
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings
