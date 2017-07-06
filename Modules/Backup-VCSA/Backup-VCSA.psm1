@@ -72,7 +72,7 @@
             $BackupJob = $BackupAPI.create($CreateSpec)
         }
         catch {
-            Write-Error $Error[0].exception.Message
+            throw $_.Exception.Message
         }
             
 
@@ -84,6 +84,7 @@
                 start-sleep -seconds 5
             } until ($BackupAPI.get("$($BackupJob.ID)").progress -eq 100 -or $BackupAPI.get("$($BackupJob.ID)").state -ne "INPROGRESS")
 
+            Write-Progress -Activity "Backing up VCSA" -Completed
             $BackupAPI.get("$($BackupJob.ID)") | select id, progress, state
         } 
         Else {
