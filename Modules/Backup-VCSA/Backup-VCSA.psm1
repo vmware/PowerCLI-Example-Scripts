@@ -32,13 +32,13 @@
 		If a -LocationType is not chosen, the function will default to FTP.
         The destination location for a backup must be an empty folder (easiest to use the get-date cmdlet in the location)
         -ShowProgress will give you a progressbar as well as updates in the console
-        -SeatBackup will only backup the config whereas -Fullbackup grabs the historical data as well
+        -CommonBackup will only backup the config whereas -Fullbackup grabs the historical data as well
 #>
     param (
         [Parameter(ParameterSetName=’FullBackup’)]
         [switch]$FullBackup,
-        [Parameter(ParameterSetName=’SeatBackup’)]
-        [switch]$SeatBackup,
+        [Parameter(ParameterSetName=’CommonBackup’)]
+        [switch]$CommonBackup,
         [ValidateSet('FTPS', 'HTTP', 'SCP', 'HTTPS', 'FTP')]
         $LocationType = "FTP",
         $Location,
@@ -57,7 +57,7 @@
             $Connection = $global:DefaultCisServers
         }
         if ($FullBackup) {$parts = @("common","seat")}
-        if ($SeatBackup) {$parts = @("seat")}
+        if ($CommonBackup) {$parts = @("common")}
     }
     Process{
         $BackupAPI = Get-CisService com.vmware.appliance.recovery.backup.job
