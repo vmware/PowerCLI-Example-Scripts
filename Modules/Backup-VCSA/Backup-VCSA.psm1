@@ -50,6 +50,7 @@
     )
     Begin {
         if (!($global:DefaultCisServers)){ 
+            Add-Type -Assembly System.Windows.Forms
             [System.Windows.Forms.MessageBox]::Show("It appears you have not created a connection to the CisServer. You will now be prompted to enter your vCenter credentials to continue" , "Connect to CisServer") | out-null
             $Connection = Connect-CisServer $global:DefaultVIServer 
         } else {
