@@ -1,0 +1,22 @@
+{
+    "generalData.clientMaxSessionTimePolicy":  "TIMEOUT_AFTER",
+    "generalData.clientMaxSessionTimeMinutes":  600,
+    "generalData.clientIdleSessionTimeoutPolicy":  "NEVER",
+    "generalData.clientIdleSessionTimeoutMinutes":  null,
+    "generalData.clientSessionTimeoutMinutes":  1200,
+    "generalData.desktopSSOTimeoutPolicy":  "DISABLE_AFTER",
+    "generalData.desktopSSOTimeoutMinutes":  15,
+    "generalData.applicationSSOTimeoutPolicy":  "ALWAYS_ENABLED",
+    "generalData.applicationSSOTimeoutMinutes":  null,
+    "generalData.viewAPISessionTimeoutMinutes":  10,
+    "generalData.preLoginMessage":  null,
+    "generalData.displayWarningBeforeForcedLogoff":  true,
+    "generalData.forcedLogoffTimeoutMinutes":  5,
+    "generalData.forcedLogoffMessage":  "Your desktop is scheduled for an important update and will shut down in 5 minutes. Please save any unsaved work now",
+    "generalData.enableServerInSingleUserMode":  false,
+    "generalData.storeCALOnBroker":  false,
+    "generalData.storeCALOnClient":  false,
+    "securityData.reauthSecureTunnelAfterInterruption":  true,
+    "securityData.messageSecurityMode":  "ENHANCED",
+    "securityData.enableIPSecForSecurityServerPairing":  true
+}
