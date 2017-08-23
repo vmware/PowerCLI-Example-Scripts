@@ -83,6 +83,13 @@ New-VIProperty -Name EncryptionKeyId -ObjectType HardDisk -Value {
     }
 } -BasedOnExtensionProperty 'Backing.KeyId' -Force | Out-Null
 
+New-VIProperty -Name KMSserver -ObjectType VMHost -Value {
+    Param ($VMHost)
+    if ($VMHost.CryptoSafe) {
+        $VMHost.ExtensionData.Runtime.CryptoKeyId.ProviderId.Id
+    }
+} -BasedOnExtensionProperty 'Runtime.CryptoKeyId.ProviderId.Id' -Force | Out-Null
+
 Function Enable-VMHostCryptoSafe {
     <#
     .SYNOPSIS
