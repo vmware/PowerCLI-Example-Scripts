@@ -44,16 +44,6 @@ Function Get-CIVMData
         Write-Verbose "Storing CIVM Name: $($CIVM.Name)/ Status: $($CIVM.Status)"
         $NewObj.Name   = $CIVM.Name
         $NewObj.Status = $CIVM.Status
-        
-        # Do some logic here, if the VM name matches "tmpl" or "tpl", it's a template. Grab the vApp name and set "New Name"
-        If ($CIVM.Name -match "tmpl" -or $CIVM.Name -match "tpl")
-        {
-            $NewObj.NewName = $CIVM.VApp.Name
-        }
-        Else
-        {
-            $NewObj.NewName = $CIVM.Name
-        }
 
         Write-Verbose "Recording Reservations"
         $NewObj.Reservations        = @{}
