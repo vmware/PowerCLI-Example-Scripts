@@ -67,7 +67,7 @@ Function New-MyOrgVdc {
     Org where the new Org VDC should be created as string
 
 .PARAMETER Timeout
-    Timeout for teh Org VDC to get Ready
+    Timeout for the Org VDC to get Ready
 
     Default: 120s
 
@@ -103,7 +103,7 @@ Function New-MyOrgVdc {
         [Parameter(Mandatory=$True, ValueFromPipeline=$False, HelpMessage="Org where the new Org VDC should be created as string")]
         [ValidateNotNullorEmpty()]
             [String] $Org,
-        [Parameter(Mandatory=$False, ValueFromPipeline=$False,HelpMessage="Timeout for teh Org VDC to get Ready")]
+        [Parameter(Mandatory=$False, ValueFromPipeline=$False,HelpMessage="Timeout for the Org VDC to get Ready")]
         [ValidateNotNullorEmpty()]
             [int] $Timeout = 120
     )
@@ -145,7 +145,7 @@ Function New-MyOrgVdc {
         ## Wait for getting Ready
         Write-Verbose "Wait for getting Ready"
         $i = 0
-        while(($orgVdc = Get-OrgVdc -Name $Name).Status -eq "NotReady"){
+        while(($orgVdc = Get-OrgVdc -Name $Name -Verbose:$false).Status -eq "NotReady"){
             $i++
             Start-Sleep 2
             if($i -gt $Timeout) { Write-Error "Creating Org Failed."; break}
@@ -175,7 +175,7 @@ Function New-MyOrgVdc {
 
         ## Wait for getting Ready
         Write-Verbose "Wait for getting Ready"
-        while(($orgVdc = Get-OrgVdc -Name $name).Status -eq "NotReady"){
+        while(($orgVdc = Get-OrgVdc -Name $name -Verbose:$false).Status -eq "NotReady"){
             $i++
             Start-Sleep 1
             if($i -gt $Timeout) { Write-Error "Update Org Failed."; break}
@@ -201,7 +201,7 @@ Function New-MyOrgVdc {
 
          ## Wait for getting Ready
         Write-Verbose "Wait for getting Ready"
-        while(($orgVdc = Get-OrgVdc -Name $name).Status -eq "NotReady"){
+        while(($orgVdc = Get-OrgVdc -Name $name -Verbose:$false).Status -eq "NotReady"){
             $i++
             Start-Sleep 1
             if($i -gt $Timeout) { Write-Error "Update Org Failed."; break}
@@ -236,7 +236,7 @@ Function New-MyOrgVdc {
             $EnableOrgVdc = Set-OrgVdc -OrgVdc $Name -Enabled:$True
             $orgVdcView = Get-OrgVdc $Name | Get-CIView
             $extNetwork = $_.externalnetwork
-            $extNetwork = Get-ExternalNetwork | Get-CIView | Where-Object {$_.name -eq $ExternalNetwork}
+            $extNetwork = Get-ExternalNetwork | Get-CIView -Verbose:$false | Where-Object {$_.name -eq $ExternalNetwork}
             $orgNetwork = new-object vmware.vimautomation.cloud.views.orgvdcnetwork
             $orgNetwork.name = $ExternalNetwork
             $orgNetwork.Configuration = New-Object VMware.VimAutomation.Cloud.Views.NetworkConfiguration
