@@ -1,3 +1,10 @@
+<#
+Script name: ha-vcenter-deploy.ps1
+Created on: 30/06/2017
+Author: Sam McGeown, @sammcgeown
+Description: The purpose of the script is to deploy vCenter in High Availability mode, using the advanced method. See https://www.definit.co.uk/2017/06/powershell-deploying-vcenter-high-availability-in-advanced-mode/
+Dependencies: None known
+#>
 param(
 	[Parameter(Mandatory=$true)] [String]$configFile,
 	[switch]$deployActive,
