@@ -1,0 +1,6 @@
+#Check a host for any Fibre Channel devices that are not set to Round Robin.  Modify to check clusters if needed.
+Get-VMhost VMHOSTNAME | Get-VMHostHba -Type "FibreChannel" | Get-ScsiLun -LunType disk | Where { $_.MultipathPolicy -notlike "RoundRobin" } | Select CanonicalName,MultipathPolicy
+
+#Set the Multipathing Policy on a host to Round Robin for any Fibre Channel devices that are not Round Robin
+$scsilun = Get-VMhost VMHOSTNAME | Get-VMHostHba -Type "FibreChannel" | Get-ScsiLun -LunType disk | Where { $_.MultipathPolicy -notlike "RoundRobin" }
+Set-ScsiLun -ScsiLun $scsilun -MultipathPolicy RoundRobin
