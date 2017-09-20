@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Die Versionsnummer dieses Moduls
-ModuleVersion = '0.2.0'
+ModuleVersion = '1.0.0'
 
 # ID zur eindeutigen Kennzeichnung dieses Moduls
 GUID = '1ef8a2de-ca22-4c88-8cdb-e00f35007d2a'
@@ -21,7 +21,7 @@ GUID = '1ef8a2de-ca22-4c88-8cdb-e00f35007d2a'
 Author = 'Markus'
 
 # Unternehmen oder Hersteller dieses Moduls
-CompanyName = 'Unbekannt'
+CompanyName = 'mycloudrevolution.com'
 
 # Urheberrechtserklärung für dieses Modul
 Copyright = '(c) 2017 Markus. Alle Rechte vorbehalten.'
@@ -64,12 +64,13 @@ Copyright = '(c) 2017 Markus. Alle Rechte vorbehalten.'
 
 # Die Module, die als geschachtelte Module des in "RootModule/ModuleToProcess" angegebenen Moduls importiert werden sollen.
 NestedModules = @('functions\Invoke-MyOnBoarding.psm1', 
+               'functions\New-MyEdgeGateway.psm1',
                'functions\New-MyOrg.psm1', 
                'functions\New-MyOrgAdmin.psm1', 
                'functions\New-MyOrgVdc.psm1')
 
 # Aus diesem Modul zu exportierende Funktionen
-FunctionsToExport = 'Invoke-MyOnBoarding', 'New-MyOrg', 'New-MyOrgAdmin', 'New-MyOrgVdc'
+FunctionsToExport = 'Invoke-MyOnBoarding', 'New-MyEdgeGateway', 'New-MyOrg', 'New-MyOrgAdmin', 'New-MyOrgVdc'
 
 # Aus diesem Modul zu exportierende Cmdlets
 CmdletsToExport = '*'
