@@ -1,5 +1,5 @@
 #Script Module : VMware.Hv.Helper
-#Version       : 1.1
+#Version       : 1.2
 
 #Copyright © 2016 VMware, Inc. All Rights Reserved.
 
@@ -5776,7 +5776,8 @@ function Set-HVPool {
 .NOTES
     Author                      : Praveen Mathamsetty.
     Author email                : pmathamsetty@vmware.com
-    Version                     : 1.1
+    Version                     : 1.2
+    Updated                     : Mark Elvers <mark.elvers@tunbury.org>
 
     ===Tested Against Environment====
     Horizon View Server Version : 7.0.2, 7.1.0
@@ -5817,6 +5818,16 @@ function Set-HVPool {
 
     [Parameter(Mandatory = $false)]
     [string]$Spec,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $globalEntitlement,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]$allowUsersToChooseProtocol,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]$enableHTMLAccess,
 
     [Parameter(Mandatory = $false)]
     $HvServer = $null
@@ -5906,6 +5917,36 @@ function Set-HVPool {
       $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.enableProvisioning' `
         -value $false
     }
+
+    if ($PSBoundParameters.ContainsKey("allowUsersToChooseProtocol")) {
+    	$updates += Get-MapEntry -key 'desktopSettings.displayProtocolSettings.allowUsersToChooseProtocol' -value $allowUsersToChooseProtocol
+    }
+
+    if ($PSBoundParameters.ContainsKey("enableHTMLAccess")) {
+    	$updates += Get-MapEntry -key 'desktopSettings.displayProtocolSettings.enableHTMLAccess' -value $enableHTMLAccess
+    }
+
+    $info = $services.PodFederation.PodFederation_get()
+    if ($globalEntitlement -and ("ENABLED" -eq $info.localPodStatus.status)) {
+        $QueryFilterEquals = New-Object VMware.Hv.QueryFilterEquals
+        $QueryFilterEquals.memberName = 'base.displayName'
+        $QueryFilterEquals.value = $globalEntitlement
+        $defn = New-Object VMware.Hv.QueryDefinition
+        $defn.queryEntityType = 'GlobalEntitlementSummaryView'
+        $defn.Filter = $QueryFilterEquals
+        $query_service_helper = New-Object VMware.Hv.QueryServiceService
+        try {
+            $queryResults = $query_service_helper.QueryService_Query($services,$defn)
+            $globalEntitlementid = $queryResults.Results.id
+            if ($globalEntitlementid.length -eq 1) {
+      	    	$updates += Get-MapEntry -key 'globalEntitlementData.globalEntitlement' -value $globalEntitlementid
+            }
+        }
+        catch {
+            Write-Host "GlobalEntitlement " $_
+        }
+    }
+
     $desktop_helper = New-Object VMware.Hv.DesktopService
     foreach ($item in $poolList.Keys) {
       Write-Host "Updating the Pool: " $poolList.$item
@@ -8597,6 +8638,185 @@ function Get-HVGlobalEntitlement {
 }
 
 
+function Set-HVGlobalEntitlement {
+<#
+.SYNOPSIS
+    Sets the existing pool properties.
+
+.DESCRIPTION
+    This cmdlet allows user to edit global entitlements.
+
+.PARAMETER DisplayName
+   Display Name of Global Entitlement.
+
+.PARAMETER Description
+   Description of Global Entitlement.
+
+.PARAMETER EnableHTMLAccess
+   If set to true, the desktops that are associated with this GlobalEntitlement must also have HTML Access enabled.
+
+.PARAMETER Key
+    Property names path separated by . (dot) from the root of desktop spec.
+
+.PARAMETER Value
+    Property value corresponds to above key name.
+
+.PARAMETER HvServer
+    View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER Spec
+    Path of the JSON specification file containing key/value pair.
+
+.EXAMPLE
+    Set-HVGlobalEntitlement -DisplayName 'MyGlobalEntitlement' -Spec 'C:\Edit-HVPool\EditPool.json' -Confirm:$false
+    Updates pool configuration by using json file
+
+.EXAMPLE
+    Set-HVGlobalEntitlement -DisplayName 'MyGlobalEntitlement' -Key 'base.description' -Value 'update description'
+    Updates pool configuration with given parameters key and value
+
+.EXAMPLE
+    Set-HVGlobalEntitlement -DisplayName 'MyGlobalEntitlement' -enableHTMLAccess $true
+    Set Allow HTML Access on a global entitlement.  Note that it must also be enabled on the Pool and as of 7.3.0 Allow User to Choose Protocol must be enabled (which is unfortunately read-only)
+
+.EXAMPLE
+    Get-HVGlobalEntitlement | Set-HVGlobalEntitlement -Disable
+    Disable all global entitlements
+
+.OUTPUTS
+    None
+
+.NOTES
+    Author                      : Mark Elvers
+    Author email                : mark.elvers@tunbury.org
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.3.0, 7.3.1
+    PowerCLI Version            : PowerCLI 6.5.1
+    PowerShell Version          : 5.0
+#>
+
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+    [Parameter(Mandatory = $true,ParameterSetName = 'option')]
+    [string] $displayName,
+
+    [Parameter(ValueFromPipeline = $true,ParameterSetName = 'pipeline')]
+    $GlobalEntitlements,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Key,
+
+    [Parameter(Mandatory = $false)]
+    $Value,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Spec,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Enable,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Disable,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]$enableHTMLAccess,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+    $info = $services.PodFederation.PodFederation_get()
+    if ("ENABLED" -ne $info.localPodStatus.status) {
+      Write-Host "Multi-DataCenter-View/CPA is not enabled"
+      return
+    }
+
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
+    $geList = @{}
+    if ($displayName) {
+      try {
+        $ge = Get-HVGlobalEntitlement -displayName $displayName -suppressInfo $true -hvServer $hvServer
+      } catch {
+        Write-Error "Make sure Get-HVGlobalEntitlement advanced function is loaded, $_"
+        break
+      }
+      if ($ge) {
+   	   $geList.add($ge.id, $ge.base.DisplayName)
+      } else {
+        Write-Error "No globalentitlement found with name: [$displayName]"
+        break
+      }
+    } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $GlobalEntitlements) {
+      foreach ($item in $GlobalEntitlements) {
+        if ($item.GetType().name -eq 'GlobalEntitlementSummaryView') {
+          $geList.add($item.id, $item.Base.DisplayName)
+        } else {
+          Write-Error "In pipeline did not get object of expected type GlobalEntitlementSummaryView"
+          [System.gc]::collect()
+          return
+        }
+      }
+    }
+
+    $updates = @()
+    if ($key -and $value) {
+      $updates += Get-MapEntry -key $key -value $value
+    } elseif ($key -or $value) {
+      Write-Error "Both key:[$key] and value:[$value] needs to be specified"
+    }
+    if ($spec) {
+      try {
+        $specObject = Get-JsonObject -specFile $spec
+      } catch {
+        Write-Error "Json file exception, $_"
+        return
+      }
+      foreach ($member in ($specObject.PSObject.Members | Where-Object { $_.MemberType -eq 'NoteProperty' })) {
+        $updates += Get-MapEntry -key $member.name -value $member.value
+      }
+    }
+
+    if ($Enable) {
+      $updates += Get-MapEntry -key 'base.enabled' -value $true
+    }
+    elseif ($Disable) {
+      $updates += Get-MapEntry -key 'base.enabled' -value $false
+    }
+
+    if ($PSBoundParameters.ContainsKey("enableHTMLAccess")) {
+    	$updates += Get-MapEntry -key 'base.enableHTMLAccess' -value $enableHTMLAccess
+    }
+
+    $ge_helper = New-Object VMware.HV.GlobalEntitlementService
+    foreach ($item in $geList.Keys) {
+      Write-Host "Updating the Entitlement: " $geList.$item
+      if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($geList.$item)) {
+       $ge_helper.GlobalEntitlement_Update($services, $item, $updates)
+      }
+    }
+  }
+
+  end {
+    [System.gc]::collect()
+  }
+}
+
+
 function Remove-HVGlobalEntitlement {
 
  <#
@@ -9371,4 +9591,5 @@ function Set-HVGlobalSettings {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement
+
