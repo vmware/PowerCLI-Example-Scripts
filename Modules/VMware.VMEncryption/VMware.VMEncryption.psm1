@@ -83,6 +83,13 @@ New-VIProperty -Name EncryptionKeyId -ObjectType HardDisk -Value {
     }
 } -BasedOnExtensionProperty 'Backing.KeyId' -Force | Out-Null
 
+New-VIProperty -Name KMSserver -ObjectType VMHost -Value {
+    Param ($VMHost)
+    if ($VMHost.CryptoSafe) {
+        $VMHost.ExtensionData.Runtime.CryptoKeyId.ProviderId.Id
+    }
+} -BasedOnExtensionProperty 'Runtime.CryptoKeyId.ProviderId.Id' -Force | Out-Null
+
 Function Enable-VMHostCryptoSafe {
     <#
     .SYNOPSIS
@@ -1027,7 +1034,7 @@ Function Set-VMDiskEncryptionKey {
        C:\PS>$KMSCluster = Get-KMSCluster | select -last 1
        C:\PS>$VM = Get-VM -Name win2012
        C:\PS>$HardDisk = get-vm $vm|Get-HardDisk
-       C:\PS>$HardDisk|$Set-VMEncryptionKey -VM $VM -KMSClusterId $KMSCluster.Id -Deep
+       C:\PS>$HardDisk| Set-VMDiskEncryptionKey -VM $VM -KMSClusterId $KMSCluster.Id -Deep
 
        Deep rekeys all the disks of the $VM  using a new key.
        The key is generted from the KMS whose clusterId is $KMSCluster.Id.
