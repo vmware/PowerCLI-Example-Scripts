@@ -6794,25 +6794,35 @@ function Find-HVMachine {
       $andFilter.Filters = $filterset
       $query.Filter = $andFilter
     }
-    $queryResults = $query_service_helper.QueryService_Query($services,$query)
-    $machineList = $queryResults.results
+    $machineList = @()
+    $queryResults = $query_service_helper.QueryService_Create($services, $query)
+    do {
+      if ($machineList.length -ne 0) { $queryResults = $query_service_helper.QueryService_GetNext($services, $queryResults.id) }
+      $machineList += $queryResults.results
+    } while ($queryResults.remainingCount -gt 0)
+    $query_service_helper.QueryService_Delete($services, $queryResults.id)
   }
   if ($wildcard -or [string]::IsNullOrEmpty($machineList)) {
     $query.Filter = $null
-    $queryResults = $query_service_helper.QueryService_Query($services,$query)
-    $strFilterSet = @()
-    foreach ($setting in $machineSelectors.Keys) {
-      if ($null -ne $params[$setting]) {
-        if ($wildcard -and (($setting -eq 'MachineName') -or ($setting -eq 'DnsName')) ) {
-          $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -like "' + $params[$setting] + '")'
-        } else {
-          $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -eq "' + $params[$setting] + '")'
+    $machineList = @()
+    $queryResults = $query_service_helper.QueryService_Create($services,$query)
+    do {
+      if ($machineList.length -ne 0) { $queryResults = $query_service_helper.QueryService_GetNext($services, $queryResults.id) }
+      $strFilterSet = @()
+      foreach ($setting in $machineSelectors.Keys) {
+        if ($null -ne $params[$setting]) {
+          if ($wildcard -and (($setting -eq 'MachineName') -or ($setting -eq 'DnsName')) ) {
+            $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -like "' + $params[$setting] + '")'
+          } else {
+            $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -eq "' + $params[$setting] + '")'
+          }
         }
       }
-    }
-    $whereClause =  [string]::Join(' -and ', $strFilterSet)
-    $scriptBlock = [Scriptblock]::Create($whereClause)
-    $machineList = $queryResults.results | where $scriptBlock
+      $whereClause =  [string]::Join(' -and ', $strFilterSet)
+      $scriptBlock = [Scriptblock]::Create($whereClause)
+      $machineList += $queryResults.results | where $scriptBlock
+    } while ($queryResults.remainingCount -gt 0)
+    $query_service_helper.QueryService_Delete($services, $queryResults.id)
   }
   return $machineList
 }
