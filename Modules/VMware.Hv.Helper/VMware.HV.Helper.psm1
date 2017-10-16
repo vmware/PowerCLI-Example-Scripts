@@ -3568,10 +3568,6 @@ function New-HVPool {
     [string[]]
     $ConnectionServerRestrictions,
 
-	#desktopSpec.desktopSettings.deleting
-    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
-    [boolean]$Deleting = $false,
-
     #desktopSpec.desktopSettings.logoffSettings.powerPloicy
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('TAKE_NO_POWER_ACTION', 'ALWAYS_POWERED_ON', 'SUSPEND', 'POWER_OFF')]
@@ -3584,7 +3580,7 @@ function New-HVPool {
 
     #desktopSpec.desktopSettings.logoffSettings.automaticLogoffMinutes
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
-    [ValidateRange(1,120)]
+    [ValidateRange(1,[int]::MaxValue)]
     [int]$AutomaticLogoffMinutes = 120,
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToResetMachines
@@ -3597,7 +3593,7 @@ function New-HVPool {
 
     #desktopSpec.desktopSettings.logoffSettings.deleteOrRefreshMachineAfterLogoff
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
-    [ValidateSet('NEVER', 'DELETE', 'AFTER')]
+    [ValidateSet('NEVER', 'DELETE', 'REFRESH')]
     [string]$deleteOrRefreshMachineAfterLogoff = 'NEVER',
 
     #desktopSpec.desktopSettings.logoffSettings.refreshOsDiskAfterLogoff
@@ -3961,8 +3957,9 @@ function New-HVPool {
     [int]
     $NumUnassignedMachinesKeptPoweredOn = 1,
 
-    #desktopSpec.automatedDesktopSpec.customizationSettings.cloneprepCustomizationSettings.instantCloneEngineDomainAdministrator if INSTANT_CLONE
+    #desktopSpec.automatedDesktopSpec.customizationSettings.AdContainer
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     $AdContainer = 'CN=Computers',
 
     [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
