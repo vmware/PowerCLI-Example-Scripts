@@ -2646,8 +2646,7 @@ function New-HVFarm {
 
     $farmData = $farmSpecObj.data
     $AccessGroup_service_helper = New-Object VMware.Hv.AccessGroupService
-    $ag = $AccessGroup_service_helper.AccessGroup_List($services) | Where-Object { $_.base.name -eq $accessGroup }
-    $farmData.AccessGroup = $ag.id
+    $farmData.AccessGroup = Get-HVAccessGroupID $AccessGroup_service_helper.AccessGroup_List($services)
 
     $farmData.name = $farmName
     $farmData.DisplayName = $farmDisplayName
@@ -2851,21 +2850,17 @@ function Get-HVFarmProvisioningData {
   }
   if ($hostOrCluster) {
     $HostOrCluster_service_helper = New-Object VMware.Hv.HostOrClusterService
-    $hostClusterList = ($HostOrCluster_service_helper.HostOrCluster_GetHostOrClusterTree($services, $vmobject.datacenter)).treeContainer.children.info
-    $HostClusterObj = $hostClusterList | Where-Object { $_.name -eq $hostOrCluster }
-    if ($null -eq $HostClusterObj) {
-      throw "No host or cluster found with name: [$hostOrCluster]"
+    $vmObject.HostOrCluster = Get-HVHostOrClusterID $HostOrCluster_service_helper.HostOrCluster_GetHostOrClusterTree($services,$vmobject.datacenter)
+    if ($null -eq $vmObject.HostOrCluster) {
+      throw "No hostOrCluster found with Name: [$hostOrCluster]"
     }
-    $vmObject.HostOrCluster = $HostClusterObj.id
   }
   if ($resourcePool) {
     $ResourcePool_service_helper = New-Object VMware.Hv.ResourcePoolService
-    $resourcePoolList = $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services, $vmobject.HostOrCluster)
-    $resourcePoolObj = $resourcePoolList | Where-Object { $_.resourcepooldata.name -eq $resourcePool }
-    if ($null -eq $resourcePoolObj) {
-      throw "No resource pool found with name: [$resourcePool]"
+    $vmObject.ResourcePool = Get-HVResourcePoolID $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services,$vmobject.HostOrCluster)
+    if ($null -eq $vmObject.ResourcePool) {
+      throw "No Resource Pool found with Name: [$resourcePool]"
     }
-    $vmObject.ResourcePool = $resourcePoolObj.id
   }
   return $vmObject
 }
@@ -4620,8 +4615,7 @@ function New-HVPool {
     }
     if (!$desktopBase) {
       $accessGroup_client = New-Object VMware.Hv.AccessGroupService
-      $ag = $accessGroup_client.AccessGroup_List($services) | Where-Object { $_.base.name -eq $accessGroup }
-      $desktopSpecObj.base.AccessGroup = $ag.id
+      $desktopSpecObj.base.AccessGroup = Get-HVAccessGroupID $accessGroup_client.AccessGroup_List($services)
     } else {
       $desktopSpecObj.base = $desktopBase
     }
@@ -4811,23 +4805,144 @@ function Get-HVPoolProvisioningData {
   }
   if ($hostOrCluster) {
     $vmFolder_helper = New-Object VMware.Hv.HostOrClusterService
-    $hostClusterList = ($vmFolder_helper.HostOrCluster_GetHostOrClusterTree($services,$vmobject.datacenter)).treeContainer.children.info
-    $hostClusterObj = $hostClusterList | Where-Object { ($_.path -eq $hostOrCluster) -or ($_.name -eq $hostOrCluster) }
-    if ($null -eq $hostClusterObj) {
+    $vmObject.HostOrCluster = Get-HVHostOrClusterID $vmFolder_helper.HostOrCluster_GetHostOrClusterTree($services,$vmobject.datacenter)
+    if ($null -eq $vmObject.HostOrCluster) {
       throw "No hostOrCluster found with Name: [$hostOrCluster]"
     }
-    $vmObject.HostOrCluster = $hostClusterObj.id
   }
   if ($resourcePool) {
     $resourcePool_helper = New-Object VMware.Hv.ResourcePoolService
-    $resourcePoolList = $resourcePool_helper.ResourcePool_GetResourcePoolTree($services,$vmobject.HostOrCluster)
-    $resourcePoolObj = $resourcePoolList | Where-Object { ($_.resourcepooldata.path -eq $resourcePool) -or ($_.resourcepooldata.name -eq $resourcePool) }
-    if ($null -eq $resourcePoolObj) {
-      throw "No hostOrCluster found with Name: [$resourcePool]"
+    $vmObject.ResourcePool = Get-HVResourcePoolID $resourcePool_helper.ResourcePool_GetResourcePoolTree($services,$vmobject.HostOrCluster)
+    if ($null -eq $vmObject.ResourcePool) {
+      throw "No Resource Pool found with Name: [$resourcePool]"
     }
-    $vmObject.ResourcePool = $resourcePoolObj.id
   }
   return $vmObject
+}
+
+
+function Get-HVHostOrClusterID {
+<#
+.Synopsis
+    Recursive search for a Host or Cluster name within the results tree from HostOrCluster_GetHostOrClusterTree() and returns the ID
+
+.NOTES
+    HostOrCluster_GetHostOrClusterTree() returns a HostOrClusterTreeNode as below
+
+    HostOrClusterTreeNode.container                  $true if this is a container
+    HostOrClusterTreeNode.treecontainer              HostOrClusterTreeContainer
+    HostOrClusterTreeNode.treecontainer.name         Container name
+    HostOrClusterTreeNode.treecontainer.path         Path to this container
+    HostOrClusterTreeNode.treecontainer.type         DATACENTER, FOLDER or OTHER
+    HostOrClusterTreeNode.treecontainer.children     HostOrClusterTreeNode[] list of child nodes with potentially more child nodes
+    HostOrClusterTreeNode.info                       HostOrClusterInfo
+    HostOrClusterTreeNode.info.id                    Host or cluster ID
+    HostOrClusterTreeNode.info.cluster               Is this a cluster
+    HostOrClusterTreeNode.info.name                  Host or cluster name
+    HostOrClusterTreeNode.info.path                  Path to host or cluster name
+    HostOrClusterTreeNode.info.virtualCenter
+    HostOrClusterTreeNode.info.datacenter
+    HostOrClusterTreeNode.info.vGPUTypes
+    HostOrClusterTreeNode.info.incompatibileReasons
+
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+#>
+  param(
+    [Parameter(Mandatory = $true)]
+    [VMware.Hv.HostOrClusterTreeNode]$hoctn
+  )
+  if ($hoctn.container) {
+    foreach ($node in $hoctn.treeContainer.children) {
+      $id = Get-HVHostOrClusterID $node
+      if ($id -ne $null) {
+        return $id
+      }
+    }
+  } else {
+    if ($hoctn.info.path -eq $hostOrCluster -or $hoctn.info.name -eq $hostOrCluster) {
+      return $hoctn.info.id
+    }
+  }
+  return $null
+}
+
+function Get-HVResourcePoolID {
+<#
+.Synopsis
+    Recursive search for a Resource Pool within the results tree from ResourcePool_GetResourcePoolTree() and returns the ID
+
+.NOTES
+    ResourcePool_GetResourcePoolTree() returns ResourcePoolInfo as below
+
+    ResourcePoolInfo.id                              Resource pool ID
+    ResourcePoolInfo.resourcePoolData
+    ResourcePoolInfo.resourcePoolData.name           Resource pool name
+    ResourcePoolInfo.resourcePoolData.path           Resource pool path
+    ResourcePoolInfo.resourcePoolData.type           HOST_OR_CLUSTER, RESOURCE_POOL or OTHER
+    ResourcePoolInfo.children                        ResourcePoolInfo[] list of child nodes with potentially further child nodes
+
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+#>
+   param(
+    [Parameter(Mandatory = $true)]
+    [VMware.Hv.ResourcePoolInfo]$rpi
+  )
+  if ($rpi.resourcePoolData.path -eq $resourcePool -or $rpi.resourcePoolData.name -eq $resourcePool) {
+    return $rpi.id
+  }
+  foreach ($child in $rpi.children) {
+    $id = Get-HVResourcePoolID $child
+    if ($id -ne $null) {
+      return $id
+    }
+  }
+  return $null
+}
+
+function Get-HVAccessGroupID {
+<#
+.Synopsis
+    Recursive search for an Acess Group within the results tree from AccessGroup_List() and returns the ID
+
+.NOTES
+    AccessGroup_List() returns AccessGroupInfo[] (a list of structures)
+
+    Iterate through the list of structures
+    AccessGroupInfo.id                              Access Group ID
+    AccessGroupInfo.base                 
+    AccessGroupInfo.base.name                       Access Group name
+    AccessGroupInfo.base.description                Access Group description
+    AccessGroupInfo.base.parent                     Access Group parent ID
+    AccessGroupInfo.data
+    AccessGroupInfo.data.permissions                PermissionID[]
+    AccessGroupInfo.children                        AccessGroupInfo[] list of child nodes with potentially further child nodes
+
+    I couldn't create a child node of a child node via the Horizon View Administrator GUI, but the this code allows that if it occurs
+    Furthermore, unless you are using the Root access group you must iterate over the children
+
+    Root -\
+          +- Access Group 1
+          +- Access Group 2
+          \- Access Group 3
+
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+#>
+   param(
+    [Parameter(Mandatory = $true)]
+    [VMware.Hv.AccessGroupInfo[]]$agi
+  )
+  foreach ($element in $agi) {
+    if ($element.base.name -eq $accessGroup) {
+      return $element.id
+    }
+    foreach ($child in $element.children) {
+      $id = Get-HVAccessGroupID $child
+      if ($id -ne $null) {
+        return $id
+      }
+    }
+  }
+  return $null
 }
 
 function Get-HVPoolStorageObject {
@@ -9599,4 +9714,3 @@ function Set-HVGlobalSettings {
 }
 
 Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement
-
