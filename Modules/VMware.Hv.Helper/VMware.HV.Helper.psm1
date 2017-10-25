@@ -8492,13 +8492,28 @@ function New-HVGlobalEntitlement {
 function logoff-HVMachine {
 <#
 .SYNOPSIS
- Given a machine name, sends the command to log off the session
+ Log off the session on a virtual machine, possibly causing it to refresh
 .DESCRIPTION
- Roger P Seekell, 10-20-17
+ Given a machine name, sends the command to log off the session
+ Roger P Seekell, 10-20-17, 10-25-17
 .PARAMETER MachineName
  A string of the machine's name to reset; just like in get-HVMachine(Summary)
+.EXAMPLE
+ logoff-HVMachine -MachineName myVDesktop -Verbose
+ Logs off the virtual desktop by specific name
 .OUTPUTS
  None
+.NOTES
+    Author                      : Roger P Seekell
+    Author email                : rpseeke9633@gmail.com
+    Date                        : 10-20-17, 10-25
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.2.0
+    PowerCLI Version            : PowerCLI 6.5.1
+    PowerShell Version          : 5.0 
+
 #>
 [cmdletbinding(SupportsShouldProcess=$true, ConfirmImpact="medium")]
 Param(
@@ -8534,15 +8549,34 @@ else {
 function reset-HVMachine {
 <#
 .SYNOPSIS
- Given a machine name, sends the command to reset the desktop
+ Reset a virtual desktop, possibly causing it to refresh
 .DESCRIPTION
- Roger P Seekell, 10-20-17
+ Given a machine name or MachineID, sends the command to reset the desktop
+ Can take pipeline from Get-HVMachine/Summary
+ - The what-if/confirm for MachineID is pretty vague for now 
 .PARAMETER MachineName
  A string of the machine's name to reset; just like in get-HVMachine(Summary)
+.PARAMETER ID
+ The MachineID from Get-HVMachine to uniquely identify the desktop
+.EXAMPLE
+ reset-HVMachine -MachineName myVDesktop -Verbose
+ Reset a virtual machine directly by name
+.EXAMPLE
+ Get-HVMachine -MachineName myVDesktop -Verbose | reset-HVMachine -Verbose
+ Get a specific machine from HVMachine and reset it
 .OUTPUTS
  None
 .NOTES
- The what-if/confirm for MachineID is pretty vague for now
+    Author                      : Roger P Seekell
+    Author email                : rpseeke9633@gmail.com
+    Date                        : 10-20-17, 10-25
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.2.0
+    PowerCLI Version            : PowerCLI 6.5.1
+    PowerShell Version          : 5.0 
+
 #>
 [cmdletbinding(SupportsShouldProcess=$true, ConfirmImpact="medium")]
 Param(
