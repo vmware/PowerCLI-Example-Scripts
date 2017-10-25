@@ -8520,7 +8520,7 @@ Param(
     [string]$MachineName
 )
 #first check for hvservices (copied from Get-HVMachineSummary
-$hvservices = Get-ViewAPIService -hvServer $hvServer
+$hvservices = Get-ViewAPIService -HvServer $hvServer
   if ($null -eq $hvservices) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
@@ -8581,7 +8581,7 @@ function reset-HVMachine {
 [cmdletbinding(SupportsShouldProcess=$true, ConfirmImpact="medium")]
 Param(
     [string]$MachineName,
-    [parameter(ValueFromPipelineByPropertyName)][vmware.hv.machineId]$ID
+    [parameter(ValueFromPipelineByPropertyName)][VMware.Hv.MachineId]$ID
 )
 begin {
 #first check for hvservices (copied from Get-HVMachineSummary)
@@ -8617,6 +8617,81 @@ end {
 }#end function
 #----------------------
 
+
+function remove-HVMachine {
+<#
+.SYNOPSIS
+ Remove a virtual desktop from Horizon/View
+.DESCRIPTION
+ Given a machine name or MachineID, sends the command to remove the desktop and delete from disk
+ Can take pipeline from Get-HVMachine/Summary
+ - The what-if/confirm for MachineID is pretty vague for now 
+.PARAMETER MachineName
+ A string of the machine's name to remove; just like in get-HVMachine(Summary)
+.PARAMETER ID
+ The MachineID from Get-HVMachine to uniquely identify the desktop
+.EXAMPLE
+ remove-HVMachine -MachineName myVDesktop -Verbose
+ Remove/delete a virtual machine directly by name
+.EXAMPLE
+ Get-HVMachine -MachineName myVDesktop -Verbose | remove-HVMachine -Verbose
+ Get a specific machine from HVMachine and remove it
+.OUTPUTS
+ None
+.NOTES
+    Author                      : Roger P Seekell
+    Author email                : rpseeke9633@gmail.com
+    Date                        : 10-20-17, 10-25
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.2.0
+    PowerCLI Version            : PowerCLI 6.5.1
+    PowerShell Version          : 5.0 
+
+#>
+[cmdletbinding(SupportsShouldProcess=$true, ConfirmImpact="medium")]
+Param(
+    [string]$MachineName,
+    [parameter(ValueFromPipelineByPropertyName)][VMware.Hv.MachineId]$ID
+)
+begin {
+#first check for hvservices (copied from Get-HVMachineSummary)
+$hvservices = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $hvservices) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+  #also need some criteria/parameters for remove
+  $deleteSpec = New-Object VMware.Hv.machinedeletespec #required object parameter of delete
+  $deleteSpec.deleteFromDisk=$TRUE #completely delete
+
+}#end begin block
+process {
+if ($ID -ne $null) {
+    if ($PSCmdlet.ShouldProcess($ID)) { #user may confirm or use whatIf
+        $hvservices.machine.machine_delete($ID, $deleteSpec)
+    }
+    #else take no action
+}
+else {
+    $myDesktop = Get-HVMachineSummary -MachineName $MachineName
+    if ($null -ne $myDesktop) {
+        if ($PSCmdlet.ShouldProcess($myDesktop.base.name)) { #user may confirm or use whatIf
+            $hvservices.machine.machine_delete($myDesktop.id, $deleteSpec)
+        }
+        #else take no action
+    }
+    else {
+        Write-Error "Could not find specified desktop $MachineName to remove it"
+    }
+}#end else
+}#end process
+end {
+    Write-Debug "work complete"
+}
+}#end function
+#----------------------
 
 
 function Find-HVGlobalEntitlement {
@@ -9725,5 +9800,5 @@ function Set-HVGlobalSettings {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, logoff-HVMachine, reset-HVMachine
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, logoff-HVMachine, reset-HVMachine, remove-HVMachine
 
