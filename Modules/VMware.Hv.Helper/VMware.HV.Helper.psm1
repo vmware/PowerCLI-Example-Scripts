@@ -6910,19 +6910,22 @@ function Find-HVMachine {
       $query.Filter = $andFilter
     }
     $machineList = @()
+    $GetNext = $false
     $queryResults = $query_service_helper.QueryService_Create($services, $query)
     do {
-      if ($machineList.length -ne 0) { $queryResults = $query_service_helper.QueryService_GetNext($services, $queryResults.id) }
+      if ($GetNext) { $queryResults = $query_service_helper.QueryService_GetNext($services, $queryResults.id) }
       $machineList += $queryResults.results
+      $GetNext = $true
     } while ($queryResults.remainingCount -gt 0)
     $query_service_helper.QueryService_Delete($services, $queryResults.id)
   }
   if ($wildcard -or [string]::IsNullOrEmpty($machineList)) {
     $query.Filter = $null
     $machineList = @()
+    $GetNext = $false
     $queryResults = $query_service_helper.QueryService_Create($services,$query)
     do {
-      if ($machineList.length -ne 0) { $queryResults = $query_service_helper.QueryService_GetNext($services, $queryResults.id) }
+      if ($GetNext) { $queryResults = $query_service_helper.QueryService_GetNext($services, $queryResults.id) }
       $strFilterSet = @()
       foreach ($setting in $machineSelectors.Keys) {
         if ($null -ne $params[$setting]) {
@@ -6936,6 +6939,7 @@ function Find-HVMachine {
       $whereClause =  [string]::Join(' -and ', $strFilterSet)
       $scriptBlock = [Scriptblock]::Create($whereClause)
       $machineList += $queryResults.results | where $scriptBlock
+      $GetNext = $true
     } while ($queryResults.remainingCount -gt 0)
     $query_service_helper.QueryService_Delete($services, $queryResults.id)
   }
