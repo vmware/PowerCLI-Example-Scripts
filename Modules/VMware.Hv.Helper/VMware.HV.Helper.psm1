@@ -8550,7 +8550,7 @@ Param(
     [parameter(ValueFromPipelineByPropertyName)][vmware.hv.machineId]$ID
 )
 begin {
-#first check for hvservices (copied from Get-HVMachineSummary
+#first check for hvservices (copied from Get-HVMachineSummary)
 $hvservices = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $hvservices) {
     Write-Error "Could not retrieve ViewApi services from connection object"
@@ -8577,6 +8577,9 @@ else {
     }
 }#end else
 }#end process
+end {
+    Write-Debug "work complete"
+}
 }#end function
 #----------------------
 
