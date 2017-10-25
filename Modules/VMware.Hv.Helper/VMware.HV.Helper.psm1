@@ -8489,6 +8489,98 @@ function New-HVGlobalEntitlement {
 
 }
 
+function logoff-HVMachine {
+<#
+.SYNOPSIS
+ Given a machine name, sends the command to log off the session
+.DESCRIPTION
+ Roger P Seekell, 10-20-17
+.PARAMETER MachineName
+ A string of the machine's name to reset; just like in get-HVMachine(Summary)
+.OUTPUTS
+ None
+#>
+[cmdletbinding(SupportsShouldProcess=$true, ConfirmImpact="medium")]
+Param(
+    [string]$MachineName
+)
+#first check for hvservices (copied from Get-HVMachineSummary
+$hvservices = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $hvservices) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+#next get desktop object
+$myDesktop = Get-HVMachineSummary -MachineName $MachineName 
+if ($null -ne $myDesktop) { #confirm desktop object
+    #second, get session off desktop
+    $sessionID = $mydesktop.Base.Session
+    if ($null -ne $sessionID) { #confirm session ID
+        if ($PSCmdlet.ShouldProcess($myDesktop.base.name)) { #user may confirm or use whatIf
+            $hvservices.Session.Session_Logoff($sessionID) #send logoff command
+        }
+        #else take no action
+    }
+    else {
+        Write-Error "Could not get session ID from specified desktop $MachineName; maybe no one is logged on"
+    }
+}
+else {
+    Write-Error "Could not find specified desktop $MachineName to log off"
+}
+}#end function
+#----------------------
+
+function reset-HVMachine {
+<#
+.SYNOPSIS
+ Given a machine name, sends the command to reset the desktop
+.DESCRIPTION
+ Roger P Seekell, 10-20-17
+.PARAMETER MachineName
+ A string of the machine's name to reset; just like in get-HVMachine(Summary)
+.OUTPUTS
+ None
+.NOTES
+ The what-if/confirm for MachineID is pretty vague for now
+#>
+[cmdletbinding(SupportsShouldProcess=$true, ConfirmImpact="medium")]
+Param(
+    [string]$MachineName,
+    [parameter(ValueFromPipelineByPropertyName)][vmware.hv.machineId]$ID
+)
+begin {
+#first check for hvservices (copied from Get-HVMachineSummary
+$hvservices = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $hvservices) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+}#end begin block
+process {
+if ($ID -ne $null) {
+    if ($PSCmdlet.ShouldProcess($ID)) { #user may confirm or use whatIf
+        $hvservices.machine.Machine_Reset($ID)
+    }
+    #else take no action
+}
+else {
+    $myDesktop = Get-HVMachineSummary -MachineName $MachineName
+    if ($null -ne $myDesktop) {
+        if ($PSCmdlet.ShouldProcess($myDesktop.base.name)) { #user may confirm or use whatIf
+            $hvservices.machine.Machine_Reset($myDesktop.Id)
+        }
+        #else take no action
+    }
+    else {
+        Write-Error "Could not find specified desktop $MachineName to reset it"
+    }
+}#end else
+}#end process
+}#end function
+#----------------------
+
+
 
 function Find-HVGlobalEntitlement {
   [CmdletBinding()]
@@ -8643,7 +8735,6 @@ function Get-HVGlobalEntitlement {
     [System.gc]::collect()
   }
 }
-
 
 function Set-HVGlobalEntitlement {
 <#
@@ -8822,7 +8913,6 @@ function Set-HVGlobalEntitlement {
     [System.gc]::collect()
   }
 }
-
 
 function Remove-HVGlobalEntitlement {
 
@@ -9598,5 +9688,5 @@ function Set-HVGlobalSettings {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, logoff-HVMachine, reset-HVMachine
 
