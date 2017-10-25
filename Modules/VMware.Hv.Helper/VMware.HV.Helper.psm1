@@ -8625,6 +8625,7 @@ function remove-HVMachine {
 .DESCRIPTION
  Given a machine name or MachineID, sends the command to remove the desktop and delete from disk
  Can take pipeline from Get-HVMachine/Summary
+ Throws an error if the machine has a session on it
  - The what-if/confirm for MachineID is pretty vague for now 
 .PARAMETER MachineName
  A string of the machine's name to remove; just like in get-HVMachine(Summary)
@@ -8634,7 +8635,7 @@ function remove-HVMachine {
  remove-HVMachine -MachineName myVDesktop -Verbose
  Remove/delete a virtual machine directly by name
 .EXAMPLE
- Get-HVMachine -MachineName myVDesktop -Verbose | remove-HVMachine -Verbose
+ Get-HVMachine -MachineName myVDesktop | remove-HVMachine
  Get a specific machine from HVMachine and remove it
 .OUTPUTS
  None
@@ -8668,6 +8669,8 @@ $hvservices = Get-ViewAPIService -hvServer $hvServer
 
 }#end begin block
 process {
+try { #in case failed to delete...
+
 if ($ID -ne $null) {
     if ($PSCmdlet.ShouldProcess($ID)) { #user may confirm or use whatIf
         $hvservices.machine.machine_delete($ID, $deleteSpec)
@@ -8676,16 +8679,23 @@ if ($ID -ne $null) {
 }
 else {
     $myDesktop = Get-HVMachineSummary -MachineName $MachineName
-    if ($null -ne $myDesktop) {
-        if ($PSCmdlet.ShouldProcess($myDesktop.base.name)) { #user may confirm or use whatIf
-            $hvservices.machine.machine_delete($myDesktop.id, $deleteSpec)
-        }
-        #else take no action
-    }
-    else {
+    if ($null -eq $myDesktop) {
         Write-Error "Could not find specified desktop $MachineName to remove it"
     }
+    elseif ($myDesktop.base.session -ne $null) {
+        Write-Error "Cannot remove desktop $MachineName when a user has a session on it."
+    }
+    elseif ($PSCmdlet.ShouldProcess($myDesktop.base.name)) { #user may confirm or use whatIf
+        $hvservices.machine.machine_delete($myDesktop.id, $deleteSpec)
+    }
+    #else take no action
+    
 }#end else
+} 
+catch { #echo the error (not sure how else to handle it
+    #$_
+    Write-Error $_.tostring()
+}
 }#end process
 end {
     Write-Debug "work complete"
