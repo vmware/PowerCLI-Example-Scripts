@@ -379,28 +379,42 @@ process {
 function reset-HVSession {
 <#
 .SYNOPSIS
- Resets a given desktop session immediately (no gentle logoff process)
+ Resets a given desktop session
 .PARAMETER SessionID
  Session ID can be obtained from Get-HVSession > SessionID or Get-HVMachine > Base > Session
 .DESCRIPTION
- Given a sessionID, resets that session (not "gracefully")
+ Given a sessionID, resets that session to end it "ungracefully"
  Supports pipeline by property from get-HVSession
- Roger P Seekell, 10-24-17
+ Roger P Seekell, 10-24-17, 10-27
 .EXAMPLE
  get-HVSession -ResultSize 400 | where username -like "*rseeke1" | reset-HVSession -Confirm
  Looks through many sessions with this username, and asks before resetting each one
 .OUTPUTS
  None
 .NOTES
- The what-if/confirm isn't very informative yet
+ The what-if/confirm for ID isn't very informative yet
 #>
 [cmdletbinding(SupportsShouldProcess=$true, ConfirmImpact="medium")]
 Param(
-    [parameter(Mandatory,ValueFromPipelineByPropertyName)][VMware.Hv.SessionId]$SessionID
+    [parameter(ValueFromPipeline)][VMware.Hv.SessionLocalSummaryView]$sessionObj,
+    [parameter(ValueFromPipelineByPropertyName)][VMware.Hv.SessionId]$SessionID  
 )
-if ($PSCmdlet.ShouldProcess($SessionID)) {
-    $hvservices.Session.Session_Reset($SessionId)
-}
-#else take no action
+process {
+    if ($null -eq $sessionObj -and $null -eq $SessionID) {
+        Write-Error "Please provide sessionID or SessionLocalSummaryView to reset a session"
+    }
+    elseif ($null -ne $sessionObj) {
+        #easy to read summary
+        $sessionString = $sessionObj.NamesData.UserName + " on " + $sessionObj.NamesData.MachineOrRDSServerName
+        if ($PSCmdlet.ShouldProcess($sessionString)) {
+            $hvservices.Session.Session_Reset($sessionObj.Id)
+        }
+        #else take no action
+    }
+    elseif ($PSCmdlet.ShouldProcess($SessionID)) {
+        $hvservices.Session.Session_Reset($SessionId)
+    }
+    #else take no action
+}#end process
 }#end function
 #----------------------
