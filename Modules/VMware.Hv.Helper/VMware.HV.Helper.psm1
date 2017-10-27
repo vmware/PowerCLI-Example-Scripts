@@ -5965,8 +5965,8 @@ function Set-HVPool {
       }
       if ($desktopPools) {
         foreach ($desktopObj in $desktopPools) {
-          if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.DesktopSummaryData.Type)) {
-            Write-Error "Start/Stop operation is not supported for Poll with name : [$item.DesktopSummaryData.Name]"
+          if (($Start -or $Stop) -and ("AUTOMATED" -ne $desktopObj.DesktopSummaryData.Type)) {
+            Write-Error "Start/Stop operation is not supported for Pool with name : [$desktopObj.DesktopSummaryData.Name]"
             return
           }
           $poolList.add($desktopObj.id, $desktopObj.DesktopSummaryData.Name)
@@ -5999,9 +5999,9 @@ function Set-HVPool {
       }
     }
     $updates = @()
-    if ($key -and $value) {
+    if ($PSBoundParameters.ContainsKey("key") -and $PSBoundParameters.ContainsKey("value")) {
       $updates += Get-MapEntry -key $key -value $value
-    } elseif ($key -or $value) {
+    } elseif ($PSBoundParameters.ContainsKey("key") -or $PSBoundParameters.ContainsKey("value")) {
       Write-Error "Both key:[$key] and value:[$value] needs to be specified"
     }
     if ($spec) {
