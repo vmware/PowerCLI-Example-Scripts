@@ -5039,15 +5039,16 @@ function Get-HVDatastore {
   foreach ($ds in $datastoreNames) {
     $datastoresSelected += ($datastoreInfoList | Where-Object { ($_.DatastoreData.Path -eq $ds) -or ($_.datastoredata.name -eq $ds) }).id
   }
-  $Datastores = $null
-  if (! $DsStorageOvercommit) {
-      $DsStorageOvercommit += 'UNBOUNDED'
-  }
+  $Datastores = @()
   $StorageOvercommitCnt = 0
   foreach ($ds in $datastoresSelected) {
     $myDatastores = New-Object VMware.Hv.DesktopVirtualCenterDatastoreSettings
     $myDatastores.Datastore = $ds
-    $mydatastores.StorageOvercommit = $DsStorageOvercommit[$StorageOvercommitCnt]
+    if (! $DsStorageOvercommit) {
+      $mydatastores.StorageOvercommit = 'UNBOUNDED'
+    } else {
+      $mydatastores.StorageOvercommit = $DsStorageOvercommit[$StorageOvercommitCnt]
+    }
     $Datastores += $myDatastores
     $StorageOvercommitCnt++
   }
