@@ -5942,6 +5942,10 @@ function Set-HVPool {
     $globalEntitlement,
 
     [Parameter(Mandatory = $false)]
+    [string]
+    $ResourcePool,
+
+    [Parameter(Mandatory = $false)]
     [boolean]$allowUsersToChooseProtocol,
 
     [Parameter(Mandatory = $false)]
@@ -6042,6 +6046,15 @@ function Set-HVPool {
 
     if ($PSBoundParameters.ContainsKey("enableHTMLAccess")) {
     	$updates += Get-MapEntry -key 'desktopSettings.displayProtocolSettings.enableHTMLAccess' -value $enableHTMLAccess
+    }
+
+    if ($PSBoundParameters.ContainsKey("ResourcePool")) {
+      foreach ($item in $poolList.Keys) {
+          $pool = Get-HVPool -PoolName $poolList.$item
+          $ResourcePool_service_helper = New-Object VMware.Hv.ResourcePoolService
+          $ResourcePoolID = Get-HVResourcePoolID $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services, $pool.AutomatedDesktopData.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster)
+          $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.resourcePool' -value $ResourcePoolID
+      }
     }
 
     $info = $services.PodFederation.PodFederation_get()
