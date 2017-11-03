@@ -3239,6 +3239,10 @@ function New-HVPool {
     Datastore names to store the VM
     Applicable to Full, Linked, Instant Clone Pools.
 
+.PARAMETER StorageOvercommit
+    Storage overcommit determines how View places new VMs on the selected datastores. 
+    Supported values are 'UNBOUNDED','AGGRESSIVE','MODERATE','CONSERVATIVE','NONE' and are case sensitive.
+
 .PARAMETER UseVSAN
     Whether to use vSphere VSAN. This is applicable for vSphere 5.5 or later.
     Applicable to Full, Linked, Instant Clone Pools.
@@ -3269,6 +3273,7 @@ function New-HVPool {
 
 .PARAMETER PersistentDiskStorageOvercommit
     Storage overcommit determines how view places new VMs on the selected datastores. 
+    Supported values are 'UNBOUNDED','AGGRESSIVE','MODERATE','CONSERVATIVE','NONE' and are case sensitive.
 
 .PARAMETER DiskSizeMB
     Size of the persistent disk in MB.
@@ -4986,7 +4991,7 @@ function Get-HVPoolStorageObject {
         if ($persistentDiskStorageOvercommit -and  ($persistentDiskDatastores.Length -ne  $persistentDiskStorageOvercommit.Length) ) {
           throw "Parameters persistentDiskDatastores length: [$persistentDiskDatastores.Length] and persistentDiskStorageOvercommit length: [$persistentDiskStorageOvercommit.Length] should be of same size"
         }
-        $desktopPersistentDiskSettings.PersistentDiskDatastores = Get_Datastore -DatastoreInfoList $datastoreList -DatastoreNames $PersistentDiskDatastores -DsStorageOvercommit $persistentDiskStorageOvercommit
+        $desktopPersistentDiskSettings.PersistentDiskDatastores = Get-HVDatastore -DatastoreInfoList $datastoreList -DatastoreNames $PersistentDiskDatastores -DsStorageOvercommit $persistentDiskStorageOvercommit
       }
       $desktopNonPersistentDiskSettings.RedirectDisposableFiles = $redirectDisposableFiles
       $desktopNonPersistentDiskSettings.DiskSizeMB = $nonPersistentDiskSizeMB
