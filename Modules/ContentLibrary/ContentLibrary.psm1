@@ -556,7 +556,7 @@ Function Copy-ContentLibrary {
             if($DeleteSourceFile) {
                 try {
                     Write-Host -ForegroundColor Magenta "Deleteing" $sourceItemFile.Name "..."
-                    #$deleteResult = $contentLibaryItemService.delete($sourceItemFile.Id)
+                    $deleteResult = $contentLibaryItemService.delete($sourceItemFile.Id)
                 } catch {
                     Write-Host -ForegroundColor Red "Failed to delete" $sourceItemFile.Name
                     $Error[0]
@@ -570,7 +570,7 @@ Function Copy-ContentLibrary {
             if($DeleteSourceFile) {
                 try {
                     Write-Host -ForegroundColor Magenta "Deleteing" $sourceItemFile.Name "..."
-                    #$deleteResult = $contentLibaryItemService.delete($sourceItemFile.Id)
+                    $deleteResult = $contentLibaryItemService.delete($sourceItemFile.Id)
                 } catch {
                     Write-Host -ForegroundColor Red "Failed to delete" $sourceItemFile.Name
                     break
