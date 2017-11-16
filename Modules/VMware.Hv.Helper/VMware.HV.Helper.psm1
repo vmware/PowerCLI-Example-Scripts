@@ -3239,6 +3239,10 @@ function New-HVPool {
     Datastore names to store the VM
     Applicable to Full, Linked, Instant Clone Pools.
 
+.PARAMETER StorageOvercommit
+    Storage overcommit determines how View places new VMs on the selected datastores. 
+    Supported values are 'UNBOUNDED','AGGRESSIVE','MODERATE','CONSERVATIVE','NONE' and are case sensitive.
+
 .PARAMETER UseVSAN
     Whether to use vSphere VSAN. This is applicable for vSphere 5.5 or later.
     Applicable to Full, Linked, Instant Clone Pools.
@@ -3269,6 +3273,7 @@ function New-HVPool {
 
 .PARAMETER PersistentDiskStorageOvercommit
     Storage overcommit determines how view places new VMs on the selected datastores. 
+    Supported values are 'UNBOUNDED','AGGRESSIVE','MODERATE','CONSERVATIVE','NONE' and are case sensitive.
 
 .PARAMETER DiskSizeMB
     Size of the persistent disk in MB.
@@ -4735,6 +4740,92 @@ function New-HVPool {
   }
 }
 
+function Get-HVResourceStructure {
+<#
+.Synopsis
+    Output the structure of the resource pools available to a HV.  Primarily this is for debugging
+
+    PS> Get-HVResourceStructure
+    vCenter vc.domain.local
+    Container DC path /DC/host
+    HostOrCluster Servers path /DC/host/Servers
+    HostOrCluster VDI path /DC/host/VDI
+    ResourcePool Servers path /DC/host/Servers/Resources
+    ResourcePool VDI path /DC/host/VDI/Resources
+    ResourcePool RP1 path /DC/host/VDI/Resources/RP1
+    ResourcePool RP2 path /DC/host/VDI/Resources/RP1/RP2
+
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+#>
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -hvServer $HvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+  process {
+    $vc_service_helper = New-Object VMware.Hv.VirtualCenterService
+    $vcList = $vc_service_helper.VirtualCenter_List($services)
+    foreach ($vc in $vcList) {
+      Write-Host vCenter $vc.ServerSpec.ServerName
+      $datacenterList = @{}
+      $BaseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
+      $parentList = $BaseImage_service_helper.BaseImageVm_List($services, $vc.id)
+      foreach ($possibleParent in $parentList) {
+	if (-not $datacenterList.ContainsKey($possibleParent.datacenter.id)) {
+	  $datacenterList.Add($possibleParent.datacenter.id, $possibleParent.datacenter)
+        }
+	if (0) {
+          Write-Host "$($possibleParent.name): " -NoNewLine
+          if ($possibleParent.incompatibleReasons.inUseByDesktop) { Write-Host "inUseByDesktop, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.viewComposerReplica) { Write-Host "viewComposerReplica, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.inUseByLinkedCloneDesktop) { Write-Host "inUseByLinkedCloneDesktop, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.unsupportedOSForLinkedCloneFarm) { Write-Host "unsupportedOSForLinkedCloneFarm, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.unsupportedOS) { Write-Host "unsupportedOS, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.noSnapshots) { Write-Host "noSnapshots, " -NoNewLine }
+          Write-Host
+        }
+      }
+      $hcNodes = @()
+      $index = 0
+      foreach ($datacenter in $datacenterList.keys) {
+        $HostOrCluster_service_helper = New-Object VMware.Hv.HostOrClusterService
+	$hcNodes += $HostOrCluster_service_helper.HostOrCluster_GetHostOrClusterTree($services, $datacenterList.$datacenter)
+        while ($index -lt $hcNodes.length) {
+	  if ($hcNodes[$index].container) {
+	    Write-Host "Container" $hcNodes[$index].treecontainer.name "path" $hcNodes[$index].treecontainer.path
+	    if ($hcNodes[$index].treecontainer.children.Length) { $hcNodes += $hcNodes[$index].treecontainer.children }
+	  } else {
+	    Write-Host "HostOrCluster" $hcNodes[$index].info.name "path" $hcNodes[$index].info.path 
+          }
+	  $index++
+	}
+      }
+      $rpNodes = @()
+      $index = 0
+      foreach ($hostOrCluster in $hcNodes) {
+	if (-not $hostOrCluster.container) {
+          $ResourcePool_service_helper = New-Object VMware.Hv.ResourcePoolService
+          $rpNodes += $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services, $hostOrCluster.info.id)
+          while ($index -lt $rpNodes.length) {
+	    Write-Host "ResourcePool" $rpNodes[$index].resourcePoolData.name "path" $rpNodes[$index].resourcePoolData.path
+	    if ($rpNodes[$index].children.Length) { $rpNodes += $rpNodes[$index].children }
+	    $index++
+	  }
+	}
+      }
+    }
+  }
+  end {
+    [System.gc]::collect()
+  }
+}
+
 function Get-HVPoolProvisioningData {
   param(
     [Parameter(Mandatory = $false)]
@@ -4986,7 +5077,7 @@ function Get-HVPoolStorageObject {
         if ($persistentDiskStorageOvercommit -and  ($persistentDiskDatastores.Length -ne  $persistentDiskStorageOvercommit.Length) ) {
           throw "Parameters persistentDiskDatastores length: [$persistentDiskDatastores.Length] and persistentDiskStorageOvercommit length: [$persistentDiskStorageOvercommit.Length] should be of same size"
         }
-        $desktopPersistentDiskSettings.PersistentDiskDatastores = Get_Datastore -DatastoreInfoList $datastoreList -DatastoreNames $PersistentDiskDatastores -DsStorageOvercommit $persistentDiskStorageOvercommit
+        $desktopPersistentDiskSettings.PersistentDiskDatastores = Get-HVDatastore -DatastoreInfoList $datastoreList -DatastoreNames $PersistentDiskDatastores -DsStorageOvercommit $persistentDiskStorageOvercommit
       }
       $desktopNonPersistentDiskSettings.RedirectDisposableFiles = $redirectDisposableFiles
       $desktopNonPersistentDiskSettings.DiskSizeMB = $nonPersistentDiskSizeMB
@@ -5039,15 +5130,16 @@ function Get-HVDatastore {
   foreach ($ds in $datastoreNames) {
     $datastoresSelected += ($datastoreInfoList | Where-Object { ($_.DatastoreData.Path -eq $ds) -or ($_.datastoredata.name -eq $ds) }).id
   }
-  $Datastores = $null
-  if (! $DsStorageOvercommit) {
-      $DsStorageOvercommit += 'UNBOUNDED'
-  }
+  $Datastores = @()
   $StorageOvercommitCnt = 0
   foreach ($ds in $datastoresSelected) {
     $myDatastores = New-Object VMware.Hv.DesktopVirtualCenterDatastoreSettings
     $myDatastores.Datastore = $ds
-    $mydatastores.StorageOvercommit = $DsStorageOvercommit[$StorageOvercommitCnt]
+    if (! $DsStorageOvercommit) {
+      $mydatastores.StorageOvercommit = 'UNBOUNDED'
+    } else {
+      $mydatastores.StorageOvercommit = $DsStorageOvercommit[$StorageOvercommitCnt]
+    }
     $Datastores += $myDatastores
     $StorageOvercommitCnt++
   }
@@ -5936,6 +6028,10 @@ function Set-HVPool {
     $globalEntitlement,
 
     [Parameter(Mandatory = $false)]
+    [string]
+    $ResourcePool,
+
+    [Parameter(Mandatory = $false)]
     [boolean]$allowUsersToChooseProtocol,
 
     [Parameter(Mandatory = $false)]
@@ -6036,6 +6132,15 @@ function Set-HVPool {
 
     if ($PSBoundParameters.ContainsKey("enableHTMLAccess")) {
     	$updates += Get-MapEntry -key 'desktopSettings.displayProtocolSettings.enableHTMLAccess' -value $enableHTMLAccess
+    }
+
+    if ($PSBoundParameters.ContainsKey("ResourcePool")) {
+      foreach ($item in $poolList.Keys) {
+          $pool = Get-HVPool -PoolName $poolList.$item
+          $ResourcePool_service_helper = New-Object VMware.Hv.ResourcePoolService
+          $ResourcePoolID = Get-HVResourcePoolID $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services, $pool.AutomatedDesktopData.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster)
+          $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.resourcePool' -value $ResourcePoolID
+      }
     }
 
     $info = $services.PodFederation.PodFederation_get()
@@ -9717,4 +9822,4 @@ function Set-HVGlobalSettings {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure
