@@ -1,0 +1,94 @@
+Function Get-vGPUlist{
+
+    Param (
+         $Cluster,
+         $VMhost
+         
+    )
+
+    If ($cluster){
+        $VMs = get-cluster -name $cluster | get-vm 
+        }
+
+    If($vmhost){
+        $VMs = get-vmhost -name $vmhost | get-vm
+        }
+
+  
+    
+    $output=@()
+    foreach ($VM in $VMs){
+
+    $object = New-Object PSObject 
+    Add-Member -InputObject $object NoteProperty Name $VM.Name
+
+    $vGPUDevice = $VM.ExtensionData.Config.hardware.Device  | where {$_.Backing.Vgpu}
+    Add-Member -InputObject $object NoteProperty vGPUprofile $vGPUDevice.Backing.Vgpu
+
+    $output+= $object
+    }
+    
+    $output | sort-object vGPUprofile
+
+    }
+  
+
+
+
+  function Count-vgpuprofile {
+  Param (
+        $VMhost,
+        $Cluster,
+        $Count
+  )
+
+  If($VMhost){
+
+   Switch ($count){
+
+   "grid_k120q" { $grid = (Get-vGPUlist -VMhost $VMhost | where {$_.vgpuprofile -eq "grid_k120q"}).count}
+   "grid_k140q" { $grid = (Get-vGPUlist -VMhost $VMhost | where {$_.vgpuprofile -eq "grid_k140q"}).count}
+   "grid_k160q" { $grid = (Get-vGPUlist -VMhost $VMhost | where {$_.vgpuprofile -eq "grid_k160q"}).count}
+   "grid_k180q" { $grid = (Get-vGPUlist -VMhost $VMhost | where {$_.vgpuprofile -eq "grid_k180q"}).count}
+
+  
+    }
+      Write-host "there are $grid profiles of $count in use"
+
+  }
+
+  If($Cluster){
+
+     Switch ($count){
+
+   "grid_k120q" { $grid = (Get-vGPUlist -Cluster gpu | where {$_.vgpuprofile -eq "grid_k120q"}).count}
+   "grid_k140q" { $grid = (Get-vGPUlist -Cluster gpu | where {$_.vgpuprofile -eq "grid_k140q"}).count}
+   "grid_k160q" { $grid = (Get-vGPUlist -Cluster gpu | where {$_.vgpuprofile -eq "grid_k160q"}).count}
+   "grid_k180q" { $grid = (Get-vGPUlist -Cluster gpu | where {$_.vgpuprofile -eq "grid_k180q"}).count}
+
+  
+    }
+      Write-host "there are $grid profiles of $count in use"
+
+      }
+  }
+
+
+
+
+  Function Get-GPUbusID {
+
+
+Param (
+
+$vmhost
+
+)
+
+ $mvhost = get-vmhost -name $vmhost
+
+ $esxcli = get-esxcli -vmhost $vmhost
+
+ $esxcli.graphics.vm.list() | select Name, DeviceAddress
+
+ }
