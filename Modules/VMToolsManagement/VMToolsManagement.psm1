@@ -1,4 +1,4 @@
-﻿# Script Module : VMToolsManagement
+# Script Module : VMToolsManagement
 # Version       : 1.0
 
 # Copyright © 2017 VMware, Inc. All Rights Reserved.
@@ -37,10 +37,10 @@ New-VIProperty -Name ToolsBuildNumber -Object VirtualMachine -Value {
 Function Get-VMToolsInfo {
 <#
 .SYNOPSIS
-    This cmdlet retrieves the VMTools info of specified virtual machines.
+    This advanced function retrieves the VMTools info of specified virtual machines.
 
 .DESCRIPTION
-    This cmdlet retrieves the VMTools version and build number info of specified virtual machines.
+    This advanced function retrieves the VMTools version and build number info of specified virtual machines.
 
 .PARAMETER VM
     Specifies the virtual machines which you want to get the VMTools info of.
@@ -50,7 +50,7 @@ Function Get-VMToolsInfo {
     C:\PS> $VCServer = Connect-VIServer -Server <vCenter Server IP> -User <vCenter User> -Password <vCenter Password>
     C:\PS> Get-VM -Server $VCServer | Get-VMToolsInfo
 
-    Retrieves VMTools info of all virtual machines which run in the $VCServer vCetner Server.
+    Retrieves VMTools info of all virtual machines which run in the $VCServer vCenter Server.
 
 .EXAMPLE
     C:\PS> Get-VM "*rhel*" | Get-VMToolsInfo
@@ -74,7 +74,7 @@ Function Get-VMToolsInfo {
     Retrieves VMTools info of virtual machines which run on the "MyESXiHostName" ESXi host.
 
 .NOTES
-    This cmdlet assumes that you are connected to at least one vCenter Server system.
+    This advanced function assumes that you are connected to at least one vCenter Server system.
     The tools build number is not supported in VMTools before 10.2.0
 
 .NOTES
@@ -100,17 +100,17 @@ Function Get-VMToolsInfo {
     )
 
     Process {
-        Get-VM $VM | Select Name, @{Name="ToolsVersion"; Expression={$_.Guest.ToolsVersion}}, ToolsBuildNumber
+        Get-VM $VM | Select-Object Name, @{Name="ToolsVersion"; Expression={$_.Guest.ToolsVersion}}, ToolsBuildNumber
     }
 }
 
 Function Get-VMToolsInstallLastError {
 <#
 .SYNOPSIS
-    This cmdlet retrieves the error code of last VMTools installation.
+    This advanced function retrieves the error code of last VMTools installation.
 
 .DESCRIPTION
-    This cmdlet retrieves the error code of last VMTools installation on specified virtual machines.
+    This advanced function retrieves the error code of last VMTools installation on specified virtual machines.
 
 .PARAMETER VM
     Specifies the virtual machines which you want to get the error code of.
@@ -120,7 +120,7 @@ Function Get-VMToolsInstallLastError {
     C:\PS> $VCServer = Connect-VIServer -Server <vCenter Server IP> -User <vCenter User> -Password <vCenter Password>
     C:\PS> Get-VM -Server $VCServer | Get-VMToolsInstallLastError
 
-    Retrieves the last VMTools installation error code of all virtual machines which run in the $VCServer vCetner Server.
+    Retrieves the last VMTools installation error code of all virtual machines which run in the $VCServer vCenter Server.
 
 .EXAMPLE
     C:\PS> Get-VM "*win*" | Get-VMToolsInstallLastError
@@ -144,7 +144,7 @@ Function Get-VMToolsInstallLastError {
     Retrieves the last VMTools installation error code of virtual machines which run on the "MyESXiHostName" ESXi host.
 
 .NOTES
-    This cmdlet assumes that you are connected to at least one vCenter Server system.
+    This advanced function assumes that you are connected to at least one vCenter Server system.
 
 .NOTES
     Author                                    : Daoyuan Wang
@@ -171,7 +171,7 @@ Function Get-VMToolsInstallLastError {
     Process {
         $result = @()
         foreach ($_ in $VM) {
-            $errorCodeInfo = $_.ExtensionData.Config.ExtraConfig.GetEnumerator() | where {$_.Key -eq "guestinfo.toolsInstallErrCode"}
+            $errorCodeInfo = $_.ExtensionData.Config.ExtraConfig.GetEnumerator() | Where-Object {$_.Key -eq "guestinfo.toolsInstallErrCode"}
 
             $info = New-Object PSObject
             $info | Add-Member -type NoteProperty -name VmName -value $_.Name
@@ -186,10 +186,10 @@ Function Get-VMToolsInstallLastError {
 Function Get-VMToolsGuestInfo {
 <#
 .SYNOPSIS
-    This cmdlet retrieves the guest info of specified virtual machines.
+    This advanced function retrieves the guest info of specified virtual machines.
 
 .DESCRIPTION
-    This cmdlet retrieves the guest info such as HostName, IP, ToolsStatus, ToolsVersion,
+    This advanced function retrieves the guest info such as HostName, IP, ToolsStatus, ToolsVersion,
     ToolsInstallType and GuestFamily of specified virtual machines.
 
 .PARAMETER VM
@@ -200,7 +200,7 @@ Function Get-VMToolsGuestInfo {
     C:\PS> $VCServer = Connect-VIServer -Server <vCenter Server IP> -User <vCenter User> -Password <vCenter Password>
     C:\PS> Get-VM -Server $VCServer | Get-VMToolsGuestInfo
 
-    Retrieves guest info of all virtual machines which run in the $VCServer vCetner Server.
+    Retrieves guest info of all virtual machines which run in the $VCServer vCenter Server.
 
 .EXAMPLE
     C:\PS> Get-VM "*win*" | Get-VMToolsGuestInfo
@@ -236,7 +236,7 @@ Function Get-VMToolsGuestInfo {
     Retrieves guest info of virtual machines which run on the "MyESXiHostName" ESXi host.
 
 .NOTES
-    This cmdlet assumes that you are connected to at least one vCenter Server system.
+    This advanced function assumes that you are connected to at least one vCenter Server system.
 
 .NOTES
     Author                                    : Daoyuan Wang
@@ -261,7 +261,7 @@ Function Get-VMToolsGuestInfo {
     )
 
     Process {
-        Get-VM $VM | Select Name, @{Name="HostName"; Expression={$_.Guest.HostName}},
+        Get-VM $VM | Select-Object Name, @{Name="HostName"; Expression={$_.Guest.HostName}},
                             @{Name="IP"; Expression={$_.Guest.ExtensionData.IpAddress}},
                             @{Name="ToolsStatus"; Expression={$_.Guest.ExtensionData.ToolsStatus}},
                             @{Name="ToolsVersion"; Expression={$_.Guest.ToolsVersion}},
@@ -274,10 +274,10 @@ Function Get-VMToolsGuestInfo {
 Function Get-VMByToolsInfo {
 <#
 .SYNOPSIS
-    This cmdlet retrieves the virtual machines with specified VMTools info.
+    This advanced function retrieves the virtual machines with specified VMTools info.
 
 .DESCRIPTION
-    This cmdlet retrieves the virtual machines with specified VMTools version,
+    This advanced function retrieves the virtual machines with specified VMTools version,
     running status or version status.
 
 .PARAMETER VM
@@ -297,7 +297,7 @@ Function Get-VMByToolsInfo {
     C:\PS> $VCServer = Connect-VIServer -Server <vCenter Server IP> -User <vCenter User> -Password <vCenter Password>
     C:\PS> Get-VM -Server $VCServer | Get-VMByToolsInfo
 
-    Retrieves the virtual machines with VMTools not running in vCetner Server $VCServer.
+    Retrieves the virtual machines with VMTools not running in vCenter Server $VCServer.
 
 .EXAMPLE
     C:\PS> Get-VM | Get-VMByToolsInfo -ToolsRunningStatus guestToolsNotRunning
@@ -328,7 +328,7 @@ Function Get-VMByToolsInfo {
     Retrieves the virtual machines with VMTools that need to upgrade on the "MyESXiHostName" ESXi host.
 
 .NOTES
-    This cmdlet assumes that you are connected to at least one vCenter Server system.
+    This advanced function assumes that you are connected to at least one vCenter Server system.
 
 .NOTES
     Author                                    : Daoyuan Wang
@@ -376,65 +376,60 @@ Function Get-VMByToolsInfo {
         }
 
         if ($ToolsVersion) {
-            $vmList = $vmList | Where {$_.Guest.ToolsVersion -like $ToolsVersion}
+            $vmList = $vmList | Where-Object {$_.Guest.ToolsVersion -like $ToolsVersion}
         }
 
         if ($ToolsRunningStatus) {
-            $vmList = $vmList | Where {$_.Guest.ExtensionData.ToolsRunningStatus -eq $ToolsRunningStatus}
+            $vmList = $vmList | Where-Object {$_.Guest.ExtensionData.ToolsRunningStatus -eq $ToolsRunningStatus}
         }
 
         if ($ToolsVersionStatus) {
-            $vmList = $vmList | Where {$_.Guest.ExtensionData.ToolsVersionStatus -eq $ToolsVersionStatus}
+            $vmList = $vmList | Where-Object {$_.Guest.ExtensionData.ToolsVersionStatus -eq $ToolsVersionStatus}
         }
 
         $vmList
     }
 }
 
-Function Set-VMToolsUpgradePolicy {
+Function Get-VMToolsUpgradePolicy {
 <#
 .SYNOPSIS
-    This cmdlet sets the VMTool's upgrade policy to "upgradeAtPowerCycle".
+    This advanced function retrieves the VMTools upgrade policy info of specified virtual machines.
 
 .DESCRIPTION
-    This cmdlet sets the VMTool's upgrade policy to "upgradeAtPowerCycle" of specified virtual machines.
+    This advanced function retrieves the VMTools upgrade policy info of specified virtual machines.
 
 .PARAMETER VM
-    Specifies the virtual machines which you want to set the VMTool's upgrade policy of.
+    Specifies the virtual machines which you want to query VMTools status of.
 
 .EXAMPLE
-    C:\PS> Import-Module .\VMToolsManagement.psm1
-    C:\PS> $VCServer = Connect-VIServer -Server <vCenter Server IP> -User <vCenter User> -Password <vCenter Password>
-    C:\PS> Get-VM -Server $VCServer | Set-VMToolsUpgradePolicy
-
-    Sets VMTool's upgrade policy to "upgradeAtPowerCycle" of all virtual machines in the $VCServer vCetner Server.
-
-.EXAMPLE
-    C:\PS> Get-VM "*win*" | Set-VMToolsUpgradePolicy
-
-    Sets VMTool's upgrade policy to "upgradeAtPowerCycle" of virtual machines with name containing "win".
+    C:\PS> Get-VM "*rhel*" | Get-VMToolsUpgradePolicy
+    Name                   VMToolsUpgradePolicy
+    ------                 ----------------------
+    111394-RHEL-6.8-0      manual
+    111394-RHEL-6.8-1      manual
+    111393-RHEL-Server-7.2 upgradeAtPowerCycle
+    Retrieves VMTools upgrade policy info of virtual machines with name containing "rhel".
 
 .EXAMPLE
-    C:\PS> Get-VM -Location "MyClusterName" | Set-VMToolsUpgradePolicy
-
-    Sets VMTool's upgrade policy to "upgradeAtPowerCycle" of virtual machines in the "MyClusterName" cluster.
+    C:\PS> Get-VM -Location "MyClusterName" | Get-VMToolsUpgradePolicy
+    Retrieves VMTools upgrade policy info from virtual machines which run in the "MyClusterName" cluster.
 
 .EXAMPLE
-    C:\PS> Get-VMHost "MyESXiHostName" | Get-VM | Set-VMToolsUpgradePolicy
-
-    Sets VMTool's upgrade policy to "upgradeAtPowerCycle" of virtual machines on the "MyESXiHostName" ESXi host.
+    C:\PS> Get-VMHost "MyESXiHostName" | Get-VM | Get-VMToolsUpgradePolicy
+    Retrieves VMTools upgrade policyinfo of virtual machines which run on the "MyESXiHostName" ESXi host.
 
 .NOTES
-    This cmdlet assumes that you are connected to at least one vCenter Server system.
+    This advanced function assumes that you are connected to at least one vCenter Server system.
 
 .NOTES
-    Author                                    : Daoyuan Wang
-    Author email                              : daoyuanw@vmware.com
+    Author                                    : Kyle Ruddy
+    Author email                              : kmruddy@gmail.com
     Version                                   : 1.0
     ==========Tested Against Environment==========
-    VMware vSphere Hypervisor(ESXi) Version   : 6.5 (build 4564106)
-    VMware vCenter Server Version             : 6.5 (build 4602587)
-    PowerCLI Version                          : PowerCLI 6.5 (build 4624819)
+    VMware vSphere Hypervisor(ESXi) Version   : 6.5 (build 7388607)
+    VMware vCenter Server Version             : 6.5 (build 7312210)
+    PowerCLI Version                          : PowerCLI 6.5 (build 7155375)
     PowerShell Version                        : 5.1
 #>
 
@@ -448,8 +443,81 @@ Function Set-VMToolsUpgradePolicy {
         [ValidateNotNullOrEmpty()]
         [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine[]] $VM
     )
+
+    Process {
+        
+        Get-VM $VM | Select-Object Name, @{Name="VMToolsUpgradePolicy"; Expression={$_.ExtensionData.Config.Tools.ToolsUpgradePolicy}}
+
+    }
+
+}
+
+Function Set-VMToolsUpgradePolicy {
+<#
+.SYNOPSIS
+    This advanced function sets the VMTool's upgrade policy to either "manual" or "upgradeAtPowerCycle".
+
+.DESCRIPTION
+    This advanced function sets the VMTool's upgrade policy to either "manual" or "upgradeAtPowerCycle" of specified virtual machines.
+
+.PARAMETER VM
+    Specifies the virtual machines which you want to set the VMTool's upgrade policy of.
+
+.EXAMPLE
+    C:\PS> Import-Module .\VMToolsManagement.psm1
+    C:\PS> $VCServer = Connect-VIServer -Server <vCenter Server IP> -User <vCenter User> -Password <vCenter Password>
+    C:\PS> Get-VM -Server $VCServer | Set-VMToolsUpgradePolicy -UpgradePolicy manual
+
+    Sets VMTool's upgrade policy to "manual" of all virtual machines in the $VCServer vCenter Server.
+
+.EXAMPLE
+    C:\PS> Get-VM "*win*" | Set-VMToolsUpgradePolicy -UpgradePolicy upgradeAtPowerCycle
+
+    Sets VMTool's upgrade policy to "upgradeAtPowerCycle" of virtual machines with name containing "win".
+
+.EXAMPLE
+    C:\PS> Get-VM -Location "MyClusterName" | Set-VMToolsUpgradePolicy -UpgradePolicy upgradeAtPowerCycle
+
+    Sets VMTool's upgrade policy to "upgradeAtPowerCycle" of virtual machines in the "MyClusterName" cluster.
+
+.EXAMPLE
+    C:\PS> Get-VMHost "MyESXiHostName" | Get-VM | Set-VMToolsUpgradePolicy -UpgradePolicy manual
+
+    Sets VMTool's upgrade policy to "manual" of virtual machines on the "MyESXiHostName" ESXi host.
+
+.NOTES
+    This advanced function assumes that you are connected to at least one vCenter Server system.
+
+.NOTES
+    Author                                    : Daoyuan Wang
+    Author email                              : daoyuanw@vmware.com
+    Version                                   : 1.1
+    Update Author                             : Kyle Ruddy
+    Update email                              : kmruddy@gmail.com
+    ==========Tested Against Environment==========
+    VMware vSphere Hypervisor(ESXi) Version   : 6.5 (build 4564106)(build 7388607)
+    VMware vCenter Server Version             : 6.5 (build 4602587)(build 7312210)
+    PowerCLI Version                          : PowerCLI 6.5 (build 4624819)(build 7155375)
+    PowerShell Version                        : 5.1
+#>
+
+    [CmdletBinding(SupportsShouldProcess)]
+
+    Param (
+        [Parameter(Mandatory=$true,
+                    ValueFromPipeLine = $true,
+                    ValueFromPipelinebyPropertyName=$True,
+                    Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine[]] $VM,
+
+        [Parameter(Mandatory=$false,
+                    Position = 1)]
+        [ValidateSet("upgradeAtPowerCycle",
+                    "manual")]
+        [String] $UpgradePolicy
+    )
     Begin {
-        $UpgradePolicy = "upgradeAtPowerCycle"
         $vmConfigSpec = New-Object VMware.Vim.VirtualMachineConfigSpec
         $vmConfigSpec.Tools = New-Object VMware.Vim.ToolsConfigInfo
         $vmConfigSpec.Tools.ToolsUpgradePolicy = $UpgradePolicy
@@ -463,6 +531,7 @@ Function Set-VMToolsUpgradePolicy {
             if ($vmView.Config.Tools.ToolsUpgradePolicy -ne $UpgradePolicy) {
                 Write-Verbose "Applying 'upgradeAtPowerCycle' setting to $($_.Name)..."
                 $vmView.ReconfigVM($vmConfigSpec)
+                Get-VMToolsUpgradePolicy -VM $_
             }
         }
     }
@@ -471,10 +540,10 @@ Function Set-VMToolsUpgradePolicy {
 Function Invoke-VMToolsListProcessInVM {
 <#
 .Synopsis
-    This cmdlet lists the processes in the virtual machine.
+    This advanced function lists the processes in the virtual machine.
 
 .Description
-    This cmdlet lists the running processes in the virtual machine.
+    This advanced function lists the running processes in the virtual machine.
 
 .PARAMETER VM
     Specifies the virtual machine which you want to list the processes of.
@@ -503,7 +572,7 @@ Function Invoke-VMToolsListProcessInVM {
     List the processes in the "MyVMName" VM.
 
 .NOTES
-    This cmdlet lists processes in the guest OS of virtual machine.
+    This advanced function lists processes in the guest OS of virtual machine.
     A VMTools should already be running in the guest OS.
 
 .NOTES
@@ -559,10 +628,10 @@ Function Invoke-VMToolsListProcessInVM {
 Function Update-VMToolsImageLocation {
 <#
 .Synopsis
-    This cmdlet updates the link /productLocker in ESXi host.
+    This advanced function updates the link /productLocker in ESXi host.
 
 .Description
-    This cmdlet updates the link /productLocker in ESXi host directly to avoid host reboot.
+    This advanced function updates the link /productLocker in ESXi host directly to avoid host reboot.
 
 .Parameter VMHost
     Specifies the ESXi host on which you want to update the /productLocker link.
@@ -574,7 +643,7 @@ Function Update-VMToolsImageLocation {
     Specifies the password you want to use for authenticating with the ESXi host.
 
 .Parameter ImageLocation
-    Specifies the new image location where you want /producterLocker to link.
+    Specifies the new image location Where-Object you want /producterLocker to link.
 
 .Example
     C:\PS> Import-Module .\VMToolsManagement.psm1
@@ -586,9 +655,9 @@ Function Update-VMToolsImageLocation {
     Update the link /producterLocker on $SampleHost to point to '/locker/packages/6.5.0/'.
 
 .NOTES
-    This cmdlet connects to ESXi host to execute shell command directly.
+    This advanced function connects to ESXi host to execute shell command directly.
     Make sure the SSH service on ESXi host is enabled, and a SSH library(Posh-SSH or SSH-Sessions etc.)
-    for powershell is already installed on client where you call This cmdlet.
+    for powershell is already installed on client Where-Object you call this advanced function.
     You can instal Posh-SSH by executing:
         iex (New-Object Net.WebClient).DownloadString("https://gist.github.com/darkoperator/6152630/raw/c67de4f7cd780ba367cccbc2593f38d18ce6df89/instposhsshdev")
     For SSH-Sessions installation and usage, please refer to
@@ -628,7 +697,7 @@ Function Update-VMToolsImageLocation {
 
     Process {
         if (-not (Get-Command New-SSHSession)) {
-            Throw "This cmdlet depends on SSH library. Please ensure a SSH library is already installed!"
+            Throw "This advanced function depends on SSH library. Please ensure a SSH library is already installed!"
         }
 
         $password = new-object System.Security.SecureString
@@ -656,17 +725,20 @@ Function Update-VMToolsImageLocation {
     }
 }
 
-Function Update-VMToolsConfInVM {
+Function Set-VMToolsConfInVM {
 <#
 .Synopsis
-    This cmdlet updates the tools.conf content in guest OS.
+    This advanced function sets the tools.conf content in guest OS.
 
 .Description
-    This cmdlet copies the tools.conf in gueset OS of virtual machine to localhost,
-    then updates it locally by setting "vmtoolsd.level = info" and copies it back to the guest OS.
+    This advanced function copies the tools.conf in gueset OS of virtual machine to localhost,
+    then sets it locally by setting "vmtoolsd.level" to a valid level and copies it back to the guest OS.
 
 .PARAMETER VM
     Specifies the virtual machine to update.
+
+.PARAMETER LogLevel
+    Specifies the desired log level to log.
 
 .Parameter GuestUser
     Specifies the user name you want to use for authenticating with the guest OS.
@@ -684,16 +756,18 @@ Function Update-VMToolsConfInVM {
     Updates the tools.conf in $SampleVM, changes the vmtoolsd log level to info ("vmtoolsd.level = info") for example.
 
 .NOTES
-    This cmdlet updates the tools.conf in guest OS. A VMTools should already be running in the guest OS.
+    This advanced function updates the tools.conf in guest OS. A VMTools should already be running in the guest OS.
 
 .NOTES
     Author                                    : Daoyuan Wang
     Author email                              : daoyuanw@vmware.com
-    Version                                   : 1.0
+    Version                                   : 1.1
+    Update Author                             : Kyle Ruddy
+    Update email                              : kmruddy@gmail.com
     ==========Tested Against Environment==========
-    VMware vSphere Hypervisor(ESXi) Version   : 6.5 (build 4564106)
-    VMware vCenter Server Version             : 6.5 (build 4602587)
-    PowerCLI Version                          : PowerCLI 6.5 (build 4624819)
+    VMware vSphere Hypervisor(ESXi) Version   : 6.5 (build 4564106)(build 7388607)
+    VMware vCenter Server Version             : 6.5 (build 4602587)(build 7312210)
+    PowerCLI Version                          : PowerCLI 6.5 (build 4624819)(build 7155375)
     PowerShell Version                        : 5.1
 #>
 
@@ -706,6 +780,17 @@ Function Update-VMToolsConfInVM {
                     Position = 0)]
         [ValidateNotNullOrEmpty()]
         [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine] $VM,
+
+        [Parameter(Mandatory=$true,
+                    Position = 1)]
+        [ValidateSet("none",
+                    "critical",
+                    "error",
+                    "warning",
+                    "message",
+                    "info",
+                    "debug")]
+        [String] $LogLevel,
 
         [Parameter(Mandatory=$true)]
         [String] $GuestUser,
@@ -756,7 +841,7 @@ Function Update-VMToolsConfInVM {
         # Updates tools.conf by setting vmtoolsd.level = info, just for example.
         #############################################################################
         $confContent = Get-Content $localToolsConfFile
-        $updatedContent = "vmtoolsd.level = info"
+        $updatedContent = "vmtoolsd.level = $LogLevel"
 
         Write-Verbose "Editing tools.conf (set 'vmtoolsd.level = info' for example)..."
         if ($confContent -match "vmtoolsd\.level") {
@@ -775,19 +860,23 @@ Function Update-VMToolsConfInVM {
                     -GuestUser $GuestUser -GuestPassword $GuestPassword -Force -ErrorAction:Stop
         } catch {
             Write-Error "Failed to update tools.conf of $VM"
+            Write-Verbose "Removing the local tools configuration file"
+            Remove-Item $localToolsConfFile
             return
         }
         Write-Host "The tools.conf updated in $VM successfully." -ForegroundColor Green
+        Write-Verbose "Removing the local tools configuration file"
+        Remove-Item $localToolsConfFile 
     }
 }
 
 Function Invoke-VMToolsVIBInstall {
 <#
 .SYNOPSIS
-    This cmdlet installs VMTool VIB in ESXi hosts.
+    This advanced function installs VMTool VIB in ESXi hosts.
 
 .DESCRIPTION
-    This cmdlet installs VMTool VIB in specified ESXi hosts.
+    This advanced function installs VMTool VIB in specified ESXi hosts.
 
 .PARAMETER VMHost
     Specifies the ESXi hosts which you want to install VMTool VIB in.
@@ -816,7 +905,7 @@ Function Invoke-VMToolsVIBInstall {
     Installs VMTool VIB in ESXi host of the "MyClusterName" cluster.
 
 .NOTES
-    This cmdlet assumes that you are connected to at least one vCenter Server system.
+    This advanced function assumes that you are connected to at least one vCenter Server system.
 
 .NOTES
     Author                                    : Daoyuan Wang
@@ -846,7 +935,7 @@ Function Invoke-VMToolsVIBInstall {
         foreach ($_ in $VMHost) {
             $esxcli = Get-EsxCLI -VMHost $_ -V2
 
-            $result = $esxcli.software.vib.list.Invoke() | where {$_.name -match 'tools'}
+            $result = $esxcli.software.vib.list.Invoke() | Where-Object {$_.name -match 'tools'}
             Write-Verbose "Existing tools VIB on $_ before installing: $($result.Name)_$($result.Version)"
 
             # Install VIBs
@@ -861,7 +950,7 @@ Function Invoke-VMToolsVIBInstall {
                 Write-Error "Failed to install VMTools VIB package!"
             } else {
                 Write-Verbose $result.Message
-                $result = $esxcli.software.vib.list.Invoke() | where {$_.name -match 'tools'}
+                $result = $esxcli.software.vib.list.Invoke() | Where-Object {$_.name -match 'tools'}
                 Write-Verbose "Tools VIB on $_ after installing: $($result.Name)_$($result.Version)"
                 Write-Host "VMTools VIB package installed on $_ successfully." -ForegroundColor Green
             }
@@ -872,10 +961,10 @@ Function Invoke-VMToolsVIBInstall {
 Function Invoke-VMToolsUpgradeInVMs {
 <#
 .SYNOPSIS
-    This cmdlet upgrades VMTools to the version bundled by ESXi host.
+    This advanced function upgrades VMTools to the version bundled by ESXi host.
 
 .DESCRIPTION
-    This cmdlet upgrades VMTools of specified virtual machines to the version
+    This advanced function upgrades VMTools of specified virtual machines to the version
     bundled by ESXi host. You can also specify the number of virtual machines
     to upgrade in parallel.
 
@@ -896,7 +985,7 @@ Function Invoke-VMToolsUpgradeInVMs {
     C:\PS> $VCServer = Connect-VIServer -Server <vCenter Server IP> -User <vCenter User> -Password <vCenter Password>
     C:\PS> Get-VM -Server $VCServer | Invoke-VMToolsUpgradeInVMs -MaxParallelUpgrades 5
 
-    Upgrades VMTools of all virtual machines in the $VCServer vCetner Server, 5 at a time in parallel.
+    Upgrades VMTools of all virtual machines in the $VCServer vCenter Server, 5 at a time in parallel.
 
 .EXAMPLE
     C:\PS> Get-VM | Invoke-VMToolsUpgradeInVMs -GuestOSType windows -MaxParallelUpgrades 1 | ft -Autosize
@@ -929,7 +1018,7 @@ Function Invoke-VMToolsUpgradeInVMs {
     Upgrades VMTools of virtual machines on the "MyESXiHostName" ESXi host, 5 at a time.
 
 .NOTES
-    This cmdlet assumes an old VMTools is already running in the virtual machine.
+    This advanced function assumes an old VMTools is already running in the virtual machine.
 
 .NOTES
     Author                                    : Daoyuan Wang
@@ -1026,7 +1115,7 @@ Function Invoke-VMToolsUpgradeInVMs {
                 # Load PowerCLI module and connect to VCServer, as child thread environment is independent with parent
                 if(-not $global:DefaultVIServer) {
                     $moduleName = "vmware.vimautomation.core"
-                    if(-not (Get-Module | Where {$_.name -eq $moduleName})) {
+                    if(-not (Get-Module | Where-Object {$_.name -eq $moduleName})) {
                         try {
                             Import-Module $moduleName -ErrorAction SilentlyContinue | Out-Null
                         }
@@ -1130,7 +1219,7 @@ Function Invoke-VMToolsUpgradeInVMs {
 
     End {
         #Verify all threads completed
-        while (($jobs | Where {$_.Handle.iscompleted -ne ‘Completed’}).Count -gt 0) {
+        while (($jobs | Where-Object {$_.Handle.iscompleted -ne ‘Completed’}).Count -gt 0) {
             Start-Sleep -Seconds 5
         }
 
