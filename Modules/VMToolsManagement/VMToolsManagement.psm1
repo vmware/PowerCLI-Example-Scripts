@@ -1219,7 +1219,7 @@ Function Invoke-VMToolsUpgradeInVMs {
 
     End {
         #Verify all threads completed
-        while (($jobs | Where-Object {$_.Handle.iscompleted -ne ‘Completed’}).Count -gt 0) {
+        while (($jobs | Where-Object {$_.Handle.iscompleted -ne "Completed"}).Count -gt 0) {
             Start-Sleep -Seconds 5
         }
 
