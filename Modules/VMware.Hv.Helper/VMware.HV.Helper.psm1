@@ -2646,8 +2646,7 @@ function New-HVFarm {
 
     $farmData = $farmSpecObj.data
     $AccessGroup_service_helper = New-Object VMware.Hv.AccessGroupService
-    $ag = $AccessGroup_service_helper.AccessGroup_List($services) | Where-Object { $_.base.name -eq $accessGroup }
-    $farmData.AccessGroup = $ag.id
+    $farmData.AccessGroup = Get-HVAccessGroupID $AccessGroup_service_helper.AccessGroup_List($services)
 
     $farmData.name = $farmName
     $farmData.DisplayName = $farmDisplayName
@@ -2851,21 +2850,17 @@ function Get-HVFarmProvisioningData {
   }
   if ($hostOrCluster) {
     $HostOrCluster_service_helper = New-Object VMware.Hv.HostOrClusterService
-    $hostClusterList = ($HostOrCluster_service_helper.HostOrCluster_GetHostOrClusterTree($services, $vmobject.datacenter)).treeContainer.children.info
-    $HostClusterObj = $hostClusterList | Where-Object { $_.name -eq $hostOrCluster }
-    if ($null -eq $HostClusterObj) {
-      throw "No host or cluster found with name: [$hostOrCluster]"
+    $vmObject.HostOrCluster = Get-HVHostOrClusterID $HostOrCluster_service_helper.HostOrCluster_GetHostOrClusterTree($services,$vmobject.datacenter)
+    if ($null -eq $vmObject.HostOrCluster) {
+      throw "No hostOrCluster found with Name: [$hostOrCluster]"
     }
-    $vmObject.HostOrCluster = $HostClusterObj.id
   }
   if ($resourcePool) {
     $ResourcePool_service_helper = New-Object VMware.Hv.ResourcePoolService
-    $resourcePoolList = $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services, $vmobject.HostOrCluster)
-    $resourcePoolObj = $resourcePoolList | Where-Object { $_.resourcepooldata.name -eq $resourcePool }
-    if ($null -eq $resourcePoolObj) {
-      throw "No resource pool found with name: [$resourcePool]"
+    $vmObject.ResourcePool = Get-HVResourcePoolID $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services,$vmobject.HostOrCluster)
+    if ($null -eq $vmObject.ResourcePool) {
+      throw "No Resource Pool found with Name: [$resourcePool]"
     }
-    $vmObject.ResourcePool = $resourcePoolObj.id
   }
   return $vmObject
 }
@@ -3244,6 +3239,10 @@ function New-HVPool {
     Datastore names to store the VM
     Applicable to Full, Linked, Instant Clone Pools.
 
+.PARAMETER StorageOvercommit
+    Storage overcommit determines how View places new VMs on the selected datastores. 
+    Supported values are 'UNBOUNDED','AGGRESSIVE','MODERATE','CONSERVATIVE','NONE' and are case sensitive.
+
 .PARAMETER UseVSAN
     Whether to use vSphere VSAN. This is applicable for vSphere 5.5 or later.
     Applicable to Full, Linked, Instant Clone Pools.
@@ -3274,6 +3273,7 @@ function New-HVPool {
 
 .PARAMETER PersistentDiskStorageOvercommit
     Storage overcommit determines how view places new VMs on the selected datastores. 
+    Supported values are 'UNBOUNDED','AGGRESSIVE','MODERATE','CONSERVATIVE','NONE' and are case sensitive.
 
 .PARAMETER DiskSizeMB
     Size of the persistent disk in MB.
@@ -3568,10 +3568,6 @@ function New-HVPool {
     [string[]]
     $ConnectionServerRestrictions,
 
-	#desktopSpec.desktopSettings.deleting
-    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
-    [boolean]$Deleting = $false,
-
     #desktopSpec.desktopSettings.logoffSettings.powerPloicy
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('TAKE_NO_POWER_ACTION', 'ALWAYS_POWERED_ON', 'SUSPEND', 'POWER_OFF')]
@@ -3584,7 +3580,7 @@ function New-HVPool {
 
     #desktopSpec.desktopSettings.logoffSettings.automaticLogoffMinutes
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
-    [ValidateRange(1,120)]
+    [ValidateRange(1,[int]::MaxValue)]
     [int]$AutomaticLogoffMinutes = 120,
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToResetMachines
@@ -3597,7 +3593,7 @@ function New-HVPool {
 
     #desktopSpec.desktopSettings.logoffSettings.deleteOrRefreshMachineAfterLogoff
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
-    [ValidateSet('NEVER', 'DELETE', 'AFTER')]
+    [ValidateSet('NEVER', 'DELETE', 'REFRESH')]
     [string]$deleteOrRefreshMachineAfterLogoff = 'NEVER',
 
     #desktopSpec.desktopSettings.logoffSettings.refreshOsDiskAfterLogoff
@@ -3961,8 +3957,9 @@ function New-HVPool {
     [int]
     $NumUnassignedMachinesKeptPoweredOn = 1,
 
-    #desktopSpec.automatedDesktopSpec.customizationSettings.cloneprepCustomizationSettings.instantCloneEngineDomainAdministrator if INSTANT_CLONE
+    #desktopSpec.automatedDesktopSpec.customizationSettings.AdContainer
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     $AdContainer = 'CN=Computers',
 
     [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
@@ -4623,8 +4620,7 @@ function New-HVPool {
     }
     if (!$desktopBase) {
       $accessGroup_client = New-Object VMware.Hv.AccessGroupService
-      $ag = $accessGroup_client.AccessGroup_List($services) | Where-Object { $_.base.name -eq $accessGroup }
-      $desktopSpecObj.base.AccessGroup = $ag.id
+      $desktopSpecObj.base.AccessGroup = Get-HVAccessGroupID $accessGroup_client.AccessGroup_List($services)
     } else {
       $desktopSpecObj.base = $desktopBase
     }
@@ -4744,6 +4740,92 @@ function New-HVPool {
   }
 }
 
+function Get-HVResourceStructure {
+<#
+.Synopsis
+    Output the structure of the resource pools available to a HV.  Primarily this is for debugging
+
+    PS> Get-HVResourceStructure
+    vCenter vc.domain.local
+    Container DC path /DC/host
+    HostOrCluster Servers path /DC/host/Servers
+    HostOrCluster VDI path /DC/host/VDI
+    ResourcePool Servers path /DC/host/Servers/Resources
+    ResourcePool VDI path /DC/host/VDI/Resources
+    ResourcePool RP1 path /DC/host/VDI/Resources/RP1
+    ResourcePool RP2 path /DC/host/VDI/Resources/RP1/RP2
+
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+#>
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -hvServer $HvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+  process {
+    $vc_service_helper = New-Object VMware.Hv.VirtualCenterService
+    $vcList = $vc_service_helper.VirtualCenter_List($services)
+    foreach ($vc in $vcList) {
+      Write-Host vCenter $vc.ServerSpec.ServerName
+      $datacenterList = @{}
+      $BaseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
+      $parentList = $BaseImage_service_helper.BaseImageVm_List($services, $vc.id)
+      foreach ($possibleParent in $parentList) {
+	if (-not $datacenterList.ContainsKey($possibleParent.datacenter.id)) {
+	  $datacenterList.Add($possibleParent.datacenter.id, $possibleParent.datacenter)
+        }
+	if (0) {
+          Write-Host "$($possibleParent.name): " -NoNewLine
+          if ($possibleParent.incompatibleReasons.inUseByDesktop) { Write-Host "inUseByDesktop, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.viewComposerReplica) { Write-Host "viewComposerReplica, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.inUseByLinkedCloneDesktop) { Write-Host "inUseByLinkedCloneDesktop, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.unsupportedOSForLinkedCloneFarm) { Write-Host "unsupportedOSForLinkedCloneFarm, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.unsupportedOS) { Write-Host "unsupportedOS, " -NoNewLine }
+          if ($possibleParent.incompatibleReasons.noSnapshots) { Write-Host "noSnapshots, " -NoNewLine }
+          Write-Host
+        }
+      }
+      $hcNodes = @()
+      $index = 0
+      foreach ($datacenter in $datacenterList.keys) {
+        $HostOrCluster_service_helper = New-Object VMware.Hv.HostOrClusterService
+	$hcNodes += $HostOrCluster_service_helper.HostOrCluster_GetHostOrClusterTree($services, $datacenterList.$datacenter)
+        while ($index -lt $hcNodes.length) {
+	  if ($hcNodes[$index].container) {
+	    Write-Host "Container" $hcNodes[$index].treecontainer.name "path" $hcNodes[$index].treecontainer.path
+	    if ($hcNodes[$index].treecontainer.children.Length) { $hcNodes += $hcNodes[$index].treecontainer.children }
+	  } else {
+	    Write-Host "HostOrCluster" $hcNodes[$index].info.name "path" $hcNodes[$index].info.path 
+          }
+	  $index++
+	}
+      }
+      $rpNodes = @()
+      $index = 0
+      foreach ($hostOrCluster in $hcNodes) {
+	if (-not $hostOrCluster.container) {
+          $ResourcePool_service_helper = New-Object VMware.Hv.ResourcePoolService
+          $rpNodes += $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services, $hostOrCluster.info.id)
+          while ($index -lt $rpNodes.length) {
+	    Write-Host "ResourcePool" $rpNodes[$index].resourcePoolData.name "path" $rpNodes[$index].resourcePoolData.path
+	    if ($rpNodes[$index].children.Length) { $rpNodes += $rpNodes[$index].children }
+	    $index++
+	  }
+	}
+      }
+    }
+  }
+  end {
+    [System.gc]::collect()
+  }
+}
+
 function Get-HVPoolProvisioningData {
   param(
     [Parameter(Mandatory = $false)]
@@ -4814,23 +4896,144 @@ function Get-HVPoolProvisioningData {
   }
   if ($hostOrCluster) {
     $vmFolder_helper = New-Object VMware.Hv.HostOrClusterService
-    $hostClusterList = ($vmFolder_helper.HostOrCluster_GetHostOrClusterTree($services,$vmobject.datacenter)).treeContainer.children.info
-    $hostClusterObj = $hostClusterList | Where-Object { ($_.path -eq $hostOrCluster) -or ($_.name -eq $hostOrCluster) }
-    if ($null -eq $hostClusterObj) {
+    $vmObject.HostOrCluster = Get-HVHostOrClusterID $vmFolder_helper.HostOrCluster_GetHostOrClusterTree($services,$vmobject.datacenter)
+    if ($null -eq $vmObject.HostOrCluster) {
       throw "No hostOrCluster found with Name: [$hostOrCluster]"
     }
-    $vmObject.HostOrCluster = $hostClusterObj.id
   }
   if ($resourcePool) {
     $resourcePool_helper = New-Object VMware.Hv.ResourcePoolService
-    $resourcePoolList = $resourcePool_helper.ResourcePool_GetResourcePoolTree($services,$vmobject.HostOrCluster)
-    $resourcePoolObj = $resourcePoolList | Where-Object { ($_.resourcepooldata.path -eq $resourcePool) -or ($_.resourcepooldata.name -eq $resourcePool) }
-    if ($null -eq $resourcePoolObj) {
-      throw "No hostOrCluster found with Name: [$resourcePool]"
+    $vmObject.ResourcePool = Get-HVResourcePoolID $resourcePool_helper.ResourcePool_GetResourcePoolTree($services,$vmobject.HostOrCluster)
+    if ($null -eq $vmObject.ResourcePool) {
+      throw "No Resource Pool found with Name: [$resourcePool]"
     }
-    $vmObject.ResourcePool = $resourcePoolObj.id
   }
   return $vmObject
+}
+
+
+function Get-HVHostOrClusterID {
+<#
+.Synopsis
+    Recursive search for a Host or Cluster name within the results tree from HostOrCluster_GetHostOrClusterTree() and returns the ID
+
+.NOTES
+    HostOrCluster_GetHostOrClusterTree() returns a HostOrClusterTreeNode as below
+
+    HostOrClusterTreeNode.container                  $true if this is a container
+    HostOrClusterTreeNode.treecontainer              HostOrClusterTreeContainer
+    HostOrClusterTreeNode.treecontainer.name         Container name
+    HostOrClusterTreeNode.treecontainer.path         Path to this container
+    HostOrClusterTreeNode.treecontainer.type         DATACENTER, FOLDER or OTHER
+    HostOrClusterTreeNode.treecontainer.children     HostOrClusterTreeNode[] list of child nodes with potentially more child nodes
+    HostOrClusterTreeNode.info                       HostOrClusterInfo
+    HostOrClusterTreeNode.info.id                    Host or cluster ID
+    HostOrClusterTreeNode.info.cluster               Is this a cluster
+    HostOrClusterTreeNode.info.name                  Host or cluster name
+    HostOrClusterTreeNode.info.path                  Path to host or cluster name
+    HostOrClusterTreeNode.info.virtualCenter
+    HostOrClusterTreeNode.info.datacenter
+    HostOrClusterTreeNode.info.vGPUTypes
+    HostOrClusterTreeNode.info.incompatibileReasons
+
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+#>
+  param(
+    [Parameter(Mandatory = $true)]
+    [VMware.Hv.HostOrClusterTreeNode]$hoctn
+  )
+  if ($hoctn.container) {
+    foreach ($node in $hoctn.treeContainer.children) {
+      $id = Get-HVHostOrClusterID $node
+      if ($id -ne $null) {
+        return $id
+      }
+    }
+  } else {
+    if ($hoctn.info.path -eq $hostOrCluster -or $hoctn.info.name -eq $hostOrCluster) {
+      return $hoctn.info.id
+    }
+  }
+  return $null
+}
+
+function Get-HVResourcePoolID {
+<#
+.Synopsis
+    Recursive search for a Resource Pool within the results tree from ResourcePool_GetResourcePoolTree() and returns the ID
+
+.NOTES
+    ResourcePool_GetResourcePoolTree() returns ResourcePoolInfo as below
+
+    ResourcePoolInfo.id                              Resource pool ID
+    ResourcePoolInfo.resourcePoolData
+    ResourcePoolInfo.resourcePoolData.name           Resource pool name
+    ResourcePoolInfo.resourcePoolData.path           Resource pool path
+    ResourcePoolInfo.resourcePoolData.type           HOST_OR_CLUSTER, RESOURCE_POOL or OTHER
+    ResourcePoolInfo.children                        ResourcePoolInfo[] list of child nodes with potentially further child nodes
+
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+#>
+   param(
+    [Parameter(Mandatory = $true)]
+    [VMware.Hv.ResourcePoolInfo]$rpi
+  )
+  if ($rpi.resourcePoolData.path -eq $resourcePool -or $rpi.resourcePoolData.name -eq $resourcePool) {
+    return $rpi.id
+  }
+  foreach ($child in $rpi.children) {
+    $id = Get-HVResourcePoolID $child
+    if ($id -ne $null) {
+      return $id
+    }
+  }
+  return $null
+}
+
+function Get-HVAccessGroupID {
+<#
+.Synopsis
+    Recursive search for an Acess Group within the results tree from AccessGroup_List() and returns the ID
+
+.NOTES
+    AccessGroup_List() returns AccessGroupInfo[] (a list of structures)
+
+    Iterate through the list of structures
+    AccessGroupInfo.id                              Access Group ID
+    AccessGroupInfo.base                 
+    AccessGroupInfo.base.name                       Access Group name
+    AccessGroupInfo.base.description                Access Group description
+    AccessGroupInfo.base.parent                     Access Group parent ID
+    AccessGroupInfo.data
+    AccessGroupInfo.data.permissions                PermissionID[]
+    AccessGroupInfo.children                        AccessGroupInfo[] list of child nodes with potentially further child nodes
+
+    I couldn't create a child node of a child node via the Horizon View Administrator GUI, but the this code allows that if it occurs
+    Furthermore, unless you are using the Root access group you must iterate over the children
+
+    Root -\
+          +- Access Group 1
+          +- Access Group 2
+          \- Access Group 3
+
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+#>
+   param(
+    [Parameter(Mandatory = $true)]
+    [VMware.Hv.AccessGroupInfo[]]$agi
+  )
+  foreach ($element in $agi) {
+    if ($element.base.name -eq $accessGroup) {
+      return $element.id
+    }
+    foreach ($child in $element.children) {
+      $id = Get-HVAccessGroupID $child
+      if ($id -ne $null) {
+        return $id
+      }
+    }
+  }
+  return $null
 }
 
 function Get-HVPoolStorageObject {
@@ -4874,7 +5077,7 @@ function Get-HVPoolStorageObject {
         if ($persistentDiskStorageOvercommit -and  ($persistentDiskDatastores.Length -ne  $persistentDiskStorageOvercommit.Length) ) {
           throw "Parameters persistentDiskDatastores length: [$persistentDiskDatastores.Length] and persistentDiskStorageOvercommit length: [$persistentDiskStorageOvercommit.Length] should be of same size"
         }
-        $desktopPersistentDiskSettings.PersistentDiskDatastores = Get_Datastore -DatastoreInfoList $datastoreList -DatastoreNames $PersistentDiskDatastores -DsStorageOvercommit $persistentDiskStorageOvercommit
+        $desktopPersistentDiskSettings.PersistentDiskDatastores = Get-HVDatastore -DatastoreInfoList $datastoreList -DatastoreNames $PersistentDiskDatastores -DsStorageOvercommit $persistentDiskStorageOvercommit
       }
       $desktopNonPersistentDiskSettings.RedirectDisposableFiles = $redirectDisposableFiles
       $desktopNonPersistentDiskSettings.DiskSizeMB = $nonPersistentDiskSizeMB
@@ -4927,15 +5130,16 @@ function Get-HVDatastore {
   foreach ($ds in $datastoreNames) {
     $datastoresSelected += ($datastoreInfoList | Where-Object { ($_.DatastoreData.Path -eq $ds) -or ($_.datastoredata.name -eq $ds) }).id
   }
-  $Datastores = $null
-  if (! $DsStorageOvercommit) {
-      $DsStorageOvercommit += 'UNBOUNDED'
-  }
+  $Datastores = @()
   $StorageOvercommitCnt = 0
   foreach ($ds in $datastoresSelected) {
     $myDatastores = New-Object VMware.Hv.DesktopVirtualCenterDatastoreSettings
     $myDatastores.Datastore = $ds
-    $mydatastores.StorageOvercommit = $DsStorageOvercommit[$StorageOvercommitCnt]
+    if (! $DsStorageOvercommit) {
+      $mydatastores.StorageOvercommit = 'UNBOUNDED'
+    } else {
+      $mydatastores.StorageOvercommit = $DsStorageOvercommit[$StorageOvercommitCnt]
+    }
     $Datastores += $myDatastores
     $StorageOvercommitCnt++
   }
@@ -5824,6 +6028,10 @@ function Set-HVPool {
     $globalEntitlement,
 
     [Parameter(Mandatory = $false)]
+    [string]
+    $ResourcePool,
+
+    [Parameter(Mandatory = $false)]
     [boolean]$allowUsersToChooseProtocol,
 
     [Parameter(Mandatory = $false)]
@@ -5853,8 +6061,8 @@ function Set-HVPool {
       }
       if ($desktopPools) {
         foreach ($desktopObj in $desktopPools) {
-          if (($Start -or $Stop) -and ("AUTOMATED" -ne $item.DesktopSummaryData.Type)) {
-            Write-Error "Start/Stop operation is not supported for Poll with name : [$item.DesktopSummaryData.Name]"
+          if (($Start -or $Stop) -and ("AUTOMATED" -ne $desktopObj.DesktopSummaryData.Type)) {
+            Write-Error "Start/Stop operation is not supported for Pool with name : [$desktopObj.DesktopSummaryData.Name]"
             return
           }
           $poolList.add($desktopObj.id, $desktopObj.DesktopSummaryData.Name)
@@ -5887,9 +6095,9 @@ function Set-HVPool {
       }
     }
     $updates = @()
-    if ($key -and $value) {
+    if ($PSBoundParameters.ContainsKey("key") -and $PSBoundParameters.ContainsKey("value")) {
       $updates += Get-MapEntry -key $key -value $value
-    } elseif ($key -or $value) {
+    } elseif ($PSBoundParameters.ContainsKey("key") -or $PSBoundParameters.ContainsKey("value")) {
       Write-Error "Both key:[$key] and value:[$value] needs to be specified"
     }
     if ($spec) {
@@ -5924,6 +6132,15 @@ function Set-HVPool {
 
     if ($PSBoundParameters.ContainsKey("enableHTMLAccess")) {
     	$updates += Get-MapEntry -key 'desktopSettings.displayProtocolSettings.enableHTMLAccess' -value $enableHTMLAccess
+    }
+
+    if ($PSBoundParameters.ContainsKey("ResourcePool")) {
+      foreach ($item in $poolList.Keys) {
+          $pool = Get-HVPool -PoolName $poolList.$item
+          $ResourcePool_service_helper = New-Object VMware.Hv.ResourcePoolService
+          $ResourcePoolID = Get-HVResourcePoolID $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services, $pool.AutomatedDesktopData.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster)
+          $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.resourcePool' -value $ResourcePoolID
+      }
     }
 
     $info = $services.PodFederation.PodFederation_get()
@@ -6797,25 +7014,39 @@ function Find-HVMachine {
       $andFilter.Filters = $filterset
       $query.Filter = $andFilter
     }
-    $queryResults = $query_service_helper.QueryService_Query($services,$query)
-    $machineList = $queryResults.results
+    $machineList = @()
+    $GetNext = $false
+    $queryResults = $query_service_helper.QueryService_Create($services, $query)
+    do {
+      if ($GetNext) { $queryResults = $query_service_helper.QueryService_GetNext($services, $queryResults.id) }
+      $machineList += $queryResults.results
+      $GetNext = $true
+    } while ($queryResults.remainingCount -gt 0)
+    $query_service_helper.QueryService_Delete($services, $queryResults.id)
   }
   if ($wildcard -or [string]::IsNullOrEmpty($machineList)) {
     $query.Filter = $null
-    $queryResults = $query_service_helper.QueryService_Query($services,$query)
-    $strFilterSet = @()
-    foreach ($setting in $machineSelectors.Keys) {
-      if ($null -ne $params[$setting]) {
-        if ($wildcard -and (($setting -eq 'MachineName') -or ($setting -eq 'DnsName')) ) {
-          $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -like "' + $params[$setting] + '")'
-        } else {
-          $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -eq "' + $params[$setting] + '")'
+    $machineList = @()
+    $GetNext = $false
+    $queryResults = $query_service_helper.QueryService_Create($services,$query)
+    do {
+      if ($GetNext) { $queryResults = $query_service_helper.QueryService_GetNext($services, $queryResults.id) }
+      $strFilterSet = @()
+      foreach ($setting in $machineSelectors.Keys) {
+        if ($null -ne $params[$setting]) {
+          if ($wildcard -and (($setting -eq 'MachineName') -or ($setting -eq 'DnsName')) ) {
+            $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -like "' + $params[$setting] + '")'
+          } else {
+            $strFilterSet += '($_.' + $machineSelectors[$setting] + ' -eq "' + $params[$setting] + '")'
+          }
         }
       }
-    }
-    $whereClause =  [string]::Join(' -and ', $strFilterSet)
-    $scriptBlock = [Scriptblock]::Create($whereClause)
-    $machineList = $queryResults.results | where $scriptBlock
+      $whereClause =  [string]::Join(' -and ', $strFilterSet)
+      $scriptBlock = [Scriptblock]::Create($whereClause)
+      $machineList += $queryResults.results | where $scriptBlock
+      $GetNext = $true
+    } while ($queryResults.remainingCount -gt 0)
+    $query_service_helper.QueryService_Delete($services, $queryResults.id)
   }
   return $machineList
 }
@@ -9591,5 +9822,4 @@ function Set-HVGlobalSettings {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement
-
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure

@@ -882,7 +882,7 @@ Function Set-VMEncryptionKey {
        C:\PS>$VM|Set-VMEncryptionKey -KMSClusterId $KMSCluster.Id -Deep
 
        Deep rekeys the VM Home and all its disks using a new key.
-       The key is generted from the KMS whose clusterId is $KMSCluster.Id.
+       The key is generated from the KMS whose clusterId is $KMSCluster.Id.
 
     .NOTES
        This cmdlet assumes there is already a KMS in vCenter Server. If VM is not encrypted, the cmdlet quits.
@@ -1037,7 +1037,7 @@ Function Set-VMDiskEncryptionKey {
        C:\PS>$HardDisk| Set-VMDiskEncryptionKey -VM $VM -KMSClusterId $KMSCluster.Id -Deep
 
        Deep rekeys all the disks of the $VM  using a new key.
-       The key is generted from the KMS whose clusterId is $KMSCluster.Id.
+       The key is generated from the KMS whose clusterId is $KMSCluster.Id.
 
     .NOTES
        This cmdlet assumes there is already a KMS in vCenter Server.

@@ -30,7 +30,7 @@
 		foreach ($v in $vm) {
 			#Validate the input is a valid VM
 			$vmobj = Get-VM -Name $v -erroraction silentlycontinue
-			if (!$vmobj) {Write-Verbose "No VM found by the name $vm."}
+			if (!$vmobj) {Write-Verbose "No VM found by the name $v."}
 			else {
 				#Create a temporary object to store individual ouput
 				$tempout = "" | select VM,PortId
