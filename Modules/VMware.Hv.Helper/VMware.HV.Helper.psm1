@@ -8236,12 +8236,13 @@ function Remove-HVEntitlement {
             return
           }
           $AndFilter += Get-HVQueryFilter 'localData.desktops' -Contains ([VMware.HV.DesktopId[]] $ResourceObjs.Id)
+          $AndFilter += Get-HVQueryFilter 'base.loginName' -Eq $UserOrGroupName
           $filters = Get-HVQueryFilter -And -Filters $AndFilter
           $results = Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $filters -HvServer $HvServer
           if ($results) {
             foreach ($result in $Results) {
               $userEntitlements = $result.localData.desktopUserEntitlements
-              Write-Host $userEntitlements.Length " desktopUserEntitlement(s) will be removed for UserOrGroup " $user
+              Write-Host $userEntitlements.Length " desktopUserEntitlement(s) will be removed for UserOrGroup" $result.base.loginName
               if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
                 $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
               }
