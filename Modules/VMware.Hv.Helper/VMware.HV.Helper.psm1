@@ -8218,13 +8218,12 @@ function Remove-HVEntitlement {
     $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $AndFilter = @()
     $results = $null
-    $userInfo = Get-UserInfo -UserName $User
-    $UserOrGroupName = $userInfo.Name
-    $Domain = $userInfo.Domain
-    $nameFilter = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
-    $doaminFilter = Get-HVQueryFilter 'base.domain' -Eq $Domain
-    $IsGroup = ($Type -eq 'Group')
-    $groupFilter = Get-HVQueryFilter 'base.group' -Eq $IsGroup
+    if ($User) {
+      $userInfo = Get-UserInfo -UserName $User
+      $AndFilter += Get-HVQueryFilter 'base.loginName' -Eq $userInfo.Name
+      $AndFilter += Get-HVQueryFilter 'base.domain' -Eq $userInfo.Domain
+    }
+    $AndFilter += Get-HVQueryFilter 'base.group' -Eq ($Type -eq 'Group')
     [VMware.Hv.UserEntitlementId[]] $userEntitlements = $null
     if ($ResourceName) {
       $info = $services.PodFederation.PodFederation_get()
@@ -8240,10 +8239,15 @@ function Remove-HVEntitlement {
           $results = Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $filters -HvServer $HvServer
           if ($results) {
             foreach ($result in $Results) {
-              $userEntitlements = $result.localData.desktopUserEntitlements
-              Write-Host $userEntitlements.Length " desktopUserEntitlement(s) will be removed for UserOrGroup " $user
+              $deleteResources = @()
+              for ($i = 0; $i -lt $result.localdata.desktops.length; $i++) {
+                if ($ResourceObjs.Id.id -eq $result.localdata.Desktops[$i].id) {
+                  $deleteResources += $result.localdata.DesktopUserEntitlements[$i]
+                }
+              }
+              Write-Host $deleteResources.Length " desktopUserEntitlement(s) will be removed for UserOrGroup " $user
               if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
-                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($deleteResources)
               }
             }
           }
@@ -8345,10 +8349,15 @@ function Remove-HVEntitlement {
           $results = Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $AndFilter -HvServer $HvServer
           if ($results) {
             foreach ($result in $Results) {
-              $userEntitlements = $result.globalData.globalUserEntitlements
-              Write-Host $userEntitlements.Length " GlobalEntitlement(s) will be removed for UserOrGroup " $user
+              $deleteResources = @()
+              for ($i = 0; $i -lt $result.globalData.globalEntitlements.length; $i++) {
+                if ($ResourceObjs.Id.id -eq $result.globalData.globalEntitlements[$i].id) {
+                  $deleteResources += $result.globalData.globalUserEntitlements[$i]
+                }
+              }
+              Write-Host $deleteResources.Length " GlobalEntitlement(s) will be removed for UserOrGroup " $user
               if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
-                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($deleteResources)
               }
             }
             
