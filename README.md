@@ -59,15 +59,15 @@ The repository has been provided to allow the community to share resources that 
 1. Browse to the appropriate section (example: Scripts)
 2. Select the “Create new file” button
 3. On the new page, enter a file name, enter the resource’s information
-4. Within the “Commit new file” area, enter the title and description, then select “Create a new branch for this commit…” and enter a sensical branch name
+4. Within the “Commit new file” area, enter the title and description, then select “Create a new branch for this commit…” and enter a sensible branch name
 5. Click “Propose new file”
 6. On the “Open a pull request” page, click “Create pull request”
 
 #### GitHub - Upload files Option
 1. Browse to the appropriate section (example: Modules)
 2. Select the “Upload files” button
-3. On the new page, drag or choose the files to add 
-4. Within the “Commit changes” area, enter the title and description, then select “Create a new branch for this commit…” and enter a sensical branch name
+3. On the new page, drag or choose the files to add
+4. Within the “Commit changes” area, enter the title and description, then select “Create a new branch for this commit…” and enter a sensible branch name
 5. Click “Propose new file”
 6. On the “Open a pull request” page, click “Create pull request”
 
@@ -88,7 +88,7 @@ The following information must be included with each submitted scripting resourc
 #### Note Placement Examples:
 Script:   Top few lines      
 Module:   Module manifest  
-  
+
 #### Required Script Note Example:
 `<#`  
 `Script name:    script_name.ps1`  
@@ -126,7 +126,7 @@ The following information should be included when possible. Inclusion of informa
 This section describes guidelines put in place to maintain a standard of quality while also promoting broader contribution.
 ### General Best Practices
 ### Resource Naming
-* Give the resource a name that is indicitive of the actions and/or results of its running
+* Give the resource a name that is indicative of the actions and/or results of its running
 
 ### Fault Handling
 * Read and apply the following basic fault handling where applicable: Microsoft’s Hey, Scripting Guy! Blog: https://blogs.technet.microsoft.com/heyscriptingguy/2014/07/09/handling-errors-the-powershell-way/
@@ -138,7 +138,7 @@ This section describes guidelines put in place to maintain a standard of quality
 * Avoid changing any global variables
 
 ### Help Information
-* All resources should have inline documentation. 
+* All resources should have inline documentation.
 
 ### Scripts
 * The script should be easy to read and understand
@@ -149,27 +149,27 @@ This section describes guidelines put in place to maintain a standard of quality
 * Use only standard verbs
 
 ### Security
-* Usage of PowerShell’s strict mode is preferred, but not required. 
+* Usage of PowerShell’s strict mode is preferred, but not required.
 * Remove any information related to one’s own environment (examples: Passwords, DNS/IP Addresses, custom user credentials, etc)
 
 ## Resource Maintenance
 ### Maintenance Ownership
-Ownership of any and all submitted resources are maintained by the submitter. This ownership also includes maintenance of any and all submitted resources. 
+Ownership of any and all submitted resources are maintained by the submitter. This ownership also includes maintenance of any and all submitted resources.
 ### Filing Issues
-Any bugs or other issues should be filed within GitHub by way of the repository’s Issue Tracker. 
-### Resolving Issues 
-Any community member can resolve issues within the repository, however only the owner or a board member can approve the update. Once approved, assuming the resolution involves a pull request, only a board member will be able to merge and close the request. 
+Any bugs or other issues should be filed within GitHub by way of the repository’s Issue Tracker.
+### Resolving Issues
+Any community member can resolve issues within the repository, however only the owner or a board member can approve the update. Once approved, assuming the resolution involves a pull request, only a board member will be able to merge and close the request.
 
 ## Additional Resources
 ### Discussions
 Join in on the discussion within the VMware Code Slack team's PowerCLI channel: <https://code.vmware.com/slack/>
 ### VMware Sample Exchange
-It is highly recommened to add any and all submitted resources to the VMware Sample Exchange: <https://developercenter.vmware.com/samples>
-      
+It is highly recommended to add any and all submitted resources to the VMware Sample Exchange: <https://developercenter.vmware.com/samples>
+
 Sample Exchange can be allowed to access your GitHub resources, by way of a linking process, where they can be indexed and searched by the community. There are VMware social media accounts which will advertise resources posted to the site and there's no additional accounts needed, as the VMware Sample Exchange uses MyVMware credentials.     
 
 ## VMWARE TECHNOLOGY PREVIEW LICENSE AGREEMENT
-The VMware Technnology Preview License Agreement: <https://github.com/vmware/PowerCLI-Example-Scripts/blob/master/LICENSE.md>
+The VMware Technology Preview License Agreement: <https://github.com/vmware/PowerCLI-Example-Scripts/blob/master/LICENSE.md>
 
 # Repository Administrator Resources
 ## Table of Contents
@@ -180,7 +180,7 @@ The VMware Technnology Preview License Agreement: <https://github.com/vmware/Pow
 
 Board members are volunteers from the PowerCLI community and VMware staff members, board members are not held responsible for any issues which may occur from running of scripts inside this repository.
 
-Members: 
+Members:
 * Josh Atwell (Community Member)
 * Luc Dekens (Community Member)
 * Jonathan Medd (Community Member)
