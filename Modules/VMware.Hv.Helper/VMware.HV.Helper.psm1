@@ -8455,6 +8455,11 @@ PARAMETER Key
     $Value,
 
     [Parameter(Mandatory = $false)]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [string]
+    $User,
+
+    [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
 
@@ -8481,6 +8486,11 @@ PARAMETER Key
           $machineList.add($macineObj.id, $macineObj.base.Name)
         }
       }
+      if ($machineList.count -eq 0) {
+        Write-Error "Machine $machineName not found - try fqdn"
+        [System.gc]::collect()
+        return
+      }
     } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Machine) {
       foreach ($item in $machine) {
         if (($item.GetType().name -eq 'MachineNamesView') -or ($item.GetType().name -eq 'MachineInfo')) {
@@ -8497,6 +8507,22 @@ PARAMETER Key
       $updates += Get-MapEntry -key $key -value $value
     } elseif ($key -or $value) {
       Write-Error "Both key:[$key] and value:[$value] needs to be specified"
+    }
+    if ($User) {
+      $userInfo = Get-UserInfo -UserName $User
+      $UserOrGroupName = $userInfo.Name
+      $Domain = $userInfo.Domain
+      $filter1 = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
+      $filter2 = Get-HVQueryFilter 'base.domain' -Eq $Domain
+      $filter3 = Get-HVQueryFilter 'base.group' -Eq $false
+      $andFilter = Get-HVQueryFilter -And -Filters @($filter1, $filter2, $filter3)
+      $results = Get-HVQueryResult -EntityType ADUserOrGroupSummaryView -Filter $andFilter -HvServer $HvServer
+      if ($results.length -ne 1) {
+        Write-Host "Unable to find specific user with given search parameters"
+        [System.gc]::collect()
+        return
+      }
+      $updates += Get-MapEntry -key 'base.user' -value $results[0].id
     }
  
     if ($Maintenance) {
