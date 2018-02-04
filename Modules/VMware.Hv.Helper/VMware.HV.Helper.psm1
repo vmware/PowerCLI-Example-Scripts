@@ -9822,4 +9822,68 @@ function Set-HVGlobalSettings {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure
+function get-HVlocalsession {
+<#
+.SYNOPSIS
+Provides a list with all sessions on the local pod (works in CPA and non-CPA)
+
+.DESCRIPTION
+The get-hvlocalsession gets all local session by using view API service object(hvServer) of Connect-HVServer cmdlet. 
+
+.PARAMETER HvServer
+    View API service object of Connect-HVServer cmdlet.
+
+.EXAMPLE
+    Get-hvlocalsession
+    Get all local sessions
+
+.NOTES
+    Author                      : Wouter Kursten.
+    Author email                : wouter@retouw.nl
+    Version                     : 1.0
+    
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.0.2, 7.1.0, 7.3.2
+    PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+    PowerShell Version          : 5.0
+
+#>  
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High'
+  )]
+
+  param(
+      [Parameter(Mandatory = $false)]
+      $HvServer = $null
+  )
+
+  $services = Get-ViewAPIService -HvServer $HvServer
+  if ($null -eq $services) {
+    Write-Error "Could not retrieve ViewApi services from connection object."
+    break
+  }
+  
+  $query_service_helper = New-Object VMware.Hv.QueryServiceService
+  $query = New-Object VMware.Hv.QueryDefinition
+
+  $query.queryEntityType = 'SessionLocalSummaryView'
+  $SessionList = @()
+  $GetNext = $false
+  $queryResults = $query_service_helper.QueryService_Create($services, $query)
+  do {
+    if ($GetNext) { $queryResults = $query_service_helper.QueryService_GetNext($services, $queryResults.id) }
+    $SessionList += $queryResults.results
+    $GetNext = $true
+  } 
+  while ($queryResults.remainingCount -gt 0){
+    $query_service_helper.QueryService_Delete($services, $queryResults.id)
+  }
+
+  return $sessionlist
+  [System.gc]::collect()
+} 
+ 
+
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession
