@@ -8018,9 +8018,11 @@ function Get-HVEntitlement {
       $doaminFilter = Get-HVQueryFilter 'base.domain' -Eq $Domain
       $AndFilter += $doaminFilter
     }
-    $IsGroup = ($Type -eq 'Group')
-    $groupFilter = Get-HVQueryFilter 'base.group' -Eq $IsGroup
-    $AndFilter += $groupFilter
+    if ($type -eq 'group'){
+    	$IsGroup = ($Type -eq 'Group')
+    	$groupFilter = Get-HVQueryFilter 'base.group' -Eq $IsGroup
+    	$AndFilter += $groupFilter
+    }
     $info = $services.PodFederation.PodFederation_get()
     $cpaEnabled = ("ENABLED" -eq $info.localPodStatus.status)
     switch($ResourceType) {
