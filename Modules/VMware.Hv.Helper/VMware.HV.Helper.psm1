@@ -9878,9 +9878,9 @@ The get-hvlocalsession gets all local session by using view API service object(h
     $SessionList += $queryResults.results
     $GetNext = $true
   } 
-  while ($queryResults.remainingCount -gt 0){
+  while ($queryResults.remainingCount -gt 0)
     $query_service_helper.QueryService_Delete($services, $queryResults.id)
-  }
+  
 
   return $sessionlist
   [System.gc]::collect()
