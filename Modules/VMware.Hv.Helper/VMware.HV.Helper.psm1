@@ -9152,67 +9152,66 @@ function Remove-HVGlobalEntitlement {
 
 }
 
-function Get-HVPodSession {
+function Get-HVGlobalSession {
 <#
-.Synopsis
-   Gets the total amount of sessions for all Pods in a Federation
+.SYNOPSIS
+Provides a list with all Global sessions in a Cloud Pod Architecture
+
 .DESCRIPTION
-   Gets the total amout of current sessions (connected and disconnected) for all Pods in a Federation (CPA)
-   based on the global query service.
-   The default object response is used which contains both success and fault information as well as the
-   session count per pod and the ID of each pod.
+The get-hvglobalsession gets all local session by using view API service object(hvServer) of Connect-HVServer cmdlet. 
+
 .PARAMETER HvServer
-    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
-    first element from global:DefaultHVServers would be considered inplace of hvServer
+    View API service object of Connect-HVServer cmdlet.
 
 .EXAMPLE
-   Get-HVPodSession
-
-.OUTPUTS
-  Returns list of objects of type GlobalSessionPodSessionCounter
+    Get-hvglobalsession
+    Gets all global sessions
 
 .NOTES
-    Author                      : Rasmus Sjoerslev
-    Author email                : rasmus.sjorslev@vmware.com
+    Author                      : Wouter Kursten.
+    Author email                : wouter@retouw.nl
     Version                     : 1.0
+    
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2
-    PowerCLI Version            : PowerCLI 6.5
+    Horizon View Server Version : 7.0.2, 7.1.0, 7.3.2
+    PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
     PowerShell Version          : 5.0
-#>
 
-  [CmdletBinding(
-    SupportsShouldProcess = $true,
-    ConfirmImpact = 'High'
-  )]
+#> 
+[CmdletBinding(
+  SupportsShouldProcess = $true,
+  ConfirmImpact = 'High'
+)]
 
-  param(
+param(
     [Parameter(Mandatory = $false)]
     $HvServer = $null
-  )
+)
 
-  $services = Get-ViewAPIService -hvServer $hvServer
-  if ($null -eq $services) {
-    Write-Error "Could not retrieve ViewApi services from connection object"
-    break
-  }
-
-  $query_service_helper = New-Object VMware.Hv.GlobalSessionQueryServiceService
-  $count_spec = New-Object VMware.Hv.GlobalSessionQueryServiceCountSpec
-  $queryResults = @()
-
-  foreach ($pod in $services.Pod.Pod_List()) {
-	  $count_spec.Pod = $pod.Id
-	  $info = $query_service_helper.GlobalSessionQueryService_GetCountWithSpec($services,$count_spec)
-	  
-	  foreach ($res in $info) {
-		  if ($pod.Id.Id -eq $res.Id.Id) {
-			  $queryResults += $res
-		  }
-	  }
-  }
-  return $queryResults
+$services = Get-ViewAPIService -HvServer $HvServer
+if ($null -eq $services) {
+  Write-Error "Could not retrieve ViewApi services from connection object."
+  break
 }
+
+$query_service_helper = New-Object VMware.Hv.GlobalSessionQueryServiceService
+$query=new-object vmware.hv.GlobalSessionQueryServiceQuerySpec
+
+$SessionList = @()
+$GetNext = $false
+foreach ($pod in $services.Pod.Pod_List()) {
+  $query.pod=$pod.id
+  $queryResults = $query_service_helper.GlobalSessionQueryService_QueryWithSpec($services, $query)
+  do {
+    if ($GetNext) { $queryResults = $query_service_helper.GlobalSessionQueryService_GetNext($services, $queryResults.id) }
+    $SessionList += $queryResults.results
+    $GetNext = $true
+  } while ($queryResults.remainingCount -gt 0)
+    $query_service_helper.GlobalSessionQueryService_Delete($services, $queryresults.id)
+
+}
+return $sessionlist
+} 
 
 function Set-HVApplicationIcon {
 <#
@@ -9888,4 +9887,4 @@ The get-hvlocalsession gets all local session by using view API service object(h
  
 
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Get-HVPodSession, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession
