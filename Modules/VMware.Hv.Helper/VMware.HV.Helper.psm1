@@ -9885,6 +9885,74 @@ The get-hvlocalsession gets all local session by using view API service object(h
   [System.gc]::collect()
 } 
  
+function Reset-HVMachine {
+	<#
+	.Synopsis
+	   Resets Horizon View desktops.
+	
+	.DESCRIPTION
+	   Queries and resets virtual machines, the machines list would be determined
+     based on queryable fields machineName. Use an asterisk (*) as wildcard. If the result has multiple machines all will be reset.
+     Please note that on an Instant Clone Pool this will do the same as a recover of the machine.
+	
+	.PARAMETER MachineName
+	   The name of the Machine(s) to query for.
+	   This is a required value.
+		
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   reset-HVMachine -MachineName 'PowerCLIVM'
+	   Queries VM(s) with given parameter machineName
 
+	
+	.EXAMPLE
+	   reset-HVMachine -MachineName 'PowerCLIVM*'
+	   Queries VM(s) with given parameter machinename with wildcard character *
+	
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.3.2
+		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+		PowerShell Version          : 5.0
+	#>
+	
+	  [CmdletBinding(
+		SupportsShouldProcess = $true,
+		ConfirmImpact = 'High'
+	  )]
+	
+	  param(
+		
+		[Parameter(Mandatory = $true)]
+		[string]
+		$MachineName,
+			
+		[Parameter(Mandatory = $false)]
+		$HvServer = $null
+	  )
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+	  Write-Error "Could not retrieve ViewApi services from connection object"
+		break
+	  }
+	
+	$machineList = Find-HVMachine -Param $PSBoundParameters
+	if (!$machineList) {
+	  Write-Host "Reset-HVMachine: No Virtual Machine(s) Found with given search parameters"
+		break
+  }
+  foreach ($machine in $machinelist){
+    $services.machine.Machine_ResetMachines($machine.id)
+  }
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine
