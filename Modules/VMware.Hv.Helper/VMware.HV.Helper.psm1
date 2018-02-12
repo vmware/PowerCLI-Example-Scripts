@@ -8218,13 +8218,12 @@ function Remove-HVEntitlement {
     $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
     $AndFilter = @()
     $results = $null
-    $userInfo = Get-UserInfo -UserName $User
-    $UserOrGroupName = $userInfo.Name
-    $Domain = $userInfo.Domain
-    $nameFilter = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
-    $doaminFilter = Get-HVQueryFilter 'base.domain' -Eq $Domain
-    $IsGroup = ($Type -eq 'Group')
-    $groupFilter = Get-HVQueryFilter 'base.group' -Eq $IsGroup
+    if ($User) {
+      $userInfo = Get-UserInfo -UserName $User
+      $AndFilter += Get-HVQueryFilter 'base.loginName' -Eq $userInfo.Name
+      $AndFilter += Get-HVQueryFilter 'base.domain' -Eq $userInfo.Domain
+    }
+    $AndFilter += Get-HVQueryFilter 'base.group' -Eq ($Type -eq 'Group')
     [VMware.Hv.UserEntitlementId[]] $userEntitlements = $null
     if ($ResourceName) {
       $info = $services.PodFederation.PodFederation_get()
@@ -8240,10 +8239,15 @@ function Remove-HVEntitlement {
           $results = Get-HVQueryResult -EntityType EntitledUserOrGroupLocalSummaryView -Filter $filters -HvServer $HvServer
           if ($results) {
             foreach ($result in $Results) {
-              $userEntitlements = $result.localData.desktopUserEntitlements
-              Write-Host $userEntitlements.Length " desktopUserEntitlement(s) will be removed for UserOrGroup " $user
+              $deleteResources = @()
+              for ($i = 0; $i -lt $result.localdata.desktops.length; $i++) {
+                if ($ResourceObjs.Id.id -eq $result.localdata.Desktops[$i].id) {
+                  $deleteResources += $result.localdata.DesktopUserEntitlements[$i]
+                }
+              }
+              Write-Host $deleteResources.Length " desktopUserEntitlement(s) will be removed for UserOrGroup " $user
               if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
-                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($deleteResources)
               }
             }
           }
@@ -8345,10 +8349,15 @@ function Remove-HVEntitlement {
           $results = Get-HVQueryResult -EntityType EntitledUserOrGroupGlobalSummaryView -Filter $AndFilter -HvServer $HvServer
           if ($results) {
             foreach ($result in $Results) {
-              $userEntitlements = $result.globalData.globalUserEntitlements
-              Write-Host $userEntitlements.Length " GlobalEntitlement(s) will be removed for UserOrGroup " $user
+              $deleteResources = @()
+              for ($i = 0; $i -lt $result.globalData.globalEntitlements.length; $i++) {
+                if ($ResourceObjs.Id.id -eq $result.globalData.globalEntitlements[$i].id) {
+                  $deleteResources += $result.globalData.globalUserEntitlements[$i]
+                }
+              }
+              Write-Host $deleteResources.Length " GlobalEntitlement(s) will be removed for UserOrGroup " $user
               if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($User)) {
-                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($userEntitlements)
+                $services.UserEntitlement.UserEntitlement_DeleteUserEntitlements($deleteResources)
               }
             }
             
@@ -8446,6 +8455,11 @@ PARAMETER Key
     $Value,
 
     [Parameter(Mandatory = $false)]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [string]
+    $User,
+
+    [Parameter(Mandatory = $false)]
     $HvServer = $null
   )
 
@@ -8472,6 +8486,11 @@ PARAMETER Key
           $machineList.add($macineObj.id, $macineObj.base.Name)
         }
       }
+      if ($machineList.count -eq 0) {
+        Write-Error "Machine $machineName not found - try fqdn"
+        [System.gc]::collect()
+        return
+      }
     } elseif ($PSCmdlet.MyInvocation.ExpectingInput -or $Machine) {
       foreach ($item in $machine) {
         if (($item.GetType().name -eq 'MachineNamesView') -or ($item.GetType().name -eq 'MachineInfo')) {
@@ -8488,6 +8507,22 @@ PARAMETER Key
       $updates += Get-MapEntry -key $key -value $value
     } elseif ($key -or $value) {
       Write-Error "Both key:[$key] and value:[$value] needs to be specified"
+    }
+    if ($User) {
+      $userInfo = Get-UserInfo -UserName $User
+      $UserOrGroupName = $userInfo.Name
+      $Domain = $userInfo.Domain
+      $filter1 = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
+      $filter2 = Get-HVQueryFilter 'base.domain' -Eq $Domain
+      $filter3 = Get-HVQueryFilter 'base.group' -Eq $false
+      $andFilter = Get-HVQueryFilter -And -Filters @($filter1, $filter2, $filter3)
+      $results = Get-HVQueryResult -EntityType ADUserOrGroupSummaryView -Filter $andFilter -HvServer $HvServer
+      if ($results.length -ne 1) {
+        Write-Host "Unable to find specific user with given search parameters"
+        [System.gc]::collect()
+        return
+      }
+      $updates += Get-MapEntry -key 'base.user' -value $results[0].id
     }
  
     if ($Maintenance) {
