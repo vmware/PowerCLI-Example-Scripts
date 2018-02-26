@@ -309,7 +309,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
         if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($machines)) {
           $desktop_service_helper.Desktop_AddMachinesToManualDesktop($services,$id,$machineList)
         }
-        return $machineList
+        write-host "Successfully added desktop(s) to pool"
       }
       default {
         Write-Error "Only Automated/Manual pool types support this add operation"
@@ -448,7 +448,7 @@ function Add-HVRDSServer {
           if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($rdsServers)) {
             $farm_service_helper.Farm_AddRDSServers($services, $id, $serverList)
           }
-          return $serverList
+          write-host "Successfully added RDS Server(s) to Farm"
         } catch {
           Write-Error "Failed to Add RDS Server to Farm with error: $_"
           break
