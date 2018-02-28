@@ -371,6 +371,7 @@ function Get-MachinesByVCenter ($MachineList,$VcId) {
     foreach ($vMachine in $vcMachines) {
       if ($vMachine.name -eq $machineName) {
         $machines += $vMachine.id
+	break
       }
     }
   }
