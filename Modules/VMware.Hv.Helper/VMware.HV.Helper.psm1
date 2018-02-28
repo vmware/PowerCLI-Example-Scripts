@@ -282,7 +282,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
             try {
               $specifiedNames.user = Get-UserId -user $users[$cnt]
             } catch {
-              Write-Error "Unable to retrieve UserOrGroupId for user: [$users[$cnt]], $_"
+              Write-Error "Unable to retrieve UserOrGroupId for user: [$($users[$cnt])], $_"
               return
             }
           }
@@ -299,7 +299,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
             return
           }
         } else {
-		  $vcId = Get-VcenterID -services $services -vCenter $vCenter
+          $vcId = Get-VcenterID -services $services -vCenter $vCenter
           $machineList = Get-MachinesByVCenter -machineList $machines -vcId $vcId
           if ($machineList.Length -eq 0) {
             Write-Error "Failed to get any Virtual Center machines with the given machines parameter"
@@ -308,6 +308,24 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
         }
         if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($machines)) {
           $desktop_service_helper.Desktop_AddMachinesToManualDesktop($services,$id,$machineList)
+        }
+        $cnt = 0
+        foreach ($user in $users) {
+          if ($userid = Get-UserID -user $user) {
+            foreach ($try in 1..5) {
+              try {
+                Get-HVMachine -machinename $machines[$cnt] | Set-HVMachine -key base.user -Value $userid
+                break
+              } catch {
+                Start-Sleep 2
+              }
+            }
+            if ($try -eq 5) {
+              Write-Error "Failed to set user $user to machine $($machines[$cnt])"
+              return
+            }
+          }
+          $cnt += 1
         }
         return $machineList
       }
@@ -348,14 +366,13 @@ function Get-MachinesByVCenter ($MachineList,$VcId) {
 
   [VMware.Hv.MachineId[]]$machines = $null
   $virtualMachine_helper = New-Object VMware.Hv.VirtualMachineService
-  $vcMachines = $virtualMachine_helper.VirtualMachine_List($services,$vcId)
-  $machineDict = @{}
-  foreach ($vMachine in $vcMachines) {
-    $machineDict.Add($vMachine.name,$vMachine.id)
-  }
-  foreach ($machineName in $machineList) {
-    if ($machineDict.Contains($machineName)) {
-      $machines += $machineDict.$machineName
+  $vcMachines = $virtualMachine_helper.VirtualMachine_List($services,$VcId)
+  foreach ($machineName in $MachineList) {
+    foreach ($vMachine in $vcMachines) {
+      if ($vMachine.name -eq $machineName) {
+        $machines += $vMachine.id
+	break
+      }
     }
   }
   return $machines
@@ -8405,6 +8422,9 @@ PARAMETER Key
    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
    first element from global:DefaultHVServers would be considered in-place of hvServer
 
+.PARAMETER User
+   The user to assign to a specific desktop
+
 .EXAMPLE
    Set-HVMachine -MachineName 'Agent_Praveen' -Maintenance ENTER_MAINTENANCE_MODE
    Moving the machine in to Maintenance mode using machine name
@@ -8416,6 +8436,10 @@ PARAMETER Key
 .EXAMPLE
    $machine = Get-HVMachine -MachineName 'Agent_Praveen'; Set-HVMachine -Machine $machine -Maintenance EXIT_MAINTENANCE_MODE
    Moving the machine in to Maintenance mode using machine object(s)
+
+.EXAMPLE
+   Get-HVMachine -MachineName machine.fqdn | Set-HVMachine -User user@domain
+   Assign a user to a machine
 
 .OUTPUTS
   None
