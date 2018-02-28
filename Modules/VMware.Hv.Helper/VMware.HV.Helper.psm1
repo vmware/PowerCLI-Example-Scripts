@@ -366,14 +366,12 @@ function Get-MachinesByVCenter ($MachineList,$VcId) {
 
   [VMware.Hv.MachineId[]]$machines = $null
   $virtualMachine_helper = New-Object VMware.Hv.VirtualMachineService
-  $vcMachines = $virtualMachine_helper.VirtualMachine_List($services,$vcId)
-  $machineDict = @{}
-  foreach ($vMachine in $vcMachines) {
-    $machineDict.Add($vMachine.name,$vMachine.id)
-  }
-  foreach ($machineName in $machineList) {
-    if ($machineDict.Contains($machineName)) {
-      $machines += $machineDict.$machineName
+  $vcMachines = $virtualMachine_helper.VirtualMachine_List($services,$VcId)
+  foreach ($machineName in $MachineList) {
+    foreach ($vMachine in $vcMachines) {
+      if ($vMachine.name -eq $machineName) {
+        $machines += $vMachine.id
+      }
     }
   }
   return $machines
