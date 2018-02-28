@@ -8420,6 +8420,9 @@ PARAMETER Key
    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
    first element from global:DefaultHVServers would be considered in-place of hvServer
 
+.PARAMETER User
+   The user to assign to a specific desktop
+
 .EXAMPLE
    Set-HVMachine -MachineName 'Agent_Praveen' -Maintenance ENTER_MAINTENANCE_MODE
    Moving the machine in to Maintenance mode using machine name
@@ -8431,6 +8434,10 @@ PARAMETER Key
 .EXAMPLE
    $machine = Get-HVMachine -MachineName 'Agent_Praveen'; Set-HVMachine -Machine $machine -Maintenance EXIT_MAINTENANCE_MODE
    Moving the machine in to Maintenance mode using machine object(s)
+
+.EXAMPLE
+   Get-HVMachine -MachineName machine.fqdn | Set-HVMachine -User user@domain
+   Assign a user to a machine
 
 .OUTPUTS
   None
