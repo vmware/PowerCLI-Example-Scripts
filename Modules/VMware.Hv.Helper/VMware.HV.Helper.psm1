@@ -9198,10 +9198,10 @@ $query_service_helper = New-Object VMware.Hv.GlobalSessionQueryServiceService
 $query=new-object vmware.hv.GlobalSessionQueryServiceQuerySpec
 
 $SessionList = @()
-$GetNext = $false
 foreach ($pod in $services.Pod.Pod_List()) {
   $query.pod=$pod.id
   $queryResults = $query_service_helper.GlobalSessionQueryService_QueryWithSpec($services, $query)
+  $GetNext = $false
   do {
     if ($GetNext) { $queryResults = $query_service_helper.GlobalSessionQueryService_GetNext($services, $queryResults.id) }
     $SessionList += $queryResults.results
