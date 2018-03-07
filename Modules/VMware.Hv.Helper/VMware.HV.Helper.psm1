@@ -5101,7 +5101,7 @@ function Get-HVPoolStorageObject {
 	$storageObject.Datastores = Get-HVDatastore -DatastoreInfoList $datastoreList -DatastoreNames $datastores -DsStorageOvercommit $StorageOvercommit
 	if ($useSeparateDatastoresReplicaAndOSDisks) {
       $storageObject.ViewComposerStorageSettings.UseSeparateDatastoresReplicaAndOSDisks = $UseSeparateDatastoresReplicaAndOSDisks
-      $storageObject.ViewComposerStorageSettings.ReplicaDiskDatastore =  ($datastoreInfoList | Where-Object { ($_.datastoredata.name -eq $replicaDiskDatastore) -or ($_.datastoredata.path -eq $replicaDiskDatastore)}).id
+      $storageObject.ViewComposerStorageSettings.ReplicaDiskDatastore =  ($datastoreList | Where-Object { ($_.datastoredata.name -eq $replicaDiskDatastore) -or ($_.datastoredata.path -eq $replicaDiskDatastore)}).id
     }
   }
   if ($storageObject.Datastores.Count -eq 0) {
