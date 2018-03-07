@@ -654,7 +654,7 @@ Function Get-VMCFirewallRule {
         .DESCRIPTION
             Removes VMC Firewall Rule given Rule Id
         .EXAMPLE
-            Import-VMCFirewallRule -OrgName <Org Name> -SDDCName <SDDC Name> -GatewayType <MGW or CGW> -RuleId <Rule Id>
+            Remove-VMCFirewallRule -OrgName <Org Name> -SDDCName <SDDC Name> -GatewayType <MGW or CGW> -RuleId <Rule Id>
     #>
         param(
             [Parameter(Mandatory=$false)][String]$SDDCName,
@@ -688,5 +688,171 @@ Function Get-VMCFirewallRule {
         $firewallService.delete($orgId,$sddcId,$EdgeId,$RuleId)
     }
 
+Function Get-VMCLogicalNetwork {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/06/2018
+        Organization: 	VMware
+        Blog:          https://thatcouldbeaproblem.com
+        Twitter:       @kmruddy
+        ===========================================================================
 
-Export-ModuleMember -Function 'Get-VMCCommand', 'Connect-VMCVIServer', 'Get-VMCOrg', 'Get-VMCSDDC', 'Get-VMCTask', 'Get-VMCSDDCDefaultCredential', 'Get-VMCSDDCPublicIP', 'Get-VMCVMHost', 'Get-VMCSDDCVersion', 'Get-VMCFirewallRule', 'Export-VMCFirewallRule', 'Import-VMCFirewallRule', 'Remove-VMCFirewallRule'
+        .SYNOPSIS
+            Retruns VMC Logical Networks for a given SDDC
+        .DESCRIPTION
+            Retruns VMC Logical Networks for a given SDDC
+        .EXAMPLE
+            Get-VMCLogicalNetwork -OrgName <Org Name> -SDDCName <SDDC Name> 
+        .EXAMPLE
+            Get-VMCLogicalNetwork -OrgName <Org Name> -SDDCName <SDDC Name> -LogicalNetworkName <Logical Network Name>
+    #>
+    param(
+        [Parameter(Mandatory=$true)][String]$SDDCName,
+        [Parameter(Mandatory=$true)][String]$OrgName,
+        [Parameter(Mandatory=$false)][String]$LogicalNetworkName
+
+    )
+
+    $orgId = (Get-VMCOrg -Name $OrgName).Id
+    $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+
+    if(-not $orgId) {
+        Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+        break
+    }
+    if(-not $sddcId) {
+        Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+        break
+    }
+
+    $logicalNetworkService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.logical
+
+    $logicalNetworks = ($logicalNetworkService.get_0($orgId, $sddcId)).data | Sort-Object -Property id
+
+    if($LogicalNetworkName) {
+        $logicalNetworks = $logicalNetworks | Where-Object {$_.Name -eq $LogicalNetworkName}
+    }
+
+    $results = @()
+    foreach ($logicalNetwork in $logicalNetworks) {
+        $tmp = [pscustomobject] @{
+            ID = $logicalNetwork.id;
+            Name = $logicalNetwork.name;
+            SubnetMask = $logicalNetwork.subnets.address_groups.prefix_length;
+            Gateway = $logicalNetwork.subnets.address_groups.primary_address;
+            DHCPipRange = $logicalNetwork.dhcp_configs.ip_pools.ip_range;
+            DHCPdomain = $logicalNetwork.dhcp_configs.ip_pools.domain_name;
+            CGatewayID = $logicalNetwork.cgw_id;
+            CGateway = $logicalNetwork.cgw_name;
+        }
+        $results+=$tmp
+    }
+    $results
+}
+
+Function Remove-VMCLogicalNetwork {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/06/2018
+        Organization: 	VMware
+        Blog:          https://thatcouldbeaproblem.com
+        Twitter:       @kmruddy
+        ===========================================================================
+
+        .SYNOPSIS
+            Removes Logical Network given ID
+        .DESCRIPTION
+            Removes Logical Network given ID
+        .EXAMPLE
+            Remove-VMCLogicalNetwork -OrgName <Org Name> -SDDCName <SDDC Name> -LogicalNetworkName <LogicalNetwork Name>
+    #>
+    [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
+    param(
+        [Parameter(Mandatory=$true)][String]$SDDCName,
+        [Parameter(Mandatory=$true)][String]$OrgName,
+        [Parameter(Mandatory=$true)][String]$LogicalNetworkName
+    )
+
+    if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+    $orgId = (Get-VMCOrg -Name $OrgName).Id
+    $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+    $lsId = (Get-VMCLogicalNetwork -OrgName $OrgName -SDDCName $SDDCName -LogicalNetworkName $LogicalNetworkName).Id
+
+    if(-not $orgId) {
+        Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+        break
+    }
+    if(-not $sddcId) {
+        Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+        break
+    }
+    if(-not $lsId) {
+        Write-Host -ForegroundColor red "Unable to find SDDC $LogicalNetworkName, please verify input"
+        break
+    }
+
+    $logicalNetworkService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.logical
+    $logicalNetworkService.delete($orgId,$sddcId,$lsId)
+}
+
+Function New-VMCLogicalNetwork {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/06/2018
+        Organization: 	VMware
+        Blog:          https://thatcouldbeaproblem.com
+        Twitter:       @kmruddy
+        ===========================================================================
+
+        .SYNOPSIS
+            Creates a new Logical Network
+        .DESCRIPTION
+            Creates a new Logical Network
+        .EXAMPLE
+            New-VMCLogicalNetwork -OrgName <Org Name> -SDDCName <SDDC Name> -LogicalNetworkName <LogicalNetwork Name> -SubnetMask <Subnet Mask Prefix> -Gateway <Gateway IP Address>
+    #>
+    [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
+    param(
+        [Parameter(Mandatory=$true)][String]$SDDCName,
+        [Parameter(Mandatory=$true)][String]$OrgName,
+        [Parameter(Mandatory=$true)][String]$LogicalNetworkName,
+        [Parameter(Mandatory=$true)][String]$SubnetMask,
+        [Parameter(Mandatory=$true)][String]$Gateway
+    )
+
+    if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+    $orgId = (Get-VMCOrg -Name $OrgName).Id
+    $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+    
+    if(-not $orgId) {
+        Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+        break
+    }
+    if(-not $sddcId) {
+        Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+        break
+    }
+
+    $logicalNetworkService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.logical
+    $logicalNetworkSpec = $logicalNetworkService.Help.create.sddc_network.Create()
+    $logicalNetworkSpec.name = $LogicalNetworkName
+    $logicalNetworkSpec.cgw_id = "edge-2"
+    $logicalNetworkSpec.cgw_name = "SDDC-CGW-1"
+    $logicalNetworkAddressGroupSpec = $logicalNetworkService.Help.create.sddc_network.subnets.address_groups.Element.Create()
+    $logicalNetworkAddressGroupSpec.prefix_length = $SubnetMask
+    $logicalNetworkAddressGroupSpec.primary_address = $Gateway
+
+    $logicalNetworkSpec.subnets.address_groups.Add($logicalNetworkAddressGroupSpec) | Out-Null
+    $logicalNetworkService.create($orgId, $sddcId, $logicalNetworkSpec)
+    Get-VMCLogicalNetwork -OrgName $OrgName -SDDCName $SDDCName -LogicalNetworkName $LogicalNetworkName
+}
+
+Export-ModuleMember -Function 'Get-VMCCommand', 'Connect-VMCVIServer', 'Get-VMCOrg', 'Get-VMCSDDC', 'Get-VMCTask', 'Get-VMCSDDCDefaultCredential', 'Get-VMCSDDCPublicIP', 'Get-VMCVMHost', 'Get-VMCSDDCVersion', 'Get-VMCFirewallRule', 'Export-VMCFirewallRule', 'Import-VMCFirewallRule', 'Remove-VMCFirewallRule', 'Get-VMCLogicalNetwork', 'Remove-VMCLogicalNetwork', 'New-VMCLogicalNetwork'
