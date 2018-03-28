@@ -1,0 +1,26 @@
+﻿TOPIC 
+	about_rCISTag
+	
+SHORT DESCRIPTION	
+	The rCisTag module provides CRUD functions to work with vSphere Tags
+	
+LONG DESCRIPTION
+	The CisTag module provides CRUD functions to work with vSphere Tags.
+	The functions in the module are based on the REST API
+	
+NOTE
+	The module requires PowerShell 5.0
+	
+TROUBLESHOOTING NOTE
+	
+	
+	
+EXAMPLES
+	Get-rCisTag 
+	
+KEYWORDS
+	
+	
+	
+SEE ALSO
+	Place related topics here.

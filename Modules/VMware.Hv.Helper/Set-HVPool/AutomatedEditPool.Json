@@ -1,0 +1,8 @@
+{
+	"base.description" : "update through edit pool function",
+	"base.displayName" : "Henry2DspNm",
+	"desktopSettings.displayProtocolSettings.defaultDisplayProtocol" : "BLAST",
+	"automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewStorageAcceleratorSettings.useViewStorageAccelerator" :  true,
+	"automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewStorageAcceleratorSettings.viewComposerDiskTypes" : "OS_DISKS",
+	"automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterStorageSettings.viewStorageAcceleratorSettings.regenerateViewStorageAcceleratorDays" : 8
+}
