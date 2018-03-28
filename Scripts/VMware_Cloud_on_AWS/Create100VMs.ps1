@@ -25,9 +25,9 @@
 #>
 
 # ------------- VARIABLES SECTION - EDIT THE VARIABLES BELOW ------------- 
-$vCenter = "vcenter.sddc-35-163-197-109.vmc.vmware.com"
+$vCenter = "vcenter.sddc-123456789.vmc.vmware.com"
 $vCenterUser = "cloudadmin@vmc.local"
-$vCenterPassword = '7otj%kZ8&t'
+$vCenterPassword = '123456789'
 $ResourcePool = "Compute-ResourcePool"
 $Datastore = "WorkloadDatastore"
 $DestinationFolder = "Workloads"
