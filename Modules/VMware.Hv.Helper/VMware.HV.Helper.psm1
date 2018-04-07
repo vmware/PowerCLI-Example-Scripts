@@ -9990,4 +9990,100 @@ function Reset-HVMachine {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine
+function get-hvhealth {
+	<#
+	.Synopsis
+	   Pulls health information from Horizon View
+	
+	.DESCRIPTION
+	   Queries and returns health information from the local Horizon Pod
+	
+	.PARAMETER Servicename
+	  The name of the service to query the health for.
+    This will default to Connection server health. 
+    Available services are ADDomain,CertificateSSOConnector,ConnectionServer,EventDatabase,SAMLAuthenticator,SecurityServer,ViewComposer,VirtualCenter
+		
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   get-hvhealth -service connectionserver
+	   Returns health for the connectionserver(s)
+
+	
+	.EXAMPLE
+	   get-hvhealth -service ViewComposer
+	   Returns health for the View composer server(s)
+	
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.3.2,7.4
+		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+		PowerShell Version          : 5.0
+	#>
+	
+	  [CmdletBinding(
+		SupportsShouldProcess = $true,
+		ConfirmImpact = 'High'
+	  )]
+	
+	  param(
+		
+		[Parameter(Mandatory = $false)]
+    [ValidateSet('ADDomain', 'CertificateSSOConnector', 'ConnectionServer', 'EventDatabase', 'SAMLAuthenticator', 'SecurityServer', 'ViewComposer', 'VirtualCenter')]
+    [string]
+    $Servicename = 'ConnectionServer',
+			
+		[Parameter(Mandatory = $false)]
+		$HvServer = $null
+	  )
+
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+	    Write-Error "Could not retrieve ViewApi services from connection object"
+	    break
+	  }
+	
+    switch ($Servicename) {
+      'ADDomain' {
+          $healthinfo=$services.ADDomainHealth.ADDomainHealth_List()
+      }
+      'CertificateSSOConnector' {
+        $healthinfo=$services.CertificateSSOConnectorHealth.CertificateSSOConnectorHealth_list()
+      }
+      'ConnectionServer' {
+        $healthinfo=$services.ConnectionServerHealth.ConnectionServerHealth_list()
+      }
+      'EventDatabase' {
+        $healthinfo=$services.EventDatabaseHealth.EventDatabaseHealth_Get()
+      }
+      'SAMLAuthenticator' {
+        $healthinfo=$services.SAMLAuthenticatorHealth.SAMLAuthenticatorHealth_List()
+      }
+      'SecurityServer' {
+        $healthinfo=$services.SecurityServerHealth.SecurityServerHealth_List()
+      }
+      'ViewComposer' {
+        $healthinfo=$services.ViewComposerHealth.ViewComposerHealth_List()
+      }
+      'VirtualCenter' {
+        $healthinfo=$services.VirtualCenterHealth.VirtualCenterHealth_List()
+      }
+    }
+    if ($healthinfo){
+      return $healthinfo
+    }
+    else {
+      Write-Output "No healthdata found for the $servicename service"
+    }
+  [System.gc]::collect()
+}
+
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Get-HVHealth
