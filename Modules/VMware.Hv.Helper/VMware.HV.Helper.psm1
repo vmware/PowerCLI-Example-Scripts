@@ -10001,7 +10001,7 @@ function get-hvhealth {
 	.PARAMETER Servicename
 	  The name of the service to query the health for.
     This will default to Connection server health. 
-    Available services are ADDomain,CertificateSSOConnector,ConnectionServer,EventDatabase,SAMLAuthenticator,SecurityServer,ViewComposer,VirtualCenter
+    Available services are ADDomain,CertificateSSOConnector,ConnectionServer,EventDatabase,SAMLAuthenticator,SecurityServer,ViewComposer,VirtualCenter,Pod
 		
 	.PARAMETER HvServer
 		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
@@ -10035,7 +10035,7 @@ function get-hvhealth {
 	  param(
 		
 		[Parameter(Mandatory = $false)]
-    [ValidateSet('ADDomain', 'CertificateSSOConnector', 'ConnectionServer', 'EventDatabase', 'SAMLAuthenticator', 'SecurityServer', 'ViewComposer', 'VirtualCenter')]
+    [ValidateSet('ADDomain', 'CertificateSSOConnector', 'ConnectionServer', 'EventDatabase', 'SAMLAuthenticator', 'SecurityServer', 'ViewComposer', 'VirtualCenter', 'pod')]
     [string]
     $Servicename = 'ConnectionServer',
 			
@@ -10074,6 +10074,9 @@ function get-hvhealth {
       }
       'VirtualCenter' {
         $healthinfo=$services.VirtualCenterHealth.VirtualCenterHealth_List()
+      }
+      'Pod' {
+        $healthinfo=$services.podhealth.PodHealth_List()
       }
     }
     if ($healthinfo){
