@@ -10003,8 +10003,8 @@ function Remove-HVMachine(){
         but if you do not specify the server, than make sure you are connected to a Horizon server 
         first with connect-hvserver.
 
-	.PARAMETER MachineName
-	   The name or names of the machine(s) to be deleted. This is a mandatory parameter. 
+	.PARAMETER MachineNames
+	   The name or names of the machine(s) to be deleted. Accepts a single VM or an array of VM names.This is a mandatory parameter. 
 
 	.EXAMPLE
 	   remove-HVMachine -HVServer 'horizonserver123' -MachineNames 'LAX-WIN10-002'
@@ -10037,7 +10037,7 @@ function Remove-HVMachine(){
 		$MachineNames,
 			
 		[Parameter(Mandatory = $false)]
-		$HVServer
+		$HVServer = $null
 	  )
 
 if($HVServer){
@@ -10080,7 +10080,7 @@ $orFilter.filters = $filterSet
 $queryDefinition.filter = $orFilter
 
 #Retrieve query results. Returns all machines to be deleted
-$queryResults = $queryService.QueryService_Query($hvapi,$queryDefinition)
+$queryResults = $queryService.QueryService_Query($services,$queryDefinition)
 
 #Assign VM Object to variable
 $deleteThisMachine = $queryResults.Results
@@ -10089,7 +10089,7 @@ $deleteThisMachine = $queryResults.Results
 $machineService = new-object VMware.Hv.MachineService
 
 #Get Machine Service machine object
-$deleteMachine = $machineService.Machine_GetInfos($hvapi,$deleteThisMachine.Id)
+$deleteMachine = $machineService.Machine_GetInfos($services,$deleteThisMachine.Id)
 
 #If sessions exist on the machines we are going to delete than force kill those sessions.
 #The deleteMachines method will not work if there are any existing sessions so this step is very important.
@@ -10112,7 +10112,7 @@ $trys = 0
         write-host "Attemtping log off of machines"
         write-host "`n"
         $logOffSession = new-object 'VMware.Hv.SessionService'
-        $logOffSession.Session_LogoffSessionsForced($hvapi,$sessions)
+        $logOffSession.Session_LogoffSessionsForced($services,$sessions)
 
         #Wait more for Sessions to end
 
@@ -10135,7 +10135,7 @@ $trys = 0
         write-host "`n"
         write-host "Retrying Logoffs: $trys times"
         #Recheck existing sessions
-        $deleteMachine = $machineService.Machine_GetInfos($hvapi,$deleteThisMachine.Id)
+        $deleteMachine = $machineService.Machine_GetInfos($services,$deleteThisMachine.Id)
            
         }
               
@@ -10152,12 +10152,12 @@ $deleteSpec = [VMware.Hv.MachineDeleteSpec]::new()
 $deleteSpec.DeleteFromDisk = $true
 $deleteSpec.ArchivePersistentDisk = $false
         
-#Delete VM
-write-host "Deleting:" 
-Write-Output $($deleteMachine.base.Name)
-
 #Delete the machines
-$bye = $machineService.Machine_DeleteMachines($hvapi,$deleteMachine.id,$deleteSpec)
+write-host "Attempting to Delete:" 
+Write-Output ($deleteMachine.base.Name -join "`n")
+$bye = $machineService.Machine_DeleteMachines($services,$deleteMachine.id,$deleteSpec)
+
+[System.gc]::collect()
 
 }        
 
