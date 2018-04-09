@@ -10040,17 +10040,13 @@ function Remove-HVMachine(){
 		$HVServer = $null
 	  )
 
-if($HVServer){
-
-    $hvapi = ($global:DefaultHVServers| where {$_.name -imatch $HVServer }).extensiondata
-
-}
-
-else {
-
-    $hvapi = $global:DefaultHVServers.ExtensionData
-
-}
+#Connect to HV Server
+$services = Get-ViewAPIService -HVServer $HVServer
+  
+  if ($null -eq $services) {
+	  Write-Error "Could not retrieve ViewApi services from connection object"
+		break
+	  }
 
 #Connect to Query Service
 $queryService = New-Object 'Vmware.Hv.QueryServiceService'
@@ -10158,7 +10154,7 @@ Write-Output ($deleteMachine.base.Name -join "`n")
 $bye = $machineService.Machine_DeleteMachines($services,$deleteMachine.id,$deleteSpec)
 
 [System.gc]::collect()
-
+ 
 }        
 
 Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine
