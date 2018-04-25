@@ -1,6 +1,4 @@
-﻿#Requires -Version 4
-#Requires -Modules VMware.VimAutomation.Cloud, @{ModuleName="VMware.VimAutomation.Cloud";ModuleVersion="6.3.0.0"}
-Function New-MyOrgAdmin {
+﻿Function New-MyOrgAdmin {
 <#
 .SYNOPSIS
     Creates a new vCD Org Admin with Default Parameters
