@@ -10088,5 +10088,391 @@ function get-hvhealth {
   [System.gc]::collect()
 }
 
+function new-hvpodfederation {
+	<#
+	.Synopsis
+	   Initiates a Horizon View Pod Federation (Cloud Pod Architecture)
+	
+	.DESCRIPTION
+	   Starts the initialisation of a Horizon View Pod Federation. Other pod's can be joined to this federation to form the Cloud Pod Architecture
+	
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   new-hvpodfederation
+	   Returns health for the connectionserver(s)
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Get-HVHealth
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.3.2,7.4
+		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	SupportsShouldProcess = $false,
+	ConfirmImpact = 'High'
+	)]
+	
+	param(
+		
+	[Parameter(Mandatory = $false)]
+	$HvServer = $null
+	)
+
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+		Write-Error "Could not retrieve ViewApi services from connection object"
+	  break
+	}
+	$services.PodFederation.PodFederation_Initialize()
+    
+  Write-Output "The Pod Federation has been initiated. Please wait a couple of minutes and refresh any open admin consoles to use the newly available functionality."
+    
+  [System.gc]::collect()
+}
+
+function remove-hvpodfederation {
+	<#
+	.Synopsis
+	   Uninitiates a Horizon View Pod Federation (Cloud Pod Architecture)
+	
+	.DESCRIPTION
+	   Starts the uninitialisation of a Horizon View Pod Federation. It does NOT remove a pod from a federation.
+	
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   Starts the Uninitiates a Horizon View Pod Federation.
+	   Unintialises
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.3.2,7.4
+		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	SupportsShouldProcess = $false,
+	ConfirmImpact = 'High'
+	)]
+	
+	param(
+		
+	[Parameter(Mandatory = $false)]
+	$HvServer = $null
+	)
+
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+		Write-Error "Could not retrieve ViewApi services from connection object"
+		break
+	}
+	$services.PodFederation.PodFederation_Uninitialize()
+    
+  Write-Output "The uninitialisation of the Pod Federation has been started. Please wait a couple of minutes and refresh any open admin consoles to see the results."
+    
+  [System.gc]::collect()
+}
+
+function get-hvpodfederation {
+	<#
+	.Synopsis
+	   Returns information about a Horizon View Pod Federation (Cloud Pod Architecture)
+	
+	.DESCRIPTION
+	   Returns information about a Horizon View Pod Federation (Cloud Pod Architecture)
+	
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   get-hvpodfederation
+	   Returns information about a Horizon View Pod Federation 
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.3.2,7.4
+		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	SupportsShouldProcess = $false,
+	ConfirmImpact = 'High'
+	)]
+	
+	param(
+		
+	[Parameter(Mandatory = $false)]
+	$HvServer = $null
+	)
+
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+		Write-Error "Could not retrieve ViewApi services from connection object"
+		break
+	}
+	$podfederationinfo=$services.PodFederation.PodFederation_Get()
+	return $podfederationinfo
+      
+  [System.gc]::collect()
+}
+
+function register-hvpod {
+	<#
+	.Synopsis
+	  Registers a pod in a Horizon View Pod Federation (Cloud Pod Architecture)
+	
+	.DESCRIPTION
+	  Registers a pod in a Horizon View Pod Federation. You have to be connected to the pod you are joining to the federation.
+	
+	.PARAMETER ADUserName
+		User principal name of user
+
+	.PARAMETER remoteconnectionserver
+		Servername of a connectionserver that already belongs to the PodFederation
+
+	.PARAMETER ADPassword
+		Password of the type Securestring. Can be created with:
+		$password = Read-Host 'Domain Password' -AsSecureString
+
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+  	C:\PS>$adpassword = Read-Host 'Domain Password' -AsSecureString
+  	C:\PS>register-hvpod -remoteconnectionserver "servername" -username "user\domain" -password $adpassword
+
+	.EXAMPLE
+		register-hvpod -remoteconnectionserver "servername" -username "user\domain"
+		It will now ask for the password
+
+	 .NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.3.2,7.4
+		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	  SupportsShouldProcess = $false,
+	  ConfirmImpact = 'High'
+	)]
+	
+	param(
+	  [Parameter(Mandatory = $true)]
+	  [String]
+	  $remoteconnectionserver,
+	  
+	  [Parameter(Mandatory = $true)]
+	  [ValidatePattern("^.+?[@\\].+?$")]
+	  [String]
+	  $ADUserName,
+		
+	  [Parameter(Mandatory = $false)]
+	  [SecureString]
+	  $ADpassword,
+		
+	  [Parameter(Mandatory = $false)]
+	  $HvServer = $null
+	)
+
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+	  Write-Error "Could not retrieve ViewApi services from connection object"
+	  break
+	}
+		
+	if (!$ADPassword) {
+	 	$ADPassword= Read-Host 'Please provide the Active Directory password for user $AdUsername' -AsSecureString
+	}
+
+	#$unsecurepassword=$ADPassword | ConvertFrom-SecureString
+	$vcPassword = New-Object VMware.Hv.SecureString
+	$enc = [system.Text.Encoding]::UTF8
+	$vcPassword.Utf8String = $enc.GetBytes(($ADPassword | ConvertFrom-SecureString))
+		
+	$services.PodFederation.PodFederation_join($remoteconnectionserver,$user,$svcpassword)
+	write-host "This pod has been joined to the podfederation." 
+    
+  [System.gc]::collect()
+}
+
+function unregister-hvpod {
+	<#
+	.Synopsis
+	   Removes a pod from a podfederation
+	
+	.DESCRIPTION
+	   Starts the uninitialisation of a Horizon View Pod Federation. It does NOT remove a pod from a federation.
+	
+	.PARAMETER Podname
+		The name of the pod to be removed.
+	
+	.PARAMETER Force
+		This can be used to forcefully remove a pod from the pod federation. This can only be done while connected to one of the other pods in the federation
+
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+		Unregister-hvpod -podname PODNAME
+		Checks if you are connected to the pod and gracefully unregisters it from the podfedaration
+
+	.EXAMPLE
+		Unregister-hvpod -podname PODNAME -force
+		Checks if you are connected to the pod and gracefully unregisters it from the podfedaration
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.3.2,7.4
+		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+		SupportsShouldProcess = $false,
+		ConfirmImpact = 'High'
+	)]
+	
+	param(
+		[Parameter(Mandatory = $true)]
+		[string]
+		$PodName,
+			
+		[Parameter(Mandatory = $true)]
+		[switch]
+		$force=$false,
+	 			
+		[Parameter(Mandatory = $false)]
+		$HvServer = $null
+	)
+
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+	    Write-Error "Could not retrieve ViewApi services from connection object"
+	    break
+	  }
+	$pods=$services.pod.pod_list()
+	$pod=$pods | where-object {$_.displayname -like "$podname"}
+	if ($force -eq $false){
+		if ($pod.localpod -eq $False){
+			Write-Error "You can only gracefully remove a pod when connected to that pod, please connect to a connection server in pod $podname"
+			break
+		}
+		elseif ($pod.localpod -eq $True){
+			write-host "Gracefully removing $podname from the federation"
+			$services.PodFederation.PodFederation_Unjoin()
+		}
+	}
+
+	elseif ($force -eq $true){
+		if ($pod.localpod -eq $True){
+			Write-Error "You can only forcefully remove a pod when connected to a different pod, please connect to a connection server in another pod then $podname"
+			break
+		}
+		elseif ($pod.localpod -eq $false){
+			write-host "Forcefully removing $podname from the federation"
+			$services.PodFederation.PodFederation_eject($pod.id)
+		}
+	}
+
+
+
+  [System.gc]::collect()
+}
+
+function set-hvpodfederation {
+	<#
+	.Synopsis
+		Used to change the name of a Horizon View Pod Federation (Cloud Pod Architecture)
+	
+	.DESCRIPTION
+		Used to change the name of a Horizon View Pod Federation (Cloud Pod Architecture)
+		 
+	.PARAMETER Name
+		The new name of the Pod Federation.
+	
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   set-hvpodfederation -name "New Name"
+	   Will update the name of the current podfederation.
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.3.2,7.4
+		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+		SupportsShouldProcess = $false,
+		ConfirmImpact = 'High'
+	)]
+	
+	param(
+		[Parameter(Mandatory = $true)]
+		[string]
+		$name,
+				
+		[Parameter(Mandatory = $false)]
+		$HvServer = $null
+	)
+
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+		Write-Error "Could not retrieve ViewApi services from connection object"
+	  break
+	}
+	$podservice=new-object vmware.hv.podfederationservice
+	$podservicehelper=$podservice.read($services)
+	$podservicehelper.getDatahelper().setdisplayname($name)
+	$podservice.update($services, $podservicehelper)
+	get-hvpodfederation
+      
+  [System.gc]::collect()
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Get-HVHealth, new-hvpodfederation, remove-hvpodfederation, get-hvpodfederation, register-hvpod, unregister-hvpod, set-hvpodfederation
