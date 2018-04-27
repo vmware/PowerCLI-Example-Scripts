@@ -69,6 +69,13 @@ New-VIProperty -Name vMotionEncryption -ObjectType VirtualMachine -Value {
        $VM.ExtensionData.Config.MigrateEncryption
 } -BasedOnExtensionProperty 'Config.MigrateEncryption' -Force | Out-Null
 
+New-VIProperty -Name KMSserver -ObjectType VirtualMachine -Value {
+    Param ($VM)
+    if ($VM.Encrypted) {
+      $VM.EncryptionKeyId.ProviderId.Id
+    }
+} -BasedOnExtensionProperty 'Config.KeyId' -Force | Out-Null
+
 New-VIProperty -Name Encrypted -ObjectType HardDisk -Value {
     Param ($hardDisk)
     $hardDisk.ExtensionData.Backing.KeyId -ne $null
