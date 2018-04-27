@@ -1,5 +1,5 @@
 # Script Module : VMware.VMEncryption
-# Version       : 1.0
+# Version       : 1.1
 
 # Copyright © 2016 VMware, Inc. All Rights Reserved.
 
@@ -56,8 +56,13 @@ New-VIProperty -Name EncryptionKeyId -ObjectType VirtualMachine -Value {
 
 New-VIProperty -Name Locked -ObjectType VirtualMachine -Value  {
     Param ($VM)
-    ($vm.extensiondata.Runtime.ConnectionState -eq "invalid") -and ($vm.extensiondata.Config.KeyId)
-} -BasedOnExtensionProperty 'Runtime.ConnectionState','Config.KeyId' -Force | Out-Null
+    if ($vm.ExtensionData.Runtime.CryptoState) {
+        $vm.ExtensionData.Runtime.CryptoState -eq "locked"
+    }
+    else {
+        ($vm.extensiondata.Runtime.ConnectionState -eq "invalid") -and ($vm.extensiondata.Config.KeyId)
+    }
+} -BasedOnExtensionProperty 'Runtime.CryptoState', 'Runtime.ConnectionState','Config.KeyId' -Force | Out-Null
 
 New-VIProperty -Name vMotionEncryption -ObjectType VirtualMachine -Value {
     Param ($VM)
@@ -83,13 +88,6 @@ New-VIProperty -Name EncryptionKeyId -ObjectType HardDisk -Value {
     }
 } -BasedOnExtensionProperty 'Backing.KeyId' -Force | Out-Null
 
-New-VIProperty -Name KMSserver -ObjectType VMHost -Value {
-    Param ($VMHost)
-    if ($VMHost.CryptoSafe) {
-        $VMHost.ExtensionData.Runtime.CryptoKeyId.ProviderId.Id
-    }
-} -BasedOnExtensionProperty 'Runtime.CryptoKeyId.ProviderId.Id' -Force | Out-Null
-
 Function Enable-VMHostCryptoSafe {
     <#
     .SYNOPSIS
@@ -113,13 +111,6 @@ Function Enable-VMHostCryptoSafe {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -181,13 +172,6 @@ Function Set-VMHostCryptoKey {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -266,13 +250,6 @@ Function Set-vMotionEncryptionConfig {
     .NOTES
        Author                                    : Brian Graf, Carrie Yang.
        Author email                              : grafb@vmware.com, yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -348,13 +325,6 @@ Function Enable-VMEncryption {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -508,13 +478,6 @@ Function Enable-VMDiskEncryption {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -660,13 +623,6 @@ Function Disable-VMEncryption {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -756,13 +712,6 @@ Function Disable-VMDiskEncryption {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -882,7 +831,7 @@ Function Set-VMEncryptionKey {
        C:\PS>$VM|Set-VMEncryptionKey -KMSClusterId $KMSCluster.Id -Deep
 
        Deep rekeys the VM Home and all its disks using a new key.
-       The key is generated from the KMS whose clusterId is $KMSCluster.Id.
+       The key is generted from the KMS whose clusterId is $KMSCluster.Id.
 
     .NOTES
        This cmdlet assumes there is already a KMS in vCenter Server. If VM is not encrypted, the cmdlet quits.
@@ -891,13 +840,6 @@ Function Set-VMEncryptionKey {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1034,10 +976,10 @@ Function Set-VMDiskEncryptionKey {
        C:\PS>$KMSCluster = Get-KMSCluster | select -last 1
        C:\PS>$VM = Get-VM -Name win2012
        C:\PS>$HardDisk = get-vm $vm|Get-HardDisk
-       C:\PS>$HardDisk| Set-VMDiskEncryptionKey -VM $VM -KMSClusterId $KMSCluster.Id -Deep
+       C:\PS>$HardDisk|$Set-VMEncryptionKey -VM $VM -KMSClusterId $KMSCluster.Id -Deep
 
        Deep rekeys all the disks of the $VM  using a new key.
-       The key is generated from the KMS whose clusterId is $KMSCluster.Id.
+       The key is generted from the KMS whose clusterId is $KMSCluster.Id.
 
     .NOTES
        This cmdlet assumes there is already a KMS in vCenter Server.
@@ -1047,13 +989,6 @@ Function Set-VMDiskEncryptionKey {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1170,13 +1105,6 @@ Function Get-VMEncryptionInfo {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1269,13 +1197,6 @@ Function Get-EntityByCryptoKey {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1394,13 +1315,6 @@ Function New-KMServer {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1435,6 +1349,7 @@ Function New-KMServer {
     )
 
     Begin {
+       write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Add-KeyManagementServer instead"
        # Confirm the connected VIServer is vCenter Server
        ConfirmIsVCenter
 
@@ -1553,13 +1468,6 @@ Function Remove-KMServer {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1573,6 +1481,7 @@ Function Remove-KMServer {
     )
 
     Begin {
+       write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Remove-KeyManagementServer instead"
        # Confirm the connected VIServer is vCenter Server
        ConfirmIsVCenter
 
@@ -1630,15 +1539,9 @@ Function Get-KMSCluster {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
+    write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Get-KmsCluster instead"
     # Confirm the connected VIServer is vCenter Server
     ConfirmIsVCenter
 
@@ -1668,14 +1571,6 @@ Function Get-KMSClusterInfo {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -1686,6 +1581,7 @@ Function Get-KMSClusterInfo {
     )
 
     Begin {
+       write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Get-KmsCluster instead"
        # Confirm the connected VIServer is vCenter Server
        ConfirmIsVCenter
 
@@ -1721,13 +1617,6 @@ Function Get-KMServerInfo {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1738,6 +1627,7 @@ Function Get-KMServerInfo {
     )
 
     Begin {
+       write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Get-KeyManagementServer instead"
        # Confirm the connected VIServer is vCenter Server
        ConfirmIsVCenter
 
@@ -1782,13 +1672,6 @@ Function Get-KMServerStatus {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1798,7 +1681,7 @@ Function Get-KMServerStatus {
         [String] $KMSClusterId
     )
 
-    Begin {
+    Begin {       
        # Confirm the connected VIServer is vCenter Server
        ConfirmIsVCenter
 
@@ -1853,15 +1736,9 @@ Function Get-DefaultKMSCluster {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
+    write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Get-KmsCluster instead"
     # Confirm the connected VIServer is vCenter Server
     ConfirmIsVCenter
 
@@ -1890,13 +1767,6 @@ Function Set-DefaultKMSCluster {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
    [CmdLetBinding()]
@@ -1906,6 +1776,7 @@ Function Set-DefaultKMSCluster {
         [String] $KMSClusterId
     )
 
+    write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Set-KmsCluster instead"
     # Confirm the connected VIServer is vCenter Server
     ConfirmIsVCenter
 
@@ -1915,6 +1786,55 @@ Function Set-DefaultKMSCluster {
     $ProviderId.Id = $KMSClusterId
 
     $CM.MarkDefault($ProviderId)
+}
+
+Function Set-VMCryptoUnlock {
+    <#
+    .SYNOPSIS
+       This cmdlet unlocks a locked vm
+
+    .DESCRIPTION
+       This cmdlet unlocks a locked vm
+
+    .PARAMETER VM
+       Specifies the VM you want to unlock
+
+    .EXAMPLE
+       PS C:\> Get-VM |where {$_.locked}| Set-VMCryptoUnlock
+
+       Unlock all locked vms
+
+    .NOTES
+       Author                                    : Fangying Zhang
+       Author email                              : fzhang@vmware.com
+    #>
+
+    [CmdLetBinding()]
+
+    param (
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine[]]$VM
+    )
+
+    Begin {
+        # Confirm the connected VIServer is vCenter Server
+        ConfirmIsVCenter
+    }
+
+    Process {
+        foreach ($thisvm in $vm) {
+            if (!$thisvm.encrypted) {
+                write-warning "$thisvm is not encrypted, will skip $thisvm"
+                continue
+            }
+            if (!$thisvm.Locked) {
+                write-warning "$thisvm may not be locked!"
+                # $thisvm.locked could be false on old 6.5.0 build (bug 1931370), so do not skip $thisvm
+            }
+            write-verbose "try to CryptoUnlock $thisvm"
+            $thisvm.ExtensionData.CryptoUnlock()
+        }
+    }
 }
 
 Function ConfirmIsVCenter{
