@@ -69,16 +69,16 @@ New-VIProperty -Name vMotionEncryption -ObjectType VirtualMachine -Value {
        $VM.ExtensionData.Config.MigrateEncryption
 } -BasedOnExtensionProperty 'Config.MigrateEncryption' -Force | Out-Null
 
-New-VIProperty -Name KMSserver -ObjectType VirtualMachine -Value {
-    Param ($VM)
-    if ($VM.Encrypted) {
-      $VM.EncryptionKeyId.ProviderId.Id
-    }
-} -BasedOnExtensionProperty 'Config.KeyId' -Force | Out-Null
-
 New-VIProperty -Name Encrypted -ObjectType HardDisk -Value {
     Param ($hardDisk)
     $hardDisk.ExtensionData.Backing.KeyId -ne $null
+} -BasedOnExtensionProperty 'Backing.KeyId' -Force | Out-Null
+
+New-VIProperty -Name EncryptionKeyId -ObjectType HardDisk -Value {
+    Param ($Disk)
+    if ($Disk.Encrypted) {
+      $Disk.ExtensionData.Backing.KeyId
+    }
 } -BasedOnExtensionProperty 'Backing.KeyId' -Force | Out-Null
 
 New-VIProperty -Name KMSserver -ObjectType VMHost -Value {
@@ -87,13 +87,6 @@ New-VIProperty -Name KMSserver -ObjectType VMHost -Value {
         $VMHost.ExtensionData.Runtime.CryptoKeyId.ProviderId.Id
     }
 } -BasedOnExtensionProperty 'Runtime.CryptoKeyId.ProviderId.Id' -Force | Out-Null
-
-New-VIProperty -Name EncryptionKeyId -ObjectType HardDisk -Value {
-    Param ($Disk)
-    if ($Disk.Encrypted) {
-      $Disk.ExtensionData.Backing.KeyId
-    }
-} -BasedOnExtensionProperty 'Backing.KeyId' -Force | Out-Null
 
 Function Enable-VMHostCryptoSafe {
     <#
@@ -983,7 +976,7 @@ Function Set-VMDiskEncryptionKey {
        C:\PS>$KMSCluster = Get-KMSCluster | select -last 1
        C:\PS>$VM = Get-VM -Name win2012
        C:\PS>$HardDisk = get-vm $vm|Get-HardDisk
-       C:\PS>$HardDisk|Set-VMDiskEncryptionKey -VM $VM -KMSClusterId $KMSCluster.Id -Deep
+       C:\PS>$HardDisk| Set-VMDiskEncryptionKey -VM $VM -KMSClusterId $KMSCluster.Id -Deep
 
        Deep rekeys all the disks of the $VM  using a new key.
        The key is generated from the KMS whose clusterId is $KMSCluster.Id.
