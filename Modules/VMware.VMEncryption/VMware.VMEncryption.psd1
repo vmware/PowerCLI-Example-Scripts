@@ -68,7 +68,7 @@ RequiredModules = @(
 NestedModules = @('VMware.VMEncryption.psm1')
 
 # Functions to export from this module
-FunctionsToExport = '*-*'
+FunctionsToExport = '*'
 
 # Cmdlets to export from this module
 CmdletsToExport = '*'
@@ -95,3 +95,4 @@ AliasesToExport = '*'
 # DefaultCommandPrefix = ''
 
 }
+
