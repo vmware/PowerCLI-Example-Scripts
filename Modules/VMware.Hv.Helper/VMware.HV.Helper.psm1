@@ -10249,7 +10249,7 @@ function register-hvpod {
 	  Registers a pod in a Horizon View Pod Federation. You have to be connected to the pod you are joining to the federation.
 	
 	.PARAMETER ADUserName
-		User principal name of user
+		User principal name of user this is required to be in the domain\username format
 
 	.PARAMETER remoteconnectionserver
 		Servername of a connectionserver that already belongs to the PodFederation
@@ -10296,8 +10296,8 @@ function register-hvpod {
 	  [String]
 	  $ADUserName,
 		
-	  [Parameter(Mandatory = $false)]
-	  [SecureString]
+	  [Parameter(Mandatory = $true)]
+	  [securestring]
 	  $ADpassword,
 		
 	  [Parameter(Mandatory = $false)]
@@ -10311,16 +10311,18 @@ function register-hvpod {
 	  break
 	}
 		
-	if (!$ADPassword) {
-	 	$ADPassword= Read-Host 'Please provide the Active Directory password for user $AdUsername' -AsSecureString
-	}
+	#if ($ADPassword -eq $null) {
+	 	#$ADPassword= Read-Host 'Please provide the Active Directory password for user $AdUsername' -AsSecureString
+	#}
 
-	#$unsecurepassword=$ADPassword | ConvertFrom-SecureString
+	$temppw = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($ADPassword)
+  $PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($temppw)
+  $plainpassword
 	$vcPassword = New-Object VMware.Hv.SecureString
 	$enc = [system.Text.Encoding]::UTF8
-	$vcPassword.Utf8String = $enc.GetBytes(($ADPassword | ConvertFrom-SecureString))
+	$vcPassword.Utf8String = $enc.GetBytes($PlainPassword)
 		
-	$services.PodFederation.PodFederation_join($remoteconnectionserver,$user,$svcpassword)
+	$services.PodFederation.PodFederation_join($remoteconnectionserver,$adusername,$vcpassword)
 	write-host "This pod has been joined to the podfederation." 
     
   [System.gc]::collect()
@@ -10373,9 +10375,9 @@ function unregister-hvpod {
 		[string]
 		$PodName,
 			
-		[Parameter(Mandatory = $true)]
-		[switch]
-		$force=$false,
+		[Parameter(Mandatory = $false)]
+		[bool]
+		$force,
 	 			
 		[Parameter(Mandatory = $false)]
 		$HvServer = $null
@@ -10657,8 +10659,8 @@ function set-hvsite {
     $siteid=$services1.site.site_list() | where-object {$_.base.displayname -like $sitename}
     $siteservice=new-object vmware.hv.siteservice
     $sitebasehelper=$siteservice.read($services, $siteid.id)
-    $sitebasehelper.displayname=$name
-    $sitebasehelper.description=$description
+    $sitebasehelper.getbasehelper().setdisplayname($name)
+    $sitebasehelper.getbasehelper().setdescription($description)
     $siteservice.update($services, $sitebasehelper)
       
     [System.gc]::collect()
@@ -10672,8 +10674,8 @@ function remove-hvsite {
 	.DESCRIPTION
        renames a new site within a Horizon View Pod Federation (Cloud Pod Architecture)
    
-    .PARAMETER Name
-        Name of the site (required)
+  .PARAMETER Name
+    Name of the site (required)
 
 	.PARAMETER HvServer
 		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
@@ -10714,7 +10716,7 @@ function remove-hvsite {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
 		break
     }
-    $siteid=$services1.site.site_list() | where-object {$_.base.displayname -like $sitename}
+    $siteid=$services1.site.site_list() | where-object {$_.base.displayname -like $name}
     $services.site.site_delete($siteid.id)
       
     [System.gc]::collect()
