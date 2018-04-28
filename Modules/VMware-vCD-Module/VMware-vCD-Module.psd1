@@ -1,5 +1,5 @@
 #
-# Modulmanifest für das Modul "PSGet_VMware-vCD-Module"
+# Modulmanifest fï¿½r das Modul "PSGet_VMware-vCD-Module"
 #
 # Generiert von: Markus
 #
@@ -8,52 +8,52 @@
 
 @{
 
-# Die diesem Manifest zugeordnete Skript- oder Binärmoduldatei.
+# Die diesem Manifest zugeordnete Skript- oder Binï¿½rmoduldatei.
 # RootModule = ''
 
 # Die Versionsnummer dieses Moduls
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.3.0'
 
 # ID zur eindeutigen Kennzeichnung dieses Moduls
 GUID = '1ef8a2de-ca22-4c88-8cdb-e00f35007d2a'
 
 # Autor dieses Moduls
-Author = 'Markus'
+Author = 'Markus Kraus'
 
 # Unternehmen oder Hersteller dieses Moduls
 CompanyName = 'mycloudrevolution.com'
 
-# Urheberrechtserklärung für dieses Modul
+# Urheberrechtserklï¿½rung fï¿½r dieses Modul
 Copyright = '(c) 2017 Markus. Alle Rechte vorbehalten.'
 
 # Beschreibung der von diesem Modul bereitgestellten Funktionen
-# Description = ''
+Description = 'This a POwerShell Module based on VMware PowerCLI vCloud Director Module to extend its function'
 
-# Die für dieses Modul mindestens erforderliche Version des Windows PowerShell-Moduls
+# Die fï¿½r dieses Modul mindestens erforderliche Version des Windows PowerShell-Moduls
 # PowerShellVersion = ''
 
-# Der Name des für dieses Modul erforderlichen Windows PowerShell-Hosts
+# Der Name des fï¿½r dieses Modul erforderlichen Windows PowerShell-Hosts
 # PowerShellHostName = ''
 
-# Die für dieses Modul mindestens erforderliche Version des Windows PowerShell-Hosts
+# Die fï¿½r dieses Modul mindestens erforderliche Version des Windows PowerShell-Hosts
 # PowerShellHostVersion = ''
 
-# Die für dieses Modul mindestens erforderliche Microsoft .NET Framework-Version
+# Die fï¿½r dieses Modul mindestens erforderliche Microsoft .NET Framework-Version
 # DotNetFrameworkVersion = ''
 
-# Die für dieses Modul mindestens erforderliche Version der CLR (Common Language Runtime)
+# Die fï¿½r dieses Modul mindestens erforderliche Version der CLR (Common Language Runtime)
 # CLRVersion = ''
 
-# Die für dieses Modul erforderliche Prozessorarchitektur ("Keine", "X86", "Amd64").
+# Die fï¿½r dieses Modul erforderliche Prozessorarchitektur ("Keine", "X86", "Amd64").
 # ProcessorArchitecture = ''
 
-# Die Module, die vor dem Importieren dieses Moduls in die globale Umgebung geladen werden müssen
-# RequiredModules = @()
+# Die Module, die vor dem Importieren dieses Moduls in die globale Umgebung geladen werden mï¿½ssen
+RequiredModules = @('VMware.VimAutomation.Cloud')
 
-# Die Assemblys, die vor dem Importieren dieses Moduls geladen werden müssen
+# Die Assemblys, die vor dem Importieren dieses Moduls geladen werden mï¿½ssen
 # RequiredAssemblies = @()
 
-# Die Skriptdateien (PS1-Dateien), die vor dem Importieren dieses Moduls in der Umgebung des Aufrufers ausgeführt werden.
+# Die Skriptdateien (PS1-Dateien), die vor dem Importieren dieses Moduls in der Umgebung des Aufrufers ausgefï¿½hrt werden.
 # ScriptsToProcess = @()
 
 # Die Typdateien (.ps1xml), die beim Importieren dieses Moduls geladen werden sollen
@@ -63,14 +63,16 @@ Copyright = '(c) 2017 Markus. Alle Rechte vorbehalten.'
 # FormatsToProcess = @()
 
 # Die Module, die als geschachtelte Module des in "RootModule/ModuleToProcess" angegebenen Moduls importiert werden sollen.
-NestedModules = @('functions\Invoke-MyOnBoarding.psm1', 
+NestedModules = @('functions\Invoke-MyOnBoarding.psm1',
                'functions\New-MyEdgeGateway.psm1',
-               'functions\New-MyOrg.psm1', 
-               'functions\New-MyOrgAdmin.psm1', 
-               'functions\New-MyOrgVdc.psm1')
+               'functions\New-MyOrg.psm1',
+               'functions\New-MyOrgAdmin.psm1',
+               'functions\New-MyOrgVdc.psm1',
+               'functions\New-MyOrgNetwork.psm1'
+               )
 
 # Aus diesem Modul zu exportierende Funktionen
-FunctionsToExport = 'Invoke-MyOnBoarding', 'New-MyEdgeGateway', 'New-MyOrg', 'New-MyOrgAdmin', 'New-MyOrgVdc'
+FunctionsToExport = 'Invoke-MyOnBoarding', 'New-MyEdgeGateway', 'New-MyOrg', 'New-MyOrgAdmin', 'New-MyOrgVdc', 'New-MyOrgNetwork'
 
 # Aus diesem Modul zu exportierende Cmdlets
 CmdletsToExport = '*'
@@ -90,28 +92,28 @@ AliasesToExport = '*'
 # Liste aller Dateien in diesem Modulpaket
 # FileList = @()
 
-# Die privaten Daten, die an das in "RootModule/ModuleToProcess" angegebene Modul übergeben werden sollen. Diese können auch eine PSData-Hashtabelle mit zusätzlichen von PowerShell verwendeten Modulmetadaten enthalten.
+# Die privaten Daten, die an das in "RootModule/ModuleToProcess" angegebene Modul ï¿½bergeben werden sollen. Diese kï¿½nnen auch eine PSData-Hashtabelle mit zusï¿½tzlichen von PowerShell verwendeten Modulmetadaten enthalten.
 PrivateData = @{
 
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        # Tags = @()
+        Tags = @('VMware', 'vCloud', 'PowerCLI', 'vCloudDirector', 'Automation', 'EdgeGateway', 'OrgNetwork')
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://github.com/mycloudrevolution/VMware-vCD-Module/blob/master/LICENSE'
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/mycloudrevolution/VMware-vCD-Module'
 
         # A URL to an icon representing this module.
-        # IconUri = ''
+        IconUri = 'https://github.com/mycloudrevolution/VMware-vCD-Module/blob/master/media/vCD_Small.png'
 
         # ReleaseNotes of this module
         # ReleaseNotes = ''
 
         # External dependent modules of this module
-        # ExternalModuleDependencies = ''
+        ExternalModuleDependencies = 'VMware.VimAutomation.Cloud'
 
     } # End of PSData hashtable
 
@@ -120,7 +122,7 @@ PrivateData = @{
 # HelpInfo-URI dieses Moduls
 # HelpInfoURI = ''
 
-# Standardpräfix für Befehle, die aus diesem Modul exportiert werden. Das Standardpräfix kann mit "Import-Module -Prefix" überschrieben werden.
+# Standardprï¿½fix fï¿½r Befehle, die aus diesem Modul exportiert werden. Das Standardprï¿½fix kann mit "Import-Module -Prefix" ï¿½berschrieben werden.
 # DefaultCommandPrefix = ''
 
 }
