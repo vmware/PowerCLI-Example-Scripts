@@ -9989,6 +9989,172 @@ function Reset-HVMachine {
     $services.machine.Machine_ResetMachines($machine.id)
   }
 }
+function Remove-HVMachine(){
+	<#
+	.Synopsis
+	   Remove a Horizon View desktop or desktops.
+	
+	.DESCRIPTION
+	   Deletes a VM or an array of VM's from Horizon. Utilizes an Or query filter to match machine names. 
+
+    .PARAMETER HVServer
+		The Horizon server where the machine to be deleted resides.Parameter is not mandatory, 
+        but if you do not specify the server, than make sure you are connected to a Horizon server 
+        first with connect-hvserver.
+
+	.PARAMETER MachineNames
+	   The name or names of the machine(s) to be deleted. Accepts a single VM or an array of VM names.This is a mandatory parameter. 
+
+	.EXAMPLE
+	   remove-HVMachine -HVServer 'horizonserver123' -MachineNames 'LAX-WIN10-002'
+	   Deletes VM 'LAX-WIN10-002' from HV Server 'horizonserver123'
+
+	.EXAMPLE
+	   remove-HVMachine -HVServer 'horizonserver123' -MachineNames $machines
+	   Deletes VM's contained within an array of machine names from HV Server 'horizonserver123'
+	
+	.NOTES
+		Author                      : Jose Rodriguez
+		Author email                : jrodsguitar@gmail.com
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.1.1
+		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+		PowerShell Version          : 5.0
+	#>
+	
+	  [CmdletBinding(
+	    SupportsShouldProcess = $true,
+		ConfirmImpact = 'High'
+	    )]
+	
+	  param(
+		
+		[Parameter(Mandatory = $true)]
+		[array]
+		$MachineNames,
+			
+		[Parameter(Mandatory = $false)]
+		$HVServer = $null
+	  )
+
+#Connect to HV Server
+$services = Get-ViewAPIService -HVServer $HVServer
+  
+  if ($null -eq $services) {
+	  Write-Error "Could not retrieve ViewApi services from connection object"
+		break
+	  }
+
+#Connect to Query Service
+$queryService = New-Object 'Vmware.Hv.QueryServiceService'
+#QUery Definition
+$queryDefinition = New-Object 'Vmware.Hv.QueryDefinition'
+#Query Filter
+$queryDefinition.queryEntityType = 'MachineNamesView'
+
+#Create Filter Set so we can populate it with QueryFilterEquals data
+[VMware.Hv.queryfilter[]]$filterSet = @()
+foreach($machine in $machineNames){
+
+    #queryfilter values
+    $queryFilterEquals = New-Object VMware.Hv.QueryFilterEquals
+    $queryFilterEquals.memberName = "base.name"
+    $queryFilterEquals.value = "$machine"
+
+    $filterSet += $queryFilterEquals
+
+}
+
+#Or Filter
+$orFilter = New-Object VMware.Hv.QueryFilterOr
+$orFilter.filters = $filterSet
+
+#Set Definition filter to value of $orfilter
+$queryDefinition.filter = $orFilter
+
+#Retrieve query results. Returns all machines to be deleted
+$queryResults = $queryService.QueryService_Query($services,$queryDefinition)
+
+#Assign VM Object to variable
+$deleteThisMachine = $queryResults.Results
+
+#Machine Service
+$machineService = new-object VMware.Hv.MachineService
+
+#Get Machine Service machine object
+$deleteMachine = $machineService.Machine_GetInfos($services,$deleteThisMachine.Id)
+
+#If sessions exist on the machines we are going to delete than force kill those sessions.
+#The deleteMachines method will not work if there are any existing sessions so this step is very important.
+write-host "Attemtping log off of machines"
+
+if($deleteMachine.base.session.id){
+$trys = 0
+
+    do{
+        foreach($session in $deleteMachine.base.session){
+
+        $sessions = $null
+        [VMware.Hv.SessionId[]]$sessions += $session     
+            
+         }
+
+    try{
+
+        write-host "`n"
+        write-host "Attemtping log off of machines"
+        write-host "`n"
+        $logOffSession = new-object 'VMware.Hv.SessionService'
+        $logOffSession.Session_LogoffSessionsForced($services,$sessions)
+
+        #Wait more for Sessions to end
+
+        Start-Sleep -Seconds 5 
+                
+        }
+
+    catch{
+
+        Write-Host "Attempted to Log Off Sessions from below machines but recieved an error. This doesn't usually mean it failed. Typically the session is succesfully logged off but takes some time"
+        write-host "`n"
+        write-host ($deleteMachine.base.Name -join "`n") 
+
+        start-sleep -seconds 5
+                   
+    }
+          
+     if(($trys -le 10)){
+        
+        write-host "`n"
+        write-host "Retrying Logoffs: $trys times"
+        #Recheck existing sessions
+        $deleteMachine = $machineService.Machine_GetInfos($services,$deleteThisMachine.Id)
+           
+        }
+              
+     $trys++
+
+    }
+
+    until((!$deleteMachine.base.session.id) -or ($trys -gt 10))
+ 
+}
+
+#Create delete spec for the DeleteMachines method
+$deleteSpec = [VMware.Hv.MachineDeleteSpec]::new()
+$deleteSpec.DeleteFromDisk = $true
+$deleteSpec.ArchivePersistentDisk = $false
+        
+#Delete the machines
+write-host "Attempting to Delete:" 
+Write-Output ($deleteMachine.base.Name -join "`n")
+$bye = $machineService.Machine_DeleteMachines($services,$deleteMachine.id,$deleteSpec)
+
+[System.gc]::collect()
+ 
+}        
 
 function get-hvhealth {
 	<#
@@ -10042,8 +10208,7 @@ function get-hvhealth {
 		[Parameter(Mandatory = $false)]
 		$HvServer = $null
 	  )
-
-		
+	
   $services = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
@@ -10722,4 +10887,4 @@ function remove-hvsite {
     [System.gc]::collect()
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Get-HVHealth, new-hvpodfederation, remove-hvpodfederation, get-hvpodfederation, register-hvpod, unregister-hvpod, set-hvpodfederation,get-hvsite,new-hvsite,set-hvsite,remove-hvsite
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, new-hvpodfederation, remove-hvpodfederation, get-hvpodfederation, register-hvpod, unregister-hvpod, set-hvpodfederation,get-hvsite,new-hvsite,set-hvsite,remove-hvsite
