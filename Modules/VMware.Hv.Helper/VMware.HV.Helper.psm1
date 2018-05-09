@@ -10316,9 +10316,8 @@ function register-hvpod {
 	#}
 
 	$temppw = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($ADPassword)
-  $PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($temppw)
-  $plainpassword
-	$vcPassword = New-Object VMware.Hv.SecureString
+  	$PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($temppw)
+  	$vcPassword = New-Object VMware.Hv.SecureString
 	$enc = [system.Text.Encoding]::UTF8
 	$vcPassword.Utf8String = $enc.GetBytes($PlainPassword)
 		
