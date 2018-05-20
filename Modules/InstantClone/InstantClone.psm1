@@ -44,7 +44,7 @@
     }
 
     # SourceVM must either be running or running but in Frozen State
-    if($vm.PowerState -ne "PoweredOn") {
+    if($vm.PowerState -ne "poweredOn") {
         Write-Host -ForegroundColor Red "Instant Cloning is only supported on a PoweredOn or Frozen VM"
         break
     }
