@@ -51,15 +51,45 @@
 
     # SourceVM == Powered On
     if((Get-VM $SourceVM).ExtensionData.Runtime.InstantCloneFrozen -eq $false) {
-        Write-Host -ForegroundColor Red "Instant Cloning from a PoweredOn VM has not been implemented"
-        break
-    }
 
-    $spec = New-Object VMware.Vim.VirtualMachineInstantCloneSpec
-    $locationSpec = New-Object VMware.Vim.VirtualMachineRelocateSpec
-    $spec.Config = $config
-    $spec.Location = $locationSpec
-    $spec.Name = $DestinationVM
+        # Retrieve all Network Adapters for SourceVM
+        $vmNetworkAdapters = @()
+        $devices = $vm.ExtensionData.Config.Hardware.Device
+        foreach ($device in $devices) {
+            if($device -is [VMware.Vim.VirtualEthernetCard]) {
+                $vmNetworkAdapters += $device
+            }
+        }
+
+        $spec = New-Object VMware.Vim.VirtualMachineInstantCloneSpec
+        $locationSpec = New-Object VMware.Vim.VirtualMachineRelocateSpec
+
+        # Disconect all NICs for new Instant Clone to ensure no dupe addresses on network
+        # post-Instant Clone workflow needs to renable after uypdating GuestOS
+        foreach ($vmNetworkAdapter in $vmNetworkAdapters) {
+            $networkName = $vmNetworkAdapter.backing.deviceName
+            $deviceConfigSpec = New-Object VMware.Vim.VirtualDeviceConfigSpec
+            $deviceConfigSpec.Operation = "edit"
+            $deviceConfigSpec.Device = $vmNetworkAdapter
+            $deviceConfigSpec.Device.backing = New-Object VMware.Vim.VirtualEthernetCardNetworkBackingInfo
+            $deviceConfigSpec.device.backing.deviceName = $networkName
+            $connectable = New-Object VMware.Vim.VirtualDeviceConnectInfo
+            $connectable.MigrateConnect = "disconnect"
+            $deviceConfigSpec.Device.Connectable = $connectable
+            $locationSpec.DeviceChange += $deviceConfigSpec
+        }
+
+        $spec.Config = $config
+        $spec.Location = $locationSpec
+        $spec.Name = $DestinationVM
+    # SourceVM == Frozen
+    } else {
+        $spec = New-Object VMware.Vim.VirtualMachineInstantCloneSpec
+        $locationSpec = New-Object VMware.Vim.VirtualMachineRelocateSpec
+        $spec.Config = $config
+        $spec.Location = $locationSpec
+        $spec.Name = $DestinationVM
+    }
 
     Write-Host "Creating Instant Clone $DestinationVM ..."
     $task = $vm.ExtensionData.InstantClone_Task($spec)
