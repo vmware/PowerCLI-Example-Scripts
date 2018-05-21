@@ -1,4 +1,4 @@
-﻿Function Get-XVCMStatus {
+Function Get-XVCMStatus {
 <#
     .NOTES
     ===========================================================================
@@ -12,7 +12,7 @@
     .EXAMPLE
         Get-XVCMStatus
 #>
-    $Uri = "http://localhost:8080/api/ping"
+    $Uri = "http://localhost:8080/api/status" #Updated for 2.0, Old: "http://localhost:8080/api/ping" 
 
     $results = Invoke-WebRequest -Uri $Uri -Method GET -TimeoutSec 5
 
@@ -142,7 +142,9 @@ Function New-XVCMRequest {
     ===========================================================================
     .DESCRIPTION
         This function initiates a migration request
-    .PARAMETER SrcSite
+	.PARAMETER opType
+		The type of task, Relocate or Clone
+	.PARAMETER SrcSite
         The name of the source vCenter Server
     .PARAMETER DstSite
         The name of the destination vCenter Server
@@ -151,31 +153,35 @@ Function New-XVCMRequest {
     .PARAMETER DstDatacenter
         The name of the destination vSphere Datacenter
     .PARAMETER SrcCluster
-        The name of the source vSphere Cluster
+         <Not needed for v2.0,removed from code>
     .PARAMETER DstCluster
-        The name of the destination vSphere Cluster
+        The name of the destination vSphere Cluster, set to null if DstHost is defined
     .PARAMETER DstDatastore
         The name of the destination Datastore
-    .PARAMETER srcVMs
+	.PARAMETER DstHost
+		The name of the destination host. Set to null if DstCluster is defined
+	.PARAMETER srcVMs
         List of VMs to migrate
     .PARAMETER NetworkMapping
         Hash table of the VM network mappings between your source and destination vCenter Server
     .EXAMPLE
-        New-XVCMRequest -SrcSite SiteA -DstSite SiteB `
+        New-XVCMRequest -opType Relocate -SrcSite SiteA -DstSite SiteB `
             -SrcDatacenter Datacenter-SiteA -DstDatacenter Datacenter-SiteB `
-            -SrcCluster Palo-Alto -DstCluster Santa-Barbara `
+            -DstCluster $null -DstHost VMhost1.test.lab `
             -DstDatastore vsanDatastore `
             -srcVMs @("PhotonOS-01","PhotonOS-02","PhotonOS-03","PhotonOS-04") `
             -NetworkMapping @{"DVPG-VM Network 1"="DVPG-Internal Network";"DVPG-VM Network 2"="DVPG-External Network"}
 #>
     param(
+		[Parameter(Mandatory=$true)][String]$opType, #Added by CPM for 2.0
         [Parameter(Mandatory=$true)][String]$SrcSite,
         [Parameter(Mandatory=$true)][String]$DstSite,
         [Parameter(Mandatory=$true)][String]$SrcDatacenter,
         [Parameter(Mandatory=$true)][String]$DstDatacenter,
-        [Parameter(Mandatory=$true)][String]$SrcCluster,
-        [Parameter(Mandatory=$true)][String]$DstCluster,
+        #[Parameter(Mandatory=$true)][String]$SrcCluster, #Removed by CPM for 2.0
+        [Parameter(Mandatory=$true)][AllowNull()] $DstCluster, #Added [AllowNull()], removed [String] by CPM for 2.0
         [Parameter(Mandatory=$true)][String]$DstDatastore,
+		[Parameter(Mandatory=$true)][AllowNull()] $DstHost, #Added by CPM for 2.0
         [Parameter(Mandatory=$true)][String[]]$srcVMs,
         [Parameter(Mandatory=$true)][Hashtable]$NetworkMapping
     )
@@ -187,11 +193,13 @@ Function New-XVCMRequest {
         "targetSite"=$DstSite;
         "sourceDatacenter"=$SrcDatacenter;
         "targetDatacenter"=$dstDatacenter;
-        "sourceCluster"=$SrcCluster;
+        #"sourceCluster"=$SrcCluster; #Removed by CPM for 2.0
         "targetCluster"=$DstCluster;
         "targetDatastore"=$DstDatastore;
+		"targetHost"=$DstHost; #Added by CPM for 2.0
         "networkMap"=$NetworkMapping;
         "vmList"=$srcVMs;
+		"operationType"=$opType; #Added by CPM for 2.0
     }
 
     $body = $body | ConvertTo-Json
