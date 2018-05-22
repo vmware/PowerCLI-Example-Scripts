@@ -106,6 +106,23 @@ function Get-JsonObject {
   }
 }
 
+function new-hvpassword{
+#Requires input of type securestring and replies with vmware.hv.securestring
+  param(
+    [string]$pwin
+    )
+
+	$temppw = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($pwin)
+  $PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($temppw)
+  $plainpassword
+	$SecPassword = New-Object VMware.Hv.SecureString
+	$enc = [system.Text.Encoding]::UTF8
+	$SecPassword.Utf8String = $enc.GetBytes($PlainPassword)
+  return $SecPassword
+   
+}
+
+
 function Get-MapEntry {
   param(
     [Parameter(Mandatory = $true)]
