@@ -112,7 +112,7 @@ function Get-VmfsDatastoreIncrease
 					Datastore = $Datastore.Name
 					CanonicalName = $disk.CanonicalName
 					Model = "$($disk.Vendor.TrimEnd(' ')).$($disk.Model.TrimEnd(' ')).$($disk.Revision.TrimEnd(' '))"
-					DiskSizeGB = $partInfo[0].Layout.Total.BlockSize * $hdPartInfo[0].Layout.Total.Block / 1GB
+					DiskSizeGB = $partInfo[0].Layout.Total.BlockSize * $partInfo[0].Layout.Total.Block / 1GB
 					DiskBlocks = $partInfo[0].Layout.Total.Block
 					DiskBlockMB = $partInfo[0].Layout.Total.BlockSize/1MB
 					AvailableGB = [math]::Round($partMax - $partUsed, 2)
@@ -181,7 +181,7 @@ function New-VmfsDatastoreIncrease
 				{
 					$lun = $hScsiDisk | where{ $_.CanonicalName -eq $dsOpt.Spec.Extent.DiskName }
 					$partInfo = $hsSys.RetrieveDiskPartitionInfo($lun.DeviceName)
-					$partMax = ($vmfsExpOpt[0].Info.Layout.Partition | where{ $_.Type -eq 'VMFS' } | %{ ($_.End.Block - $_.Start.Block + 1) * $_.Start.BlockSize } |
+					$partMax = ($expOpt[0].Info.Layout.Partition | where{ $_.Type -eq 'VMFS' } | %{ ($_.End.Block - $_.Start.Block + 1) * $_.Start.BlockSize } |
 						Measure-Object -Sum | select -ExpandProperty Sum)/1GB
 					$partUsed = ($partInfo[0].Layout.Partition | where{ $_.Type -eq 'VMFS' } | %{ ($_.End.Block - $_.Start.Block + 1) * $_.Start.BlockSize } |
 						Measure-Object -Sum | select -ExpandProperty Sum)/1GB
