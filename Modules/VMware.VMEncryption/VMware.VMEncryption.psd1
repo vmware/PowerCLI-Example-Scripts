@@ -49,7 +49,7 @@ Copyright = 'Copyright (c) 2016 VMware, Inc. All rights reserved.'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-@{"ModuleName"="VMware.VimAutomation.Core";"ModuleVersion"="10.1.0.8346946"}
+@{"ModuleName"="VMware.VimAutomation.Core";"ModuleVersion"="10.1.0.8344055"}
 )
 
 # Assemblies that must be loaded prior to importing this module
