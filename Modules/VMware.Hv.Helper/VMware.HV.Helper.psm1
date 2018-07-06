@@ -106,23 +106,6 @@ function Get-JsonObject {
   }
 }
 
-function new-hvpassword{
-#Requires input of type securestring and replies with vmware.hv.securestring
-  param(
-    [string]$pwin
-    )
-
-	$temppw = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($pwin)
-  $PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($temppw)
-  $plainpassword
-	$SecPassword = New-Object VMware.Hv.SecureString
-	$enc = [system.Text.Encoding]::UTF8
-	$SecPassword.Utf8String = $enc.GetBytes($PlainPassword)
-  return $SecPassword
-   
-}
-
-
 function Get-MapEntry {
   param(
     [Parameter(Mandatory = $true)]
@@ -10903,4 +10886,211 @@ function remove-hvsite {
     [System.gc]::collect()
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, new-hvpodfederation, remove-hvpodfederation, get-hvpodfederation, register-hvpod, unregister-hvpod, set-hvpodfederation,get-hvsite,new-hvsite,set-hvsite,remove-hvsite
+function Get-HVHomeSite {
+	<#
+	.Synopsis
+	   Gets the configured Horizon View Homesites
+
+	.DESCRIPTION
+    Gets the configured Horizon View Homesites
+
+  .PARAMETER Group
+		User principal name of a group
+
+  .PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+
+	.EXAMPLE
+     Get-HVHomeSite
+
+  .EXAMPLE
+    Get-HVHomeSite -group group@domain
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4
+		PowerCLI Version            : PowerCLI 10
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	    SupportsShouldProcess = $false,
+	    ConfirmImpact = 'High'
+	)]
+	
+	param(
+    [Parameter(Mandatory = $false)]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [String]
+    $Group,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+	)
+
+  begin{
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+	    Write-Error "Could not retrieve ViewApi services from connection object"
+		  break
+    }
+  }
+
+  process{
+    $hsresults = Get-HVQueryResult -EntityType UserHomeSiteInfo  -HvServer $HvServer
+    $resultsoverview=@()
+
+    foreach ($hsresult in $hsresults){
+    if ($hsresult.Globalentitlement){
+      $Globalentitlement = ($services.GlobalEntitlement.GlobalEntitlement_Get($hsresult.base.GlobalEntitlement)).base.displayname
+    }
+    else{
+      $Globalentitlement=""
+    }
+
+    if (($hsresult.globalapplicationEntitlement)){
+      $GlobalApplicationEntitlement = ($services.GlobalApplicationEntitlement.GlobalApplicationEntitlement_Get($hsresult.base.GlobalApplicationEntitlement)).base.displayname
+    }
+    else{
+      $GlobalApplicationEntitlement=""
+    }
+
+    $resultsoverview+=New-Object PSObject -Property @{"id" = ($hsresult).id;
+      "Group" = ($services.ADUserOrGroup.ADUserOrGroup_Get(($hsresult.base).userorgroup)).base.displayname;
+      "Site" = ($services.site.site_Get($hsresult.base.site)).base.displayname;
+      "Globalentitlement" =$Globalentitlement;
+      "Globalapplicationentitlement" =$GlobalApplicationEntitlement;
+    }
+    }
+    if ($group){
+      $results=$resultsoverview | where-object {$_.Group -eq $group} | select-object id,Group,Site,Globalentitlement,GlobalApplicationEntitlement
+    }
+    else{
+      $results=$resultsoverview | select-object id,Group,Site,Globalentitlement,GlobalApplicationEntitlement
+    }
+    return $results
+  }
+  [System.gc]::collect()
+}
+
+function New-HVHomeSite {
+	<#
+	.Synopsis
+    Defines a homesite within a Horizon View Cloud Pod architecture
+
+	.DESCRIPTION
+    Creates a new homesite within a Cloud Pod Archtitecture. By default it will be applied to everything 
+    but the choice can be made to only apply for a single global entitlement or singel global application entitlement
+
+  .PARAMETER Group
+    User principal name of a group
+
+  .PARAMETER Site
+    Name of the Horizon View Site
+
+  .PARAMETER globalEntitlement
+    Name of the global entitlement
+
+  .PARAMETER globalApplicationEntitlement
+    Name of the global application entitlement
+
+	.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered in-place of hvServer
+
+	.EXAMPLE
+    New-HVHomeSite -group group@domain -site SITE
+
+  .EXAMPLE
+    New-HVHomeSite -group group@domain -site SITE -globalapplicationentitlement ge-ap01
+
+  .EXAMPLE
+    New-HVHomeSite -group group@domain -site SITE -globalentitlement GE_Production
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4
+		PowerCLI Version            : PowerCLI 10.1.1
+		PowerShell Version          : 5.0
+	#>
+	
+
+  [CmdletBinding(DefaultParameterSetName="Default")]
+	param(
+    [Parameter(Mandatory = $true,ParameterSetName="Default")]
+    [Parameter(ParameterSetName = "globalEntitlement")]
+    [Parameter(ParameterSetName = "globalApplicationEntitlement")]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [String]
+    $Group,
+
+    [Parameter(Mandatory = $true,ParameterSetName="Default")]
+    [Parameter(ParameterSetName = "globalEntitlement")]
+    [Parameter(ParameterSetName = "globalApplicationEntitlement")]
+    [String]
+    $Site,
+
+    [Parameter(Mandatory = $false,ParameterSetName="globalEntitlement")]
+    [String]
+    $globalEntitlement ,
+
+    [Parameter(Mandatory = $false,ParameterSetName="globalApplicationEntitlement")]
+    [String]
+    $globalApplicationEntitlement ,
+
+    [Parameter(Mandatory = $false,ParameterSetName="Default")]
+    [Parameter(ParameterSetName = "globalEntitlement")]
+    [Parameter(ParameterSetName = "globalApplicationEntitlement")]
+    $HvServer = $null
+  )
+
+  begin{
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+	    Write-Error "Could not retrieve ViewApi services from connection object"
+		  break
+    }
+  }
+
+  process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
+    $groupinfo = Get-UserInfo -UserName $Group
+    $UserOrGroupName = $groupinfo.Name
+    $Domain = $groupinfo.Domain
+    $filter1 = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
+    $filter2 = Get-HVQueryFilter 'base.domain' -Eq $Domain
+    $filter3 = Get-HVQueryFilter 'base.group' -Eq $true
+    $andFilter = Get-HVQueryFilter -And -Filters @($filter1, $filter2, $filter3)
+    $adresults = Get-HVQueryResult -EntityType ADUserOrGroupSummaryView -Filter $andFilter -HvServer $HvServer
+    
+    if ($adresults.length -ne 1) {
+      Write-host "Unable to find specific group with given search parameters"
+      break
+    }
+    $userhomesitebase=new-object VMware.Hv.UserHomeSiteBase
+    $userhomesitebase.UserOrGroup=$adresults.id
+    $userhomesitebase.site=($services.site.site_list() | where-object {$_.base.displayname -eq $site}).id
+    if ($globalEntitlement){
+      $geresults = Get-HVQueryResult -EntityType GlobalEntitlementSummaryView -HvServer $HvServer
+      $geid=$geresults | where-object {$_.base.displayname -eq $globalEntitlement}
+      $userhomesitebase.globalEntitlement=$geid.id
+    }
+    elseif($globalApplicationEntitlement){
+      $gaefilter1 = Get-HVQueryFilter 'data.name' -Eq $globalApplicationEntitlement
+      $gaeresults = Get-HVQueryResult -EntityType ApplicationInfo -Filter $gaefilter1 -HvServer $HvServer
+      $userhomesitebase.GlobalApplicationEntitlement=$gaeresults.id
+    }
+  $services.UserHomeSite.UserHomeSite_Create($userhomesitebase)
+  }
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, new-hvpodfederation, remove-hvpodfederation, get-hvpodfederation, register-hvpod, unregister-hvpod, set-hvpodfederation,get-hvsite,new-hvsite,set-hvsite,remove-hvsite,New-HVHomeSite,Get-HVHomeSite
