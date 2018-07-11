@@ -10974,8 +10974,9 @@ function Get-HVHomeSite {
       $results=$resultsoverview | select-object id,Group,Site,Globalentitlement,GlobalApplicationEntitlement
     }
     return $results
+    [System.gc]::collect()
   }
-  [System.gc]::collect()
+  
 }
 
 function New-HVHomeSite {
