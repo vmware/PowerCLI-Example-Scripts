@@ -150,6 +150,9 @@ Function New-VCHABasicConfig {
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
 	===========================================================================
+	Updated by:	Fabio Naddafi
+	Date:		Jul 17, 2018
+	===========================================================================
 	.SYNOPSIS
 		This function allows you create a new "Basic" VCHA Cluster, it does not
         cover the "Advanced" use case. You will need to ensure that you have a
@@ -247,26 +250,9 @@ Function New-VCHABasicConfig {
 
     # Retrieve Source VC SSL Thumbprint
     $vcurl = "https://$vcIP"
-add-type @"
-        using System.Net;
-        using System.Security.Cryptography.X509Certificates;
 
-            public class IDontCarePolicy : ICertificatePolicy {
-            public IDontCarePolicy() {}
-            public bool CheckValidationResult(
-                ServicePoint sPoint, X509Certificate cert,
-                WebRequest wRequest, int certProb) {
-                return true;
-            }
-        }
-"@
-    [System.Net.ServicePointManager]::CertificatePolicy = new-object IDontCarePolicy
-    # Need to do simple GET connection for this method to work
-    Invoke-RestMethod -Uri $VCURL -Method Get | Out-Null
-
-    $endpoint_request = [System.Net.Webrequest]::Create("$vcurl")
     # Get Thumbprint + add colons for a valid Thumbprint
-    $vcSSLThumbprint = ($endpoint_request.ServicePoint.Certificate.GetCertHashString()) -replace '(..(?!$))','$1:'
+    $vcSSLThumbprint = openssl s_client -connect "$VCSAVM\:443" 2>/dev/null | openssl x509 -noout -fingerprint -sha1 | cut -f 2 -d'='
 
     $vcHAClusterConfig = Get-View failoverClusterConfigurator
     $spec = New-Object VMware.Vim.VchaClusterDeploymentSpec
