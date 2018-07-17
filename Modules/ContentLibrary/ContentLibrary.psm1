@@ -2,10 +2,10 @@
 <#
     .NOTES
     ===========================================================================
-     Created by:    William Lam
-     Organization:  VMware
-     Blog:          www.virtuallyghetto.com
-     Twitter:       @lamw
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
     ===========================================================================
     .DESCRIPTION
         This function lists all available vSphere Content Libaries
@@ -87,10 +87,10 @@ Function Get-ContentLibraryItems {
 <#
     .NOTES
     ===========================================================================
-     Created by:    William Lam
-     Organization:  VMware
-     Blog:          www.virtuallyghetto.com
-     Twitter:       @lamw
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
     ===========================================================================
     .DESCRIPTION
         This function lists all items within a given vSphere Content Library
@@ -158,10 +158,10 @@ Function Get-ContentLibraryItemFiles {
 <#
     .NOTES
     ===========================================================================
-     Created by:    William Lam
-     Organization:  VMware
-     Blog:          www.virtuallyghetto.com
-     Twitter:       @lamw
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
     ===========================================================================
     .DESCRIPTION
         This function lists all item files within a given vSphere Content Library
@@ -225,10 +225,10 @@ Function Set-ContentLibrary {
 <#
     .NOTES
     ===========================================================================
-     Created by:    William Lam
-     Organization:  VMware
-     Blog:          www.virtuallyghetto.com
-     Twitter:       @lamw
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
     ===========================================================================
     .DESCRIPTION
         This function updates the JSON Persistence property for a given Content Library
@@ -281,10 +281,10 @@ Function New-ExtReplicatedContentLibrary {
 <#
     .NOTES
     ===========================================================================
-     Created by:    William Lam
-     Organization:  VMware
-     Blog:          www.virtuallyghetto.com
-     Twitter:       @lamw
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
     ===========================================================================
     .DESCRIPTION
         This function creates a new Subscriber Content Library from a JSON Persisted
@@ -345,10 +345,10 @@ Function Remove-SubscribedContentLibrary {
 <#
     .NOTES
     ===========================================================================
-     Created by:    William Lam
-     Organization:  VMware
-     Blog:          www.virtuallyghetto.com
-     Twitter:       @lamw
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
     ===========================================================================
     .DESCRIPTION
         This function deletes a Subscriber Content Library
@@ -387,10 +387,10 @@ Function New-LocalContentLibrary {
 <#
     .NOTES
     ===========================================================================
-     Created by:    William Lam
-     Organization:  VMware
-     Blog:          www.virtuallyghetto.com
-     Twitter:       @lamw
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
     ===========================================================================
     .DESCRIPTION
         This function creates a new Subscriber Content Library from a JSON Persisted
@@ -444,10 +444,10 @@ Function Remove-LocalContentLibrary {
 <#
     .NOTES
     ===========================================================================
-     Created by:    William Lam
-     Organization:  VMware
-     Blog:          www.virtuallyghetto.com
-     Twitter:       @lamw
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
     ===========================================================================
     .DESCRIPTION
         This function deletes a Local Content Library
@@ -486,10 +486,10 @@ Function Copy-ContentLibrary {
 <#
     .NOTES
     ===========================================================================
-     Created by:    William Lam
-     Organization:  VMware
-     Blog:          www.virtuallyghetto.com
-     Twitter:       @lamw
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
     ===========================================================================
     .DESCRIPTION
         This function copies all library items from one Content Library to another
@@ -578,4 +578,122 @@ Function Copy-ContentLibrary {
             }
         }
     }
+}
+
+Function New-VMTX {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+    .DESCRIPTION
+        This function clones a VM to VM Template in Content Library (currently only supported on VMC)
+    .PARAMETER SourceVMName
+        The name of the source VM to clone
+    .PARAMETER VMTXName
+        The name of the VM Template in Content Library
+    .PARAMETER Description
+        Description of the VM template
+    .PARAMETER LibaryName
+        The name of the Content Library to clone to
+    .PARAMETER FolderName
+        The name of vSphere Folder (Defaults to Workloads for VMC)
+    .PARAMETER ResourcePoolName
+        The name of the vSphere Resource Pool (Defaults to Compute-ResourcePools for VMC)
+    .EXAMPLE
+        New-VMTX -SourceVMName "Windows10-BaseInstall" -VMTXName "Windows10-VMTX-Template" -LibraryName "VMC-CL-01"
+#>
+    param(
+        [Parameter(Mandatory=$true)][String]$SourceVMName,
+        [Parameter(Mandatory=$true)][String]$VMTXName,
+        [Parameter(Mandatory=$false)][String]$Description,
+        [Parameter(Mandatory=$true)][String]$LibraryName,
+        [Parameter(Mandatory=$false)][String]$FolderName="Workloads",
+        [Parameter(Mandatory=$false)][String]$ResourcePoolName="Compute-ResourcePool"
+    )
+
+    $vmtxService = Get-CisService -Name "com.vmware.vcenter.vm_template.library_items"
+
+    $sourceVMId = ((Get-VM -Name $SourceVMName).ExtensionData.MoRef).Value
+    $libraryId = ((Get-ContentLibrary -LibraryName $LibraryName).Id).Value
+    $folderId = ((Get-Folder -Name $FolderName).ExtensionData.MoRef).Value
+    $rpId = ((Get-ResourcePool -Name $ResourcePoolName).ExtensionData.MoRef).Value
+
+    $vmtxCreateSpec =  $vmtxService.Help.create.spec.Create()
+    $vmtxCreateSpec.source_vm = $sourceVMId
+    $vmtxCreateSpec.name = $VMTXName
+    $vmtxCreateSpec.description = $Description
+    $vmtxCreateSpec.library = $libraryId
+    $vmtxCreateSpec.placement.folder = $folderId
+    $vmtxCreateSpec.placement.resource_pool = $rpId
+
+    Write-Host "`nCreating new VMTX Template from $SourceVMName in Content Library $LibraryName ..."
+    $result = $vmtxService.create($vmtxCreateSpec)
+}
+
+Function New-VMFromVMTX {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+    .DESCRIPTION
+        This function deploys a new VM from Template in Content Library (currently only supported in VMC)
+    .PARAMETER VMTXName
+        The name of the VM Template in Content Library to deploy from
+    .PARAMETER NewVMName
+        The name of the new VM to deploy
+    .PARAMETER FolderName
+        The name of vSphere Folder (Defaults to Workloads for VMC)
+    .PARAMETER ResourcePoolName
+        The name of the vSphere Resource Pool (Defaults to Compute-ResourcePools for VMC)
+    .PARAMETER NumCpu
+        The number of vCPU to configure for the new VM
+    .PARAMETER MemoryMb
+        The amount of memory (MB) to configure for the new VM
+    .PARAMETER PowerOn
+        To power on the VM after deploy
+    .EXAMPLE
+        New-VMFromVMTX -NewVMName "FooFoo" -VMTXName "FooBar" -PowerOn $true -NumCpu 4 -MemoryMB 2048
+#>
+    param(
+        [Parameter(Mandatory=$true)][String]$VMTXName,
+        [Parameter(Mandatory=$true)][String]$NewVMName,
+        [Parameter(Mandatory=$false)][String]$FolderName="Workloads",
+        [Parameter(Mandatory=$false)][String]$ResourcePoolName="Compute-ResourcePool",
+        [Parameter(Mandatory=$false)][String]$DatastoreName="WorkloadDatastore",
+        [Parameter(Mandatory=$false)][Int]$NumCpu,
+        [Parameter(Mandatory=$false)][Int]$MemoryMB,
+        [Parameter(Mandatory=$false)][Boolean]$PowerOn=$false
+    )
+
+    $vmtxService = Get-CisService -Name "com.vmware.vcenter.vm_template.library_items"
+    $vmtxId = (Get-ContentLibraryItem -Name $VMTXName).Id
+    $folderId = ((Get-Folder -Name $FolderName).ExtensionData.MoRef).Value
+    $rpId = ((Get-ResourcePool -Name $ResourcePoolName).ExtensionData.MoRef).Value
+    $datastoreId = ((Get-Datastore -Name $DatastoreName).ExtensionData.MoRef).Value
+
+    $vmtxDeploySpec =  $vmtxService.Help.deploy.spec.Create()
+    $vmtxDeploySpec.name = $NewVMName
+    $vmtxDeploySpec.powered_on = $PowerOn
+    $vmtxDeploySpec.placement.folder = $folderId
+    $vmtxDeploySpec.placement.resource_pool = $rpId
+    $vmtxDeploySpec.vm_home_storage.datastore = $datastoreId
+    $vmtxDeploySpec.disk_storage.datastore = $datastoreId
+
+    if($NumCpu) {
+        $vmtxDeploySpec.hardware_customization.cpu_update.num_cpus = $NumCpu
+    }
+    if($MemoryMB) {
+        $vmtxDeploySpec.hardware_customization.memory_update.memory = $MemoryMB
+    }
+
+    Write-Host "`nDeploying new VM $NewVMName from VMTX Template $VMTXName ..."
+    $results = $vmtxService.deploy($vmtxId,$vmtxDeploySpec)
 }
