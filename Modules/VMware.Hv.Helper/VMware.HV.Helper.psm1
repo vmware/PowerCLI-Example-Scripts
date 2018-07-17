@@ -8119,8 +8119,7 @@ function Get-HVEntitlement {
     }
     if (! $results) {
       Write-Host "Get-HVEntitlement: No entitlements found with given search parameters"
-      break
-    }
+      }
     return $results
   }
   end {
