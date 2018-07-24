@@ -11230,4 +11230,65 @@ function Set-HVEventDatabase {
   [System.gc]::collect()
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, New-HVPodfederation, Remove-HVPodFederation, Get-HVPodFederation, Register-HVPod, Unregister-HVPod, Set-HVPodFederation,Get-HVSite,New-HVSite,Set-HVSite,Remove-HVSite,New-HVHomeSite,Get-HVHomeSite,Set-HVEventDatabase
+function Get-HVEventDatabase {
+	<#
+	.Synopsis
+	   Retreives information about the configured Event Database
+	
+	.DESCRIPTION
+    Collects information about the configured event database for aHorizon View pod
+  
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   Get-HVEventDatabase
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4
+		PowerCLI Version            : PowerCLI 10
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	    SupportsShouldProcess = $false,
+	    ConfirmImpact = 'High'
+	)]
+	
+	param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+	)
+
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+
+  $eventdatabase=$services.EventDatabase.EventDatabase_Get()
+  if ($eventdatabase.eventdatabaseset -eq $False){
+      write-output "No Event Database configuration found"
+  }
+  elseif ($eventdatabase.eventdatabaseset -eq $true){
+    $Eventdatabaseoverview=@()
+    $Eventdatabaseoverview+=New-Object PSObject -Property @{"Servername" = $eventdatabase.Database.Server;
+      "Type" = $eventdatabase.Database.Type;
+      "DatabaseName" = $eventdatabase.Database.Name;
+      "UserName" = $eventdatabase.Database.UserName;
+      "TablePrefix" = $eventdatabase.Database.TablePrefix;
+      "ShowEventsForTime" = $eventdatabase.settings.ShowEventsForTime;
+      "ClassifyEventsAsNewForDays" = $eventdatabase.settings.ClassifyEventsAsNewForDays;
+    } | select-object Servername,Type,DatabaseName,UserName,TablePrefix,ShowEventsForTime,ClassifyEventsAsNewForDays
+  }
+  return $Eventdatabaseoverview 
+  [System.gc]::collect()
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, New-HVPodfederation, Remove-HVPodFederation, Get-HVPodFederation, Register-HVPod, Unregister-HVPod, Set-HVPodFederation,Get-HVSite,New-HVSite,Set-HVSite,Remove-HVSite,New-HVHomeSite,Get-HVHomeSite,Set-HVEventDatabase,Get-HVEventDatabase
