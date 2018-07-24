@@ -11093,4 +11093,141 @@ function New-HVHomeSite {
   }
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, new-hvpodfederation, remove-hvpodfederation, get-hvpodfederation, register-hvpod, unregister-hvpod, set-hvpodfederation,get-hvsite,new-hvsite,set-hvsite,remove-hvsite,New-HVHomeSite,Get-HVHomeSite
+function Set-HVEventDatabase {
+	<#
+  .Synopsis
+    Registers or changes a Horizon View Event database.
+
+	.DESCRIPTION
+    Registers or changes a Horizon View Event database
+
+  .PARAMETER ServerName
+    Name of the database server (Required)
+
+  .PARAMETER Databasetype
+    Database type, possible options: MYSQL,SQLSERVER,ORACLE. Defaults to SQLSERVER
+
+  .PARAMETER DatabasePort
+    Port number on the database server to which View will send events. Defaults to 1433. 
+
+  .PARAMETER Databasename
+    Name of the Database (required)
+
+  .PARAMETER TablePrefix
+    Prefix to use for the Event Databse. Allowed characters are letters, numbers, and the characters @, $, #,  _, and may not be longer than 6 characters.
+
+  .PARAMETER UserName
+    UserName to connect to the database (required)
+
+  .PARAMETER Password
+    Password of the user connecting to the database in Securestring format.
+    Can be created with:  $password = Read-Host 'Domain Password' -AsSecureString
+
+  .PARAMETER eventtime
+    Time to show the events for. Possible options are ONE_WEEK, TWO_WEEKS, THREE_WEEKS, ONE_MONTH,TWO_MONTHS, THREE_MONTHS, SIX_MONTHS
+
+  .PARAMETER EventNewTime
+    Time in days to classify events for new. Range 1-3
+
+	.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered in-place of hvServer
+
+	.EXAMPLE
+    register-hveventdatabase -server SERVER@domain -database DATABASENAME -username USER@domain -password $password
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4
+		PowerCLI Version            : PowerCLI 10
+		PowerShell Version          : 5.0
+	#>
+
+	[CmdletBinding(
+	    SupportsShouldProcess = $false,
+	    ConfirmImpact = 'High'
+	)]
+
+	param(
+    [Parameter(Mandatory = $true)]
+    [string]
+    $ServerName,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $DatabaseType = "SQLSERVER",
+
+    [Parameter(Mandatory = $false)]
+    [int]
+    $DatabasePort = 1433,
+
+    [Parameter(Mandatory = $true)]
+    [string]
+    $DatabaseName,
+
+    [Parameter(Mandatory = $false)]
+    [string][ValidateLength(1,6)]
+    $TablePrefix,
+
+    [Parameter(Mandatory = $true)]
+
+    [String]
+    $UserName,
+
+    [Parameter(Mandatory = $true)]
+    [securestring]
+    $password,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('ONE_WEEK','TWO_WEEKS','THREE_WEEKS','ONE_MONTH','TWO_MONTHS','THREE_MONTHS','SIX_MONTHS')]
+    [string]
+    $eventtime="TWO_WEEKS",
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,3)]
+    [int]
+    $eventnewtime = 2,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+	    Write-Error "Could not retrieve ViewApi services from connection object"
+		  break
+    }
+  $temppw = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)
+  $PlainevdbPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($temppw)
+  $dbupassword = New-Object VMware.Hv.SecureString
+  $enc = [system.Text.Encoding]::UTF8
+  $dbupassword.Utf8String = $enc.GetBytes($PlainevdbPassword)
+
+  $eventservice=new-object vmware.hv.eventdatabaseservice
+  $eventservicehelper=$eventservice.getEventDatabaseInfoHelper()
+  $eventsettings=new-object VMware.Hv.EventDatabaseEventSettings
+  $eventdatabase=new-object VMware.Hv.EventDatabaseSettings
+  $eventsettings.ShowEventsForTime=$eventtime
+  $eventsettings.ClassifyEventsAsNewForDays=$eventnewtime
+  $eventdatabase.Server=$ServerName
+  $eventdatabase.type=$DatabaseType
+  $eventdatabase.port=$DatabasePort
+  $eventdatabase.name=$DatabaseName
+  $eventdatabase.username=$UserName
+  if($TablePrefix){
+    $eventdatabase.tablePrefix=$tableprefix
+  }
+
+  $eventdatabase.password=$dbupassword
+  $eventservicehelper.setDatabase($eventdatabase)
+  $eventservicehelper.setsettings($eventsettings)
+  $eventservice.update($services, $eventservicehelper)
+
+  [System.gc]::collect()
+}
+
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, New-HVPodfederation, Remove-HVPodFederation, Get-HVPodFederation, Register-HVPod, Unregister-HVPod, Set-HVPodFederation,Get-HVSite,New-HVSite,Set-HVSite,Remove-HVSite,New-HVHomeSite,Get-HVHomeSite,Set-HVEventDatabase
