@@ -1761,8 +1761,8 @@ function Get-HVQueryResult {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.1.0
-    PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+    Horizon View Server Version : 7.0.2, 7.1.0,7.4
+    PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1, PowerCLI 10.1.1
     PowerShell Version          : 5.0
 #>
 
@@ -1775,7 +1775,7 @@ function Get-HVQueryResult {
       'FarmSummaryView','GlobalApplicationEntitlementInfo','GlobalEntitlementSummaryView',
       'MachineNamesView','MachineSummaryView','PersistentDiskInfo','PodAssignmentInfo',
       'RDSServerInfo','RDSServerSummaryView','RegisteredPhysicalMachineInfo','SampleInfo',
-      'SessionLocalSummaryView','TaskInfo','URLRedirectionInfo','UserHomeSiteInfo')]
+      'SessionLocalSummaryView','TaskInfo','URLRedirectionInfo','UserHomeSiteInfo','EventSummaryView','GlobalApplicationEntitlementInfo')]
     [string]$EntityType,
 
     [Parameter(Position = 1,Mandatory = $false)]
