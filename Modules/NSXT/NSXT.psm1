@@ -258,3 +258,39 @@ Function Get-NSXTManager {
     }
     $results
 }
+
+Function Get-NSXTTransportNodes {
+    Param (
+        [parameter(Mandatory=$false,ValueFromPipeline=$true)][string]$Id
+    )
+
+    $transport_nodesService = Get-NsxtService -Name "com.vmware.nsx.transport_nodes"
+    $transport_nodesstateService = Get-NsxtService -Name "com.vmware.nsx.transport_nodes.state"
+    
+    if($Id) {
+        $transport_nodes = $transport_nodesService.get($Id)
+    } else {
+        $transport_nodes = $transport_nodesService.list().results
+    }
+
+    $results = @()
+    foreach ($transport_node in $transport_nodes) {
+        
+        $transport_nodesstate = $transport_nodesstateService.get("$($transport_node.Id)")
+        
+        $tmp = [pscustomobject] @{
+            Id = $transport_node.Id;
+            Name = $transport_node.display_name;
+            Tags = $transport_node.tags;
+            MaintenanceMode = $transport_node.maintenance_mode;
+            HostSwitchesName = $transport_node.host_switches.host_switch_name;
+            Default_gateway = $transport_nodesstate.host_switch_states.endpointsdefault_gateway;
+            Device_name = $transport_nodesstate.host_switch_states.endpoints.device_name;
+            Ip = $transport_nodesstate.host_switch_states.endpoints.ip;
+            Subnet_mask =$transport_nodesstate.host_switch_states.endpoints.subnet_mask
+        }
+        $results+=$tmp
+    }
+
+    $results
+}
