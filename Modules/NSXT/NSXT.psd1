@@ -7,7 +7,7 @@
 	Copyright = '(c) 2017. All rights reserved.'
 	Description = 'Powershell Module for NSX-T REST API Functions'
 	PowerShellVersion = '5.0'
-    FunctionsToExport = 'Get-NSXTComputeManager','Get-NSXTFabricNode','Get-NSXTFirewallRule','Get-NSXTIPPool','Get-NSXTLogicalSwitch','Get-NSXTManager','Get-NSXTTransportZone','Get-NSXTController'
+    FunctionsToExport = 'Get-NSXTComputeManager','Get-NSXTFabricNode','Get-NSXTFirewallRule','Get-NSXTIPPool','Get-NSXTLogicalSwitch','Get-NSXTManager','Get-NSXTTransportZone','Get-NSXTController','Get-NSXTTransportNodes'
 	PrivateData = @{
 		PSData = @{
 			Tags = @('NSX-T','REST')
