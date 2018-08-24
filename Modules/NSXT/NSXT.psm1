@@ -343,3 +343,131 @@ Function Get-NSXTTraceFlowObservations {
 
     $NSXTraceFlowsObserv.results | select transport_node_name,component_name,@{N='PacketEvent';E={($_.resource_type).TrimStart("TraceflowObservation")}}
 }
+
+Function Set-NSXTTraceFlow {
+    [CmdletBinding()]
+
+    # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
+    Param (
+            [parameter(Mandatory=$true,
+                        ParameterSetName='Parameter Set VM Type')]
+            [ValidateSet("UNICAST")]
+            [string]
+            $TrafficType = "UNICAST",
+            [parameter(Mandatory=$true,
+                        ValueFromPipeline=$true,
+                        ParameterSetName='Parameter Set VM Type')]
+            [ValidateNotNullOrEmpty()]
+            #[ValidateScript({Get-NSXTLogicalPort -Id $_}]
+            [string]
+            $LPORTID,
+            [parameter(Mandatory=$true,
+                        ValueFromPipeline=$true,
+                        ParameterSetName='Parameter Set VM Type')]
+            [ValidateNotNullOrEmpty()]
+            [ValidateScript({$_ -match [IPAddress]$_})] 
+            [string]
+            $SIPAddr,
+            [parameter(Mandatory=$true,
+                        ValueFromPipeline=$true,
+                        ParameterSetName='Parameter Set VM Type')]
+            [ValidateNotNullOrEmpty()]
+            [ValidateScript({$pattern = '^(([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2}))|(([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2}))$'
+                            if ($_ -match ($pattern -join '|')) {$true} else {
+                                    throw "The argument '$_' does not match a valid MAC address format."
+                                }
+                            })]
+            [string]
+            $SMAC,
+            [parameter(Mandatory=$true,
+                        ValueFromPipeline=$true,
+                        ParameterSetName='Parameter Set VM Type')]
+            [ValidateNotNullOrEmpty()]
+            [ValidateScript({$_ -match [IPAddress]$_ })] 
+            [string]
+            $DIPAddr,
+            [parameter(Mandatory=$true,
+                        ValueFromPipeline=$true,
+                        ParameterSetName='Parameter Set VM Type')]
+            [ValidateNotNullOrEmpty()]
+            [ValidateScript({$pattern = '^(([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2}))|(([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2}))$'
+                            if ($_ -match ($pattern -join '|')) {$true} else {
+                                    throw "The argument '$_' does not match a valid MAC address format."
+                                }
+                            })]
+            [string]
+            $DMAC)
+
+    Begin
+    {
+        if (-not $global:DefaultNsxtServers.isconnected)
+        {
+        
+            try
+            {
+                Connect-NsxtServer -Menu -ErrorAction Stop
+            }
+
+            catch
+            {
+                throw "Could not connect to an NSX-T Manager, please try again"
+            }
+        }
+        
+        $NSXTraceFlowsService = Get-NsxtService -Name "com.vmware.nsx.traceflows"
+        
+        # This is where I need help - the method does not ingest the complete $traceflow_request object!
+        
+        # Create the example object
+        $traceflow_request = $NSXTraceFlowService.help.create.traceflow_request.Create()
+        $traceflow_request.lport_id = $LPORTID
+        $traceflow_request.timeout = '15000'
+        $traceflow_request.packet.routed = 'true'
+        $traceflow_request.packet.transport_type = $TrafficType.ToUpper()
+        $traceflow_request.packet.resource_type = 'FieldsPacketData'
+        $traceflow_request.packet.frame_size = '64'
+
+        # The example object is missing packet data, so we create it.
+        $eth_header = @{src_mac = $SMAC;eth_type = '2048';dst_mac = $DMAC}
+        $ip_header = @{src_ip = $SIPAddr;protocol = '1';ttl = '64';dst_ip = $DIPAddr}
+        $traceflow_request.packet | Add-Member -NotePropertyMembers $eth_header -TypeName eth_header
+        $traceflow_request.packet | Add-Member -NotePropertyMembers $ip_header -TypeName ip_header
+
+        # Alternative method of creating $traceflow_request (not working either)
+        <#       
+        $TraceFlow_Request = [PSCustomObject]@{
+            packet = @{routed = 'true';
+                    transport_type = $TrafficType.ToUpper();
+                    ip_header = @{src_ip = $SIPAddr;dst_ip = $DIPAddr};
+                    eth_header = @{dst_mac = $DMAC;src_mac = $SMAC};
+                    payload = 'test_payload';
+                    resource_type = 'FieldsPacketData'};
+            timeout = '10000';
+            lport_id = $LPORTID
+        }      
+        #>
+    }
+
+    Process
+    {
+        try
+        {
+            # This does not work, ignores eth_header,ip_header etc.. Not clear why!?
+            $NSXTraceFlow = $NSXTraceFlowService.create($traceflow_request)
+        }
+
+        catch
+        {
+            $Error[0].Exception.ServerError.data
+            # more error data found in the NSX-T Manager /var/log/vmware/nsx-manager.log file.  Filter by MONITORING.
+        }
+    }
+
+    End
+    {
+        if ($NSXTraceFlow)
+        {
+            Get-NSXttraceflow
+        }
+    }
+}
