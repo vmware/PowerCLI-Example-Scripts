@@ -294,3 +294,36 @@ Function Get-NSXTTransportNodes {
 
     $results
 }
+
+Function Get-NSXTTraceFlows {
+    Param (
+        [parameter(Mandatory=$false,ValueFromPipeline=$true)][string]$Id
+    )
+
+    $NSXTraceFlowsService = Get-NsxtService -Name "com.vmware.nsx.traceflows"
+        
+    if($Id) {
+        $NSXTraceFlows = $NSXTraceFlowsService.get($Id)
+    } else {
+        $NSXTraceFlows = $NSXTraceFlowsService.list().results
+    }
+
+    $results = @()
+    foreach ($NSXTraceFlow in $NSXTraceFlows) {
+        
+        $tmp = [pscustomobject] @{
+            Id = $NSXTraceFlow.Id;
+            Operation_State = $NSXTraceFlow.operation_state;
+            Delivered = $NSXTraceFlow.Counters.delivered_count;
+            Dropped = $NSXTraceFlow.Counters.dropped_count;
+            Analysis = $NSXTraceFlow.maintenance_mode;
+        }
+        $results+=$tmp
+    }
+
+    $results
+    
+    if ($Id) {
+        write-output $Id 
+    }
+}
