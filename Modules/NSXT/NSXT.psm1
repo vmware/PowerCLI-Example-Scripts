@@ -327,3 +327,19 @@ Function Get-NSXTTraceFlows {
         write-output $Id 
     }
 }
+
+Function Get-NSXTTraceFlowObservations {
+    Param (
+        [parameter(Mandatory=$true,ValueFromPipeline=$true)][string]$Id
+    )
+
+    $NSXTraceFlowsObservService = Get-NsxtService -Name "com.vmware.nsx.traceflows.observations"
+        
+    if($Id) {
+        $NSXTraceFlowsObserv = $NSXTraceFlowsObservService.list($Id)
+    } else {
+        throw "TraceFlow ID required"
+    }
+
+    $NSXTraceFlowsObserv.results | select transport_node_name,component_name,@{N='PacketEvent';E={($_.resource_type).TrimStart("TraceflowObservation")}}
+}
