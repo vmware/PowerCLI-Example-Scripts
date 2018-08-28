@@ -3568,30 +3568,35 @@ function New-HVPool {
     [string[]]
     $ConnectionServerRestrictions,
 
-    #desktopSpec.desktopSettings.logoffSettings.powerPloicy
+    #desktopSpec.desktopSettings.logoffSettings.powerPolicy
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('TAKE_NO_POWER_ACTION', 'ALWAYS_POWERED_ON', 'SUSPEND', 'POWER_OFF')]
     [string]$PowerPolicy = 'TAKE_NO_POWER_ACTION',
 
-    #desktopSpec.desktopSettings.logoffSettings.powerPloicy
+    #desktopSpec.desktopSettings.logoffSettings.powerPolicy
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('IMMEDIATELY', 'NEVER', 'AFTER')]
     [string]$AutomaticLogoffPolicy = 'NEVER',
 
     #desktopSpec.desktopSettings.logoffSettings.automaticLogoffMinutes
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateRange(1,[int]::MaxValue)]
     [int]$AutomaticLogoffMinutes = 120,
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToResetMachines
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [boolean]$allowUsersToResetMachines = $false,
 
     #desktopSpec.desktopSettings.logoffSettings.allowMultipleSessionsPerUser
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [boolean]$allowMultipleSessionsPerUser = $false,
 
     #desktopSpec.desktopSettings.logoffSettings.deleteOrRefreshMachineAfterLogoff
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('NEVER', 'DELETE', 'REFRESH')]
     [string]$deleteOrRefreshMachineAfterLogoff = 'NEVER',
@@ -3612,25 +3617,30 @@ function New-HVPool {
 
     #DesktopDisplayProtocolSettings
     #desktopSpec.desktopSettings.logoffSettings.supportedDisplayProtocols
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string[]]$supportedDisplayProtocols = @('RDP', 'PCOIP', 'BLAST'),
 
     #desktopSpec.desktopSettings.logoffSettings.defaultDisplayProtocol
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string]$defaultDisplayProtocol = 'PCOIP',
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToChooseProtocol
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [int]$allowUsersToChooseProtocol = $true,
 
     #desktopSpec.desktopSettings.logoffSettings.enableHTMLAccess
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [boolean]$enableHTMLAccess = $false,
 
     # DesktopPCoIPDisplaySettings
     #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.renderer3D
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('MANAGE_BY_VSPHERE_CLIENT', 'AUTOMATIC', 'SOFTWARE', 'HARDWARE', 'DISABLED')]
     [string]$renderer3D = 'DISABLED',
@@ -3725,7 +3735,7 @@ function New-HVPool {
     [string]
     $ResourcePool,
 
-	#desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.datacenter if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.datacenter if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
@@ -3739,7 +3749,7 @@ function New-HVPool {
     [string[]]
     $Datastores,
 
-	#desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores.storageOvercommit if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores.storageOvercommit if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
@@ -3980,7 +3990,8 @@ function New-HVPool {
     [string]
     $CustType,
 
-    #desktopSpec.automatedDesktopSpec.customizationSettings.reusePreExistingAccounts if LINKED_CLONE
+    #desktopSpec.automatedDesktopSpec.customizationSettings.reusePreExistingAccounts if LINKED_CLONE, INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     [Boolean]
     $ReusePreExistingAccounts = $false,
@@ -5211,6 +5222,7 @@ function Get-HVPoolCustomizationSetting {
         throw "No Instant Clone Engine Domain Administrator found with netBiosName: [$netBiosName]"
       }
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings = Get-CustomizationObject
+      $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts      
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.InstantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.powerOffScriptName = $powerOffScriptName
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.powerOffScriptParameters = $powerOffScriptParameters
