@@ -855,4 +855,49 @@ Function New-VMCLogicalNetwork {
     Get-VMCLogicalNetwork -OrgName $OrgName -SDDCName $SDDCName -LogicalNetworkName $LogicalNetworkName
 }
 
-Export-ModuleMember -Function 'Get-VMCCommand', 'Connect-VMCVIServer', 'Get-VMCOrg', 'Get-VMCSDDC', 'Get-VMCTask', 'Get-VMCSDDCDefaultCredential', 'Get-VMCSDDCPublicIP', 'Get-VMCVMHost', 'Get-VMCSDDCVersion', 'Get-VMCFirewallRule', 'Export-VMCFirewallRule', 'Import-VMCFirewallRule', 'Remove-VMCFirewallRule', 'Get-VMCLogicalNetwork', 'Remove-VMCLogicalNetwork', 'New-VMCLogicalNetwork'
+Function Get-VMCSDDCSummary {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    VMware
+        Date:          09/04/18
+        Organization:  VMware
+        Blog:          https://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Returns a number of useful informational data about a given SDDC within VMC Org
+        .DESCRIPTION
+            Returns Version, Create/Expiration Date, Deployment Type, Region, AZ, Instance Type, VPC CIDR & NSX-T
+        .EXAMPLE
+            Get-VMCSDDCSummary -Name <SDDC Name> -Org <Org Name>
+    #>
+        Param (
+            [Parameter(Mandatory=$True)]$OrgName,
+            [Parameter(Mandatory=$True)]$SDDCName
+        )
+
+        If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+            $orgId = (Get-VMCOrg -Name $Org).Id
+            $sddcId = (Get-VMCSDDC -Name $Name -Org $Org).Id
+
+            $sddcService = Get-VmcService "com.vmware.vmc.orgs.sddcs"
+            $sddc = $sddcService.get($orgId,$sddcId)
+
+            $results = [pscustomobject] @{
+                Version = $sddc.resource_config.sddc_manifest.vmc_version;
+                CreateDate = $sddc.created;
+                ExpirationDate = $sddc.expiration_date;
+                DeploymentType = $sddc.resource_config.deployment_type;
+                Region = $sddc.resource_config.region;
+                AvailabilityZone = $sddc.resource_config.availability_zones;
+                InstanceType = $sddc.resource_config.sddc_manifest.esx_ami.instance_type;
+                VpcCIDR = $sddc.resource_config.vpc_info.vpc_cidr;
+                NSXT = $sddc.resource_config.nsxt;
+            }
+            $results
+        }
+}
+
+Export-ModuleMember -Function 'Get-VMCCommand', 'Connect-VMCVIServer', 'Get-VMCOrg', 'Get-VMCSDDC', 'Get-VMCTask', 'Get-VMCSDDCDefaultCredential', 'Get-VMCSDDCPublicIP', 'Get-VMCVMHost', 'Get-VMCSDDCVersion', 'Get-VMCFirewallRule', 'Export-VMCFirewallRule', 'Import-VMCFirewallRule', 'Remove-VMCFirewallRule', 'Get-VMCLogicalNetwork', 'Remove-VMCLogicalNetwork', 'New-VMCLogicalNetwork', 'Get-VMCSDDCSummary'
