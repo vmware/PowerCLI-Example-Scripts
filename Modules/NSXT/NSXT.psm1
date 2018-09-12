@@ -259,89 +259,114 @@ Function Get-NSXTManager {
     $results
 }
 
-Function Get-NSXTTransportNodes {
+Function Get-NSXTTransportNode {
     Param (
-        [parameter(Mandatory=$false,ValueFromPipeline=$true)][string]$Id
+        [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [Alias("Id","Tranportnode_id")]
+        [string]$transport_node_id
     )
 
-    $transport_nodesService = Get-NsxtService -Name "com.vmware.nsx.transport_nodes"
-    $transport_nodesstateService = Get-NsxtService -Name "com.vmware.nsx.transport_nodes.state"
-    
-    if($Id) {
-        $transport_nodes = $transport_nodesService.get($Id)
-    } else {
-        $transport_nodes = $transport_nodesService.list().results
-    }
+    begin
+    {
+        $NSXTransportNodesService = Get-NsxtService -Name "com.vmware.nsx.transport_nodes"
 
-    $results = @()
-    foreach ($transport_node in $transport_nodes) {
-        
-        $transport_nodesstate = $transport_nodesstateService.get("$($transport_node.Id)")
-        
-        $tmp = [pscustomobject] @{
-            Id = $transport_node.Id;
-            Name = $transport_node.display_name;
-            Tags = $transport_node.tags;
-            MaintenanceMode = $transport_node.maintenance_mode;
-            HostSwitchesName = $transport_node.host_switches.host_switch_name;
-            Default_gateway = $transport_nodesstate.host_switch_states.endpointsdefault_gateway;
-            Device_name = $transport_nodesstate.host_switch_states.endpoints.device_name;
-            Ip = $transport_nodesstate.host_switch_states.endpoints.ip;
-            Subnet_mask =$transport_nodesstate.host_switch_states.endpoints.subnet_mask
+        class NSXTransportNode {
+            [string]$Name
+            [string]$Tranport_node_id
+            [string]$maintenance_mode
+            hidden $tags = [System.Collections.Generic.List[string]]::new()
+            hidden $host_switches = [System.Collections.Generic.List[string]]::new()
+            hidden [string]$host_switch_spec
+            hidden $transport_zone_endpoints = [System.Collections.Generic.List[string]]::new()
         }
-        $results+=$tmp
     }
 
-    $results
+    Process
+    {
+        if($transport_node_id) {
+            $NSXTransportNodes = $NSXTransportNodesService.get($transport_node_id)
+        } else {
+            $NSXTransportNodes = $NSXTransportNodesService.list().results
+        }
+
+        foreach ($NSXTransportNode in $NSXTransportNodes) {
+                
+            $results = [NSXTransportNode]::new()
+            $results.Name = $NSXTransportNode.display_name;
+            $results.Tranport_node_id = $NSXTransportNode.Id;
+            $results.maintenance_mode = $NSXTransportNode.maintenance_mode;
+            $results.Tags = $NSXTransportNode.tags;
+            $results.host_switches = $NSXTransportNode.host_switches;
+            $results.host_switch_spec = $NSXTransportNode.host_switch_spec;
+            $results.transport_zone_endpoints = $NSXTransportNode.transport_zone_endpoints;
+            $results.host_switches = $NSXTransportNode.host_switches
+            write-output $results
+        } 
+    }
 }
 
-Function Get-NSXTTraceFlows {
+Function Get-NSXTTraceFlow {
     Param (
-        [parameter(Mandatory=$false,ValueFromPipeline=$true)][string]$Id
+        [parameter(Mandatory=$false,ValueFromPipeline=$true)]
+        [Alias("Id")]
+        [string]$traceflow_id
     )
 
     $NSXTraceFlowsService = Get-NsxtService -Name "com.vmware.nsx.traceflows"
         
-    if($Id) {
-        $NSXTraceFlows = $NSXTraceFlowsService.get($Id)
+    if($traceflow_id) {
+        $NSXTraceFlows = $NSXTraceFlowsService.get($traceflow_id)
     } else {
         $NSXTraceFlows = $NSXTraceFlowsService.list().results
     }
 
-    $results = @()
-    foreach ($NSXTraceFlow in $NSXTraceFlows) {
-        
-        $tmp = [pscustomobject] @{
-            Id = $NSXTraceFlow.Id;
-            Operation_State = $NSXTraceFlow.operation_state;
-            Delivered = $NSXTraceFlow.Counters.delivered_count;
-            Dropped = $NSXTraceFlow.Counters.dropped_count;
-            Analysis = $NSXTraceFlow.maintenance_mode;
-        }
-        $results+=$tmp
+    class NSXTraceFlow {
+        [string]$traceflow_id
+        hidden [string]$lport_id
+        [string]$Operation_State
+        [int]$Forwarded
+        [int]$Delivered
+        [int]$Received
+        [int]$Dropped
+        [string]$Analysis
     }
 
-    $results
-    
-    if ($Id) {
-        write-output $Id 
-    }
+    foreach ($NSXTraceFlow in $NSXTraceFlows) {
+                
+        $results = [NSXTraceFlow]::new()
+        $results.traceflow_id = $NSXTraceFlow.Id;
+        $results.Operation_State = $NSXTraceFlow.operation_state;
+        $results.forwarded = $NSXTraceFlow.Counters.forwarded_count;
+        $results.delivered = $NSXTraceFlow.Counters.delivered_count;
+        $results.received = $NSXTraceFlow.Counters.received_count;
+        $results.dropped = $NSXTraceFlow.Counters.dropped_count;
+        $results.analysis = $NSXTraceFlow.analysis
+        write-output $results
+    } 
 }
 
 Function Get-NSXTTraceFlowObservations {
     Param (
-        [parameter(Mandatory=$true,ValueFromPipeline=$true)][string]$Id
+        [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+        [Alias("Id")]
+        [string]$traceflow_id
     )
 
-    $NSXTraceFlowsObservService = Get-NsxtService -Name "com.vmware.nsx.traceflows.observations"
-        
-    if($Id) {
-        $NSXTraceFlowsObserv = $NSXTraceFlowsObservService.list($Id)
-    } else {
-        throw "TraceFlow ID required"
+    begin
+    {
+        $NSXTraceFlowsObservService = Get-NsxtService -Name "com.vmware.nsx.traceflows.observations"
     }
+     
+    Process
+    {    
+        if($traceflow_id) {
+            $NSXTraceFlowsObserv = $NSXTraceFlowsObservService.list($traceflow_id)
+        } else {
+            throw "TraceFlow ID required"
+        }
 
-    $NSXTraceFlowsObserv.results | select transport_node_name,component_name,@{N='PacketEvent';E={($_.resource_type).TrimStart("TraceflowObservation")}}
+        $NSXTraceFlowsObserv.results | select transport_node_name,component_name,@{N='PacketEvent';E={($_.resource_type).TrimStart("TraceflowObservation")}}
+    }
 }
 
 Function Set-NSXTTraceFlow {
@@ -416,36 +441,55 @@ Function Set-NSXTTraceFlow {
         
         $NSXTraceFlowsService = Get-NsxtService -Name "com.vmware.nsx.traceflows"
         
-        # This is where I need help - the method does not ingest the complete $traceflow_request object!
+        class ip_header {
+            [string]$src_ip
+            [string]$dst_ip
+        }
+
+        class eth_header {
+            [string]$src_mac
+            [string]$dst_mac
+        }
+
+        class packet_data {
+            [boolean]$routed
+            [ValidateSet("UNICAST","BROADCAST","MULTICAST","UNKNOWN")]
+            [string]$transport_type
+            [ValidateSet("BINARYPACKETDATA","FIELDSPACKETDATA")]
+            [string]$resource_type
+            [long]$frame_size
+            [eth_header]$eth_header = [eth_header]::new()
+            [ip_header]$ip_header = [ip_header]::new()
         
-        # Create the example object
-        $traceflow_request = $NSXTraceFlowService.help.create.traceflow_request.Create()
-        $traceflow_request.lport_id = $LPORTID
+            packet_data(){
+                $this.routed = 'true'
+                $this.transport_type = 'UNICAST'
+                $this.resource_type = 'FieldsPacketData'
+            }
+        }
+
+        class traceflow_request {
+            [string]$lport_id
+            [long]$timeout
+            [packet_data]$packet = [packet_data]::new()
+
+            traceflow_request(){
+                $this.timeout = '15000'
+            }
+        }
+
+        [traceflow_request]$traceflow_request = [traceflow_request]::new()
+
+        $traceflow_request.lport_id = '8afcd58a-4bdc-483c-97a5-c5f08df7f772'
         $traceflow_request.timeout = '15000'
         $traceflow_request.packet.routed = 'true'
-        $traceflow_request.packet.transport_type = $TrafficType.ToUpper()
+        $traceflow_request.packet.transport_type = 'UNICAST'
         $traceflow_request.packet.resource_type = 'FieldsPacketData'
-        $traceflow_request.packet.frame_size = '64'
-
-        # The example object is missing packet data, so we create it.
-        $eth_header = @{src_mac = $SMAC;eth_type = '2048';dst_mac = $DMAC}
-        $ip_header = @{src_ip = $SIPAddr;protocol = '1';ttl = '64';dst_ip = $DIPAddr}
-        $traceflow_request.packet | Add-Member -NotePropertyMembers $eth_header -TypeName eth_header
-        $traceflow_request.packet | Add-Member -NotePropertyMembers $ip_header -TypeName ip_header
-
-        # Alternative method of creating $traceflow_request (not working either)
-        <#       
-        $TraceFlow_Request = [PSCustomObject]@{
-            packet = @{routed = 'true';
-                    transport_type = $TrafficType.ToUpper();
-                    ip_header = @{src_ip = $SIPAddr;dst_ip = $DIPAddr};
-                    eth_header = @{dst_mac = $DMAC;src_mac = $SMAC};
-                    payload = 'test_payload';
-                    resource_type = 'FieldsPacketData'};
-            timeout = '10000';
-            lport_id = $LPORTID
-        }      
-        #>
+        $traceflow_request.packet.frame_size = '128'
+        $traceflow_request.packet.eth_header.src_mac = '00:50:56:b3:90:e3'
+        $traceflow_request.packet.eth_header.dst_mac = '00:50:56:b3:0e:91'
+        $traceflow_request.packet.ip_header.src_ip = '15.128.160.20'
+        $traceflow_request.packet.ip_header.dst_ip = '15.128.160.24'
     }
 
     Process
@@ -469,5 +513,139 @@ Function Set-NSXTTraceFlow {
         {
             Get-NSXttraceflow
         }
+    }
+}
+
+Function Get-NSXTEdgeCluster {
+    Param (
+        [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [Alias("Id")]
+        [string]$edge_cluster_id
+    )
+
+    Begin
+    {
+        $NSXTEdgeClustersService = Get-NsxtService -Name "com.vmware.nsx.edge_clusters"
+
+        class NSXEdgeCluster {
+            [string]$Name
+            hidden [string]$Protection
+            hidden [string]$Tags
+            [string]$edge_cluster_id
+            [string]$resource_type
+            [string]$deployment_type
+            [string]$member_node_type
+            $members = [System.Collections.Generic.List[string]]::new()
+            $cluster_profile_bindings = [System.Collections.Generic.List[string]]::new()
+        }
+    }
+
+    Process
+    {
+        if ($edge_cluster_id) {
+            $NSXEdgeClusters = $NSXTEdgeClustersService.get($edge_cluster_id)
+        }
+        else {
+            $NSXEdgeClusters = $NSXTEdgeClustersService.list().results
+        }
+        
+        foreach ($NSXEdgeCluster in $NSXEdgeClusters) {
+
+            $results = [NSXEdgeCluster]::new()
+            $results.Name = $NSXEdgeCluster.display_name;
+            $results.Protection = $NSXEdgeCluster.Protection;
+            $results.edge_cluster_id = $NSXEdgeCluster.Id;
+            $results.resource_type = $NSXEdgeCluster.resource_type;
+            $results.Tags = $NSXEdgeCluster.tags;
+            $results.deployment_type = $NSXEdgeCluster.deployment_type;
+            $results.member_node_type = $NSXEdgeCluster.member_node_type;
+            $results.members = $NSXEdgeCluster.members;
+            $results.cluster_profile_bindings = $NSXEdgeCluster.cluster_profile_bindings
+            write-output $results
+        }
+    }
+}
+
+Function Get-NSXTLogicalRouter {
+    Param (
+        [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [Alias("Id")]
+        [string]$Logical_router_id
+    )
+
+    begin
+    {
+        $NSXTLogicalRoutersService = Get-NsxtService -Name "com.vmware.nsx.logical_routers"
+
+        class NSXTLogicalRouter {
+            [string]$Name
+            [string]$Logical_router_id
+            hidden [string]$Tags
+            [string]$edge_cluster_id
+            [ValidateSet("TIER0","TIER1")]
+            [string]$router_type
+            [ValidateSet("ACTIVE_ACTIVE","ACTIVE_STANDBY","")]
+            [string]$high_availability_mode
+            [ValidateSet("PREEMPTIVE","NON_PREEMPTIVE","")]
+            [string]$failover_mode
+            [string]$external_transit
+            [string]$internal_transit
+        }
+    }
+
+    Process
+    {
+        if($Logical_router_id) {
+            $NSXLogicalRouters = $NSXTLogicalRoutersService.get($Logical_router_id)
+        } else {
+            $NSXLogicalRouters = $NSXTLogicalRoutersService.list().results
+        }
+
+        foreach ($NSXLogicalRouter in $NSXLogicalRouters) {
+            
+            $results = [NSXTLogicalRouter]::new()
+            $results.Name = $NSXLogicalRouter.display_name;
+            $results.Logical_router_id = $NSXLogicalRouter.Id;
+            $results.Tags = $NSXLogicalRouter.tags;
+            $results.edge_cluster_id = $NSXLogicalRouter.edge_cluster_id;
+            $results.router_type = $NSXLogicalRouter.router_type;
+            $results.high_availability_mode = $NSXLogicalRouter.high_availability_mode;
+            $results.failover_mode =$NSXLogicalRouter.failover_mode;
+            $results.external_transit = $NSXLogicalRouter.advanced_config.external_transit_networks;
+            $results.internal_transit = $NSXLogicalRouter.advanced_config.internal_transit_network
+            write-output $results
+        }  
+    }
+}
+
+Function Get-NSXTRoutingTable {
+    Param (
+        [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+        [string]$Logical_router_id,
+        [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+        [string]$Tranport_node_id
+    )
+
+    Begin
+    {
+        $NSXTRoutingTableService = Get-NsxtService -Name "com.vmware.nsx.logical_routers.routing.route_table"
+
+        class NSXTRoutingTable {
+                [string]$Name
+                hidden [string]$Id
+                hidden $tags = [System.Collections.Generic.List[string]]::new()
+                #more things need to be added when .list actually works
+        }
+    }    
+    
+    Process
+    {
+        $NSXTRoutingTable = [NSXTRoutingTable]::new()
+        
+        $NSXTRoutingTable = $NSXTRoutingTableService.list($Logical_router_id, $transport_node_id)
+
+        #$NSXTRoutingTable = $NSXTRoutingTableService.list("ca02cb69-0210-4f34-8164-42943a1cc974","309fda89-3439-40ff-996e-b7eb2ec69ace")
+
+        write-output $NSXTRoutingTable
     }
 }
