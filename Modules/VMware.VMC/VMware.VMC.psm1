@@ -900,4 +900,112 @@ Function Get-VMCSDDCSummary {
         }
 }
 
-Export-ModuleMember -Function 'Get-VMCCommand', 'Connect-VMCVIServer', 'Get-VMCOrg', 'Get-VMCSDDC', 'Get-VMCTask', 'Get-VMCSDDCDefaultCredential', 'Get-VMCSDDCPublicIP', 'Get-VMCVMHost', 'Get-VMCSDDCVersion', 'Get-VMCFirewallRule', 'Export-VMCFirewallRule', 'Import-VMCFirewallRule', 'Remove-VMCFirewallRule', 'Get-VMCLogicalNetwork', 'Remove-VMCLogicalNetwork', 'New-VMCLogicalNetwork', 'Get-VMCSDDCSummary'
+Function Get-VMCPublicIP {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          09/12/2018
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Retrieves all public IP Addresses for a given SDDC
+        .DESCRIPTION
+            This cmdlet retrieves all public IP Address for a given SDDC
+        .EXAMPLE
+            Get-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName
+    #>
+        Param (
+            [Parameter(Mandatory=$True)]$OrgName,
+            [Parameter(Mandatory=$True)]$SDDCName
+        )
+
+        If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+            $orgId = (Get-VMCOrg -Name $OrgName).Id
+            $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+
+            $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+            $publicIPs = $publicIPService.list($orgId,$sddcId)
+
+            $publicIPs | select public_ip, name, allocation_id
+        }
+    }
+
+    Function New-VMCPublicIP {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          09/12/2018
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Request a new public IP Address for a given SDDC
+        .DESCRIPTION
+            This cmdlet requests a new public IP Address for a given SDDC
+        .EXAMPLE
+            New-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName -Description "Test for Randy"
+    #>
+        Param (
+            [Parameter(Mandatory=$True)]$OrgName,
+            [Parameter(Mandatory=$True)]$SDDCName,
+            [Parameter(Mandatory=$False)]$Description
+        )
+
+        If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+            $orgId = (Get-VMCOrg -Name $OrgName).Id
+            $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+
+            $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+
+            $publicIPSpec = $publicIPService.Help.create.spec.Create()
+            $publicIPSpec.count = 1
+            $publicIPSpec.names = @($Description)
+
+            Write-Host "Requesting a new public IP Address for your SDDC ..."
+            $results = $publicIPService.create($orgId,$sddcId,$publicIPSpec)
+        }
+    }
+
+    Function Remove-VMCPublicIP {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          09/12/2018
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Removes a specific public IP Addresses for a given SDDC
+        .DESCRIPTION
+            This cmdlet removes a specific public IP Address for a given SDDC
+        .EXAMPLE
+            Remove-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName -AllocationId "eipalloc-0567acf34e436c01f"
+    #>
+        Param (
+            [Parameter(Mandatory=$True)]$OrgName,
+            [Parameter(Mandatory=$True)]$SDDCName,
+            [Parameter(Mandatory=$True)]$AllocationId
+        )
+
+        If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+            $orgId = (Get-VMCOrg -Name $OrgName).Id
+            $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+
+            $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+
+            Write-Host "Deleting public IP Address with ID $AllocationId ..."
+            $results = $publicIPService.delete($orgId,$sddcId,$AllocationId)
+        }
+    }
+
+Export-ModuleMember -Function 'Get-VMCCommand', 'Connect-VMCVIServer', 'Get-VMCOrg', 'Get-VMCSDDC', 'Get-VMCTask', 'Get-VMCSDDCDefaultCredential', 'Get-VMCSDDCPublicIP', 'Get-VMCVMHost', 'Get-VMCSDDCVersion', 'Get-VMCFirewallRule', 'Export-VMCFirewallRule', 'Import-VMCFirewallRule', 'Remove-VMCFirewallRule', 'Get-VMCLogicalNetwork', 'Remove-VMCLogicalNetwork', 'New-VMCLogicalNetwork', 'Get-VMCSDDCSummary', 'New-VMCPublicIP', '', 'Remove-VMCPublicIP'
