@@ -378,21 +378,21 @@ Function Set-NSXTTraceFlow {
                         ParameterSetName='Parameter Set VM Type')]
             [ValidateSet("UNICAST")]
             [string]
-            $TrafficType = "UNICAST",
+            $transport_type = "UNICAST",
             [parameter(Mandatory=$true,
                         ValueFromPipeline=$true,
                         ParameterSetName='Parameter Set VM Type')]
             [ValidateNotNullOrEmpty()]
             #[ValidateScript({Get-NSXTLogicalPort -Id $_}]
             [string]
-            $LPORTID,
+            $lport_id,
             [parameter(Mandatory=$true,
                         ValueFromPipeline=$true,
                         ParameterSetName='Parameter Set VM Type')]
             [ValidateNotNullOrEmpty()]
             [ValidateScript({$_ -match [IPAddress]$_})] 
             [string]
-            $SIPAddr,
+            $src_ip,
             [parameter(Mandatory=$true,
                         ValueFromPipeline=$true,
                         ParameterSetName='Parameter Set VM Type')]
@@ -403,14 +403,14 @@ Function Set-NSXTTraceFlow {
                                 }
                             })]
             [string]
-            $SMAC,
+            $src_mac,
             [parameter(Mandatory=$true,
                         ValueFromPipeline=$true,
                         ParameterSetName='Parameter Set VM Type')]
             [ValidateNotNullOrEmpty()]
             [ValidateScript({$_ -match [IPAddress]$_ })] 
             [string]
-            $DIPAddr,
+            $dst_ip,
             [parameter(Mandatory=$true,
                         ValueFromPipeline=$true,
                         ParameterSetName='Parameter Set VM Type')]
@@ -421,7 +421,7 @@ Function Set-NSXTTraceFlow {
                                 }
                             })]
             [string]
-            $DMAC)
+            $dst_mac)
 
     Begin
     {
@@ -477,26 +477,22 @@ Function Set-NSXTTraceFlow {
                 $this.timeout = '15000'
             }
         }
-
-        [traceflow_request]$traceflow_request = [traceflow_request]::new()
-
-        $traceflow_request.lport_id = '8afcd58a-4bdc-483c-97a5-c5f08df7f772'
-        $traceflow_request.timeout = '15000'
-        $traceflow_request.packet.routed = 'true'
-        $traceflow_request.packet.transport_type = 'UNICAST'
-        $traceflow_request.packet.resource_type = 'FieldsPacketData'
-        $traceflow_request.packet.frame_size = '128'
-        $traceflow_request.packet.eth_header.src_mac = '00:50:56:b3:90:e3'
-        $traceflow_request.packet.eth_header.dst_mac = '00:50:56:b3:0e:91'
-        $traceflow_request.packet.ip_header.src_ip = '15.128.160.20'
-        $traceflow_request.packet.ip_header.dst_ip = '15.128.160.24'
     }
 
     Process
     {
+        [traceflow_request]$traceflow_request = [traceflow_request]::new()
+
+        $traceflow_request.lport_id = $lport_id
+        $traceflow_request.packet.transport_type = $transport_type
+        $traceflow_request.packet.eth_header.src_mac = $src_mac
+        $traceflow_request.packet.eth_header.dst_mac = $dst_mac
+        $traceflow_request.packet.ip_header.src_ip = $src_ip
+        $traceflow_request.packet.ip_header.dst_ip = $dst_ip
+
         try
         {
-            # This does not work, ignores eth_header,ip_header etc.. Not clear why!?
+            # This does not work, bug report submitted to PowerCLI team
             $NSXTraceFlow = $NSXTraceFlowService.create($traceflow_request)
         }
 
@@ -509,6 +505,7 @@ Function Set-NSXTTraceFlow {
 
     End
     {
+        # Likely don't need this and will replace with write-output $NSXTraceFlow but I can't test right now due to bug
         if ($NSXTraceFlow)
         {
             Get-NSXttraceflow
@@ -642,9 +639,8 @@ Function Get-NSXTRoutingTable {
     {
         $NSXTRoutingTable = [NSXTRoutingTable]::new()
         
+        # this does not work, bug report submitted to PowerCLI team
         $NSXTRoutingTable = $NSXTRoutingTableService.list($Logical_router_id, $transport_node_id)
-
-        #$NSXTRoutingTable = $NSXTRoutingTableService.list("ca02cb69-0210-4f34-8164-42943a1cc974","309fda89-3439-40ff-996e-b7eb2ec69ace")
 
         write-output $NSXTRoutingTable
     }
