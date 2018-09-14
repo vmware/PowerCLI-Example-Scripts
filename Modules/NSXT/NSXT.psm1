@@ -573,10 +573,18 @@ Function Get-NSXTLogicalRouter {
     begin
     {
         $NSXTLogicalRoutersService = Get-NsxtService -Name "com.vmware.nsx.logical_routers"
-
+        $NSXTLogicalRoutersStatusService = Get-NsxtService -Name "com.vmware.nsx.logical_routers.status"
+        
+        class per_node_status {
+            $service_router_id = [System.Collections.ArrayList]::new()
+            [ValidateSet("ACTIVE","STANDBY","DOWN","SYNC","UNKNOWN")]
+            $high_availability_status = [System.Collections.ArrayList]::new()
+        }
+        
         class NSXTLogicalRouter {
             [string]$Name
             [string]$Logical_router_id
+            [string]$protection
             hidden [string]$Tags
             [string]$edge_cluster_id
             [ValidateSet("TIER0","TIER1")]
@@ -587,6 +595,9 @@ Function Get-NSXTLogicalRouter {
             [string]$failover_mode
             [string]$external_transit
             [string]$internal_transit
+            hidden [string]$advanced_config = [System.Collections.Generic.List[string]]::new()
+            hidden [string]$firewall_sections = [System.Collections.Generic.List[string]]::new()
+            $per_node_status = [per_node_status]::new()
         }
     }
 
@@ -600,16 +611,26 @@ Function Get-NSXTLogicalRouter {
 
         foreach ($NSXLogicalRouter in $NSXLogicalRouters) {
             
+            $NSXTLogicalRoutersStatus = $NSXTLogicalRoutersStatusService.get($NSXLogicalRouter.id)
             $results = [NSXTLogicalRouter]::new()
+
+            foreach ($NSXTLogicalRouterStatus in $NSXTLogicalRoutersStatus.per_node_status) {
+                $results.per_node_status.service_router_id.add($NSXTLogicalRouterStatus.service_router_id) 1>$null
+                $results.per_node_status.high_availability_status.add($NSXTLogicalRouterStatus.high_availability_status) 1>$null
+            }
+
             $results.Name = $NSXLogicalRouter.display_name;
             $results.Logical_router_id = $NSXLogicalRouter.Id;
+            $results.protection = $NSXLogicalRouter.protection;
             $results.Tags = $NSXLogicalRouter.tags;
             $results.edge_cluster_id = $NSXLogicalRouter.edge_cluster_id;
             $results.router_type = $NSXLogicalRouter.router_type;
             $results.high_availability_mode = $NSXLogicalRouter.high_availability_mode;
             $results.failover_mode =$NSXLogicalRouter.failover_mode;
             $results.external_transit = $NSXLogicalRouter.advanced_config.external_transit_networks;
-            $results.internal_transit = $NSXLogicalRouter.advanced_config.internal_transit_network
+            $results.internal_transit = $NSXLogicalRouter.advanced_config.internal_transit_network;
+            $results.advanced_config =$NSXLogicalRouter.advanced_config;
+            $results.firewall_sections =$NSXLogicalRouter.firewall_sections
             write-output $results
         }  
     }
@@ -620,28 +641,299 @@ Function Get-NSXTRoutingTable {
         [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
         [string]$Logical_router_id,
         [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
-        [string]$Tranport_node_id
+        [string]$transport_node_id
     )
 
     Begin
     {
         $NSXTRoutingTableService = Get-NsxtService -Name "com.vmware.nsx.logical_routers.routing.route_table"
 
-        class NSXTRoutingTable {
-                [string]$Name
-                hidden [string]$Id
-                hidden $tags = [System.Collections.Generic.List[string]]::new()
-                #more things need to be added when .list actually works
+    class NSXTRoutingTable {
+            hidden [string]$Logical_router_id
+            [string]$lr_component_id
+            [string]$lr_component_type
+            [string]$network
+            [string]$next_hop
+            [string]$route_type
+            hidden [string]$logical_router_port_id
+            [long]$admin_distance
+    }
+    }    
+    
+    Process
+    {
+        $NSXTRoutingTable = $NSXTRoutingTableService.list($Logical_router_id,$transport_node_id,$null,$null,$null,$null,$null,'realtime')
+        
+        foreach ($NSXTRoute in $NSXTRoutingTable.results) {
+            
+            $results = [NSXTRoutingTable]::new()
+            $results.Logical_router_id = $Logical_router_id;
+            $results.lr_component_type = $NSXTRoute.lr_component_type;
+            $results.lr_component_id = $NSXTRoute.lr_component_id;
+            $results.next_hop = $NSXTRoute.next_hop;
+            $results.route_type = $NSXTRoute.route_type;
+            $results.logical_router_port_id = $NSXTRoute.logical_router_port_id;
+            $results.admin_distance = $NSXTRoute.admin_distance;
+            $results.network = $NSXTRoute.network
+            write-output $results
+        }
+    }
+}
+
+Function Get-NSXTFabricVM {
+
+    Begin
+    {
+        $NSXTVMService = Get-NsxtService -Name "com.vmware.nsx.fabric.virtual_machines"
+
+        class NSXVM {
+            [string]$Name
+            $resource_type
+            hidden [string]$Tags
+            hidden $compute_ids
+            hidden [string]$external_id
+            [string]$host_id
+            [string]$power_state
+            [string]$type
+            hidden $source
+        }
+    }
+
+    Process
+    {
+
+        $NSXTVMs = $NSXTVMService.list().results
+                
+        foreach ($NSXTVM in $NSXTVMs) {
+
+            $results = [NSXVM]::new()
+            $results.Name = $NSXTVM.display_name;
+            $results.resource_type = $NSXTVM.resource_type;
+            $results.compute_ids = $NSXTVM.compute_ids;
+            $results.resource_type = $NSXTVM.resource_type;
+            $results.Tags = $NSXTVM.tags;
+            $results.external_id = $NSXTVM.external_id;
+            $results.host_id = $NSXTVM.host_id;
+            $results.power_state = $NSXTVM.power_state;
+            $results.type = $NSXTVM.type;
+            $results.source = $NSXTVM.source
+            write-output $results
+        }
+    }
+}
+
+Function Get-NSXTBGPNeighbors {
+    Param (
+        [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+        [Alias("Id")]
+        [string]$logical_router_id
+    )
+
+    begin
+    {
+        $NSXTThingsService = Get-NsxtService -Name "com.vmware.nsx.logical_routers.routing.bgp.neighbors"
+
+        class NSXTBGPNeighbors {
+            [string]$Name
+            [string]$logical_router_id
+            hidden $tags = [System.Collections.Generic.List[string]]::new()
+            [string]$protection
+            [string]$resource_type
+            [string]$address_families = [System.Collections.Generic.List[string]]::new()
+            hidden $bfd_config
+            [bool]$enable_bfd
+            [bool]$enabled
+            hidden $filter_in_ipprefixlist_id
+            hidden $filter_in_routemap_id
+            hidden $filter_out_ipprefixlist_id
+            hidden $filter_out_routemap_id
+            hidden [long]$hold_down_timer
+            hidden [long]$keep_alive_timer
+            hidden [long]$maximum_hop_limit
+            [string]$neighbor_address
+            hidden [string]$password
+            [long]$remote_as
+            [string]$remote_as_num
+            [string]$source_address
+            [string]$source_addresses = [System.Collections.Generic.List[string]]::new()
+        }
+    }
+
+    Process
+    {
+        $NSXTThings = $NSXTThingsService.list($logical_router_id).results
+
+        foreach ($NSXTThing in $NSXTThings) {
+            
+            $results = [NSXTBGPNeighbors]::new()
+            $results.Name = $NSXTThing.display_name;
+            $results.logical_router_id = $NSXTThing.logical_router_id;
+            $results.tags = $NSXTThing.tags;
+            $results.protection = $NSXTThing.protection;
+            $results.resource_type = $NSXTThing.resource_type;
+            $results.address_families = $NSXTThing.address_families;
+            $results.bfd_config = $NSXTThing.bfd_config;
+            $results.enable_bfd = $NSXTThing.enable_bfd;
+            $results.enabled = $NSXTThing.enabled;
+            $results.filter_in_ipprefixlist_id = $NSXTThing.filter_in_ipprefixlist_id;
+            $results.filter_in_routemap_id = $NSXTThing.filter_in_routemap_id;
+            $results.filter_out_ipprefixlist_id = $NSXTThing.filter_out_ipprefixlist_id;
+            $results.filter_out_routemap_id = $NSXTThing.filter_out_routemap_id;
+            $results.hold_down_timer = $NSXTThing.hold_down_timer;
+            $results.keep_alive_timer = $NSXTThing.keep_alive_timer;
+            $results.maximum_hop_limit = $NSXTThing.maximum_hop_limit;
+            $results.neighbor_address = $NSXTThing.neighbor_address;
+            $results.password = $NSXTThing.password;
+            $results.remote_as = $NSXTThing.remote_as;
+            $results.remote_as_num = $NSXTThing.remote_as_num;
+            $results.source_address = $NSXTThing.source_address;
+            $results.source_addresses = $NSXTThing.source_addresses
+            write-output $results
+        }  
+    }
+}
+
+Function Get-NSXTForwardingTable {
+    Param (
+        [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+        [string]$Logical_router_id,
+        [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+        [string]$transport_node_id
+    )
+
+    Begin
+    {
+        $NSXTForwardingTableService = Get-NsxtService -Name "com.vmware.nsx.logical_routers.routing.forwarding_table"
+
+        class NSXTForwardingTable {
+                hidden [string]$Logical_router_id
+                [string]$lr_component_id
+                [string]$lr_component_type
+                [string]$network
+                [string]$next_hop
+                [string]$route_type
+                hidden [string]$logical_router_port_id
         }
     }    
     
     Process
     {
-        $NSXTRoutingTable = [NSXTRoutingTable]::new()
+        $NSXTForwardingTable = $NSXTForwardingTableService.list($Logical_router_id,$transport_node_id,$null,$null,$null,$null,$null,$null,'realtime')
         
-        # this does not work, bug report submitted to PowerCLI team
-        $NSXTRoutingTable = $NSXTRoutingTableService.list($Logical_router_id, $transport_node_id)
+        foreach ($NSXTForwarding in $NSXTForwardingTable.results) {
+            
+            $results = [NSXTForwardingTable]::new()
+            $results.Logical_router_id = $Logical_router_id;
+            $results.lr_component_type = $NSXTForwarding.lr_component_type;
+            $results.lr_component_id = $NSXTForwarding.lr_component_id;
+            $results.network = $NSXTForwarding.network;
+            $results.next_hop = $NSXTForwarding.next_hop;
+            $results.route_type = $NSXTForwarding.route_type;
+            $results.logical_router_port_id = $NSXTForwarding.logical_router_port_id
+            write-output $results
+        }
+    }
+}
 
-        write-output $NSXTRoutingTable
+ Function Get-NSXTNetworkRoutes {
+    Param (
+        [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [string]$route_id
+    )
+
+    Begin
+    {
+        $NSXTNetworkRoutesService = Get-NsxtService -Name "com.vmware.nsx.node.network.routes"
+
+    class NSXTNetworkRoutes {
+            [string]$route_id
+            $route_type
+            $interface_id
+            $gateway
+            $from_address
+            $destination
+            $netmask
+            $metric
+            $proto
+            $scope
+            $src
+    }
+    }    
+    
+    Process
+    {
+        if ($route_id) {
+            $NSXTNetworkRoutes = $NSXTNetworkRoutesService.get($route_id)
+        }
+        else {
+            $NSXTNetworkRoutes = $NSXTNetworkRoutesService.list().results
+        }
+              
+        foreach ($NSXTRoute in $NSXTNetworkRoutes) {
+            
+            $results = [NSXTNetworkRoutes]::new()
+            $results.route_id = $NSXTRoute.route_id;
+            $results.route_type = $NSXTRoute.route_type;
+            $results.interface_id = $NSXTRoute.interface_id;
+            $results.gateway = $NSXTRoute.gateway;
+            $results.from_address = $NSXTRoute.from_address;
+            $results.destination = $NSXTRoute.destination;
+            $results.netmask = $NSXTRoute.netmask;
+            $results.metric = $NSXTRoute.metric;
+            $results.proto = $NSXTRoute.proto;
+            $results.scope = $NSXTRoute.scope;
+            $results.src = $NSXTRoute.src
+            write-output $results
+        }
+    }
+}
+
+# Get Template
+Function Get-NSXTThingTemplate {
+    Param (
+        [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [Alias("Id")]
+        [string]$Thing_id
+    )
+
+    begin
+    {
+        $NSXTThingsService = Get-NsxtService -Name "com.vmware.nsx.API.Thing"
+
+        class NSXTThing {
+            [string]$Name
+            [string]$Thing1
+            hidden [string]$Tags = [System.Collections.Generic.List[string]]::new()
+            [string]$Thing2
+            #[ValidateSet("TIER0","TIER1")]
+            [string]$Thing3
+            #[ValidateSet("ACTIVE_ACTIVE","ACTIVE_STANDBY","")]
+            [string]$Thing4
+            #[ValidateSet("PREEMPTIVE","NON_PREEMPTIVE","")]
+            [string]$Thing5
+            [string]$Thing6
+            [string]$Thing7
+        }
+    }
+
+    Process
+    {
+        if($Thing_id) {
+            $NSXTThings = $NSXTThingsService.get($Thing_id)
+        } else {
+            $NSXTThings = $NSXTThingsService.list().results
+        }
+
+        foreach ($NSXTThing in $NSXTThings) {
+            
+            $results = [NSXTThing]::new()
+            $results.Name = $NSXTThing.display_name;
+            $results.Logical_router_id = $NSXTThing.Id;
+            $results.Tags = $NSXTThing.tags;
+            $results.thing1 = $NSXTThing.thing1;
+            $results.thing2 = $NSXTThing.thing2
+
+            write-output $results
+        }  
     }
 }
