@@ -7,24 +7,32 @@
 	Copyright = '(c) 2017. All rights reserved.'
 	Description = 'Powershell Module for NSX-T REST API Functions'
 	PowerShellVersion = '5.0'
-    FunctionsToExport = 'Get-NSXTComputeManager',
+    FunctionsToExport = 'Get-NSXTBGPNeighbors',
+                        'Get-NSXTComputeManager',
+                        'Get-NSXTController',
+                        'Get-NSXTEdgeCluster',
                         'Get-NSXTFabricNode',
+                        'Get-NSXTFabricVM',
                         'Get-NSXTFirewallRule',
+                        'Get-NSXTForwardingTable',
                         'Get-NSXTIPPool',
+                        'Get-NSXTLogicalRouter',
+                        'Get-NSXTLogicalRouterPorts',
                         'Get-NSXTLogicalSwitch',
                         'Get-NSXTManager',
-                        'Get-NSXTTransportZone',
-                        'Get-NSXTController',
-                        'Get-NSXTTransportNodes',
-                        'Get-NSXTTraceFlow',
-                        'Get-NSXTEdgeCluster',
-                        'Get-NSXTLogicalRouter',
-                        'Get-NSXTRoutingTable',
-                        'Get-NSXTFabricVM',
-                        'Get-NSXTBGPNeighbors',
-                        'Get-NSXTForwardingTable',
                         'Get-NSXTNetworkRoutes',
-                        'Get-NSXTLogicalRouterPorts'
+                        'Get-NSXTRoutingTable',
+                        'Get-NSXTThingTemplate',
+                        'Get-NSXTTraceFlow',
+                        'Get-NSXTTraceFlowObservations',
+                        'Get-NSXTTransportNode',
+                        'Get-NSXTTransportZone',
+                        'Set-NSXTIPPool',
+                        'Set-NSXTLogicalRouter',
+                        'Set-NSXTLogicalSwitch',
+                        'Set-NSXTThingTemplate',
+                        'Set-NSXTTraceFlow'
+
 	PrivateData = @{
 		PSData = @{
 			Tags = @('NSX-T','REST')
