@@ -1452,7 +1452,7 @@ Function Set-NSXTIPPool {
     .EXAMPLE
        Set-NSXTIPPool -display_name "Pool Name" -allocation_start "192.168.1.1" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24"
     .EXAMPLE
-       Set-NSXTIPPool -display_name "Pool Name" -allocation_start "192.168.1.1" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24" -dns_nameservers "192.168.1.1" -gateway_ip "192.168.1.1"
+       Set-NSXTIPPool -display_name "Test Pool Name" -allocation_start "192.168.1.1" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24" -dns_nameservers "192.168.1.1" -gateway_ip "192.168.1.1"
 #>  
 
     [CmdletBinding()]

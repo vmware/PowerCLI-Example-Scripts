@@ -22,7 +22,6 @@
                         'Get-NSXTManager',
                         'Get-NSXTNetworkRoutes',
                         'Get-NSXTRoutingTable',
-                        'Get-NSXTThingTemplate',
                         'Get-NSXTTraceFlow',
                         'Get-NSXTTraceFlowObservations',
                         'Get-NSXTTransportNode',
@@ -30,7 +29,6 @@
                         'Set-NSXTIPPool',
                         'Set-NSXTLogicalRouter',
                         'Set-NSXTLogicalSwitch',
-                        'Set-NSXTThingTemplate',
                         'Set-NSXTTraceFlow'
 
 	PrivateData = @{
