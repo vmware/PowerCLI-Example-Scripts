@@ -9988,63 +9988,75 @@ function Reset-HVMachine {
     $services.machine.Machine_ResetMachines($machine.id)
   }
 }
-function Remove-HVMachine(){
+function Remove-HVMachine {
 	<#
 	.Synopsis
-	   Remove a Horizon View desktop or desktops.
-	
+	    Remove a Horizon View desktop or desktops.
+
 	.DESCRIPTION
-	   Deletes a VM or an array of VM's from Horizon. Utilizes an Or query filter to match machine names. 
+	    Deletes a VM or an array of VM's from Horizon. Utilizes an Or query filter to match machine names.
 
     .PARAMETER HVServer
-		The Horizon server where the machine to be deleted resides.Parameter is not mandatory, 
-        but if you do not specify the server, than make sure you are connected to a Horizon server 
+		The Horizon server where the machine to be deleted resides. Parameter is not mandatory,
+        but if you do not specify the server, than make sure you are connected to a Horizon server
         first with connect-hvserver.
 
 	.PARAMETER MachineNames
-	   The name or names of the machine(s) to be deleted. Accepts a single VM or an array of VM names.This is a mandatory parameter. 
+        The name or names of the machine(s) to be deleted. Accepts a single VM or an array of VM names.This is a mandatory parameter.
+
+    .PARAMETER DeleteFromDisk
+        Determines whether the Machine VM should be deleted from vCenter Server. This is only applicable for managed machines.
+        This must always be true for machines in linked and instant clone desktops.
+        This defaults to true for linked and instant clone machines and false for all other types.
 
 	.EXAMPLE
-	   remove-HVMachine -HVServer 'horizonserver123' -MachineNames 'LAX-WIN10-002'
-	   Deletes VM 'LAX-WIN10-002' from HV Server 'horizonserver123'
+	    Remove-HVMachine -HVServer 'horizonserver123' -MachineNames 'LAX-WIN10-002'
+	    Deletes VM 'LAX-WIN10-002' from HV Server 'horizonserver123'
 
 	.EXAMPLE
-	   remove-HVMachine -HVServer 'horizonserver123' -MachineNames $machines
-	   Deletes VM's contained within an array of machine names from HV Server 'horizonserver123'
-	
+	    Remove-HVMachine -HVServer 'horizonserver123' -MachineNames $machines
+        Deletes VM's contained within an array of machine names from HV Server 'horizonserver123'
+
+    .EXAMPLE
+        Remove-HVMachine -HVServer 'horizonserver123' -MachineNames 'ManualVM01' -DeleteFromDisk:$false
+        Deletes VM 'ManualVM01' from Horizon inventory, but not from vSphere. Note this only works for Full Clone VMs.
+
 	.NOTES
 		Author                      : Jose Rodriguez
 		Author email                : jrodsguitar@gmail.com
 		Version                     : 1.0
-	
+
 		===Tested Against Environment====
 		Horizon View Server Version : 7.1.1
 		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
 		PowerShell Version          : 5.0
 	#>
-	
-	  [CmdletBinding(
+
+	[CmdletBinding(
 	    SupportsShouldProcess = $true,
 		ConfirmImpact = 'High'
 	    )]
-	
-	  param(
-		
+
+	param(
+
 		[Parameter(Mandatory = $true)]
 		[array]
-		$MachineNames,
-			
+        $MachineNames,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$DeleteFromDisk = $true,
+
 		[Parameter(Mandatory = $false)]
 		$HVServer = $null
-	  )
+	)
 
 #Connect to HV Server
 $services = Get-ViewAPIService -HVServer $HVServer
-  
-  if ($null -eq $services) {
-	  Write-Error "Could not retrieve ViewApi services from connection object"
+
+if ($null -eq $services) {
+	Write-Error "Could not retrieve ViewApi services from connection object"
 		break
-	  }
+	}
 
 #Connect to Query Service
 $queryService = New-Object 'Vmware.Hv.QueryServiceService'
@@ -10096,9 +10108,9 @@ $trys = 0
         foreach($session in $deleteMachine.base.session){
 
         $sessions = $null
-        [VMware.Hv.SessionId[]]$sessions += $session     
-            
-         }
+        [VMware.Hv.SessionId[]]$sessions += $session
+
+        }
 
     try{
 
@@ -10110,8 +10122,8 @@ $trys = 0
 
         #Wait more for Sessions to end
 
-        Start-Sleep -Seconds 5 
-                
+        Start-Sleep -Seconds 5
+
         }
 
     catch{
@@ -10121,39 +10133,39 @@ $trys = 0
         write-host ($deleteMachine.base.Name -join "`n") 
 
         start-sleep -seconds 5
-                   
+
     }
-          
-     if(($trys -le 10)){
-        
+
+    if(($trys -le 10)){
+
         write-host "`n"
         write-host "Retrying Logoffs: $trys times"
         #Recheck existing sessions
         $deleteMachine = $machineService.Machine_GetInfos($services,$deleteThisMachine.Id)
-           
+
         }
-              
-     $trys++
+
+    $trys++
 
     }
 
     until((!$deleteMachine.base.session.id) -or ($trys -gt 10))
- 
+
 }
 
 #Create delete spec for the DeleteMachines method
 $deleteSpec = [VMware.Hv.MachineDeleteSpec]::new()
-$deleteSpec.DeleteFromDisk = $true
+$deleteSpec.DeleteFromDisk = $DeleteFromDisk
 $deleteSpec.ArchivePersistentDisk = $false
-        
+
 #Delete the machines
-write-host "Attempting to Delete:" 
+write-host "Attempting to Delete:"
 Write-Output ($deleteMachine.base.Name -join "`n")
 $bye = $machineService.Machine_DeleteMachines($services,$deleteMachine.id,$deleteSpec)
 
 [System.gc]::collect()
- 
-}        
+
+}
 
 function get-hvhealth {
 	<#
