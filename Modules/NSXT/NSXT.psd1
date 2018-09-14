@@ -23,7 +23,8 @@
                         'Get-NSXTFabricVM',
                         'Get-NSXTBGPNeighbors',
                         'Get-NSXTForwardingTable',
-                        'Get-NSXTNetworkRoutes'
+                        'Get-NSXTNetworkRoutes',
+                        'Get-NSXTLogicalRouterPorts'
 	PrivateData = @{
 		PSData = @{
 			Tags = @('NSX-T','REST')

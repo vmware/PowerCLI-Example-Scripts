@@ -260,6 +260,17 @@ Function Get-NSXTManager {
 }
 
 Function Get-NSXTTransportNode {
+  <#
+    .Synopsis
+       Retrieves the transport_node information
+    .DESCRIPTION
+       Retrieves transport_node information for a single or multiple IDs. Execute with no parameters to get all ports, specify a transport_node if known. 
+    .EXAMPLE
+       Get-NSXTTransportNode
+    .EXAMPLE
+       Get-NSXTThingTemplate -Tranport_node_id "TN ID"
+#>  
+ 
     Param (
         [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
         [Alias("Id","Tranportnode_id")]
@@ -272,7 +283,7 @@ Function Get-NSXTTransportNode {
 
         class NSXTransportNode {
             [string]$Name
-            [string]$Tranport_node_id
+            [string]$Transport_node_id
             [string]$maintenance_mode
             hidden $tags = [System.Collections.Generic.List[string]]::new()
             hidden $host_switches = [System.Collections.Generic.List[string]]::new()
@@ -293,19 +304,30 @@ Function Get-NSXTTransportNode {
                 
             $results = [NSXTransportNode]::new()
             $results.Name = $NSXTransportNode.display_name;
-            $results.Tranport_node_id = $NSXTransportNode.Id;
+            $results.Transport_node_id = $NSXTransportNode.Id;
             $results.maintenance_mode = $NSXTransportNode.maintenance_mode;
             $results.Tags = $NSXTransportNode.tags;
             $results.host_switches = $NSXTransportNode.host_switches;
             $results.host_switch_spec = $NSXTransportNode.host_switch_spec;
             $results.transport_zone_endpoints = $NSXTransportNode.transport_zone_endpoints;
             $results.host_switches = $NSXTransportNode.host_switches
-            write-output $results
+            $results
         } 
     }
 }
 
 Function Get-NSXTTraceFlow {
+  <#
+    .Synopsis
+       Retrieves traceflow information
+    .DESCRIPTION
+       Retrieves traceflow information for a single or multiple traceflows. Execute with no parameters to get all traceflows, specify a traceflow_id if known.
+    .EXAMPLE
+       Get-NSXTTraceFlow
+    .EXAMPLE
+       Get-NSXTTraceFlow -traceflow_id "TF ID
+#>  
+ 
     Param (
         [parameter(Mandatory=$false,ValueFromPipeline=$true)]
         [Alias("Id")]
@@ -341,11 +363,22 @@ Function Get-NSXTTraceFlow {
         $results.received = $NSXTraceFlow.Counters.received_count;
         $results.dropped = $NSXTraceFlow.Counters.dropped_count;
         $results.analysis = $NSXTraceFlow.analysis
-        write-output $results
+         $results
     } 
 }
 
 Function Get-NSXTTraceFlowObservations {
+  <#
+    .Synopsis
+       Retrieves traceflow observations information
+    .DESCRIPTION
+       Retrieves traceflow observations information for a single traceflow. Must specify a current traceflow_id
+    .EXAMPLE
+        Get-NSXTTraceFlowObservations -traceflow_id "TF ID"
+    .EXAMPLE
+       Get-NSXTTraceFlow | Get-NSXTTraceFlowObservations
+#>  
+ 
     Param (
         [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
         [Alias("Id")]
@@ -370,6 +403,19 @@ Function Get-NSXTTraceFlowObservations {
 }
 
 Function Set-NSXTTraceFlow {
+ <#
+    .Synopsis
+       Creates a TraceFlow
+    .DESCRIPTION
+       Create a TraceFlow for later observation.
+    .EXAMPLE
+       Set-NSXTTraceFlow -transport_type "UNICAST" -lport_id "LP ID" -src_ip "IP Address" -src_mac "MAC" -dst_ip "IP Address" -dst_mac "MAC" 
+    .EXAMPLE
+       Set-NSXTTraceFlow -transport_type "UNICAST" -lport_id "LP ID" -src_ip "IP Address" -src_mac "MAC" -dst_ip "IP Address" -dst_mac "MAC" | Get-NSXTTraceFlow
+    .EXAMPLE
+       Set-NSXTTraceFlow -transport_type "UNICAST" -lport_id "LP ID" -src_ip "IP Address" -src_mac "MAC" -dst_ip "IP Address" -dst_mac "MAC" | Get-NSXTTraceFlow | Get-NSXTTraceFlowObservations
+#>  
+
     [CmdletBinding()]
 
     # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
@@ -498,22 +544,28 @@ Function Set-NSXTTraceFlow {
 
         catch
         {
-            $Error[0].Exception.ServerError.data
+            throw $Error[0].Exception.ServerError.data
             # more error data found in the NSX-T Manager /var/log/vmware/nsx-manager.log file.  Filter by MONITORING.
         }
-    }
 
-    End
-    {
-        # Likely don't need this and will replace with write-output $NSXTraceFlow but I can't test right now due to bug
-        if ($NSXTraceFlow)
-        {
-            Get-NSXttraceflow
-        }
+        $NSXTraceFlow
     }
 }
 
 Function Get-NSXTEdgeCluster {
+  <#
+    .Synopsis
+       Retrieves the Edge cluster information
+    .DESCRIPTION
+       Retrieves Edge cluster information for a single or multiple clusterss. Execute with no parameters to get all ports, specify a edge_cluster_id if known.
+    .EXAMPLE
+       Get-NSXTEdgeCluster
+    .EXAMPLE
+       Get-NSXTEdgeCluster -edge_cluster_id "Edge Cluster ID"
+    .EXAMPLE
+       Get-NSXTThingTemplate | where name -eq "My Edge Cluster Name"
+#>  
+
     Param (
         [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
         [Alias("Id")]
@@ -558,12 +610,27 @@ Function Get-NSXTEdgeCluster {
             $results.member_node_type = $NSXEdgeCluster.member_node_type;
             $results.members = $NSXEdgeCluster.members;
             $results.cluster_profile_bindings = $NSXEdgeCluster.cluster_profile_bindings
-            write-output $results
+             $results
         }
     }
 }
 
 Function Get-NSXTLogicalRouter {
+  <#
+    .Synopsis
+       Retrieves the Logical Router information
+    .DESCRIPTION
+       Retrieves Logical Router information for a single or multiple LR's. This includes corresponding SR's and transport_node_id. Execute with no parameters to get all ports, specify a Logical_router_id if known.
+    .EXAMPLE
+       Get-NSXTLogicalRouter
+    .EXAMPLE
+       Get-NSXTLogicalRouter -Logical_router_id "LR ID"
+    .EXAMPLE
+       Get-NSXTLogicalRouter | where name -eq "LR Name"
+    .EXAMPLE
+       (Get-NSXTLogicalRouter -Logical_router_id "LR ID").per_node_status
+#>  
+
     Param (
         [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
         [Alias("Id")]
@@ -576,9 +643,22 @@ Function Get-NSXTLogicalRouter {
         $NSXTLogicalRoutersStatusService = Get-NsxtService -Name "com.vmware.nsx.logical_routers.status"
         
         class per_node_status {
-            $service_router_id = [System.Collections.ArrayList]::new()
+            $service_router_id 
             [ValidateSet("ACTIVE","STANDBY","DOWN","SYNC","UNKNOWN")]
-            $high_availability_status = [System.Collections.ArrayList]::new()
+            $high_availability_status 
+            $transport_node_id
+
+            per_node_status(){}
+
+            per_node_status(
+                $service_router_id, 
+                $high_availability_status,
+                $transport_node_id
+            ) {
+                $this.service_router_id = $service_router_id
+                $this.high_availability_status = $high_availability_status
+                $this.transport_node_id = $transport_node_id
+            }
         }
         
         class NSXTLogicalRouter {
@@ -597,7 +677,7 @@ Function Get-NSXTLogicalRouter {
             [string]$internal_transit
             hidden [string]$advanced_config = [System.Collections.Generic.List[string]]::new()
             hidden [string]$firewall_sections = [System.Collections.Generic.List[string]]::new()
-            $per_node_status = [per_node_status]::new()
+            $per_node_status = [System.Collections.Generic.List[string]]::new()
         }
     }
 
@@ -613,10 +693,9 @@ Function Get-NSXTLogicalRouter {
             
             $NSXTLogicalRoutersStatus = $NSXTLogicalRoutersStatusService.get($NSXLogicalRouter.id)
             $results = [NSXTLogicalRouter]::new()
-
+            
             foreach ($NSXTLogicalRouterStatus in $NSXTLogicalRoutersStatus.per_node_status) {
-                $results.per_node_status.service_router_id.add($NSXTLogicalRouterStatus.service_router_id) 1>$null
-                $results.per_node_status.high_availability_status.add($NSXTLogicalRouterStatus.high_availability_status) 1>$null
+                $results.per_node_status += [per_node_status]::new($NSXTLogicalRouterStatus.service_router_id,$NSXTLogicalRouterStatus.high_availability_status,$NSXTLogicalRouterStatus.transport_node_id)
             }
 
             $results.Name = $NSXLogicalRouter.display_name;
@@ -631,12 +710,27 @@ Function Get-NSXTLogicalRouter {
             $results.internal_transit = $NSXLogicalRouter.advanced_config.internal_transit_network;
             $results.advanced_config =$NSXLogicalRouter.advanced_config;
             $results.firewall_sections =$NSXLogicalRouter.firewall_sections
-            write-output $results
+             $results
         }  
     }
 }
 
 Function Get-NSXTRoutingTable {
+  <#
+    .Synopsis
+       Retrieves the routing table information
+    .DESCRIPTION
+       Retrieves routing table for a single LR including LR type (SR/DR) and next_hop. Must specify Logical_router_id & transport_node_id. Pipeline input supported.
+    .EXAMPLE
+       Get-NSXTRoutingTable -Logical_router_id "LR ID" -transport_node_id "TN ID" | format-table -autosize
+    .EXAMPLE
+       Get-NSXTLogicalRouter | where name -eq "LR Name" | Get-NSXTRoutingTable -transport_node_id "TN ID"
+    .EXAMPLE
+       Get-NSXTLogicalRouter | where name -eq INT-T1 | Get-NSXTRoutingTable -transport_node_id ((Get-NSXTTransportNode | where name -match "INT")[0].transport_node_id)
+    .EXAMPLE
+       Get-NSXTLogicalRouter | where name -eq INT-T1 | Get-NSXTRoutingTable -transport_node_id (((Get-NSXTLogicalRouter | where name -eq INT-T1).per_node_status | where high_availability_status -eq ACTIVE).transport_node_id)
+#>  
+ 
     Param (
         [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
         [string]$Logical_router_id,
@@ -675,13 +769,20 @@ Function Get-NSXTRoutingTable {
             $results.logical_router_port_id = $NSXTRoute.logical_router_port_id;
             $results.admin_distance = $NSXTRoute.admin_distance;
             $results.network = $NSXTRoute.network
-            write-output $results
+            $results
         }
     }
 }
 
 Function Get-NSXTFabricVM {
-
+ <#
+    .Synopsis
+       Retrieves the VM's attached to the fabric.
+    .DESCRIPTION
+       Retrieves all VM's attached to the fabric.
+    .EXAMPLE
+       Get-NSXTFabricVM
+#>  
     Begin
     {
         $NSXTVMService = Get-NsxtService -Name "com.vmware.nsx.fabric.virtual_machines"
@@ -717,12 +818,23 @@ Function Get-NSXTFabricVM {
             $results.power_state = $NSXTVM.power_state;
             $results.type = $NSXTVM.type;
             $results.source = $NSXTVM.source
-            write-output $results
+             $results
         }
     }
 }
 
 Function Get-NSXTBGPNeighbors {
+  <#
+    .Synopsis
+       Retrieves the BGP neighbor information
+    .DESCRIPTION
+       Retrieves BGP neighbor information for a single logical router. Must specify logical_router_id parameter. Pipeline input supported
+    .EXAMPLE
+       Get-NSXTBGPNeighbors -logical_router_id "LR ID"
+    .EXAMPLE
+       Get-NSXTLogicalRouter | where name -eq "LR Name" | Get-NSXTBGPNeighbors       
+#>  
+ 
     Param (
         [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
         [Alias("Id")]
@@ -788,12 +900,27 @@ Function Get-NSXTBGPNeighbors {
             $results.remote_as_num = $NSXTThing.remote_as_num;
             $results.source_address = $NSXTThing.source_address;
             $results.source_addresses = $NSXTThing.source_addresses
-            write-output $results
+             $results
         }  
     }
 }
 
 Function Get-NSXTForwardingTable {
+ <#
+    .Synopsis
+       Retrieves the forwarding table information
+    .DESCRIPTION
+       Retrieves forwarding table for a single LR including LR type (SR/DR) and next_hop. Must specify Logical_router_id & transport_node_id. Pipeline input supported.
+    .EXAMPLE
+       Get-Get-NSXTForwardingTable -Logical_router_id "LR ID" -transport_node_id "TN ID" | format-table -autosize
+    .EXAMPLE
+       Get-NSXTLogicalRouter | where name -eq "LR Name" | Get-NSXTForwardingTable -transport_node_id "TN ID"
+    .EXAMPLE
+       Get-NSXTLogicalRouter | where name -eq "LR Name" | Get-NSXTForwardingTable -transport_node_id ((Get-NSXTTransportNode | where name -match "Edge Name")[0].transport_node_id)
+    .EXAMPLE
+       Get-NSXTLogicalRouter | where name -eq "LR Name" | Get-NSXTForwardingTable -transport_node_id (((Get-NSXTLogicalRouter | where name -eq "Edge Name").per_node_status | where high_availability_status -eq ACTIVE).transport_node_id)
+#>  
+
     Param (
         [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
         [string]$Logical_router_id,
@@ -830,12 +957,23 @@ Function Get-NSXTForwardingTable {
             $results.next_hop = $NSXTForwarding.next_hop;
             $results.route_type = $NSXTForwarding.route_type;
             $results.logical_router_port_id = $NSXTForwarding.logical_router_port_id
-            write-output $results
+             $results
         }
     }
 }
 
- Function Get-NSXTNetworkRoutes {
+Function Get-NSXTNetworkRoutes {
+<#
+    .Synopsis
+       Retrieves the network routes information
+    .DESCRIPTION
+       Retrieves the network routes information for a single or multiple routes. 
+    .EXAMPLE
+       Get-NSXTNetworkRoutes
+    .EXAMPLE
+       Get-NSXTNetworkRoutes -route_id "Route ID"
+#>  
+
     Param (
         [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
         [string]$route_id
@@ -883,13 +1021,118 @@ Function Get-NSXTForwardingTable {
             $results.proto = $NSXTRoute.proto;
             $results.scope = $NSXTRoute.scope;
             $results.src = $NSXTRoute.src
-            write-output $results
+             $results
         }
+    }
+}
+
+Function Get-NSXTLogicalRouterPorts {
+<#
+    .Synopsis
+       Retrieves the logical router port information
+    .DESCRIPTION
+       Retrieves logical router port information for a single or multiple ports. Execute with no parameters to get all ports, specify a single port if known, or feed a logical switch for filtered output.
+    .EXAMPLE
+       Get-NSXTLogicalRouterPorts
+    .EXAMPLE
+       Get-NSXTLogicalRouterPorts -logical_router_port_id "LR Port Name"
+    .EXAMPLE
+       Get-NSXTLogicalRouterPorts -logical_router_id "LR Name"
+    .EXAMPLE
+       Get-NSXTLogicalRouterPorts -logical_router_id (Get-NSXTLogicalRouter | where name -eq "LR Name")
+#>    
+    
+    Param (
+        [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [Alias("Id")]
+        [string]$logical_router_port_id,
+        [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [string]$logical_router_id
+    )
+
+    begin
+    {
+        $NSXTLogicalRouterPortsService = Get-NsxtService -Name "com.vmware.nsx.logical_router_ports"
+
+        class subnets {
+            $ip_addresses
+            $prefix_length
+
+            subnets(){}
+
+            subnets(
+                $ip_addresses,
+                $prefix_length
+            ) {
+                $this.ip_addresses = $ip_addresses
+                $this.prefix_length = $prefix_length
+            }
+        }
+        
+        class NSXTLogicalRouterPorts {
+            [string]$Name
+            $Id
+            [string]$logical_router_id
+            $resource_type
+            [string]$protection
+            $mac_address
+            $subnets = [System.Collections.Generic.List[string]]::new()
+            hidden [string]$Tags
+            hidden $linked_logical_switch_port_id
+        }
+    }
+
+    Process
+    {
+        if($logical_router_port_id) {
+            $NSXTLogicalRouterPorts = $NSXTLogicalRouterPortsService.get($logical_router_port_id)
+        } else {
+            if ($logical_router_id) {
+                $NSXTLogicalRouterPorts = $NSXTLogicalRouterPortsService.list().results | where {$_.logical_router_id -eq $Logical_router_id}
+            }
+            else {
+                $NSXTLogicalRouterPorts = $NSXTLogicalRouterPortsService.list().results
+            }
+        }
+
+        foreach ($NSXTLogicalRouterPort in $NSXTLogicalRouterPorts) {
+            
+            $results = [NSXTLogicalRouterPorts]::new()
+
+            foreach ($subnet in $NSXTLogicalRouterPort.subnets) {
+                $results.subnets += [subnets]::new($subnet.ip_addresses,$subnet.prefix_length)
+            }
+
+            $results.Name = $NSXTLogicalRouterPort.display_name
+            $results.Id = $NSXTLogicalRouterPort.Id
+            $results.Logical_router_id = $NSXTLogicalRouterPort.Logical_router_id
+            $results.resource_type = $NSXTLogicalRouterPort.resource_type
+            $results.protection = $NSXTLogicalRouterPort.protection
+            $results.Tags = $NSXTLogicalRouterPort.tags
+            $results.mac_address = $NSXTLogicalRouterPort.mac_address
+            $results.linked_logical_switch_port_id = $NSXTLogicalRouterPort.linked_logical_switch_port_id
+            $results
+        }  
     }
 }
 
 # Get Template
 Function Get-NSXTThingTemplate {
+ <#
+    .Synopsis
+       Retrieves the THING information
+    .DESCRIPTION
+       Retrieves THING information for a single or multiple ports. Execute with no parameters to get all ports, specify a PARAM if known.
+    .EXAMPLE
+       Get-NSXTThingTemplate
+    .EXAMPLE
+       Get-NSXTThingTemplate -param1 "LR Port Name"
+    .EXAMPLE
+       Get-NSXTThingTemplate -param2 "LR Name"
+    .EXAMPLE
+       Get-NSXTThingTemplate -param2 (Get-NSXTLogicalRouter | where name -eq "LR Name")
+#>    
+
     Param (
         [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
         [Alias("Id")]
@@ -933,7 +1176,7 @@ Function Get-NSXTThingTemplate {
             $results.thing1 = $NSXTThing.thing1;
             $results.thing2 = $NSXTThing.thing2
 
-            write-output $results
+             $results
         }  
     }
 }
