@@ -1106,6 +1106,72 @@ Function Get-NSXTIPPool {
     }
 }
 
+Function Get-NSXTIPAMIPBlock {
+ <#
+    .Synopsis
+       Retrieves the IPAM IP Block information
+    .DESCRIPTION
+       Retrieves IPAM IP Block information for a single or multiple ports. Execute with no parameters to get all ports, specify a PARAM if known.
+    .EXAMPLE
+       Get-NSXTIPAMIPBlock
+    .EXAMPLE
+       Get-NSXTIPAMIPBlock -block_id "Block Id"
+    .EXAMPLE
+       Get-NSXTIPAMIPBlock -name "Block Name"
+
+#>    
+
+    Param (
+        [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [Alias("Id")]
+        [string]$block_id,
+        [parameter(Mandatory=$false)]
+        [string]$name
+    )
+
+    begin
+    {
+        $NSXTIPAMIPBlocksService = Get-NsxtService -Name "com.vmware.nsx.pools.ip_blocks"
+
+        class ip_block {
+            [string]$Name
+            [string]$block_id
+            hidden [string]$Tags = [System.Collections.Generic.List[string]]::new()
+            [string]$protection
+            #[ValidateSet("TIER0","TIER1")]
+            [string]$cidr
+            hidden [string]$resource_type
+        }
+    }
+
+    Process
+    {
+        if($block_id) {
+            $NSXTIPAMIPBlocks = $NSXTIPAMIPBlocksService.get($block_id)
+        } else {
+            if ($name) {
+                $NSXTIPAMIPBlocks = $NSXTIPAMIPBlocksService.list().results | where {$_.display_name -eq $name}
+            }
+            else {
+                $NSXTIPAMIPBlocks = $NSXTIPAMIPBlocksService.list().results
+            }
+        }
+
+        foreach ($NSXTIPAMIPBlock in $NSXTIPAMIPBlocks) {
+            
+            $results = [ip_block]::new()
+            $results.Name = $NSXTIPAMIPBlock.display_name;
+            $results.block_id = $NSXTIPAMIPBlock.id;
+            $results.Tags = $NSXTIPAMIPBlock.tags;
+            $results.protection = $NSXTIPAMIPBlock.protection;
+            $results.cidr = $NSXTIPAMIPBlock.cidr;
+            $results.resource_type = $NSXTIPAMIPBlock.resource_type
+
+            $results
+        }  
+    }
+}
+
 # Working Set Functions
 Function Set-NSXTLogicalRouter {
  <#
@@ -1297,6 +1363,140 @@ Function Set-NSXTLogicalSwitch {
     }
 }
 
+Function Set-NSXTIPAMIPBlock {
+ <#
+    .Synopsis
+       Creates an IPAM IP Block
+    .DESCRIPTION
+       Creates a IPAM IP Block with a cidr parameter.  
+    .EXAMPLE
+       Set-NSXTIPAMIPBlock -name "IPAM Block Name" -cidr "192.168.0.0/24"
+#>  
+
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                  ConfirmImpact='Medium')]
+
+    # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
+    Param (
+            [parameter(Mandatory=$false)]
+            [string]$description,
+            
+            [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
+            [string]$display_name,
+            
+            [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
+            [string]$cidr
+    )
+
+    Begin
+    {
+        if (-not $global:DefaultNsxtServers.isconnected)
+        {
+            try
+            {
+                Connect-NsxtServer -Menu -ErrorAction Stop
+            }
+
+            catch
+            {
+                throw "Could not connect to an NSX-T Manager, please try again"
+            }
+        }
+        
+        $NSXTIPAMIPBlockService = Get-NsxtService -Name "com.vmware.nsx.pools.ip_blocks"
+    }
+
+    Process
+    {
+        $IPAMIPBlock_request = $NSXTIPAMIPBlockService.help.create.ip_block.Create()
+
+        $IPAMIPBlock_request.display_name = $display_name
+        $IPAMIPBlock_request.description = $description
+        $IPAMIPBlock_request.resource_type = "IpBlock"
+        $IPAMIPBlock_request.cidr = $cidr
+
+
+        try
+        {
+            # Should process
+            if ($pscmdlet.ShouldProcess($ip_pool.display_name, "Create IP Pool"))
+            {  
+                $NSXTIPAMIPBlock = $NSXTIPAMIPBlockService.create($IPAMIPBlock_request)
+            }
+        }
+
+        catch
+        {
+            throw $Error[0].Exception.ServerError.data
+            # more error data found in the NSX-T Manager /var/log/vmware/nsx-manager.log file.  
+        }
+
+        $NSXTIPAMIPBlock
+    }
+}
+
+# Remove functions
+Function Remove-NSXTIPAMIPBlock {
+ <#
+    .Synopsis
+       Removes an IPAM IP Block
+    .DESCRIPTION
+       Removes a IPAM IP Block with a block_id parameter.  
+    .EXAMPLE
+       Remove-NSXTIPAMIPBlock -block_id "id"
+    .EXAMPLE
+        Get-NSXTIPAMIPBlock | where name -eq "IPAM Test2" | Remove-NSXTIPAMIPBlock
+#>  
+
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                  ConfirmImpact='High')]
+
+        Param (
+            [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+            [ValidateNotNullOrEmpty()]
+            [Alias("Id")]
+            [string]$block_id
+    )
+
+    Begin
+    {
+        if (-not $global:DefaultNsxtServers.isconnected)
+        {
+            try
+            {
+                Connect-NsxtServer -Menu -ErrorAction Stop
+            }
+
+            catch
+            {
+                throw "Could not connect to an NSX-T Manager, please try again"
+            }
+        }
+        
+        $NSXTIPAMIPBlockService = Get-NsxtService -Name "com.vmware.nsx.pools.ip_blocks"
+    }
+
+    Process
+    {
+        try
+        {
+            # Should process
+            if ($pscmdlet.ShouldProcess($block_id, "Delete IP Pool"))
+            {  
+                $NSXTIPAMIPBlockService.delete($block_id)
+            }
+        }
+
+        catch
+        {
+            throw $Error[0].Exception.ServerError.data
+            # more error data found in the NSX-T Manager /var/log/vmware/nsx-manager.log file.  
+        }
+    }
+}
+
 # Non-working Set Functions
 Function Set-NSXTTraceFlow {
  <#
@@ -1475,6 +1675,7 @@ Function Set-NSXTIPPool {
     # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
     Param (
             [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
             [string]$display_name,
             
             [parameter(Mandatory=$false)]
@@ -1484,12 +1685,15 @@ Function Set-NSXTIPPool {
             [string]$dns_nameservers,
             
             [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
             [string]$allocation_start,
 
             [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
             [string]$allocation_end,
 
             [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
             [string]$cidr,
 
             [parameter(Mandatory=$false)]
@@ -1534,25 +1738,22 @@ Function Set-NSXTIPPool {
             [string]$description
             [string]$resource_type = 'IpPool'
             [long]$revision = '0'
-            #$subnets = [subnets]::new()
-            $subnets = [System.Collections.Generic.List[subnets]]::new()
+            $subnets = [subnets]::new()
             hidden $pool_usage
             hidden $tags
             hidden $self
-            hidden $links = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
+            hidden $links = [System.Collections.Generic.List[string]]::new()
         }
 
     }
 
     Process
     {
-        $ip_pool = [ip_pool]::new()
         $ip_pool = $NSXTIPPoolService.help.create.ip_pool.Create()
         $ip_pool.subnets = $NSXTIPPoolService.help.create.ip_pool.subnets.Create()
         $ip_pool.subnets = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.Create()
         $ip_pool.subnets.allocation_ranges = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.create()
         $ip_pool.subnets.allocation_ranges = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.element.create()
-        #$ip_pool = [ip_pool]::new()
 
         $ip_pool.display_name = $display_name
         $ip_pool.description = $description
@@ -1563,6 +1764,9 @@ Function Set-NSXTIPPool {
         $ip_pool.subnets.cidr = $cidr
         $ip_pool.subnets.gateway_ip = $gateway_ip
         $ip_pool.revision = 0
+
+        # Accepted JSON object ok yet it did not interpret any of the parameters
+        #$ip_pool_json = ConvertTo-Json $ip_pool
                
         try
         {
@@ -1576,13 +1780,15 @@ Function Set-NSXTIPPool {
         catch
         {
             $Error[0].Exception.ServerError.data
-            # more error data found in the NSX-T Manager /var/log/vmware/nsx-manager.log file.  
+            # more error data found in the NSX-T Manager /var/log/vmware/nsx-manager.log file; grep POOL-MGMT
             throw
         }
 
         $NSXTIPPool
     }
 }
+
+###########################
 
 # Get Template
 Function Get-NSXTThingTemplate {
@@ -1678,9 +1884,11 @@ Function Set-NSXTThingTemplate {
             [string]$description,
             
             [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
             [string]$display_name,
             
             [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
             [string]$transport_zone_id,
             
             [parameter(Mandatory=$true)]
@@ -1692,6 +1900,7 @@ Function Set-NSXTThingTemplate {
             [string]$replication_mode,
 
             [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
             [string]$ip_pool_id
     )
 
@@ -1744,6 +1953,64 @@ Function Set-NSXTThingTemplate {
     }
 }
 
+# Remove Template
+Function Remove-NSXTThingTemplate {
+ <#
+    .Synopsis
+       Removes an IPAM IP Block
+    .DESCRIPTION
+       Removes a IPAM IP Block with a block_id parameter.  
+    .EXAMPLE
+       Remove-NSXTIPAMIPBlock -block_id "id"
+#>  
 
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                  ConfirmImpact='High')]
+
+        Param (
+            [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+            [ValidateNotNullOrEmpty()]
+            [Alias("Id")]
+            [string]$thing_id
+    )
+
+    Begin
+    {
+        if (-not $global:DefaultNsxtServers.isconnected)
+        {
+            try
+            {
+                Connect-NsxtServer -Menu -ErrorAction Stop
+            }
+
+            catch
+            {
+                throw "Could not connect to an NSX-T Manager, please try again"
+            }
+        }
+        
+        $NSXTTHINGkService = Get-NsxtService -Name "com.vmware.nsx.THING"
+    }
+
+    Process
+    {
+        try
+        {
+            # Should process
+            if ($pscmdlet.ShouldProcess($thing_id, "Delete IP Pool"))
+            {  
+                $NSXTTHINGkService.delete($thing_id)
+            }
+        }
+
+        catch
+        {
+            throw $Error[0].Exception.ServerError.data
+            # more error data found in the NSX-T Manager /var/log/vmware/nsx-manager.log file.  
+        }
+    }
+}
+
+$NSXTIPSubnetsService = Get-NsxtService -Name "com.vmware.nsx.pools.ip_subnets"
 
 

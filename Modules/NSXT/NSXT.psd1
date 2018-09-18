@@ -29,7 +29,10 @@
                         'Set-NSXTIPPool',
                         'Set-NSXTLogicalRouter',
                         'Set-NSXTLogicalSwitch',
-                        'Set-NSXTTraceFlow'
+                        'Set-NSXTTraceFlow',
+                        'Get-NSXTIPAMIPBlock',
+                        'Set-NSXTIPAMIPBlock',
+                        'Remove-NSXTIPAMIPBlock'
 
 	PrivateData = @{
 		PSData = @{
