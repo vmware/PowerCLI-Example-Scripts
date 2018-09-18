@@ -1121,7 +1121,8 @@ Function Set-NSXTLogicalRouter {
        Set-NSXTLogicalRouter -display_name "Name" -high_availability_mode "ACTIVE_STANDBY" -router_type "TIER1" -description "this is my new tier1 lr"
 #>  
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                  ConfirmImpact='Medium')]
 
     # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
     Param (
@@ -1191,8 +1192,11 @@ Function Set-NSXTLogicalRouter {
 
         try
         {
-            # 
-            $NSXTLogicalRouter = $NSXTLogicalRouterService.create($logical_router_request)
+            # Should process
+            if ($pscmdlet.ShouldProcess($logical_router_request.display_name, "Create logical router"))
+            {
+                $NSXTLogicalRouter = $NSXTLogicalRouterService.create($logical_router_request)
+            } 
         }
 
         catch
@@ -1217,7 +1221,8 @@ Function Set-NSXTLogicalSwitch {
        Set-NSXTLogicalSwitch -display_name "Name" -transport_zone_id "TP Zone ID" -admin_state "UP" -replication_mode "MTEP" -ip_pool_id "IP Pool Name"
 #>  
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                  ConfirmImpact='Medium')]
 
     # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
     Param (
@@ -1274,8 +1279,12 @@ Function Set-NSXTLogicalSwitch {
 
         try
         {
-            # 
-            $NSXTLogicalSwitch = $NSXTLogicalSwitchService.create($logical_switch_request)
+            # Should process
+            if ($pscmdlet.ShouldProcess($logical_switch_request.display_name, "Create logical switch"))
+            {
+                $NSXTLogicalSwitch = $NSXTLogicalSwitchService.create($logical_switch_request)
+            }
+            
         }
 
         catch
@@ -1303,7 +1312,8 @@ Function Set-NSXTTraceFlow {
        Set-NSXTTraceFlow -transport_type "UNICAST" -lport_id "LP ID" -src_ip "IP Address" -src_mac "MAC" -dst_ip "IP Address" -dst_mac "MAC" | Get-NSXTTraceFlow | Get-NSXTTraceFlowObservations
 #>  
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                  ConfirmImpact='Medium')]
 
     # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
     Param (
@@ -1429,8 +1439,12 @@ Function Set-NSXTTraceFlow {
 
         try
         {
-            # This does not work, bug report submitted to PowerCLI team
-            $NSXTraceFlow = $NSXTraceFlowService.create($traceflow_request)
+            # Should process
+            if ($pscmdlet.ShouldProcess($traceflow_request.lport_id, "Create traceflow"))
+            {
+                # This does not work, bug report submitted to PowerCLI team
+                $NSXTraceFlow = $NSXTraceFlowService.create($traceflow_request)
+            }
         }
 
         catch
@@ -1455,7 +1469,8 @@ Function Set-NSXTIPPool {
        Set-NSXTIPPool -display_name "Test Pool Name" -allocation_start "192.168.1.1" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24" -dns_nameservers "192.168.1.1" -gateway_ip "192.168.1.1"
 #>  
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                  ConfirmImpact='Medium')]
 
     # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
     Param (
@@ -1497,29 +1512,65 @@ Function Set-NSXTIPPool {
         }
         
         $NSXTIPPoolService = Get-NsxtService -Name "com.vmware.nsx.pools.ip_pools"
+
+        class allocation_ranges {
+            [string]$start
+            [string]$end
+            $self
+        }
+
+        class subnets {
+            [string]$dns_nameservers
+            [string]$dns_suffix
+            [string]$cidr
+            [string]$gateway_ip
+            $allocation_ranges = [allocation_ranges]::new()
+            hidden $self
+            
+        }
+
+        class ip_pool {
+            [string]$display_name
+            [string]$description
+            [string]$resource_type = 'IpPool'
+            [long]$revision = '0'
+            #$subnets = [subnets]::new()
+            $subnets = [System.Collections.Generic.List[subnets]]::new()
+            hidden $pool_usage
+            hidden $tags
+            hidden $self
+            hidden $links = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
+        }
+
     }
 
     Process
     {
-        $ip_pool_request = $NSXTIPPoolService.help.create.ip_pool.Create()
-        $ip_pool_request.subnets = $NSXTIPPoolService.help.create.ip_pool.subnets.Create()
-        $ip_pool_request.subnets = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.Create()
-        $ip_pool_request.subnets.allocation_ranges = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.create()
-        $ip_pool_request.subnets.allocation_ranges = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.element.create()
+        $ip_pool = [ip_pool]::new()
+        $ip_pool = $NSXTIPPoolService.help.create.ip_pool.Create()
+        $ip_pool.subnets = $NSXTIPPoolService.help.create.ip_pool.subnets.Create()
+        $ip_pool.subnets = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.Create()
+        $ip_pool.subnets.allocation_ranges = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.create()
+        $ip_pool.subnets.allocation_ranges = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.element.create()
+        #$ip_pool = [ip_pool]::new()
 
-        $ip_pool_request.display_name = $display_name
-        $ip_pool_request.description = $description
-        $ip_pool_request.resource_type = "IpPool"
-        $ip_pool_request.subnets.dns_nameservers = $dns_nameservers
-        $ip_pool_request.subnets.allocation_ranges.start = $allocation_start
-        $ip_pool_request.subnets.allocation_ranges.end = $allocation_end
-        $ip_pool_request.subnets.cidr = $cidr
-        $ip_pool_request.subnets.gateway_ip = $gateway_ip
+        $ip_pool.display_name = $display_name
+        $ip_pool.description = $description
+        $ip_pool.resource_type = "IpPool"
+        $ip_pool.subnets.dns_nameservers = $dns_nameservers
+        $ip_pool.subnets.allocation_ranges.start = $allocation_start
+        $ip_pool.subnets.allocation_ranges.end = $allocation_end
+        $ip_pool.subnets.cidr = $cidr
+        $ip_pool.subnets.gateway_ip = $gateway_ip
+        $ip_pool.revision = 0
                
         try
         {
-            # 
-            $NSXTIPPool = $NSXTIPPoolService.create($ip_pool_request)
+            # Should process
+            if ($pscmdlet.ShouldProcess($ip_pool.display_name, "Create IP Pool"))
+            { 
+                $NSXTIPPool = $NSXTIPPoolService.create($ip_pool)
+            }
         }
 
         catch
@@ -1618,7 +1669,8 @@ Function Set-NSXTThingTemplate {
        Set-NSXTThingTemplateh -param1 "Name" -param2 "TP Zone ID" 
 #>  
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                  ConfirmImpact='Medium')]
 
     # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
     Param (
@@ -1675,8 +1727,11 @@ Function Set-NSXTThingTemplate {
 
         try
         {
-            # 
-            $NSXTTHING = $NSXTTHINGService.create($logical_THING_request)
+            # Should process
+            if ($pscmdlet.ShouldProcess($ip_pool.display_name, "Create IP Pool"))
+            {  
+                $NSXTTHING = $NSXTTHINGService.create($logical_THING_request)
+            }
         }
 
         catch
