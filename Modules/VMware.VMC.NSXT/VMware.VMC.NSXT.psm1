@@ -24,7 +24,7 @@ Function Connect-NSXTProxy {
         [Parameter(Mandatory=$true)][String]$SDDCName
     )
 
-    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; exit } Else {
+    If (-Not $global:DefaultVMCServers.IsConnected) { Write-error "No valid VMC Connection found, please use the Connect-VMC to connect"; break } Else {
         $sddcService = Get-VmcService "com.vmware.vmc.orgs.sddcs"
         $orgId = (Get-VMCOrg -Name $OrgName).Id
         $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
