@@ -1172,6 +1172,84 @@ Function Get-NSXTIPAMIPBlock {
     }
 }
 
+Function Get-NSXTClusterNode {
+ <#
+    .Synopsis
+       Retrieves the cluster node information
+    .DESCRIPTION
+       Retrieves cluster node information including manager and controller nodes.
+    .EXAMPLE
+       Get-NSXTClusterNode
+    .EXAMPLE
+       Get-NSXTClusterNode -node_id "Node Id"
+    .EXAMPLE
+       Get-NSXTClusterNode -name "Name"
+#>    
+
+    Param (
+        [parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [Alias("Id")]
+        [string]$node_id,
+        [parameter(Mandatory=$false)]
+        [string]$name
+    )
+
+    begin
+    {
+        $NSXTClusterNodesService = Get-NsxtService -Name "com.vmware.nsx.cluster.nodes"
+
+        class NSXTClusterNode {
+            [string]$Name
+            [string]$node_id
+            hidden [array]$Tags = [System.Collections.Generic.List[string]]::new()
+            hidden [string]$controller_role
+            hidden [array]$manager_role
+            [string]$protection
+            [string]$appliance_mgmt_listen_addr
+            hidden [string]$external_id
+            hidden [string]$description
+            [string]$role
+        }
+    }
+
+    Process
+    {
+        if($node_id) {
+            $NSXTThings = $NSXTClusterNodesService.get($node_id)
+        } else {
+            if ($name) {
+                $NSXTClusterNodes = $NSXTClusterNodesService.list().results | where {$_.display_name -eq $name}
+            }
+            else {
+                $NSXTClusterNodes = $NSXTClusterNodesService.list().results
+            }
+        }
+
+        foreach ($NSXTClusterNode in $NSXTClusterNodes) {
+            
+            $results = [NSXTClusterNode]::new()
+            $results.Name = $NSXTClusterNode.display_name;
+            $results.node_id = $NSXTClusterNode.Id;
+            $results.Tags = $NSXTClusterNode.tags;
+            $results.controller_role = $NSXTClusterNode.controller_role;
+            $results.manager_role = $NSXTClusterNode.manager_role;
+            $results.protection = $NSXTClusterNode.protection;
+            $results.appliance_mgmt_listen_addr = $NSXTClusterNode.appliance_mgmt_listen_addr;
+            $results.external_id = $NSXTClusterNode.external_id;
+            $results.description = $NSXTClusterNode.description
+
+            if ($NSXTClusterNode.manager_role -ne $null) {
+                $results.role = "Manager"
+            }
+            elseif ($NSXTClusterNode.controller_role -ne $null) {
+                $results.role = "Controller"
+            }
+
+            $results
+        }  
+    }
+}
+
 # Working Set Functions
 Function Set-NSXTLogicalRouter {
  <#
@@ -1453,11 +1531,11 @@ Function Remove-NSXTIPAMIPBlock {
     [CmdletBinding(SupportsShouldProcess=$true, 
                   ConfirmImpact='High')]
 
-        Param (
-            [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
-            [ValidateNotNullOrEmpty()]
-            [Alias("Id")]
-            [string]$block_id
+    Param (
+        [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+        [ValidateNotNullOrEmpty()]
+        [Alias("Id")]
+        [string]$block_id
     )
 
     Begin
@@ -1664,13 +1742,13 @@ Function Set-NSXTIPPool {
     .DESCRIPTION
        Creates a IP Pool with a number of required parameters. Supported IP formats include 192.168.1.1, 192.168.1.1-192.168.1.100, 192.168.0.0/24
     .EXAMPLE
-       Set-NSXTIPPool -display_name "Pool Name" -allocation_start "192.168.1.1" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24"
+       Set-NSXTIPPool -display_name "Pool Name" -allocation_start "192.168.1.2" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24"
     .EXAMPLE
-       Set-NSXTIPPool -display_name "Test Pool Name" -allocation_start "192.168.1.1" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24" -dns_nameservers "192.168.1.1" -gateway_ip "192.168.1.1"
+       Set-NSXTIPPool -display_name "Test Pool Name" -allocation_start "192.168.1.2" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24" -dns_nameservers "192.168.1.1" -gateway_ip "192.168.1.1" -dns_suffix "evil corp"
 #>  
 
     [CmdletBinding(SupportsShouldProcess=$true, 
-                  ConfirmImpact='Medium')]
+                  ConfirmImpact='High')]
 
     # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
     Param (
@@ -1684,6 +1762,9 @@ Function Set-NSXTIPPool {
             [parameter(Mandatory=$false)]
             [string]$dns_nameservers,
             
+            [parameter(Mandatory=$false)]
+            [string]$dns_suffix,
+
             [parameter(Mandatory=$true)]
             [ValidateNotNullOrEmpty()]
             [string]$allocation_start,
@@ -1720,17 +1801,16 @@ Function Set-NSXTIPPool {
         class allocation_ranges {
             [string]$start
             [string]$end
-            $self
+            #$self
         }
 
         class subnets {
-            [string]$dns_nameservers
+            [array]$allocation_ranges = [allocation_ranges]::new()
+            [array]$dns_nameservers
             [string]$dns_suffix
             [string]$cidr
             [string]$gateway_ip
-            $allocation_ranges = [allocation_ranges]::new()
-            hidden $self
-            
+            #hidden $self            
         }
 
         class ip_pool {
@@ -1738,42 +1818,51 @@ Function Set-NSXTIPPool {
             [string]$description
             [string]$resource_type = 'IpPool'
             [long]$revision = '0'
-            $subnets = [subnets]::new()
+            [array]$subnets = [subnets]::new()
             hidden $pool_usage
-            hidden $tags
-            hidden $self
-            hidden $links = [System.Collections.Generic.List[string]]::new()
+            hidden [array]$tags
+            # hidden $self
+            hidden $links
         }
-
     }
 
     Process
     {
-        $ip_pool = $NSXTIPPoolService.help.create.ip_pool.Create()
-        $ip_pool.subnets = $NSXTIPPoolService.help.create.ip_pool.subnets.Create()
-        $ip_pool.subnets = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.Create()
-        $ip_pool.subnets.allocation_ranges = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.create()
-        $ip_pool.subnets.allocation_ranges = $NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.element.create()
+        $sample_ip_pool = $NSXTIPPoolService.help.create.ip_pool.Create()
+        $sample_ip_pool.subnets = @($NSXTIPPoolService.help.create.ip_pool.subnets.Create())
+        $sample_ip_pool.subnets = @($NSXTIPPoolService.help.create.ip_pool.subnets.Element.Create())
+        $sample_ip_pool.subnets[0].allocation_ranges = @($NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.create())
+        $sample_ip_pool.subnets[0].allocation_ranges = @($NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.element.create())
 
+        #Remove buggy self object
+        $ip_pool = $sample_ip_pool | select -Property * -ExcludeProperty self
+        $ip_pool.subnets[0] = $sample_ip_pool.subnets[0] | select -Property * -ExcludeProperty self
+        $ip_pool.subnets[0].allocation_ranges[0] = $sample_ip_pool.subnets[0].allocation_ranges[0] | select -Property * -ExcludeProperty self
+
+        # Assign objects
         $ip_pool.display_name = $display_name
         $ip_pool.description = $description
         $ip_pool.resource_type = "IpPool"
-        $ip_pool.subnets.dns_nameservers = $dns_nameservers
-        $ip_pool.subnets.allocation_ranges.start = $allocation_start
-        $ip_pool.subnets.allocation_ranges.end = $allocation_end
-        $ip_pool.subnets.cidr = $cidr
-        $ip_pool.subnets.gateway_ip = $gateway_ip
+        $ip_pool.subnets[0].dns_nameservers = @($dns_nameservers)
+        $ip_pool.subnets[0].dns_suffix = $dns_suffix
+        $ip_pool.subnets[0].allocation_ranges[0].start = $allocation_start
+        $ip_pool.subnets[0].allocation_ranges[0].end = $allocation_end
+        $ip_pool.subnets[0].cidr = $cidr
+        $ip_pool.subnets[0].gateway_ip = $gateway_ip
         $ip_pool.revision = 0
+        $ip_pool.tags = @()
 
         # Accepted JSON object ok yet it did not interpret any of the parameters
-        #$ip_pool_json = ConvertTo-Json $ip_pool
+        $ip_pool_json = ConvertTo-Json $ip_pool -Depth 10
                
         try
         {
             # Should process
             if ($pscmdlet.ShouldProcess($ip_pool.display_name, "Create IP Pool"))
             { 
-                $NSXTIPPool = $NSXTIPPoolService.create($ip_pool)
+                $ip_pool_json
+                #$NSXTIPPool = $NSXTIPPoolService.create($ip_pool_json)
+                $NSXTIPPoolService.create($ip_pool_json)
             }
         }
 
@@ -1784,10 +1873,14 @@ Function Set-NSXTIPPool {
             throw
         }
 
-        $NSXTIPPool
+        #$NSXTIPPool
     }
 }
 
+###########################
+#                         #
+#       TEMPLATES!!       #
+#                         #
 ###########################
 
 # Get Template
@@ -1934,6 +2027,8 @@ Function Set-NSXTThingTemplate {
         $logical_THING_request.replication_mode = $replication_mode
         $logical_THING_request.ip_pool_id = $ip_pool_id
 
+        $logical_THING_request_json = ConvertTo-Json $logical_THING_request -Depth 10
+
         try
         {
             # Should process
@@ -1967,7 +2062,7 @@ Function Remove-NSXTThingTemplate {
     [CmdletBinding(SupportsShouldProcess=$true, 
                   ConfirmImpact='High')]
 
-        Param (
+    Param (
             [parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
             [ValidateNotNullOrEmpty()]
             [Alias("Id")]
@@ -2011,6 +2106,5 @@ Function Remove-NSXTThingTemplate {
     }
 }
 
-$NSXTIPSubnetsService = Get-NsxtService -Name "com.vmware.nsx.pools.ip_subnets"
 
 

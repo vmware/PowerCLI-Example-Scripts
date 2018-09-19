@@ -26,6 +26,7 @@
                         'Get-NSXTTraceFlowObservations',
                         'Get-NSXTTransportNode',
                         'Get-NSXTTransportZone',
+                        'Get-NSXTClusterNode',
                         'Set-NSXTIPPool',
                         'Set-NSXTLogicalRouter',
                         'Set-NSXTLogicalSwitch',
@@ -33,6 +34,7 @@
                         'Get-NSXTIPAMIPBlock',
                         'Set-NSXTIPAMIPBlock',
                         'Remove-NSXTIPAMIPBlock'
+                        
 
 	PrivateData = @{
 		PSData = @{
