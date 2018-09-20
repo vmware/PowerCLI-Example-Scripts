@@ -688,7 +688,7 @@ Function New-NSXTGroup {
     }
 }
 
-Function Remove-NSXTGROUP {
+Function Remove-NSXTGroup {
 <#
     .NOTES
     ===========================================================================
@@ -704,7 +704,7 @@ Function Remove-NSXTGROUP {
     .DESCRIPTION
         This cmdlet removes an NSX-T Group
     .EXAMPLE
-        Remove-NSXTGROUP -Id Foo -GatewayType MGW -Troubleshoot
+        Remove-NSXTGroup -Id Foo -GatewayType MGW -Troubleshoot
 #>
     Param (
         [Parameter(Mandatory=$True)]$Id,
