@@ -1515,6 +1515,141 @@ Function Set-NSXTIPAMIPBlock {
     }
 }
 
+Function Set-NSXTIPPool {
+ <#
+    .Synopsis
+       Creates an IP Pool
+    .DESCRIPTION
+       Creates a IP Pool with a number of required parameters. Supported IP formats include 192.168.1.1, 192.168.1.1-192.168.1.100, 192.168.0.0/24
+    .EXAMPLE
+       Set-NSXTIPPool -display_name "Pool Name" -allocation_start "192.168.1.2" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24"
+    .EXAMPLE
+       Set-NSXTIPPool -display_name "Test Pool Name" -allocation_start "192.168.1.2" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24" -dns_nameservers "192.168.1.1" -gateway_ip "192.168.1.1" -dns_suffix "evil corp"
+#>  
+
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                  ConfirmImpact='High')]
+
+    # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
+    Param (
+            [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
+            [string]$display_name,
+            
+            [parameter(Mandatory=$false)]
+            [string]$description,
+            
+            [parameter(Mandatory=$false)]
+            [string]$dns_nameservers,
+            
+            [parameter(Mandatory=$false)]
+            [string]$dns_suffix,
+
+            [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
+            [string]$allocation_start,
+
+            [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
+            [string]$allocation_end,
+
+            [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]
+            [string]$cidr,
+
+            [parameter(Mandatory=$false)]
+            [string]$gateway_ip
+    )
+
+    Begin
+    {
+        if (-not $global:DefaultNsxtServers.isconnected)
+        {
+            try
+            {
+                Connect-NsxtServer -Menu -ErrorAction Stop
+            }
+
+            catch
+            {
+                throw "Could not connect to an NSX-T Manager, please try again"
+            }
+        }
+        
+        $NSXTIPPoolService = Get-NsxtService -Name "com.vmware.nsx.pools.ip_pools"
+
+        class allocation_ranges {
+            [string]$start
+            [string]$end
+            #$self
+        }
+
+        class subnets {
+            [array]$allocation_ranges = [allocation_ranges]::new()
+            [array]$dns_nameservers
+            [string]$dns_suffix
+            [string]$cidr
+            [string]$gateway_ip
+            #hidden $self            
+        }
+
+        class ip_pool {
+            [string]$display_name
+            [string]$description
+            [string]$resource_type = 'IpPool'
+            [long]$revision = '0'
+            [array]$subnets = [subnets]::new()
+            hidden $pool_usage
+            hidden [array]$tags
+            # hidden $self
+            hidden $links
+        }
+    }
+
+    Process
+    {
+        $sample_ip_pool = $NSXTIPPoolService.help.create.ip_pool.Create()
+        $sample_ip_pool.subnets = @($NSXTIPPoolService.help.create.ip_pool.subnets.Create())
+        $sample_ip_pool.subnets = @($NSXTIPPoolService.help.create.ip_pool.subnets.Element.Create())
+        $sample_ip_pool.subnets[0].allocation_ranges = @($NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.create())
+        $sample_ip_pool.subnets[0].allocation_ranges = @($NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.element.create())
+
+        #Remove buggy self object
+        $ip_pool = $sample_ip_pool | select -Property * -ExcludeProperty self
+        $ip_pool.subnets[0] = $sample_ip_pool.subnets[0] | select -Property * -ExcludeProperty self
+        $ip_pool.subnets[0].allocation_ranges[0] = $sample_ip_pool.subnets[0].allocation_ranges[0] | select -Property * -ExcludeProperty self
+
+        # Assign objects
+        $ip_pool.display_name = $display_name
+        $ip_pool.description = $description
+        $ip_pool.resource_type = "IpPool"
+        $ip_pool.subnets[0].dns_nameservers = @($dns_nameservers)
+        $ip_pool.subnets[0].dns_suffix = $dns_suffix
+        $ip_pool.subnets[0].allocation_ranges[0].start = $allocation_start
+        $ip_pool.subnets[0].allocation_ranges[0].end = $allocation_end
+        $ip_pool.subnets[0].cidr = $cidr
+        $ip_pool.subnets[0].gateway_ip = $gateway_ip
+        $ip_pool.revision = 0
+        $ip_pool.tags = @()
+               
+        try
+        {
+            # Should process
+            if ($pscmdlet.ShouldProcess($ip_pool.display_name, "Create IP Pool"))
+            { 
+                $NSXTIPPoolService.create($ip_pool)
+            }
+        }
+
+        catch
+        {
+            $Error[0].Exception.ServerError.data
+            # more error data found in the NSX-T Manager /var/log/vmware/nsx-manager.log file; grep POOL-MGMT
+            throw
+        }
+    }
+}
+
 # Remove functions
 Function Remove-NSXTIPAMIPBlock {
  <#
@@ -1735,147 +1870,7 @@ Function Set-NSXTTraceFlow {
     }
 }
 
-Function Set-NSXTIPPool {
- <#
-    .Synopsis
-       Creates an IP Pool
-    .DESCRIPTION
-       Creates a IP Pool with a number of required parameters. Supported IP formats include 192.168.1.1, 192.168.1.1-192.168.1.100, 192.168.0.0/24
-    .EXAMPLE
-       Set-NSXTIPPool -display_name "Pool Name" -allocation_start "192.168.1.2" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24"
-    .EXAMPLE
-       Set-NSXTIPPool -display_name "Test Pool Name" -allocation_start "192.168.1.2" -allocation_end "192.168.1.100" -cidr "192.168.1.0/24" -dns_nameservers "192.168.1.1" -gateway_ip "192.168.1.1" -dns_suffix "evil corp"
-#>  
 
-    [CmdletBinding(SupportsShouldProcess=$true, 
-                  ConfirmImpact='High')]
-
-    # Paramameter Set variants will be needed Multicast & Broadcast Traffic Types as well as VM & Logical Port Types
-    Param (
-            [parameter(Mandatory=$true)]
-            [ValidateNotNullOrEmpty()]
-            [string]$display_name,
-            
-            [parameter(Mandatory=$false)]
-            [string]$description,
-            
-            [parameter(Mandatory=$false)]
-            [string]$dns_nameservers,
-            
-            [parameter(Mandatory=$false)]
-            [string]$dns_suffix,
-
-            [parameter(Mandatory=$true)]
-            [ValidateNotNullOrEmpty()]
-            [string]$allocation_start,
-
-            [parameter(Mandatory=$true)]
-            [ValidateNotNullOrEmpty()]
-            [string]$allocation_end,
-
-            [parameter(Mandatory=$true)]
-            [ValidateNotNullOrEmpty()]
-            [string]$cidr,
-
-            [parameter(Mandatory=$false)]
-            [string]$gateway_ip
-    )
-
-    Begin
-    {
-        if (-not $global:DefaultNsxtServers.isconnected)
-        {
-            try
-            {
-                Connect-NsxtServer -Menu -ErrorAction Stop
-            }
-
-            catch
-            {
-                throw "Could not connect to an NSX-T Manager, please try again"
-            }
-        }
-        
-        $NSXTIPPoolService = Get-NsxtService -Name "com.vmware.nsx.pools.ip_pools"
-
-        class allocation_ranges {
-            [string]$start
-            [string]$end
-            #$self
-        }
-
-        class subnets {
-            [array]$allocation_ranges = [allocation_ranges]::new()
-            [array]$dns_nameservers
-            [string]$dns_suffix
-            [string]$cidr
-            [string]$gateway_ip
-            #hidden $self            
-        }
-
-        class ip_pool {
-            [string]$display_name
-            [string]$description
-            [string]$resource_type = 'IpPool'
-            [long]$revision = '0'
-            [array]$subnets = [subnets]::new()
-            hidden $pool_usage
-            hidden [array]$tags
-            # hidden $self
-            hidden $links
-        }
-    }
-
-    Process
-    {
-        $sample_ip_pool = $NSXTIPPoolService.help.create.ip_pool.Create()
-        $sample_ip_pool.subnets = @($NSXTIPPoolService.help.create.ip_pool.subnets.Create())
-        $sample_ip_pool.subnets = @($NSXTIPPoolService.help.create.ip_pool.subnets.Element.Create())
-        $sample_ip_pool.subnets[0].allocation_ranges = @($NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.create())
-        $sample_ip_pool.subnets[0].allocation_ranges = @($NSXTIPPoolService.help.create.ip_pool.subnets.Element.allocation_ranges.element.create())
-
-        #Remove buggy self object
-        $ip_pool = $sample_ip_pool | select -Property * -ExcludeProperty self
-        $ip_pool.subnets[0] = $sample_ip_pool.subnets[0] | select -Property * -ExcludeProperty self
-        $ip_pool.subnets[0].allocation_ranges[0] = $sample_ip_pool.subnets[0].allocation_ranges[0] | select -Property * -ExcludeProperty self
-
-        # Assign objects
-        $ip_pool.display_name = $display_name
-        $ip_pool.description = $description
-        $ip_pool.resource_type = "IpPool"
-        $ip_pool.subnets[0].dns_nameservers = @($dns_nameservers)
-        $ip_pool.subnets[0].dns_suffix = $dns_suffix
-        $ip_pool.subnets[0].allocation_ranges[0].start = $allocation_start
-        $ip_pool.subnets[0].allocation_ranges[0].end = $allocation_end
-        $ip_pool.subnets[0].cidr = $cidr
-        $ip_pool.subnets[0].gateway_ip = $gateway_ip
-        $ip_pool.revision = 0
-        $ip_pool.tags = @()
-
-        # Accepted JSON object ok yet it did not interpret any of the parameters
-        $ip_pool_json = ConvertTo-Json $ip_pool -Depth 10
-               
-        try
-        {
-            # Should process
-            if ($pscmdlet.ShouldProcess($ip_pool.display_name, "Create IP Pool"))
-            { 
-                $ip_pool_json
-                #$NSXTIPPool = $NSXTIPPoolService.create($ip_pool_json)
-                $NSXTIPPoolService.create($ip_pool_json)
-            }
-        }
-
-        catch
-        {
-            $Error[0].Exception.ServerError.data
-            # more error data found in the NSX-T Manager /var/log/vmware/nsx-manager.log file; grep POOL-MGMT
-            throw
-        }
-
-        #$NSXTIPPool
-    }
-}
 
 ###########################
 #                         #
