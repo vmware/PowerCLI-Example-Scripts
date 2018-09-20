@@ -1577,7 +1577,8 @@ Function Set-NSXTIPPool {
         }
         
         $NSXTIPPoolService = Get-NsxtService -Name "com.vmware.nsx.pools.ip_pools"
-
+        
+        # Classes unused - part of early testing
         class allocation_ranges {
             [string]$start
             [string]$end
