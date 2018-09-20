@@ -2022,8 +2022,6 @@ Function Set-NSXTThingTemplate {
         $logical_THING_request.replication_mode = $replication_mode
         $logical_THING_request.ip_pool_id = $ip_pool_id
 
-        $logical_THING_request_json = ConvertTo-Json $logical_THING_request -Depth 10
-
         try
         {
             # Should process
