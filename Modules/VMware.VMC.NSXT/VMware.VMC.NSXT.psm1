@@ -605,7 +605,13 @@ Function Get-NSXTGroup {
 
                 $members = @()
                 foreach ($member in $group.expression) {
-                    $members += $member.ip_addresses
+                    if($member.ip_addresses) {
+                        $members += $member.ip_addresses
+                    } else {
+                        if($member.resource_type -eq "Condition") {
+                            $members += $member.value
+                        }
+                    }
                 }
 
                 $tmp = [pscustomobject] @{
