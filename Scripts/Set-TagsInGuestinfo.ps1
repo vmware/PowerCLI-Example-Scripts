@@ -79,16 +79,16 @@ ForEach ($categoryName in $Categories) {
 
     # Get Tag assignments for the VMs
     $tags = Get-TagAssignment -Entity $VMs -Category $category
-	
-	# Group the tags by VM (in this case the Entity property of Group-Object)
+    
+    # Group the tags by VM (in this case the Entity property of Group-Object)
     $groups = $tags | Group-Object -Property Entity
-	
-	# Get each VM and set the guestinfo
+    
+    # Get each VM and set the guestinfo
     ForEach ($item in $groups) {
       $vm = get-vm $item.Name
-	  # Multiple tags of the same category are joined
+      # Multiple tags of the same category are joined
       $guestinfoValue = $item.Group.Tag.Name -join $Delimiter
-	  
+      
       Write-Host "$($vm): setting '$guestinfoName' = '$guestinfoValue'"
       New-AdvancedSetting -Entity $vm -Name $guestinfoName -Value $guestinfoValue -Confirm:$false -Force | Out-Null
     }
