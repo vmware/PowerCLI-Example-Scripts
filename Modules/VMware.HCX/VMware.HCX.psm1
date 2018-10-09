@@ -577,3 +577,567 @@ Function Get-HcxVCConfig {
         $tmp
     }
 }
+
+Function Set-HcxLicense {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/16/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Activate HCX Manager with HCX Cloud
+    .DESCRIPTION
+        This cmdlet activates HCX Manager with HCX Cloud
+    .EXAMPLE
+        Set-HcxLicense -LicenseKey <KEY>
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$LicenseKey
+    )
+
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX VAMI Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $hcxConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/hcx"
+        $method = "POST"
+
+        $hcxConfig = @{
+            config = @{
+                url = "https://connect.hcx.vmware.com";
+                activationKey = $LicenseKey;
+            }
+        }
+
+        $payload = @{
+            data = @{
+                items = @($hcxConfig)
+            }
+        }
+
+        $body = $payload | ConvertTo-Json -Depth 5
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$vcConfigUrl`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $results = Invoke-WebRequest -Uri $hcxConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+            } else {
+                $results = Invoke-WebRequest -Uri $hcxConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+            }
+        } catch {
+            Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+            break
+        }
+
+        if($results.StatusCode -eq 200) {
+            Write-Host -ForegroundColor Green "Successfully registered HCX Manager with HCX Cloud"
+            if($Troubleshoot) { ($results.Content | ConvertFrom-Json).data.items }
+        } else {
+            Write-Error "Failed to registered HCX Manager"
+        }
+    }
+}
+
+Function Set-HcxVCConfig {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/16/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Registers on-prem vCenter Server with HCX Manager
+    .DESCRIPTION
+        This cmdlet registers on-prem vCenter Server with HCX Manager
+    .EXAMPLE
+        Set-HcxVC -VIServer <hostname> -VIUsername <username> -VIPassword <password>
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$VIServer,
+        [Parameter(Mandatory=$True)]$PSCServer,
+        [Parameter(Mandatory=$True)]$VIUsername,
+        [Parameter(Mandatory=$True)]$VIPassword,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX VAMI Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $vcConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/vcenter"
+        $pscConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/lookupservice"
+        $method = "POST"
+
+
+        $bytes = [System.Text.Encoding]::ASCII.GetBytes($VIPassword)
+        $base64 = [System.Convert]::ToBase64String($bytes)
+
+        $vcConfig = @{
+            config = @{
+                url = "https://$VIServer";
+                userName = $VIUsername;
+                password = $base64;
+            }
+        }
+
+        $payload = @{
+            data = @{
+                items = @($vcConfig)
+            }
+        }
+
+        $body = $payload | ConvertTo-Json -Depth 5
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$vcConfigUrl`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $results = Invoke-WebRequest -Uri $vcConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+            } else {
+                $results = Invoke-WebRequest -Uri $vcConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+            }
+        } catch {
+            Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+            break
+        }
+
+        if($results.StatusCode -eq 200) {
+            Write-Host -ForegroundColor Green "Successfully registered vCenter Server with HCX Manager"
+            if($Troubleshoot) { ($results.Content | ConvertFrom-Json).data.items.config }
+
+            $pscConfig = @{
+                config = @{
+                    lookupServiceUrl = "https://$PSCServer"
+                    providerType = "PSC"
+                }
+            }
+
+            $payload = @{
+                data = @{
+                    items = @($pscConfig)
+                }
+            }
+
+            $body = $payload | ConvertTo-Json -Depth 5
+
+            if($Troubleshoot) {
+                Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$pscConfigUrl`n"
+                Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+            }
+
+            try {
+                if($PSVersionTable.PSEdition -eq "Core") {
+                    $results = Invoke-WebRequest -Uri $pscConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+                } else {
+                    $results = Invoke-WebRequest -Uri $pscConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+                }
+            } catch {
+                Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+                break
+            }
+
+            if($results.StatusCode -eq 200) {
+                Write-Host -ForegroundColor Green "Successfully registered PSC with HCX Manager"
+                if($Troubleshoot) { ($results.Content | ConvertFrom-Json).data.items.config }
+
+            } else {
+                Write-Error "Failed to registered PSC Server"
+            }
+        } else {
+            Write-Error "Failed to registered vCenter Server"
+        }
+    }
+}
+
+Function Get-HcxNSXConfig {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/16/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns the onPrem NSX-V Server registered with HCX Manager
+    .DESCRIPTION
+        This cmdlet returns the onPrem NSX-V Server registered with HCX Manager
+    .EXAMPLE
+        Get-HcxNSXConfig
+#>
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $nsxConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/nsx"
+
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $nsxRequests = Invoke-WebRequest -Uri $nsxConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+        } else {
+            $nsxRequests = Invoke-WebRequest -Uri $nsxConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+        }
+        $nsxData = ($nsxRequests.content | ConvertFrom-Json).data.items
+
+        $tmp = [pscustomobject] @{
+            Name = $nsxData.config.url;
+            Version = $nsxData.config.version;
+            HCXUUID = $nsxData.config.uuid;
+        }
+        $tmp
+    }
+}
+
+Function Set-HcxNSXConfig {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/16/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Registers on-prem NSX-V Server with HCX Manager
+    .DESCRIPTION
+        This cmdlet registers on-prem NSX-V Server with HCX Manager
+    .EXAMPLE
+        Set-HcxNSXConfig -NSXServer <hostname> -NSXUsername <username> -NSXPassword <password>
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$NSXServer,
+        [Parameter(Mandatory=$True)]$NSXUsername,
+        [Parameter(Mandatory=$True)]$NSXPassword,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX VAMI Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $nsxConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/nsx"
+        $method = "POST"
+
+        $bytes = [System.Text.Encoding]::ASCII.GetBytes($NSXPassword)
+        $base64 = [System.Convert]::ToBase64String($bytes)
+
+        $nsxConfig = @{
+            config = @{
+                url = "https://$NSXServer";
+                userName = $NSXUsername;
+                password = $base64;
+            }
+        }
+
+        $payload = @{
+            data = @{
+                items = @($nsxConfig)
+            }
+        }
+
+        $body = $payload | ConvertTo-Json -Depth 5
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$nsxConfigUrl`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $results = Invoke-WebRequest -Uri $nsxConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+            } else {
+                $results = Invoke-WebRequest -Uri $nsxConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+            }
+        } catch {
+            Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+            break
+        }
+
+        if($results.StatusCode -eq 200) {
+            Write-Host -ForegroundColor Green "Successfully registered NSX Server with HCX Manager"
+            if($Troubleshoot) { ($results.Content | ConvertFrom-Json).data.items.config }
+        } else {
+            Write-Error "Failed to registered NSX Server"
+        }
+        return $config
+    }
+}
+
+Function Get-HcxCity {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          09/16/2018
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Returns the available HCX Location based on user City and Country input
+        .DESCRIPTION
+            This cmdlet returns the available HCX Location based on user City and Country input
+        .EXAMPLE
+            Get-HcxCity -City <City> -Country <Country>
+    #>
+        Param (
+            [Parameter(Mandatory=$True)]$City,
+            [Switch]$Troubleshoot
+        )
+
+        If (-Not $global:hcxVAMIConnection) { Write-error "HCX VAMI Auth Token not found, please run Connect-HcxVAMI " } Else {
+            $citySearchUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/searchCities?searchString=$City"
+            $method = "GET"
+
+            if($Troubleshoot) {
+                Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$citySearchUrl`n"
+            }
+
+            try {
+                if($PSVersionTable.PSEdition -eq "Core") {
+                    $results = Invoke-WebRequest -Uri $citySearchUrl -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+                } else {
+                    $results = Invoke-WebRequest -Uri $citySearchUrl -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+                }
+            } catch {
+                Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+                break
+            }
+
+            if($results.StatusCode -eq 200) {
+                Write-Host -ForegroundColor Green "Successfully returned results for City search: $City"
+
+                $cityDetails = ($results.Content | ConvertFrom-Json).items
+                $cityDetails | select City,Country
+            } else {
+                Write-Error "Failed to search for city $City"
+            }
+        }
+    }
+
+Function Get-HcxLocation {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/16/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns the registered City/Country location for HCX Manager
+    .DESCRIPTION
+        This cmdlet returns the registered City/Country location for HCX Manager
+    .EXAMPLE
+        Get-HcxLocation
+#>
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $locationConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/location"
+
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $locationRequests = Invoke-WebRequest -Uri $locationConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+        } else {
+            $locationRequests = Invoke-WebRequest -Uri $locationConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+        }
+        ($locationRequests.content | ConvertFrom-Json)
+    }
+}
+
+Function Set-HcxLocation {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/16/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Register HCX Manager to a specific City/Country
+    .DESCRIPTION
+        This cmdlet register HCX Manager to a specific City/Country
+    .EXAMPLE
+        Set-HcxLocation -City <City> -Country <Country>
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$City,
+        [Parameter(Mandatory=$True)]$Country,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX VAMI Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $citySearchUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/searchCities?searchString=$City"
+        $method = "GET"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$citySearchUrl`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $results = Invoke-WebRequest -Uri $citySearchUrl -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+            } else {
+                $results = Invoke-WebRequest -Uri $citySearchUrl -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+            }
+        } catch {
+            Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+            break
+        }
+
+        if($results.StatusCode -eq 200) {
+            if($Troubleshoot) { ($results.Content | ConvertFrom-Json).items }
+
+            $locationConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/location"
+            $method = "PUT"
+
+            $cityDetails = ($results.Content | ConvertFrom-Json).items
+            $cityDetails = $cityDetails | where { $_.city -eq $City -and $_.country -match $Country }
+
+            if(-not $cityDetails) {
+                Write-Host -ForegroundColor Red "Invalid input for City and/or Country, please provide the exact input from Get-HcxCity cmdlet"
+                break 
+            }
+
+            $locationConfig = @{
+                city = $cityDetails.city;
+                country = $cityDetails.country;
+                province = $cityDetails.province;
+                latitude = $cityDetails.latitude;
+                longitude = $cityDetails.longitude;
+            }
+
+            $body = $locationConfig | ConvertTo-Json -Depth 5
+
+            if($Troubleshoot) {
+                Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$locationConfigUrl`n"
+                Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+            }
+
+            try {
+                if($PSVersionTable.PSEdition -eq "Core") {
+                    $results = Invoke-WebRequest -Uri $locationConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+                } else {
+                    $results = Invoke-WebRequest -Uri $locationConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+                }
+            } catch {
+                Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+                break
+            }
+
+            if($results.StatusCode -eq 204) {
+                Write-Host -ForegroundColor Green "Successfully registered datacenter location $City to HCX Manager"
+            } else {
+                Write-Error "Failed to registerd datacenter location in HCX Manager" 
+            }
+        } else {
+            Write-Error "Failed to search for city $City"
+        }
+    }
+}
+Function Get-HcxRoleMapping {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          09/16/2018
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Returns the System Admin and Enterprise User Group role mappings for HCX Manager
+        .DESCRIPTION
+            This cmdlet returns the System Admin and Enterprise User Group role mappings for HCX Manager
+        .EXAMPLE
+            Get-HcxRoleMapping
+    #>
+        If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+            $roleConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/roleMappings"
+
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $roleRequests = Invoke-WebRequest -Uri $roleConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+            } else {
+                $roleRequests = Invoke-WebRequest -Uri $roleConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+            }
+            ($roleRequests.content | ConvertFrom-Json)
+        }
+    }
+
+    Function Set-HcxRoleMapping {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          09/16/2018
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Configures the System Admin and Enterprise User Group role mappings for HCX Manager
+        .DESCRIPTION
+            This cmdlet configures the System Admin and Enterprise User Group role mappings for HCX Manager
+        .EXAMPLE
+            Set-HcxRoleMapping -SystemAdminGroup @("DOMAIN\GROUP") -EnterpriseAdminGroup @("DOMAIN\GROUP")
+    #>
+        Param (
+            [Parameter(Mandatory=$True)][String[]]$SystemAdminGroup,
+            [Parameter(Mandatory=$True)][String[]]$EnterpriseAdminGroup,
+            [Switch]$Troubleshoot
+        )
+
+        If (-Not $global:hcxVAMIConnection) { Write-error "HCX VAMI Auth Token not found, please run Connect-HcxVAMI " } Else {
+            $roleConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/roleMappings"
+            $method = "PUT"
+
+            $roleConfig = @()
+            $systemAdminRole = @{
+                role = "System Administrator";
+                userGroups = $SystemAdminGroup
+            }
+            $enterpriseAdminRole = @{
+                role = "Enterprise Administrator"
+                userGroups = $EnterpriseAdminGroup
+            }
+            $roleConfig+=$systemAdminRole
+            $roleConfig+=$enterpriseAdminRole
+
+            $body = $roleConfig | ConvertTo-Json -Depth 5
+
+            if($Troubleshoot) {
+                Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$locationConfigUrl`n"
+                Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+            }
+
+            try {
+                if($PSVersionTable.PSEdition -eq "Core") {
+                    $results = Invoke-WebRequest -Uri $roleConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+                } else {
+                    $results = Invoke-WebRequest -Uri $roleConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+                }
+            } catch {
+                Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+                break
+            }
+
+            if($results.StatusCode -eq 200) {
+                Write-Host -ForegroundColor Green "Successfully updated vSphere Group Mappings in HCX Manager"
+            } else {
+                Write-Error "Failed to update vSphere Group Mappings"
+            }
+        }
+    }
