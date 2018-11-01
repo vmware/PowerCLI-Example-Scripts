@@ -1047,87 +1047,250 @@ Function Set-HcxLocation {
     }
 }
 Function Get-HcxRoleMapping {
-    <#
-        .NOTES
-        ===========================================================================
-        Created by:    William Lam
-        Date:          09/16/2018
-        Organization:  VMware
-        Blog:          http://www.virtuallyghetto.com
-        Twitter:       @lamw
-        ===========================================================================
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/16/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
 
-        .SYNOPSIS
-            Returns the System Admin and Enterprise User Group role mappings for HCX Manager
-        .DESCRIPTION
-            This cmdlet returns the System Admin and Enterprise User Group role mappings for HCX Manager
-        .EXAMPLE
-            Get-HcxRoleMapping
-    #>
-        If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
-            $roleConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/roleMappings"
+    .SYNOPSIS
+        Returns the System Admin and Enterprise User Group role mappings for HCX Manager
+    .DESCRIPTION
+        This cmdlet returns the System Admin and Enterprise User Group role mappings for HCX Manager
+    .EXAMPLE
+        Get-HcxRoleMapping
+#>
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $roleConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/roleMappings"
 
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $roleRequests = Invoke-WebRequest -Uri $roleConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+        } else {
+            $roleRequests = Invoke-WebRequest -Uri $roleConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+        }
+        ($roleRequests.content | ConvertFrom-Json)
+    }
+}
+
+Function Set-HcxRoleMapping {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/16/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Configures the System Admin and Enterprise User Group role mappings for HCX Manager
+    .DESCRIPTION
+        This cmdlet configures the System Admin and Enterprise User Group role mappings for HCX Manager
+    .EXAMPLE
+        Set-HcxRoleMapping -SystemAdminGroup @("DOMAIN\GROUP") -EnterpriseAdminGroup @("DOMAIN\GROUP")
+#>
+    Param (
+        [Parameter(Mandatory=$True)][String[]]$SystemAdminGroup,
+        [Parameter(Mandatory=$True)][String[]]$EnterpriseAdminGroup,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX VAMI Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $roleConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/roleMappings"
+        $method = "PUT"
+
+        $roleConfig = @()
+        $systemAdminRole = @{
+            role = "System Administrator";
+            userGroups = $SystemAdminGroup
+        }
+        $enterpriseAdminRole = @{
+            role = "Enterprise Administrator"
+            userGroups = $EnterpriseAdminGroup
+        }
+        $roleConfig+=$systemAdminRole
+        $roleConfig+=$enterpriseAdminRole
+
+        $body = $roleConfig | ConvertTo-Json -Depth 5
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$locationConfigUrl`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
             if($PSVersionTable.PSEdition -eq "Core") {
-                $roleRequests = Invoke-WebRequest -Uri $roleConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+                $results = Invoke-WebRequest -Uri $roleConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
             } else {
-                $roleRequests = Invoke-WebRequest -Uri $roleConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+                $results = Invoke-WebRequest -Uri $roleConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
             }
-            ($roleRequests.content | ConvertFrom-Json)
+        } catch {
+            Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+            break
+        }
+
+        if($results.StatusCode -eq 200) {
+            Write-Host -ForegroundColor Green "Successfully updated vSphere Group Mappings in HCX Manager"
+        } else {
+            Write-Error "Failed to update vSphere Group Mappings"
         }
     }
+}
 
-    Function Set-HcxRoleMapping {
-    <#
-        .NOTES
-        ===========================================================================
-        Created by:    William Lam
-        Date:          09/16/2018
-        Organization:  VMware
-        Blog:          http://www.virtuallyghetto.com
-        Twitter:       @lamw
-        ===========================================================================
+Function Get-HcxProxy {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          10/31/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
 
-        .SYNOPSIS
-            Configures the System Admin and Enterprise User Group role mappings for HCX Manager
-        .DESCRIPTION
-            This cmdlet configures the System Admin and Enterprise User Group role mappings for HCX Manager
-        .EXAMPLE
-            Set-HcxRoleMapping -SystemAdminGroup @("DOMAIN\GROUP") -EnterpriseAdminGroup @("DOMAIN\GROUP")
-    #>
-        Param (
-            [Parameter(Mandatory=$True)][String[]]$SystemAdminGroup,
-            [Parameter(Mandatory=$True)][String[]]$EnterpriseAdminGroup,
-            [Switch]$Troubleshoot
-        )
+    .SYNOPSIS
+        Returns the proxy settings for HCX Manager
+    .DESCRIPTION
+        This cmdlet returns the proxy settings for HCX Manager
+    .EXAMPLE
+        Get-HcxProxy
+#>
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $proxyConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/proxy"
 
-        If (-Not $global:hcxVAMIConnection) { Write-error "HCX VAMI Auth Token not found, please run Connect-HcxVAMI " } Else {
-            $roleConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/roleMappings"
-            $method = "PUT"
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $proxyRequests = Invoke-WebRequest -Uri $proxyConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+        } else {
+            $proxyRequests = Invoke-WebRequest -Uri $proxyConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+        }
+        $proxySettings = ($proxyRequests.content | ConvertFrom-Json).data.items
+        if($proxyRequests) {
+            $proxySettings.config
+        }
+    }
+}
 
-            $roleConfig = @()
-            $systemAdminRole = @{
-                role = "System Administrator";
-                userGroups = $SystemAdminGroup
+Function Set-HcxProxy {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          10/31/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Configure proxy settings on HCX Manager
+    .DESCRIPTION
+        This cmdlet configure proxy settings on HCX Manager
+    .EXAMPLE
+        Set-HcxProxy -ProxyServer proxy.vmware.com -ProxyPort 3124
+    .EXAMPLE
+        Set-HcxProxy -ProxyServer proxy.vmware.com -ProxyPort 3124 -ProxyUser foo -ProxyPassword bar
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$ProxyServer,
+        [Parameter(Mandatory=$True)]$ProxyPort,
+        [Parameter(Mandatory=$False)]$ProxyUser,
+        [Parameter(Mandatory=$False)]$ProxyPassword,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX VAMI Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $proxyConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/proxy"
+        $method = "POST"
+
+        if(-not $ProxyUser) { $ProxyUser = ""}
+        if(-not $ProxyPassword) { $ProxyPassword = ""}
+
+        $proxyConfig = @{
+            config = @{
+                proxyHost = "$ProxyServer";
+                proxyPort = "$ProxyPort";
+                nonProxyHosts = "";
+                userName = "$ProxyUser";
+                password = "$ProxyPassword";
             }
-            $enterpriseAdminRole = @{
-                role = "Enterprise Administrator"
-                userGroups = $EnterpriseAdminGroup
-            }
-            $roleConfig+=$systemAdminRole
-            $roleConfig+=$enterpriseAdminRole
+        }
 
-            $body = $roleConfig | ConvertTo-Json -Depth 5
-
-            if($Troubleshoot) {
-                Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$locationConfigUrl`n"
-                Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        $payload = @{
+            data = @{
+                items = @($proxyConfig)
             }
+        }
+
+        $body = $payload | ConvertTo-Json -Depth 5
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$proxyConfigUrl`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $results = Invoke-WebRequest -Uri $proxyConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+            } else {
+                $results = Invoke-WebRequest -Uri $proxyConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+            }
+        } catch {
+            Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
+            break
+        }
+
+        if($results.StatusCode -eq 200) {
+            Write-Host -ForegroundColor Green "Successfully updated proxy settings in HCX Manager"
+            if($Troubleshoot) { ($results.Content | ConvertFrom-Json).data.items.config }
+        } else {
+            Write-Error "Failed to update proxy settings"
+        }
+    }
+}
+
+Function Remove-HcxProxy {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          10/31/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns the proxy settings for HCX Manager
+    .DESCRIPTION
+        This cmdlet returns the proxy settings for HCX Manager
+    .EXAMPLE
+        Remove-HcxProxy
+#>
+    If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $roleConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/proxy"
+
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $proxyRequests = Invoke-WebRequest -Uri $roleConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+        } else {
+            $proxyRequests = Invoke-WebRequest -Uri $roleConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+        }
+        $proxySettings = ($proxyRequests.content | ConvertFrom-Json).data.items
+        if($proxyRequests) {
+            $proxyUUID = $proxySettings.config.UUID
+
+            $deleteProxyConfigURl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/proxy/$proxyUUID"
+            $method = "DELETE"
 
             try {
                 if($PSVersionTable.PSEdition -eq "Core") {
-                    $results = Invoke-WebRequest -Uri $roleConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+                    $results = Invoke-WebRequest -Uri $deleteProxyConfigURl -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
                 } else {
-                    $results = Invoke-WebRequest -Uri $roleConfigUrl -Body $body -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+                    $results = Invoke-WebRequest -Uri $deleteProxyConfigURl -Method $method -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
                 }
             } catch {
                 Write-Host -ForegroundColor Red "`nRequest failed: ($_.Exception)`n"
@@ -1135,9 +1298,12 @@ Function Get-HcxRoleMapping {
             }
 
             if($results.StatusCode -eq 200) {
-                Write-Host -ForegroundColor Green "Successfully updated vSphere Group Mappings in HCX Manager"
+                Write-Host -ForegroundColor Green "Successfully deleted proxy settings in HCX Manager"
             } else {
-                Write-Error "Failed to update vSphere Group Mappings"
+                Write-Error "Failed to delete proxy settings"
             }
+        } else {
+            Write-Warning "No proxy settings were configured"
         }
     }
+}
