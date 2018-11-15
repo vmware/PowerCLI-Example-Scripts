@@ -4270,20 +4270,20 @@ function New-HVPool {
                 $redirectWindowsProfile = $false
             }
         }
-        if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings) {
-            $useViewStorageAccelerator = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.UseViewStorageAccelerator
+        if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings) {
+            $useViewStorageAccelerator = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.UseViewStorageAccelerator
             if ($useViewStorageAccelerator -and $LinkedClone) {
-                $viewComposerDiskTypes = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.ViewComposerDiskTypes
+                $viewComposerDiskTypes = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.ViewComposerDiskTypes
             }
             if (! $InstantClone -and $useViewStorageAccelerator) {
-                $regenerateViewStorageAcceleratorDays = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.RegenerateViewStorageAcceleratorDays
-                if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.blackoutTimes) {
-                    $blackoutTimesList =$jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.blackoutTimes
+                $regenerateViewStorageAcceleratorDays = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.RegenerateViewStorageAcceleratorDays
+                if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.blackoutTimes) {
+                    $blackoutTimesList =$jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.blackoutTimes
                     foreach ($blackout in $blackoutTimesList) {
                         $blackoutObj  = New-Object VMware.Hv.DesktopBlackoutTime
                         $blackoutObj.Days = $blackout.Days
                         $blackoutObj.StartTime = $blackout.StartTime
-                        $blackoutObj.EndTime = $blackoutObj.EndTime
+                        $blackoutObj.EndTime = $blackout.EndTime
                         $blackoutTimes += $blackoutObj
                     }
                 }
