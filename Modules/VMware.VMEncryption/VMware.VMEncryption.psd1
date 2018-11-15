@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.1'
+ModuleVersion = '1.2'
 
 # ID used to uniquely identify this module
 GUID = 'f9592e48-6cd3-494e-891b-ee10ee9f7018'
@@ -49,7 +49,7 @@ Copyright = 'Copyright (c) 2016 VMware, Inc. All rights reserved.'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-@{"ModuleName"="VMware.VimAutomation.Core";"ModuleVersion"="10.1.0.8346946"}
+@{"ModuleName"="VMware.VimAutomation.Core";"ModuleVersion"="10.1.0.8344055"}
 )
 
 # Assemblies that must be loaded prior to importing this module
