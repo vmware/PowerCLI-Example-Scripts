@@ -19,22 +19,22 @@ Considering many data center may have control on internet access, we create 3 cm
 * Get-VCGStatus: cmdlet to check hardware compatibility by query VCG website
 * Export-VCGReport: cmdlet to export the summary/html/csv reports
 
-1. You need to first import this module after you import PowerCLI module
+1. You need to first import this module after you import PowerCLI module  
 PS> Import-Module <path_to_VMware.VCGChecker.psd1>
 
-2. Connect to the target vSphere hosts using Connect-VIServer and get VMHosts
-PS> Connect-VIServer -Server <server> -User <username> -Password <password> 
+2. Connect to the target vSphere hosts using Connect-VIServer and get VMHosts  
+PS> Connect-VIServer -Server &lt;server> -User &lt;username> -Password &lt;password>   
 PS> $vmhosts = Get-VMHost
 
-3. Collect the hardware data
-PS> $hwdata = Get-VCGHWInfo -vmHosts $vmhosts
+3. Collect the hardware data  
+PS> $hwdata = Get-VCGHWInfo -vmHosts $vmhosts  
 Note: if you don't have internet access, you need to connect your client to internet before proceeding to the next step.
 
-4. Specify the target vSphere release you want to check and submit the hardware data to VMware website
-PS> $vcgdata= Get-VCGStatus -Data $hwdata -Version '<release>'
+4. Specify the target vSphere release you want to check and submit the hardware data to VMware website  
+PS> $vcgdata= Get-VCGStatus -Data $hwdata -Version '&lt;release>'
 
-5. Save the compatibility reports 
-PS> Export-VCGReport -Data $vcgdata -Dir <dir>
+5. Save the compatibility reports   
+PS> Export-VCGReport -Data $vcgdata -Dir &lt;dir>
 
 # Known Limitation
 * The module is not able to get the firmware version for HBA devices. 
