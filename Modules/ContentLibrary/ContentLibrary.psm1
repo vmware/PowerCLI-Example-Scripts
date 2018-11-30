@@ -198,8 +198,14 @@ Function Get-ContentLibraryItemFiles {
                 $contentLibraryItemStorageService = Get-CisService com.vmware.content.library.item.storage
 
                 foreach($file in $files) {
-                    $filepath = $contentLibraryItemStorageService.get($itemId, $($file.name)).storage_uris.AbsolutePath.split("/")[5..7] -join "/"
-                    $fullfilepath = "[$($datastore.name)] $filepath"
+                    if($contentLibraryItemStorageService.get($itemId, $($file.name)).storage_backing.type -eq "DATASTORE"){
+                        $filepath = $contentLibraryItemStorageService.get($itemId, $($file.name)).storage_uris.AbsolutePath.split("/")[5..7] -join "/"
+                        $fullfilepath = "[$($datastore.name)] $filepath"
+                    }
+                    else{
+                        $fullfilepath = "UNKNOWN"
+                    }
+                    
                     if(!$LibraryItemName) {
                         $fileResult = [pscustomobject] @{
                             Name = $file.name;
