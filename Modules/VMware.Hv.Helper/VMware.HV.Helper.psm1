@@ -7173,7 +7173,6 @@ function Get-HVMachine {
   $machineList = Find-HVMachine -Param $PSBoundParameters
   if (!$machineList) {
     Write-Host "Get-HVMachine: No Virtual Machine(s) Found with given search parameters"
-    break
   }
   $queryResults = @()
   $desktop_helper = New-Object VMware.Hv.MachineService
