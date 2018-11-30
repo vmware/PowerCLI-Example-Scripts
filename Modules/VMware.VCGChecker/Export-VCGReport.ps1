@@ -140,10 +140,10 @@ Function Generate_HtmlReport($Data, $Dir) {
     $dataTime = Get-Date -Format 'yyyy-M-d_h-m'
     $vcName = vcName($Data)
     $filename = 'compreport_' + $vcName + $dataTime + '.html'
-    $filePath = $Dir + $filename
+    $filePath = $Dir + '\' + $filename
     #save report
     $content |Out-File -FilePath $filePath -Encoding utf8| Out-Null
-    info ("Report " + "'" + $Dir + $filename + "'" + " has been created!")
+    info ("Report " + "'" + $filePath + "'" + " has been created!")
 }
 
 Function Generate_SummaryReport($Data, $Dir) {
@@ -440,10 +440,10 @@ Function Generate_SummaryReport($Data, $Dir) {
     $dataTime = Get-Date -Format 'yyyy-M-d_h-m'
     $vcName = vcName($Data)
     $filename = 'sumreport_' + $vcName + $dataTime + '.html'
-    $filePath = $Dir + $filename
+    $filePath = $Dir + '\' + $filename
     # Out-put a html report
     $content |Out-File -FilePath $filePath -Encoding utf8| Out-Null
-    info ("Report " + "'" + $Dir + $filename + "'" + " has been created!")
+    info ("Report " + "'" + $filePath + "'" + " has been created!")
 }
 
 Function Generate_CsvReport($Data, $Dir) {
@@ -542,9 +542,9 @@ Function Generate_CsvReport($Data, $Dir) {
     $dataTime = Get-Date -Format 'yyyy-M-d_h-m'
     $vcName = vcName($Data)
     $filename = 'compreport_' + $vcName + $dataTime + '.csv'
-    $filePath = $Dir + $filename
+    $filePath = $Dir + '\' + $filename
     #save csv report
-    info ("Report " + "'" + $Dir + $filename + "'" + " has been created!")
+    info ("Report " + "'" + $filePath + "'" + " has been created!")
     $content |Out-File -FilePath $filePath -Encoding utf8| Out-Null
     return $content
 }
@@ -785,7 +785,7 @@ $summaryHead = @'
 	    height: 100%;
 	    background-size: cover;
 	    background-repeat: no-repeat;
-	    background-image: url(https://myvmware.workspaceair.com:443/SAAS/jersey/manager/api/images/510495)
+	    background-image: url(https://myvmware.workspaceair.com/SAAS/jersey/manager/api/images/520470)
         }
         #header{
             margin: 0 auto;

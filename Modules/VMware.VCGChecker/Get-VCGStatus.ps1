@@ -13,7 +13,7 @@ $apiQurryDict=@{}
 #
 Function PingApiServer(){
     $apiServerIp='apigw.vmware.com'
-    $results =Test-NetConnection $apiServerIp -InformationLevel 'Quiet'
+    $results =Test-Connection $apiServerIp -Quiet
     if($results -ne $true){
         error ("Failed to access VMware Compatibility API,
         Unable to use comparison function, only view basic hardware information;
