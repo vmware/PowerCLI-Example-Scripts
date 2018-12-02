@@ -11479,14 +11479,14 @@ function Get-HVlicense {
 }
 
 function Set-HVInstantCloneMaintenance {
-	<#
-	.Synopsis
+  <#
+  .Synopsis
 	  Enable or disable instant clone maintanence mode
-	
-	.DESCRIPTION
+  
+  .DESCRIPTION
     Toggles a host in instant clone maintanence mode. Specify the VMHost name and enable or disable to toggle.
    
-	.PARAMETER VMHost
+  .PARAMETER VMHost
 	  ESXi Host name to modify the InstantClone.Maintenance attribute
   
   .PARAMETER Enable
