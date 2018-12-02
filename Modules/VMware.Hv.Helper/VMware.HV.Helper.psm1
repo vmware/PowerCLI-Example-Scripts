@@ -11478,20 +11478,26 @@ function Get-HVlicense {
   [System.gc]::collect()
 }
 
-function Start-HVMaintenance {
+function Set-HVInstantCloneMaintenance {
 	<#
 	.Synopsis
-	   Puts a host in instant clone maintanence mode
+	  Enable or disable instant clone maintanence mode
 	
 	.DESCRIPTION
-       Puts a host in instant clone maintanence mode
+    Toggles a host in instant clone maintanence mode. Specify the VMHost name and enable or disable to toggle.
    
+	.PARAMETER VMHost
+	  ESXi Host name to modify the InstantClone.Maintenance attribute
   
-	.PARAMETER Host
-	   ESXi Host name to modify the InstantClone.Maintenance attribute
-	
+  .PARAMETER Enable
+    Enable Instant Clone maintenance mode.
+     
+  .PARAMETER Disable
+    Disable Instant Clone maintenance mode
+     	
 	.EXAMPLE
-	   Start-HvMaintenance -Host <hostname>
+    Set-HvInstantCloneMaintenance -VMHost <hostname> -Enable $true
+    Set-HvInstantCloneMaintenance -VMHost <hostname> -Disable $true
 	   
 	.NOTES
 		Author                      : Jack McMichael
@@ -11510,11 +11516,20 @@ function Start-HVMaintenance {
 
 	param(
     [Parameter(Mandatory=$true, Position=0)]
-    [string]$Server,
+    [string]
+    $VMHost,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $Enable,
+
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $Disable,
 
     [Parameter(Mandatory = $false)]
     $HvServer = $null
-    )
+  )
 
   begin {
     $services = Get-ViewAPIService -hvServer $hvServer
@@ -11525,70 +11540,20 @@ function Start-HVMaintenance {
   }
 
   process {
-    if ((Get-Annotation -Entity (Get-VMHost -Name $Server) -CustomAttribute "InstantClone.Maintenance").Value -eq ""){
-      Set-Annotation -Entity (Get-VMHost -Name $Server) -CustomAttribute "InstantClone.Maintenance" -Value "1" | Out-Null
+    if ($Enable) {
+      if ((Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -eq ""){
+        Set-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance" -Value "1" | Out-Null
+      }
+      while ((Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -ne "2") {
+          Start-Sleep -Seconds 10
+      }
+    } elseif ($Disable) {
+      if (-not (Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -eq "") {
+        Set-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance" -Value "" | Out-Null
+      }
+      Set-VMhost $VMHost -State Connected | Out-Null
     }
-    while ((Get-Annotation -Entity (Get-VMHost -Name $Server) -CustomAttribute "InstantClone.Maintenance").Value -ne "2") {
-        shouldcontinue()
-        Start-Sleep -Seconds 10
-    }
-    [System.gc]::collect()
+    [System.gc]::collect()  
   }
 }
-
-function Stop-HVMaintenance {
-	<#
-	.Synopsis
-	   Takes a host out of instant clone maintanence mode
-	
-	.DESCRIPTION
-       Takes a host out of instant clone maintanence mode
-   
-  
-	.PARAMETER Host
-	   ESXi Host name to clear the InstantClone.Maintenance attribute
-	
-	.EXAMPLE
-	   Stop-HvMaintenance -Host <hostname>
-	
-	.NOTES
-		Author                      : Jack McMichael
-		Author email                : @jackwmc4 / jackwmc4@gmail.com
-		Version                     : 1.0
-	
-		===Tested Against Environment====
-		Horizon View Server Version : 7.6
-		PowerCLI Version            : PowerCLI 11
-		PowerShell Version          : 5.1
-  #>
-  [CmdletBinding(
-    SupportsShouldProcess = $true,
-    ConfirmImpact = 'High')]
-
-	param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [string]$Server,
-
-    [Parameter(Mandatory = $false)]
-    $HvServer = $null
-    )
-
-  begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
-    if ($null -eq $services) {
-      Write-Error "Could not retrieve ViewApi services from connection object"
-      break
-    }
-  }
-  
-  process {
-    if (-not (Get-Annotation -Entity (Get-VMHost -Name $Server) -CustomAttribute "InstantClone.Maintenance").Value -eq "") {
-      Set-Annotation -Entity (Get-VMHost -Name $Server) -CustomAttribute "InstantClone.Maintenance" -Value "" | Out-Null
-    }
-    Set-VMhost $Host -State Connected | Out-Null
-    [System.gc]::collect()
-  }
-
-
-}
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, New-HVPodfederation, Remove-HVPodFederation, Get-HVPodFederation, Register-HVPod, Unregister-HVPod, Set-HVPodFederation,Get-HVSite,New-HVSite,Set-HVSite,Remove-HVSite,New-HVHomeSite,Get-HVHomeSite,Set-HVEventDatabase,Get-HVEventDatabase,Clear-HVEventDatabase,Get-HVlicense,Set-HVlicense, Start-HVMaintenance, Stop-HVMaintenance
+Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, New-HVPodfederation, Remove-HVPodFederation, Get-HVPodFederation, Register-HVPod, Unregister-HVPod, Set-HVPodFederation,Get-HVSite,New-HVSite,Set-HVSite,Remove-HVSite,New-HVHomeSite,Get-HVHomeSite,Set-HVEventDatabase,Get-HVEventDatabase,Clear-HVEventDatabase,Get-HVlicense,Set-HVlicense, Set-HVInstantCloneMaintenance
