@@ -11495,19 +11495,19 @@ function Set-HVInstantCloneMaintenance {
   .PARAMETER Disable
     Disable Instant Clone maintenance mode
      	
-	.EXAMPLE
+  .EXAMPLE
     Set-HvInstantCloneMaintenance -VMHost <hostname> -Enable $true
     Set-HvInstantCloneMaintenance -VMHost <hostname> -Disable $true
-	   
-	.NOTES
-		Author                      : Jack McMichael
-		Author email                : @jackwmc4 / jackwmc4@gmail.com
-		Version                     : 1.0
+     
+  .NOTES
+    Author                      : Jack McMichael
+    Author email                : @jackwmc4 / jackwmc4@gmail.com
+    Version                     : 1.0
 	
-		===Tested Against Environment====
-		Horizon View Server Version : 7.6
-		PowerCLI Version            : PowerCLI 11
-		PowerShell Version          : 5.1
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.6
+    PowerCLI Version            : PowerCLI 11
+    PowerShell Version          : 5.1
   #>
   	
   [CmdletBinding(
