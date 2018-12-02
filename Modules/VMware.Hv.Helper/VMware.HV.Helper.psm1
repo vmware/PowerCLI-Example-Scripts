@@ -11556,4 +11556,22 @@ function Set-HVInstantCloneMaintenance {
     [System.gc]::collect()  
   }
 }
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, New-HVPodfederation, Remove-HVPodFederation, Get-HVPodFederation, Register-HVPod, Unregister-HVPod, Set-HVPodFederation,Get-HVSite,New-HVSite,Set-HVSite,Remove-HVSite,New-HVHomeSite,Get-HVHomeSite,Set-HVEventDatabase,Get-HVEventDatabase,Clear-HVEventDatabase,Get-HVlicense,Set-HVlicense, Set-HVInstantCloneMaintenance
+# Object related
+Export-ModuleMember -Function Get-HVMachine, Get-HVMachineSummary, Get-HVQueryResult, Get-HVQueryFilter, Get-HVInternalName
+# RDS Farm related
+Export-ModuleMember -Function Get-HVFarmSummary, Start-HVFarm, Start-HVPool, New-HVFarm, Remove-HVFarm, Get-HVFarm, Set-HVFarm, Add-HVRDSServer
+# Desktop Pool related
+Export-ModuleMember -Function Get-HVPoolSummary, New-HVPool, Remove-HVPool, Get-HVPool, Set-HVPool, Get-HVPoolSpec, Add-HVDesktop
+# Entitlement related
+Export-ModuleMember -Function New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement
+Export-ModuleMember -Function Set-HVMachine, Reset-HVMachine, Remove-HVMachine
+# Cloud Pod Architecture related
+Export-ModuleMember -Function New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVGlobalEntitlement, New-HVPodFederation, Remove-HVPodFederation, Get-HVPodFederation, Set-HVPodFederation
+Export-ModuleMember -Function Get-HVSite, New-HVSite, New-HVHomeSite, Remove-HVSite, Get-HVHomeSite, Set-HVSite, Register-HVPod, Unregister-HVPod
+# Published App related
+Export-ModuleMember -Function Get-HVGlobalSettings, Set-HVApplicationIcon, Remove-HVApplicationIcon, Set-HVGlobalSettings
+Export-ModuleMember -Function Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession
+# Event Database related
+Export-ModuleMember -Function Get-HVEventDatabase, Set-HVEventDatabase, Clear-HVEventDatabase, Get-HVEvent, Connect-HVEvent, Disconnect-HVEvent
+# Misc/other related
+Export-ModuleMember -Function Get-HVlicense, Set-HVlicense, Get-HVHealth, Set-HVInstantCloneMaintenance
