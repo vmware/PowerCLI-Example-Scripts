@@ -11520,11 +11520,11 @@ function Set-HVInstantCloneMaintenance {
     $VMHost,
 
     [Parameter(Mandatory = $false)]
-    [boolean]
+    [switch]
     $Enable,
 
     [Parameter(Mandatory = $false)]
-    [boolean]
+    [switch]
     $Disable,
 
     [Parameter(Mandatory = $false)]
