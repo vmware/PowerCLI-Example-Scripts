@@ -11543,9 +11543,9 @@ function Set-HVInstantCloneMaintenance {
     if ($Enable) {
       if ((Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -eq ""){
         Set-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance" -Value "1" | Out-Null
+        Write-Host "Instant Clone Maintenance Mode: Enabling for $VMHost...(This could take some time)"
       }
       while ((Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -ne "2") {
-          Write-Host "Instant Clone Maintenance Mode: Enabling for $VMHost...(This could take some time)"
           Start-Sleep -Seconds 10
       }
     } elseif ($Disable) {
