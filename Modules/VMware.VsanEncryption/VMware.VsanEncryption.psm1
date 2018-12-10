@@ -326,6 +326,7 @@ Function Get-VsanEncryptionDiskWiping {
     # If vSAN is enabled and it is Encrypted
     If($VsanCluster.vSanEnabled -And $EncryptedVsan.EncryptionEnabled){
 
+        # Change the setting
         $EncryptedVsan.EraseDisksBeforeUse
     }
 }
