@@ -1,5 +1,5 @@
 # Script Module : VMware.VMEncryption
-# Version       : 1.0
+# Version       : 1.2
 
 # Copyright © 2016 VMware, Inc. All Rights Reserved.
 
@@ -56,8 +56,13 @@ New-VIProperty -Name EncryptionKeyId -ObjectType VirtualMachine -Value {
 
 New-VIProperty -Name Locked -ObjectType VirtualMachine -Value  {
     Param ($VM)
-    ($vm.extensiondata.Runtime.ConnectionState -eq "invalid") -and ($vm.extensiondata.Config.KeyId)
-} -BasedOnExtensionProperty 'Runtime.ConnectionState','Config.KeyId' -Force | Out-Null
+    if ($vm.ExtensionData.Runtime.CryptoState) {
+        $vm.ExtensionData.Runtime.CryptoState -eq "locked"
+    }
+    else {
+        ($vm.extensiondata.Runtime.ConnectionState -eq "invalid") -and ($vm.extensiondata.Config.KeyId)
+    }
+} -BasedOnExtensionProperty 'Runtime.CryptoState', 'Runtime.ConnectionState','Config.KeyId' -Force | Out-Null
 
 New-VIProperty -Name vMotionEncryption -ObjectType VirtualMachine -Value {
     Param ($VM)
@@ -83,6 +88,13 @@ New-VIProperty -Name EncryptionKeyId -ObjectType HardDisk -Value {
     }
 } -BasedOnExtensionProperty 'Backing.KeyId' -Force | Out-Null
 
+New-VIProperty -Name KMSserver -ObjectType VMHost -Value {
+    Param ($VMHost)
+    if ($VMHost.CryptoSafe) {
+        $VMHost.ExtensionData.Runtime.CryptoKeyId.ProviderId.Id
+    }
+} -BasedOnExtensionProperty 'Runtime.CryptoKeyId.ProviderId.Id' -Force | Out-Null
+
 Function Enable-VMHostCryptoSafe {
     <#
     .SYNOPSIS
@@ -106,13 +118,6 @@ Function Enable-VMHostCryptoSafe {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -174,13 +179,6 @@ Function Set-VMHostCryptoKey {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -259,13 +257,6 @@ Function Set-vMotionEncryptionConfig {
     .NOTES
        Author                                    : Brian Graf, Carrie Yang.
        Author email                              : grafb@vmware.com, yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -341,13 +332,6 @@ Function Enable-VMEncryption {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -501,13 +485,6 @@ Function Enable-VMDiskEncryption {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -653,13 +630,6 @@ Function Disable-VMEncryption {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -749,13 +719,6 @@ Function Disable-VMDiskEncryption {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -875,7 +838,7 @@ Function Set-VMEncryptionKey {
        C:\PS>$VM|Set-VMEncryptionKey -KMSClusterId $KMSCluster.Id -Deep
 
        Deep rekeys the VM Home and all its disks using a new key.
-       The key is generted from the KMS whose clusterId is $KMSCluster.Id.
+       The key is generated from the KMS whose clusterId is $KMSCluster.Id.
 
     .NOTES
        This cmdlet assumes there is already a KMS in vCenter Server. If VM is not encrypted, the cmdlet quits.
@@ -884,13 +847,6 @@ Function Set-VMEncryptionKey {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1027,10 +983,10 @@ Function Set-VMDiskEncryptionKey {
        C:\PS>$KMSCluster = Get-KMSCluster | select -last 1
        C:\PS>$VM = Get-VM -Name win2012
        C:\PS>$HardDisk = get-vm $vm|Get-HardDisk
-       C:\PS>$HardDisk|$Set-VMEncryptionKey -VM $VM -KMSClusterId $KMSCluster.Id -Deep
+       C:\PS>$HardDisk| Set-VMDiskEncryptionKey -VM $VM -KMSClusterId $KMSCluster.Id -Deep
 
        Deep rekeys all the disks of the $VM  using a new key.
-       The key is generted from the KMS whose clusterId is $KMSCluster.Id.
+       The key is generated from the KMS whose clusterId is $KMSCluster.Id.
 
     .NOTES
        This cmdlet assumes there is already a KMS in vCenter Server.
@@ -1040,13 +996,6 @@ Function Set-VMDiskEncryptionKey {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1163,13 +1112,6 @@ Function Get-VMEncryptionInfo {
     .NOTES
        Author                                    : Carrie Yang.
        Author email                              : yangm@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1262,13 +1204,6 @@ Function Get-EntityByCryptoKey {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1387,13 +1322,6 @@ Function New-KMServer {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1428,6 +1356,7 @@ Function New-KMServer {
     )
 
     Begin {
+       write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Add-KeyManagementServer instead"
        # Confirm the connected VIServer is vCenter Server
        ConfirmIsVCenter
 
@@ -1546,13 +1475,6 @@ Function Remove-KMServer {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1566,6 +1488,7 @@ Function Remove-KMServer {
     )
 
     Begin {
+       write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Remove-KeyManagementServer instead"
        # Confirm the connected VIServer is vCenter Server
        ConfirmIsVCenter
 
@@ -1623,15 +1546,9 @@ Function Get-KMSCluster {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
+    write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Get-KmsCluster instead"
     # Confirm the connected VIServer is vCenter Server
     ConfirmIsVCenter
 
@@ -1661,14 +1578,6 @@ Function Get-KMSClusterInfo {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
-
     #>
 
     [CmdLetBinding()]
@@ -1679,6 +1588,7 @@ Function Get-KMSClusterInfo {
     )
 
     Begin {
+       write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Get-KmsCluster instead"
        # Confirm the connected VIServer is vCenter Server
        ConfirmIsVCenter
 
@@ -1714,13 +1624,6 @@ Function Get-KMServerInfo {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1731,6 +1634,7 @@ Function Get-KMServerInfo {
     )
 
     Begin {
+       write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Get-KeyManagementServer instead"
        # Confirm the connected VIServer is vCenter Server
        ConfirmIsVCenter
 
@@ -1775,13 +1679,6 @@ Function Get-KMServerStatus {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
     [CmdLetBinding()]
@@ -1846,15 +1743,9 @@ Function Get-DefaultKMSCluster {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
+    write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Get-KmsCluster instead"
     # Confirm the connected VIServer is vCenter Server
     ConfirmIsVCenter
 
@@ -1883,13 +1774,6 @@ Function Set-DefaultKMSCluster {
     .NOTES
        Author                                    : Baoyin Qiao.
        Author email                              : bqiao@vmware.com
-       Version                                   : 1.0
-
-       ==========Tested Against Environment==========
-       VMware vSphere Hypervisor(ESXi) Version   : 6.5
-       VMware vCenter Server Version             : 6.5
-       PowerCLI Version                          : PowerCLI 6.5
-       PowerShell Version                        : 3.0
     #>
 
    [CmdLetBinding()]
@@ -1899,6 +1783,7 @@ Function Set-DefaultKMSCluster {
         [String] $KMSClusterId
     )
 
+    write-warning "This cmdlet is deprecated and will be removed in future release. Use VMware.VimAutomation.Storage\Set-KmsCluster instead"
     # Confirm the connected VIServer is vCenter Server
     ConfirmIsVCenter
 
@@ -1908,6 +1793,353 @@ Function Set-DefaultKMSCluster {
     $ProviderId.Id = $KMSClusterId
 
     $CM.MarkDefault($ProviderId)
+}
+
+Function Set-VMCryptoUnlock {
+    <#
+    .SYNOPSIS
+       This cmdlet unlocks a locked vm
+
+    .DESCRIPTION
+       This cmdlet unlocks a locked vm
+
+    .PARAMETER VM
+       Specifies the VM you want to unlock
+
+    .EXAMPLE
+       PS C:\> Get-VM |where {$_.locked}| Set-VMCryptoUnlock
+
+       Unlock all locked vms
+
+    .NOTES
+       Author                                    : Fangying Zhang
+       Author email                              : fzhang@vmware.com
+    #>
+
+    [CmdLetBinding()]
+
+    param (
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine[]]$VM
+    )
+
+    Begin {
+        # Confirm the connected VIServer is vCenter Server
+        ConfirmIsVCenter
+    }
+
+    Process {
+        foreach ($thisvm in $vm) {
+            if (!$thisvm.encrypted) {
+                write-warning "$thisvm is not encrypted, will skip $thisvm"
+                continue
+            }
+            if (!$thisvm.Locked) {
+                write-warning "$thisvm may not be locked!"
+                # $thisvm.locked could be false on old 6.5.0 build (bug 1931370), so do not skip $thisvm
+            }
+            write-verbose "try to CryptoUnlock $thisvm"
+            $thisvm.ExtensionData.CryptoUnlock()
+        }
+    }
+}
+
+Function Add-Vtpm {
+    <#
+    .SYNOPSIS
+       This cmdlet adds a Virtual TPM to the specified VM.
+
+    .DESCRIPTION
+       This cmdlet adds a Virtual TPM to the specified VM.
+
+    .PARAMETER VM
+       Specifies the VM you want to add Virtual TPM to.
+
+    .EXAMPLE
+       C:\PS>$vm1 = Get-VM -Name win2016
+       C:\PS>Add-Vtpm $vm1
+
+       Encrypts $vm1's VM home and adds Virtual TPM
+
+    .NOTES
+       If VM home is already encrypted, the cmdlet will add a Virtual TPM to the VM.
+       If VM home is not encrypted, VM home will be encrypted and Virtual TPM will be added.
+
+    .NOTES
+       Author                                    : Chong Yeo.
+       Author email                              : cyeo@vmware.com
+    #>
+    [CmdLetBinding()]
+
+    param (
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine] $VM
+    )
+
+    Begin {
+        # Confirm the connected VIServer is vCenter Server
+        ConfirmIsVCenter
+    }
+    Process {
+        $deviceChange = New-Object VMware.Vim.VirtualDeviceConfigSpec
+        $deviceChange.operation = "add"
+        $deviceChange.device = new-object VMware.Vim.VirtualTPM
+        $VMCfgSpec = New-Object VMware.Vim.VirtualMachineConfigSpec
+        $VMCfgSpec.DeviceChange = $deviceChange
+
+        return $VM.ExtensionData.ReconfigVM_task($VMCfgSpec)
+    }
+}
+
+Function Remove-Vtpm {
+    <#
+    .SYNOPSIS
+       This cmdlet removes a Virtual TPM from the specified VM.
+
+    .DESCRIPTION
+       This cmdlet removes a Virtual TPM from the specified VM.
+
+    .PARAMETER VM
+       Specifies the VM you want to remove Virtual TPM from.
+
+    .EXAMPLE
+       C:\PS>$vm1 = Get-VM -Name win2016
+       C:\PS>Remove-Vtpm $vm1
+
+    .EXAMPLE
+       C:\PS>Get-VM -Name win2016 |Remove-Vtpm
+
+       Remove Virtual TPM from VM named win2016
+
+    .NOTES
+       Removing VirtualTPM will render all encrypted data on this VM unrecoverable.
+       VM home encryption state will be returned to the original state before Virtual TPM is added
+
+    .NOTES
+       Author                                    : Chong Yeo.
+       Author email                              : cyeo@vmware.com
+    #>
+    [CmdLetBinding(SupportsShouldProcess=$true, ConfirmImpact = "High")]
+
+    param (
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine] $VM
+    )
+
+    Begin {
+        # Confirm the connected VIServer is vCenter Server
+        ConfirmIsVCenter
+    }
+    Process {
+        $message = "Removing Virtual TPM will render all encrypted data on this VM unrecoverable"
+        if ($PSCmdlet.ShouldProcess($message, $message + "`n Do you want to proceed", "WARNING")) {
+            $deviceChange = New-Object VMware.Vim.VirtualDeviceConfigSpec
+            $deviceChange.operation = "remove"
+            $deviceChange.device = $vtpm
+            $VMCfgSpec = New-Object VMware.Vim.VirtualMachineConfigSpec
+            $VMCfgSpec.DeviceChange = $deviceChange
+            return $VM.ExtensionData.ReconfigVM_task($VMCfgSpec)
+        }
+    }
+}
+
+Function Get-VtpmCsr {
+    <#
+    .SYNOPSIS
+       This cmdlet gets certficate signing requests(CSR) from Virtual TPM.
+
+    .DESCRIPTION
+       This cmdlet gets certficate signing requests(CSR) from Virtual TPM.
+       The CSR is a ComObject X509enrollment.CX509CertificateRequestPkcs10
+
+    .PARAMETER VM
+       Specifies the VM you want to get the CSRs Virtual TPM from.
+
+    .PARAMETER KeyType [RSA | ECC]
+       Specify that only get CSR with public key RSA algorithm.
+       If none is specified, both CSR will get returned
+
+    .EXAMPLE
+       C:\PS>$vm1 = Get-VM -Name win2016
+       C:\PS>Get-VtpmCsr $vm1 -KeyType RSA
+
+    .NOTES
+       Both RSA and ECC CSRs objects will be returned.  If ECC or RSA is specified,
+       only the corresponding object will be returned
+
+    .NOTES
+       Author                                    : Chong Yeo.
+       Author email                              : cyeo@vmware.com
+    #>
+    [CmdLetBinding()]
+
+    param (
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine] $VM,
+
+        [Parameter(Mandatory=$False)]
+        [String]$KeyType
+    )
+
+    Begin {
+        # Confirm the connected VIServer is vCenter Server
+        ConfirmIsVCenter
+    }
+
+    process {
+        # Get vTPM from VM
+        $vtpm = $VM.ExtensionData.Config.Hardware.Device |Where {$_ -is [VMware.Vim.VirtualTPM]}
+
+        # Check if vTPM is already present
+        if (!$vtpm) {
+            Write-Error "$VM does not contains a Virtual TPM"
+            return
+        }
+
+        $CSRs = @()
+        foreach ($csrArray in $vtpm.EndorsementKeyCertificateSigningRequest) {
+            $csrString = [System.Convert]::ToBase64String($csrArray)
+            $csr = New-Object -ComObject X509enrollment.CX509CertificateRequestPkcs10
+
+            #decode a base64 string into a CSR object
+            $csr.InitializeDecode($csrString,6)
+            if ($keyType) {
+                if ($csr.PublicKey.Algorithm.FriendlyName -eq $KeyType){
+                    return $csr
+                }
+            } else {
+                $CSRs += $csr
+            }
+        }
+        return $CSRs
+    }
+}
+
+Function Set-VtpmCert{
+    <#
+    .SYNOPSIS
+       This cmdlet replaces certificates of Virtual TPM in the specified VM.
+
+    .DESCRIPTION
+       This cmdlet replaces certificates to Virtual TPM in the specified VM.
+
+    .PARAMETER VM
+       Specifies the VM with Virtual TPM where you want to replace the certificates to.
+
+    .PARAMETER Cert
+       Specifies the certificate object (System.Security.Cryptography.X509Certificates.X509Certificate)
+
+    .EXAMPLE
+       C:\PS>$vm1 = Get-VM -Name win2016
+       C:\PS>Set-VtpmCert $vm1 $certObj
+
+    .EXAMPLE
+       C:\PS>Get-VM -Name win2016 | Set-VtpmCert $certObj
+
+       Replace the appropriate certificate specified
+
+    .NOTES
+       Only RSA or ECC certs will be overwritten
+
+    .NOTES
+       Author                                    : Chong Yeo.
+       Author email                              : cyeo@vmware.com
+    #>
+    [CmdLetBinding()]
+
+    param (
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine]$VM,
+
+        [Parameter(Mandatory=$True)]
+        [System.Security.Cryptography.X509Certificates.X509Certificate] $Cert
+    )
+
+    Begin {
+        # Confirm the connected VIServer is vCenter Server
+        ConfirmIsVCenter
+    }
+
+    process {
+        # Get vTPM from VM
+        $vtpm = $VM.ExtensionData.Config.Hardware.Device |Where {$_ -is [VMware.Vim.VirtualTPM]}
+
+        #check if vTPM is already present
+        if (!$vtpm) {
+            Write-Error "$VM does not contains a Virtual TPM"
+            return
+        }
+
+        $certOid = New-Object System.Security.Cryptography.Oid($Cert.GetKeyAlgorithm())
+
+        # Check which certificate to overwrite
+        $certLocation = GetKeyIndex $vtpm.EndorsementKeyCertificate $certOid.FriendlyName
+        if ($certLocation -eq -1) {
+            Write-Error "No Certificate with Matching Algorithm $($certOid.FriendlyName) found"
+            return
+        }
+
+        $vtpm.EndorsementKeyCertificate[$certLocation] = $cert.GetRawCertData()
+        $deviceChange = New-Object VMware.Vim.VirtualDeviceConfigSpec
+        $deviceChange.Operation = "edit"
+        $deviceChange.Device = $vtpm
+        $VMCfgSpec = New-Object VMware.Vim.VirtualMachineConfigSpec
+        $VMCfgSpec.DeviceChange = $deviceChange
+
+        return $VM.ExtensionData.ReconfigVM_task($VMCfgSpec)
+    }
+}
+
+Function Get-VtpmCert{
+    <#
+    .SYNOPSIS
+       This cmdlet gets certificates of Virtual TPM in the specified VM.
+
+    .DESCRIPTION
+       This cmdlet gets certificates of Virtual TPM in the specified VM.
+
+    .PARAMETER VM
+       Specifies the VM with Virtual TPM where you want to get the certificate from
+
+    .EXAMPLE
+       C:\PS>$vm1 = Get-VM -Name win2016
+       C:\PS>$certs = Get-VtpmCert $vm1
+
+    .NOTES
+       An array of certificate object (System.Security.Cryptography.X509Certificates.X509Certificate)
+	   will be returned
+
+    .NOTES
+       Author                                    : Chong Yeo.
+       Author email                              : cyeo@vmware.com
+    #>
+    [CmdLetBinding()]
+    param (
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine] $VM
+    )
+    Begin {
+        # Confirm the connected VIServer is vCenter Server
+        ConfirmIsVCenter
+    }
+    Process {
+        # Get vTPM from VM
+        $vtpm = $VM.ExtensionData.Config.Hardware.Device |Where {$_ -is [VMware.Vim.VirtualTPM]}
+
+        # check if vTPM is already present
+        if (!$vtpm) {
+            Write-Error "$VM does not contain a Virtual TPM"
+            return
+        }
+
+        $certs = @()
+        $vtpm.EndorsementKeyCertificate|foreach {
+            $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate
+            $cert.Import($_)
+            $certs += $cert
+        }
+        return $certs
+    }
 }
 
 Function ConfirmIsVCenter{
@@ -2101,6 +2333,51 @@ Function GetCryptoManager {
        }
 
        Throw "Failed to get CryptoManager instance of the required type {$Type}!"
+    }
+}
+
+Function GetKeyIndex{
+    <#
+    .SYNOPSIS
+       This cmdlet returns the index to the key with a matching algorithm as the KeyType parameter
+
+    .DESCRIPTION
+       This cmdlet returns the index to the key with a matching algorithm as the KeyType parameter
+
+    .PARAMETER Certs
+       Specifies the list of certificats.  Expected format is byte[][]
+
+    .PARAMETER KeyType
+       Specifies the keytype to search for
+
+    .EXAMPLE
+       C:\PS>$keyIndex = GetKeyIndex $Certs RSA
+       C:\PS>$keyIndex = GetKeyIndex $Certs ECC
+
+    .NOTES
+       Author                                    : Chong Yeo.
+       Author email                              : cyeo@vmware.com
+    #>
+
+    [CmdLetBinding()]
+
+    param (
+        [Parameter(Mandatory=$True)]
+        [byte[][]] $Certs,
+
+        [Parameter(Mandatory=$True)]
+        [String] $KeyType
+    )
+    process {
+        for ($i=0;$i -lt $Certs.Length; $i++) {
+            $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate
+            $cert.Import($Certs.Get($i))
+            $certType = New-Object System.Security.Cryptography.Oid($cert.GetKeyAlgorithm())
+            if ( $certType.FriendlyName -eq $keyType) {
+                return $i
+            }
+        }
+        return -1
     }
 }
 

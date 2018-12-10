@@ -1,0 +1,58 @@
+{
+	"__version": "0.1",
+	"__comments": "Configuration for ha-vcenter-deploy.ps1 - www.definit.co.uk",
+	"target": {
+		"server": "vcsa.definit.local",
+		"user": "administrator@vsphere.local",
+		"password": "VMware1!",
+		"datacenter": "Lab",
+		"cluster": "Workload",
+		"datastore": "vsanDatastore",
+		"folder": "Nested Labs/HA-vCenter",
+		"portgroup": "HA-vCenter-Management",
+		"ha-portgroup": "HA-vCenter-Heartbeat",
+		"network": {
+			"netmask": "255.255.255.0",
+			"gateway": "10.0.11.1",
+			"prefix": "24",
+			"dns": "192.168.1.20",
+			"domain": "definit.local",
+			"ntp": "192.168.1.1"
+		}
+	},
+	"sources": {
+		"VCSAInstaller": "e:\\Pod-Deploy\\vSphere\\VMware-VCSA-all-6.5.0-4944578"
+	},
+	"active": {
+		"deploymentSize": "small",
+		"name": "ha-vc-active",
+		"ip": "10.0.11.10",
+		"ha-ip": "172.16.1.1",
+		"hostname": "ha-vc.definit.local",
+		"rootPassword": "VMware1!",
+		"sso": {
+			"domain": "vsphere.local",
+			"site": "Default-First-Site",
+			"password": "VMware1!"
+		},
+		"datacenter": "HA-vCenter-Datacenter",
+		"cluster": "HA-vCenter-Cluster-1",
+		"distributedSwitch": "HA-vCenter-VDS",
+		"portgroup": "HA-vCenter-PortGroup"
+	},
+	"cluster": {
+		"passive-ip": "172.16.1.2",
+		"passive-name": "ha-vc-passive",
+		"witness-ip": "172.16.1.3",
+		"witness-name": "ha-vc-witness",
+		"ha-mask": "255.255.255.248"
+	},
+	"general": {
+		"syslog": "192.168.1.26",
+		"ssh": true,
+		"log": "ha-vcenter-deploy.log"
+	},
+	"license": {
+		"vcenter": "7H23H-11111-22222-33333-90ZQN"
+	}
+}

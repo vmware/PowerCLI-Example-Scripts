@@ -1,0 +1,73 @@
+{
+    "Base":  {
+                 "Name" : "MnlJson",
+                 "DisplayName":  "MNLPUL",
+                 "AccessGroup":  "ROOT",
+                 "Description":  "Manual pool creation"
+             },
+    "DesktopSettings":  {
+							"enabled": true,
+							"deleting": false,
+							"connectionServerRestrictions": null,
+							"logoffSettings":  {
+													"powerPolicy": "TAKE_NO_POWER_ACTION",
+													"automaticLogoffPolicy": "NEVER",
+													"automaticLogoffMinutes": 120,
+													"allowUsersToResetMachines": false,
+													"allowMultipleSessionsPerUser": false,
+													"deleteOrRefreshMachineAfterLogoff": "NEVER",
+													"refreshOsDiskAfterLogoff": "NEVER",
+													"refreshPeriodDaysForReplicaOsDisk": 5,
+													"refreshThresholdPercentageForReplicaOsDisk": 10
+											   },
+							"displayProtocolSettings": {
+															"supportedDisplayProtocols": ["PCOIP", "BLAST" ],
+															"defaultDisplayProtocol": "BLAST",
+															"allowUsersToChooseProtocol": true,
+															"pcoipDisplaySettings": {
+																						"renderer3D": "DISABLED",
+																						"enableGRIDvGPUs": false,
+																						"vRamSizeMB": 96,
+																						"maxNumberOfMonitors": 3,
+																						"maxResolutionOfAnyOneMonitor": "WSXGA_PLUS"
+																					},
+															"enableHTMLAccess": true
+													   },
+							"flashSettings": {
+												"quality": "NO_CONTROL",
+												"throttling": "DISABLED"
+											 },
+							"mirageConfigurationOverrides": {
+																"overrideGlobalSetting": false,
+																"enabled": false,
+																"url": false
+															}
+	                    },
+    "Type":  "MANUAL",
+    "AutomatedDesktopSpec":  null,
+    "ManualDesktopSpec":  {
+                              "UserAssignment":  {
+                                                     "UserAssignment":  "FLOATING",
+                                                     "AutomaticAssignment":  true
+                                                 },
+                              "Source":  "VIRTUAL_CENTER",
+                              "Machines":  [
+                                               {
+                                                  "Machine" : "Praveen_Agent"
+                                               }
+                                           ],
+                              "VirtualCenter":  null,
+                              "ViewStorageAcceleratorSettings":  {
+                                                                     "UseViewStorageAccelerator":  false,
+                                                                     "ViewComposerDiskTypes":  null,
+                                                                     "RegenerateViewStorageAcceleratorDays":  null,
+                                                                     "BlackoutTimes":  null
+                                                                 },
+                              "VirtualCenterManagedCommonSettings":  {
+                                                                         "TransparentPageSharingScope":  "VM"
+                                                                     }
+                          },
+    "RdsDesktopSpec":  null,
+    "GlobalEntitlementData":  null
+                
+}

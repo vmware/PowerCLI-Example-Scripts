@@ -1,0 +1,142 @@
+{
+    "Base":  {
+                 "Name" : "InsClnJSON",
+                 "DisplayName":  "insPoolPr",
+                 "AccessGroup":  "ROOT",
+                 "Description":  "create instant pool"
+             },
+    "DesktopSettings":  {
+							"enabled": true,
+							"deleting": false,
+							"connectionServerRestrictions": null,
+							"logoffSettings":  {
+													"powerPolicy": "ALWAYS_POWERED_ON",
+													"automaticLogoffPolicy": "NEVER",
+													"automaticLogoffMinutes": 120,
+													"allowUsersToResetMachines": false,
+													"allowMultipleSessionsPerUser": false,
+													"deleteOrRefreshMachineAfterLogoff": "DELETE",
+													"refreshOsDiskAfterLogoff": "NEVER",
+													"refreshPeriodDaysForReplicaOsDisk": 5,
+													"refreshThresholdPercentageForReplicaOsDisk": 10
+											   },
+							"displayProtocolSettings": {
+															"supportedDisplayProtocols": ["PCOIP", "BLAST" ],
+															"defaultDisplayProtocol": "BLAST",
+															"allowUsersToChooseProtocol": true,
+															"pcoipDisplaySettings": {
+																						"renderer3D": "DISABLED",
+																						"enableGRIDvGPUs": false,
+																						"vRamSizeMB": 96,
+																						"maxNumberOfMonitors": 3,
+																						"maxResolutionOfAnyOneMonitor": "WSXGA_PLUS"
+																					},
+															"enableHTMLAccess": true
+													   },
+							"flashSettings": {
+												"quality": "NO_CONTROL",
+												"throttling": "DISABLED"
+											 },
+							"mirageConfigurationOverrides": {
+																"overrideGlobalSetting": false,
+																"enabled": false,
+																"url": false
+															}
+	                    },
+    "Type":  "AUTOMATED",
+    "AutomatedDesktopSpec":  {
+                                 "ProvisioningType":  "INSTANT_CLONE_ENGINE",
+                                 "VirtualCenter": null,
+                                 "UserAssignment":  {
+                                                        "UserAssignment":  "FLOATING",
+                                                        "AutomaticAssignment":  true
+                                                    },
+                                 "VmNamingSpec":  {
+                                                      "NamingMethod":  "PATTERN",
+                                                      "PatternNamingSettings":  {
+                                                                                    "NamingPattern":  "inspoolJson1",
+                                                                                    "MaxNumberOfMachines":  1,
+                                                                                    "NumberOfSpareMachines":  1,
+                                                                                    "ProvisioningTime":  "UP_FRONT",
+                                                                                    "MinNumberOfMachines":  null
+                                                                                },
+                                                      "SpecificNamingSpec":  null
+                                                  },
+                                 "VirtualCenterProvisioningSettings":  {
+                                                                           "EnableProvisioning":  true,
+                                                                           "StopProvisioningOnError":  true,
+                                                                           "MinReadyVMsOnVComposerMaintenance":  0,
+                                                                           "VirtualCenterProvisioningData":  {
+                                                                                                                 "Template":  null,
+                                                                                                                 "ParentVm":  "Agent_pra",
+                                                                                                                 "Snapshot":  "kb-hotfix",
+                                                                                                                 "Datacenter":  null,
+                                                                                                                 "VmFolder":  "Praveen",
+                                                                                                                 "HostOrCluster":  "CS-1",
+                                                                                                                 "ResourcePool":  "CS-1"
+                                                                                                             },
+                                                                           "VirtualCenterStorageSettings":  {
+                                                                                                                "Datastores":  [
+                                                                                                                                   {
+                                                                                                                                       "Datastore":  "datastore1",
+                                                                                                                                       "StorageOvercommit":  "UNBOUNDED"
+                                                                                                                                   }
+                                                                                                                               ],
+                                                                                                                "UseVSan":  false,
+                                                                                                                "ViewComposerStorageSettings":  {
+                                                                                                                                                    "UseSeparateDatastoresReplicaAndOSDisks":  false,
+                                                                                                                                                    "ReplicaDiskDatastore":  null,
+                                                                                                                                                    "UseNativeSnapshots":  false,
+                                                                                                                                                    "SpaceReclamationSettings":  {
+                                                                                                                                                                                     "ReclaimVmDiskSpace":  false,
+                                                                                                                                                                                     "ReclamationThresholdGB":  null
+                                                                                                                                                                                 },
+                                                                                                                                                    "PersistentDiskSettings":  {
+                                                                                                                                                                                   "RedirectWindowsProfile":  false,
+                                                                                                                                                                                   "UseSeparateDatastoresPersistentAndOSDisks":  null,
+                                                                                                                                                                                   "PersistentDiskDatastores":  null,
+                                                                                                                                                                                   "DiskSizeMB":  null,
+                                                                                                                                                                                   "DiskDriveLetter":  null
+                                                                                                                                                                               },
+                                                                                                                                                    "NonPersistentDiskSettings":  {
+                                                                                                                                                                                      "RedirectDisposableFiles":  false,
+                                                                                                                                                                                      "DiskSizeMB":  null,
+                                                                                                                                                                                      "DiskDriveLetter":  null
+                                                                                                                                                                                  }
+                                                                                                                                                },
+                                                                                                                "ViewStorageAcceleratorSettings":  {
+                                                                                                                                                       "UseViewStorageAccelerator":  false,
+                                                                                                                                                       "ViewComposerDiskTypes":  null,
+                                                                                                                                                       "RegenerateViewStorageAcceleratorDays":  null,
+                                                                                                                                                       "BlackoutTimes":  null
+                                                                                                                                                   }
+                                                                                                            },
+                                                                           "VirtualCenterNetworkingSettings":  {
+                                                                                                                   "Nics":  null
+                                                                                                               }
+                                                                       },
+                                 "VirtualCenterManagedCommonSettings":  {
+                                                                            "TransparentPageSharingScope":  "VM"
+                                                                        },
+                                 "CustomizationSettings":  {
+                                                               "CustomizationType":  "CLONE_PREP",
+                                                               "DomainAdministrator":  null,
+                                                               "AdContainer":  "CN=Computers",
+                                                               "ReusePreExistingAccounts":  false,
+                                                               "NoCustomizationSettings":  null,
+                                                               "SysprepCustomizationSettings":  null,
+                                                               "QuickprepCustomizationSettings":  null,
+                                                               "CloneprepCustomizationSettings":  {
+                                                                                                      "InstantCloneEngineDomainAdministrator":  null,
+                                                                                                      "PowerOffScriptName":  null,
+                                                                                                      "PowerOffScriptParameters":  null,
+                                                                                                      "PostSynchronizationScriptName":  null,
+                                                                                                      "PostSynchronizationScriptParameters":  null
+                                                                                                  }
+                                                           }
+                             },
+    "ManualDesktopSpec":  null,
+    "RdsDesktopSpec":  null,
+    "GlobalEntitlementData":  null,
+    "NetBiosName" : "adviewdev"
+}

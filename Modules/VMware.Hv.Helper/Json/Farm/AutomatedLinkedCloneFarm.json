@@ -1,0 +1,94 @@
+{
+    "Type":  "AUTOMATED",
+    "Data":  {
+                 "Name":  "LCFarmJson",
+                 "DisplayName":  "FarmJsonTest",
+                 "AccessGroup":  "Root",
+                 "Description":  "created LC Farm from PS via JSON",
+                 "Enabled":  null,
+                 "Deleting":  false,
+                 "Settings":  {
+								"DisconnectedSessionTimeoutPolicy" : "NEVER",
+								"DisconnectedSessionTimeoutMinutes" : 1,
+								"EmptySessionTimeoutPolicy" : "AFTER",
+								"EmptySessionTimeoutMinutes" : 1,
+								"LogoffAfterTimeout" : false
+							  },
+                 "Desktop":  null,
+                 "DisplayProtocolSettings":  {
+												"DefaultDisplayProtocol" : "PCOIP",
+												"AllowDisplayProtocolOverride" : false,
+												"EnableHTMLAccess" : false
+											 },
+                 "ServerErrorThreshold":  null,
+                 "MirageConfigurationOverrides":  {
+													"OverrideGlobalSetting" : false,
+													"Enabled" : false,
+													"Url" : null
+												  }
+             },
+    "AutomatedFarmSpec":  {
+                              "ProvisioningType":  "VIEW_COMPOSER",
+                              "VirtualCenter":  null,
+                              "RdsServerNamingSpec":  {
+                                                          "NamingMethod":  "PATTERN",
+                                                          "PatternNamingSettings":  {
+                                                                                        "NamingPattern":  "LCFarmVMPS",
+                                                                                        "MaxNumberOfRDSServers":  1
+                                                                                    }
+                                                      },
+                              "VirtualCenterProvisioningSettings":  {
+                                                                        "EnableProvisioning":  true,
+                                                                        "StopProvisioningOnError":  true,
+                                                                        "MinReadyVMsOnVComposerMaintenance":  0,
+                                                                        "VirtualCenterProvisioningData":  {
+                                                                                                              "ParentVm":  "RDSServer",
+                                                                                                              "Snapshot":  "RDS_SNAP1",
+                                                                                                              "Datacenter":  null,
+                                                                                                              "VmFolder":  "Praveen",
+                                                                                                              "HostOrCluster":  "CS-1",
+                                                                                                              "ResourcePool":  "CS-1"
+                                                                                                          },
+                                                                        "VirtualCenterStorageSettings":  {
+                                                                                                             "Datastores":  [
+                                                                                                                                {
+                                                                                                                                    "Datastore":  "Datastore1",
+                                                                                                                                    "StorageOvercommit":  "UNBOUNDED"
+                                                                                                                                }
+                                                                                                                            ],
+                                                                                                             "UseVSan":  false,
+                                                                                                             "ViewComposerStorageSettings":  {
+                                                                                                                                                 "UseSeparateDatastoresReplicaAndOSDisks":  false,
+                                                                                                                                                 "ReplicaDiskDatastore":  null,
+                                                                                                                                                 "UseNativeSnapshots":  false,
+                                                                                                                                                 "SpaceReclamationSettings":  {
+                                                                                                                                                                                  "ReclaimVmDiskSpace":  false,
+                                                                                                                                                                                  "ReclamationThresholdGB":  null,
+                                                                                                                                                                                  "BlackoutTimes":  null
+                                                                                                                                                                              }
+                                                                                                                                             }
+                                                                                                         },
+                                                                        "VirtualCenterNetworkingSettings":  {
+                                                                                                                "Nics":  null
+                                                                                                            }
+                                                                    },
+                              "VirtualCenterManagedCommonSettings":  {
+                                                                         "TransparentPageSharingScope":  "VM"
+                                                                     },
+                              "CustomizationSettings":  {
+                                                            "CustomizationType":  "SYS_PREP",
+                                                            "DomainAdministrator":  null,
+                                                            "AdContainer":  "CN=Computers",
+                                                            "ReusePreExistingAccounts":  false,
+                                                            "SysprepCustomizationSettings":  {
+                                                                                                 "CustomizationSpec":  "PraveenCust"
+                                                                                             }
+                                                        },
+                              "RdsServerMaxSessionsData":  {
+                                                               "MaxSessionsType":  "UNLIMITED",
+                                                               "MaxSessions":  null
+                                                           }
+                          },
+    "ManualFarmSpec":  null,
+    "NetBiosName" : "adviewdev"
+}

@@ -1,0 +1,30 @@
+{
+"Org": {
+        "Name":"TestOrg",
+        "FullName": "Test Org",
+        "Description":"Automation Test Org"
+    },
+"OrgAdmin": {
+        "Name":"TestOrgAdmin",
+        "Pasword": "myPassword1!",
+        "FullName":"Test OrgAdmin",
+        "EmailAddress":"test@admin.org"
+    },
+"OrgVdc": {
+        "Name":"TestOrgVdc",
+        "FixedSize": "M",
+        "CPULimit": "1000",
+        "MEMLimit":"1024",
+        "StorageLimit":"1024",
+        "StorageProfile":"Standard-DC01",
+        "ProviderVDC":"Provider-VDC-DC01",
+        "NetworkPool":"Provider-VDC-DC01-NetPool",
+        "ExternalNetwork": "External-OrgVdcNet",
+        "EdgeGateway": "Yes",
+        "IPAddress":"192.168.100.1",
+        "SubnetMask":"255.255.255.0",
+        "Gateway":"192.168.100.254",
+        "IPRangeStart":"192.168.100.2",
+        "IPRangeEnd":"192.168.100.3"
+    }
+}
