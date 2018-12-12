@@ -10171,7 +10171,7 @@ $deleteSpec.DeleteFromDisk = $DeleteFromDisk
 $deleteSpec.ArchivePersistentDisk = $false
 
 #Delete the machines
-write-host "Attempting to Delete:"
+if($DeleteFromDisk){write-host "Attempting to Delete:"}else{write-host "Attempting to remove from inventory:"}
 Write-Output ($deleteMachine.base.Name -join "`n")
 $bye = $machineService.Machine_DeleteMachines($services,$deleteMachine.id,$deleteSpec)
 
