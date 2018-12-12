@@ -11477,4 +11477,102 @@ function Get-HVlicense {
   [System.gc]::collect()
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, New-HVPodfederation, Remove-HVPodFederation, Get-HVPodFederation, Register-HVPod, Unregister-HVPod, Set-HVPodFederation,Get-HVSite,New-HVSite,Set-HVSite,Remove-HVSite,New-HVHomeSite,Get-HVHomeSite,Set-HVEventDatabase,Get-HVEventDatabase,Clear-HVEventDatabase,Get-HVlicense,Set-HVlicense
+function Set-HVInstantCloneMaintenance {
+  <#
+  .Synopsis
+	  Enable or disable instant clone maintanence mode
+  
+  .DESCRIPTION
+    Toggles a host in instant clone maintanence mode. Specify the VMHost name and enable or disable to toggle.
+   
+  .PARAMETER VMHost
+	  ESXi Host name to modify the InstantClone.Maintenance attribute
+  
+  .PARAMETER Enable
+    Enable Instant Clone maintenance mode.
+     
+  .PARAMETER Disable
+    Disable Instant Clone maintenance mode
+     	
+  .EXAMPLE
+    Set-HvInstantCloneMaintenance -VMHost <hostname> -Enable $true
+    Set-HvInstantCloneMaintenance -VMHost <hostname> -Disable $true
+     
+  .NOTES
+    Author                      : Jack McMichael
+    Author email                : @jackwmc4 / jackwmc4@gmail.com
+    Version                     : 1.0
+	
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.6
+    PowerCLI Version            : PowerCLI 11
+    PowerShell Version          : 5.1
+  #>
+  	
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High')]
+
+	param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [string]
+    $VMHost,
+
+    [Parameter(Mandatory = $false)]
+    [switch]
+    $Enable,
+
+    [Parameter(Mandatory = $false)]
+    [switch]
+    $Disable,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+    if ($Enable) {
+      if ((Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -eq ""){
+        Set-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance" -Value "1" | Out-Null
+        Write-Host "Instant Clone Maintenance Mode: Enabling for $VMHost...(This could take some time)"
+      }
+      while ((Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -ne "2") {
+          Start-Sleep -Seconds 10
+      }
+    } elseif ($Disable) {
+      if (-not (Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -eq "") {
+        Set-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance" -Value "" | Out-Null
+        Write-Host "Instant Clone Maintenance Mode: Disabling for $VMHost"
+      }
+      Set-VMhost $VMHost -State Connected | Out-Null
+    }
+    [System.gc]::collect()  
+  }
+}
+# Object related
+Export-ModuleMember -Function Get-HVMachine, Get-HVMachineSummary, Get-HVQueryResult, Get-HVQueryFilter, Get-HVInternalName
+# RDS Farm related
+Export-ModuleMember -Function Get-HVFarmSummary, Start-HVFarm, Start-HVPool, New-HVFarm, Remove-HVFarm, Get-HVFarm, Set-HVFarm, Add-HVRDSServer
+# Desktop Pool related
+Export-ModuleMember -Function Get-HVPoolSummary, New-HVPool, Remove-HVPool, Get-HVPool, Set-HVPool, Get-HVPoolSpec, Add-HVDesktop
+# Entitlement related
+Export-ModuleMember -Function New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement
+Export-ModuleMember -Function Set-HVMachine, Reset-HVMachine, Remove-HVMachine
+# Cloud Pod Architecture related
+Export-ModuleMember -Function New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVGlobalEntitlement, New-HVPodFederation, Remove-HVPodFederation, Get-HVPodFederation, Set-HVPodFederation
+Export-ModuleMember -Function Get-HVSite, New-HVSite, New-HVHomeSite, Remove-HVSite, Get-HVHomeSite, Set-HVSite, Register-HVPod, Unregister-HVPod
+# Published App related
+Export-ModuleMember -Function Get-HVGlobalSettings, Set-HVApplicationIcon, Remove-HVApplicationIcon, Set-HVGlobalSettings
+Export-ModuleMember -Function Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession
+# Event Database related
+Export-ModuleMember -Function Get-HVEventDatabase, Set-HVEventDatabase, Clear-HVEventDatabase, Get-HVEvent, Connect-HVEvent, Disconnect-HVEvent
+# Misc/other related
+Export-ModuleMember -Function Get-HVlicense, Set-HVlicense, Get-HVHealth, Set-HVInstantCloneMaintenance
