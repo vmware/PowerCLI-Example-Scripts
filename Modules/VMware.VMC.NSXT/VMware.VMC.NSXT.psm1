@@ -83,7 +83,7 @@ Function Get-NSXTSegment {
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
         $method = "GET"
-        $segmentsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/networks/cgw/segments"
+        $segmentsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-1s/cgw/segments"
 
         if($Troubleshoot) {
             Write-Host -ForegroundColor cyan "`n[DEBUG] - $METHOD`n$segmentsURL`n"
@@ -178,7 +178,7 @@ Function New-NSXTSegment {
         $body = $payload | ConvertTo-Json -depth 4
 
         $method = "PUT"
-        $newSegmentsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/networks/cgw/segments/$Name"
+        $newSegmentsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-1s/cgw/segments/$Name"
 
         if($Troubleshoot) {
             Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$newSegmentsURL`n"
@@ -231,7 +231,7 @@ Function Remove-NSXTSegment {
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection  found, please use Connect-NSXTProxy" } Else {
         $method = "DELETE"
-        $deleteSegmentsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/networks/cgw/segments/$Id"
+        $deleteSegmentsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-1s/cgw/segments/$Id"
 
         if($Troubleshoot) {
             Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$deleteSegmentsURL`n"
@@ -285,7 +285,7 @@ Function Get-NSXTFirewall {
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection  found, please use Connect-NSXTProxy" } Else {
         $method = "GET"
-        $edgeFirewallURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/edge-communication-maps/default"
+        $edgeFirewallURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/gateway-policies/default"
 
         if($Troubleshoot) {
             Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$edgeFirewallURL`n"
@@ -303,7 +303,7 @@ Function Get-NSXTFirewall {
         }
 
         if($requests.StatusCode -eq 200) {
-            $rules = ($requests.Content | ConvertFrom-Json).communication_entries
+            $rules = ($requests.Content | ConvertFrom-Json).rules
 
             if ($PSBoundParameters.ContainsKey("Name")){
                 $rules = $rules | where {$_.display_name -eq $Name}
@@ -467,7 +467,7 @@ Function New-NSXTFirewall {
         $body = $payload | ConvertTo-Json -depth 5
 
         $method = "PUT"
-        $newFirewallURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/edge-communication-maps/default/communication-entries/$Id"
+        $newFirewallURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/gateway-policies/default/rules/$Id"
 
         if($Troubleshoot) {
             Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$newFirewallURL`n"
@@ -520,7 +520,7 @@ Function Remove-NSXTFirewall {
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection  found, please use Connect-NSXTProxy" } Else {
         $method = "DELETE"
-        $deleteGgroupURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/edge-communication-maps/default/communication-entries/$Id"
+        $deleteGgroupURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/gateway-policies/default/rules/$Id"
 
         if($Troubleshoot) {
             Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$deleteGgroupURL`n"
