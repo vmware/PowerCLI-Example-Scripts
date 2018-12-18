@@ -248,9 +248,9 @@ function New-CISTagCategory {
 function Remove-CISTagCategory {
 <#  
 .SYNOPSIS  
-    Gathers tag category information from the CIS REST API endpoint
+    Removes tag category information from the CIS REST API endpoint
 .DESCRIPTION 
-    Will provide a list of tag categories
+    Will remove a tag categorie
 .NOTES  
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Name
@@ -258,11 +258,8 @@ function Remove-CISTagCategory {
 .PARAMETER Id
     Tag category ID which should be removed
 .EXAMPLE
-    Get-CISTagCategory
-    Retreives all tag category information 
-.EXAMPLE
-    Get-CISTagCategory -Name tagCategoryName
-    Retreives the tag category information based on the specified name
+    Remove-CISTagCategory -Name tagCategoryName
+    Removes the tag category information based on the specified name
 
 #>
 [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')] 
@@ -558,9 +555,9 @@ function New-CISTagAssignment {
 function Remove-CISTagAssignment {
 <#  
 .SYNOPSIS  
-    Displays a list of the tag assignments from the CIS REST API endpoint
+    Removes a tag assignment from the CIS REST API endpoint
 .DESCRIPTION 
-    Will provide a list of the tag assignments
+    Will remove provided tag assignments
 .NOTES  
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Tag
