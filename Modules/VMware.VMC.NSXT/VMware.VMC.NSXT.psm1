@@ -147,12 +147,11 @@ Function New-NSXTSegment {
     .DESCRIPTION
         This cmdlet creates a new NSX-T Segment (Logical Networks)
     .EXAMPLE
-        New-NSXTSegment -Name "sddc-cgw-network-4" -Gateway "192.168.4.1/24" -Network "192.168.0/24" -DHCP -DHCPRange "192.168.4.2-192.168.4.254"
+        New-NSXTSegment -Name "sddc-cgw-network-4" -Gateway "192.168.4.1/24" -DHCP -DHCPRange "192.168.4.2-192.168.4.254"
 #>
     Param (
         [Parameter(Mandatory=$True)]$Name,
         [Parameter(Mandatory=$True)]$Gateway,
-        [Parameter(Mandatory=$True)]$Network,
         [Parameter(Mandatory=$False)]$DHCPRange,
         [Switch]$DHCP,
         [Switch]$Troubleshoot
@@ -167,7 +166,6 @@ Function New-NSXTSegment {
 
         $subnets = @{
             gateway_address = $gateway;
-            network = $Network;
             dhcp_ranges = $dhcpConf;
         }
 
