@@ -9319,6 +9319,16 @@ function Set-HVApplicationIcon {
   }
 
   process {
+	if (!(Test-Path $IconPath)) {
+      Write-Error "File:[$IconPath] does not exist."
+      break
+    }
+
+    if ([IO.Path]::GetExtension($IconPath) -ne '.png') {
+      Write-Error "Unsupported file format:[$IconPath]. Only PNG image files are supported."
+      break
+    }
+
     try {
       $appInfo = Get-HVQueryResult -EntityType ApplicationInfo -Filter (Get-HVQueryFilter data.name -Eq $ApplicationName) -HvServer $HvServer
     } catch {
@@ -9329,11 +9339,6 @@ function Set-HVApplicationIcon {
 
     if ($null -eq $appInfo) {
       Write-Error "No application found with specified name:[$ApplicationName]."
-      break
-    }
-
-    if (!(Test-Path $IconPath)) {
-      Write-Error "File:[$IconPath] does not exists"
       break
     }
 
