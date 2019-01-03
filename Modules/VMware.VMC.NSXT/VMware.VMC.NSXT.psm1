@@ -96,8 +96,14 @@ Function Get-NSXTSegment {
                 $requests = Invoke-WebRequest -Uri $segmentsURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Segments"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
@@ -125,9 +131,6 @@ Function Get-NSXTSegment {
                 $results+=$tmp
             }
             $results
-        } else {
-            Write-Error "Error in retrieving NSX-T Segments"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -191,16 +194,19 @@ Function New-NSXTSegment {
                 $requests = Invoke-WebRequest -Uri $newSegmentsURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in creating new NSX-T Segment"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
             Write-Host "Succesfully created new NSX-T Segment $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
-        } else {
-            Write-Error "Error in creating new NSX-T Segment"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -243,15 +249,18 @@ Function Remove-NSXTSegment {
                 $requests = Invoke-WebRequest -Uri $deleteSegmentsURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in removing NSX-T Segments"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
             Write-Host "Succesfully removed NSX-T Segment $Name"
-        } else {
-            Write-Error "Error in removing NSX-T Segments"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -297,8 +306,14 @@ Function Get-NSXTFirewall {
                 $requests = Invoke-WebRequest -Uri $edgeFirewallURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Firewall Rules"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
@@ -401,9 +416,6 @@ Function Get-NSXTFirewall {
             }
             $results
 
-        } else {
-            Write-Error "Error in retrieving NSX-T Firewall Rules"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -424,15 +436,14 @@ Function New-NSXTFirewall {
     .DESCRIPTION
         This cmdlet creates a new NSX-T Firewall Rule on MGW or CGW
     .EXAMPLE
-        New-NSXTFirewall -GatewayType MGW -Name TEST -Id TEST -SourceGroupId ESXI -DestinationGroupId ANY -Service ANY -Logged $true -SequenceNumber 7 -Action ALLOW
+        New-NSXTFirewall -GatewayType MGW -Name TEST -SourceGroup @("ANY") -DestinationGroup @("ESXI") -Service ANY -Logged $true -SequenceNumber 0 -Action ALLOW
 #>
     Param (
         [Parameter(Mandatory=$True)]$Name,
         [Parameter(Mandatory=$true)][ValidateSet("MGW","CGW")][String]$GatewayType,
-        [Parameter(Mandatory=$True)]$Id,
         [Parameter(Mandatory=$True)]$SequenceNumber,
-        [Parameter(Mandatory=$True)]$SourceGroupId,
-        [Parameter(Mandatory=$True)]$DestinationGroupId,
+        [Parameter(Mandatory=$True)]$SourceGroup,
+        [Parameter(Mandatory=$True)]$DestinationGroup,
         [Parameter(Mandatory=$True)]$Service,
         [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DENY")]$Action,
         [Parameter(Mandatory=$false)][Boolean]$Logged=$false,
@@ -441,34 +452,43 @@ Function New-NSXTFirewall {
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
 
-        if($DestinationGroupId -eq "ANY") {
-            $destinationGroups = $DestinationGroupId
-        } else {
-            $destinationGroups = "/infra/domains/$($GatewayType.toLower())/groups/$DestinationGroupId"
+        $generatedId = (New-Guid).Guid
+
+        $destinationGroups = @()
+        foreach ($group in $DestinationGroup) {
+            if($group -eq "ANY") {
+                $destinationGroups = @("ANY")
+            } else {
+                $tmp = (Get-NSXTGroup -GatewayType $GatewayType -Name $group).Path
+                $destinationGroups+= $tmp
+            }
         }
 
         $sourceGroups = @()
-        foreach ($group in $SourceGroupId) {
-            $tmp = "/infra/domains/$($GatewayType.toLower())/groups/$group"
-            $sourceGroups+= $tmp
+        foreach ($group in $SourceGroup) {
+            if($group -eq "ANY") {
+                $sourceGroups = @("ANY")
+            } else {
+                $tmp = (Get-NSXTGroup -GatewayType $GatewayType -Name $group).Path
+                $sourceGroups+= $tmp
+            }
         }
 
         $services = @()
         foreach ($serviceName in $Service) {
-            if($serviceName -eq "ANY") {
-                $tmp = "ANY"
+            if($group -eq "ANY") {
+                $services = @("ANY")
             } else {
                 $tmp = "/infra/services/$serviceName"
+                $services+=$tmp
             }
-            $services+=$tmp
         }
 
         $payload = @{
             display_name = $Name;
             resource_type = "CommunicationEntry";
-            id = $Id;
             sequence_number = $SequenceNumber;
-            destination_groups = @($destinationGroups);
+            destination_groups = $destinationGroups;
             source_groups = $sourceGroups;
             logged = $Logged;
             scope = @("/infra/labels/$($GatewayType.toLower())");
@@ -479,7 +499,7 @@ Function New-NSXTFirewall {
         $body = $payload | ConvertTo-Json -depth 5
 
         $method = "PUT"
-        $newFirewallURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/gateway-policies/default/rules/$Id"
+        $newFirewallURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/gateway-policies/default/rules/$generatedId"
 
         if($Troubleshoot) {
             Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$newFirewallURL`n"
@@ -493,16 +513,19 @@ Function New-NSXTFirewall {
                 $requests = Invoke-WebRequest -Uri $newFirewallURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in creating new NSX-T Firewall Rule"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
             Write-Host "Succesfully created new NSX-T Firewall Rule $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
-        } else {
-            Write-Error "Error in creating new NSX-T Firewall Rule"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -546,15 +569,18 @@ Function Remove-NSXTFirewall {
                 $requests = Invoke-WebRequest -Uri $deleteGgroupURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in creating new NSX-T Firewall Rule"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully removed NSX-T Firewall Rule $Name"
-        } else {
-            Write-Error "Error in creating new NSX-T Firewall Rule"
-            Write-Error "Return code: " $requests.StatusCode
+            Write-Host "Succesfully removed NSX-T Firewall Rule"
         }
     }
 }
@@ -600,8 +626,14 @@ Function Get-NSXTGroup {
                 $requests = Invoke-WebRequest -Uri $edgeFirewallGroupsURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Groups"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
@@ -633,13 +665,11 @@ Function Get-NSXTGroup {
                     ID = $group.id;
                     Type = $groupType;
                     Members = $members;
+                    Path = $group.path;
                 }
                 $results+=$tmp
             }
             $results
-        } else {
-            Write-Error "Error in retrieving NSX-T Groups"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -682,7 +712,8 @@ Function New-NSXTGroup {
         $body = $payload | ConvertTo-Json -depth 5
 
         $method = "PUT"
-        $newGroupURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/groups/$Name"
+        $generatedId = (New-Guid).Guid
+        $newGroupURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/$($GatewayType.toLower())/groups/$generatedId"
 
         if($Troubleshoot) {
             Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$newGroupURL`n"
@@ -696,16 +727,19 @@ Function New-NSXTGroup {
                 $requests = Invoke-WebRequest -Uri $newGroupURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in creating new NSX-T Group"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
             Write-Host "Succesfully created new NSX-T Group $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
-        } else {
-            Write-Error "Error in creating new NSX-T Group"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -749,15 +783,18 @@ Function Remove-NSXTGroup {
                 $requests = Invoke-WebRequest -Uri $deleteGgroupURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in creating new NSX-T Group"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
             Write-Host "Succesfully removed NSX-T Group $Name"
-        } else {
-            Write-Error "Error in creating new NSX-T Group"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -802,8 +839,14 @@ Function Get-NSXTService {
                 $requests = Invoke-WebRequest -Uri $serviceGroupsURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Services"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
@@ -830,9 +873,6 @@ Function Get-NSXTService {
                 $results += $tmp
             }
             $results
-        } else {
-            Write-Error "Error in retrieving NSX-T Services"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -893,16 +933,19 @@ Function New-NSXTService {
                 $requests = Invoke-WebRequest -Uri $newServiceURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in creating new NSX-T Service"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
             Write-Host "Succesfully created new NSX-T Service $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
-        } else {
-            Write-Error "Error in creating new NSX-T Service"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -912,7 +955,7 @@ Function Get-NSXTDistFirewallSection {
     .NOTES
     ===========================================================================
     Created by:    William Lam
-    Date:          12/31/2018
+    Date:          01/01/2019
     Organization:  VMware
     Blog:          http://www.virtuallyghetto.com
     Twitter:       @lamw
@@ -950,8 +993,14 @@ Function Get-NSXTDistFirewallSection {
                 $requests = Invoke-WebRequest -Uri $distFirewallGroupURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Distributed Firewall Sections"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
@@ -976,10 +1025,6 @@ Function Get-NSXTDistFirewallSection {
                 $results+=$tmp
             }
             $results
-
-        } else {
-            Write-Error "Error in retrieving NSX-T Distributed Firewall Sections"
-            Write-Error "Return code: " $requests.StatusCode
         }
     }
 }
@@ -989,7 +1034,7 @@ Function Get-NSXTDistFirewall {
     .NOTES
     ===========================================================================
     Created by:    William Lam
-    Date:          09/11/2018
+    Date:          01/01/2019
     Organization:  VMware
     Blog:          http://www.virtuallyghetto.com
     Twitter:       @lamw
@@ -1000,20 +1045,26 @@ Function Get-NSXTDistFirewall {
     .DESCRIPTION
         This cmdlet retrieves all NSX-T Distributed Firewall Rules for a given Section
     .EXAMPLE
-        Get-NSXTDistFirewall -Name "App Section 1"
+        Get-NSXTDistFirewall -SectionName "App Section 1"
 #>
     param(
-        [Parameter(Mandatory=$true)][String]$Name,
+        [Parameter(Mandatory=$true)][String]$SectionName,
         [Switch]$Troubleshoot
     )
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
         try {
-            $distGroupId = (Get-NSXTDistFirewallSection -Name $Name).Id
+            $distGroupId = (Get-NSXTDistFirewallSection -Name $SectionName).Id
         }
         catch {
-            Write-Host -ForegroundColor Red "`nUnable to find NSX-T Distributed Firewall Group named $Name`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Host -ForegroundColor Red "`nUnable to find NSX-T Distributed Firewall Section named $SectionName`n"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         $method = "GET"
@@ -1030,8 +1081,14 @@ Function Get-NSXTDistFirewall {
                 $requests = Invoke-WebRequest -Uri $distFirewallURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
-            Write-Host -ForegroundColor Red "`nFailed to retrieve Distributed Firewall Rules`n"
-            break
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Distributed Firewall Rules"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
         }
 
         if($requests.StatusCode -eq 200) {
@@ -1129,9 +1186,179 @@ Function Get-NSXTDistFirewall {
                 $results+=$tmp
             }
             $results
-        } else {
-            Write-Error "Error in retrieving NSX-T Distributed Firewall Rules"
-            Write-Error "Return code: " $requests.StatusCode
+        }
+    }
+}
+
+Function New-NSXTDistFirewall {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          01/03/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Creates a new NSX-T Distribuged Firewall Rule
+    .DESCRIPTION
+        This cmdlet creates a new NSX-T Distribuged Firewall Rule
+    .EXAMPLE
+        New-NSXTDistFirewall -Name "App1 to Web1" -Section "App Section 1" `
+            -SourceGroup "App Server 1" `
+            -DestinationGroup "Web Server 1" `
+            -Service HTTPS -Logged $true `
+            -SequenceNumber 10 `
+            -Action ALLOW
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$Name,
+        [Parameter(Mandatory=$True)]$Section,
+        [Parameter(Mandatory=$True)]$SequenceNumber,
+        [Parameter(Mandatory=$True)]$SourceGroup,
+        [Parameter(Mandatory=$True)]$DestinationGroup,
+        [Parameter(Mandatory=$True)]$Service,
+        [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DENY")]$Action,
+        [Parameter(Mandatory=$false)][Boolean]$Logged=$false,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+
+        $sectionId = (Get-NSXTDistFirewallSection -Name $Section).Id
+
+        $destinationGroups = @()
+        foreach ($group in $DestinationGroup) {
+            if($group -eq "ANY") {
+                $destinationGroups = @("ANY")
+            } else {
+                $tmp = (Get-NSXTGroup -GatewayType CGW -Name $group).Path
+                $destinationGroups+= $tmp
+            }
+        }
+
+        $sourceGroups = @()
+        foreach ($group in $SourceGroup) {
+            if($group -eq "ANY") {
+                $sourceGroups = @("ANY")
+            } else {
+                $tmp = (Get-NSXTGroup -GatewayType CGW -Name $group).Path
+                $sourceGroups+= $tmp
+            }
+        }
+
+        $services = @()
+        foreach ($serviceName in $Service) {
+            if($serviceName -eq "ANY") {
+                $services = @("ANY")
+            } else {
+                $tmp = "/infra/services/$serviceName"
+                $services+=$tmp
+            }
+        }
+
+        $payload = @{
+            display_name = $Name;
+            sequence_number = $SequenceNumber;
+            destination_groups = $destinationGroups;
+            source_groups = $sourceGroups;
+            logged = $Logged;
+            scope = @("ANY");
+            services = $services;
+            action = $Action;
+        }
+
+        $body = $payload | ConvertTo-Json -depth 5
+
+        $method = "PUT"
+        $generatedId = (New-Guid).Guid
+        $newDistFirewallURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/cgw/communication-maps/$sectionId/communication-entries/$generatedId"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$newDistFirewallURL`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $newDistFirewallURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $newDistFirewallURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in creating new NSX-T Distribugted Firewall Rule"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Succesfully created new NSX-T Distributed Firewall Rule $Name"
+            ($requests.Content | ConvertFrom-Json) | select display_name, id
+        }
+    }
+}
+
+Function Remove-NSXTDistFirewall {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          01/03/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Removes an NSX-T Distribugted Firewall Rule
+    .DESCRIPTION
+        This cmdlet removes an NSX-T Distribugted Firewall Rule
+    .EXAMPLE
+        Remove-NSXTFirewall -Id TEST -Troubleshoot
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$Id,
+        [Parameter(Mandatory=$True)]$Section,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $sectionId = (Get-NSXTDistFirewallSection -Name $Section).Id
+        $dfwId = (Get-NSXTDistFirewall -SectionName $Section).Id
+
+        $method = "DELETE"
+        $deleteDistFirewallURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/cgw/communication-maps/$sectionId/communication-entries/$dfwId"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$deleteDistFirewallURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $deleteDistFirewallURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $deleteDistFirewallURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in creating new NSX-T Firewall Rule"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Succesfully removed NSX-T Distribugted Firewall Rule"
         }
     }
 }
