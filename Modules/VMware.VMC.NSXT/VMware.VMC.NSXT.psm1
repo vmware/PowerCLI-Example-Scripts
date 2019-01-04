@@ -1317,9 +1317,9 @@ Function Remove-NSXTDistFirewall {
     ===========================================================================
 
     .SYNOPSIS
-        Removes an NSX-T Distribugted Firewall Rule
+        Removes an NSX-T Distributed Firewall Rule
     .DESCRIPTION
-        This cmdlet removes an NSX-T Distribugted Firewall Rule
+        This cmdlet removes an NSX-T Distributed Firewall Rule
     .EXAMPLE
         Remove-NSXTFirewall -Id TEST -Troubleshoot
 #>
