@@ -1292,7 +1292,7 @@ Function New-NSXTDistFirewall {
                 Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
                 break
             } else {
-                Write-Error "Error in creating new NSX-T Distribugted Firewall Rule"
+                Write-Error "Error in creating new NSX-T Distributed Firewall Rule"
                 Write-Error "`n($_.Exception.Message)`n"
                 break
             }
@@ -1317,9 +1317,9 @@ Function Remove-NSXTDistFirewall {
     ===========================================================================
 
     .SYNOPSIS
-        Removes an NSX-T Distribugted Firewall Rule
+        Removes an NSX-T Distributed Firewall Rule
     .DESCRIPTION
-        This cmdlet removes an NSX-T Distribugted Firewall Rule
+        This cmdlet removes an NSX-T Distributed Firewall Rule
     .EXAMPLE
         Remove-NSXTFirewall -Id TEST -Troubleshoot
 #>
@@ -1331,7 +1331,7 @@ Function Remove-NSXTDistFirewall {
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
         $sectionId = (Get-NSXTDistFirewallSection -Name $Section).Id
-        $dfwId = (Get-NSXTDistFirewall -SectionName $Section).Id
+        $dfwId = (Get-NSXTDistFirewall -SectionName $Section | where { $_.id -eq $Id}).Id
 
         $method = "DELETE"
         $deleteDistFirewallURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/cgw/communication-maps/$sectionId/communication-entries/$dfwId"
@@ -1351,14 +1351,14 @@ Function Remove-NSXTDistFirewall {
                 Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
                 break
             } else {
-                Write-Error "Error in creating new NSX-T Firewall Rule"
+                Write-Error "Error in removing NSX-T Distributed Firewall Rule"
                 Write-Error "`n($_.Exception.Message)`n"
                 break
             }
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully removed NSX-T Distribugted Firewall Rule"
+            Write-Host "Succesfully removed NSX-T Distributed Firewall Rule"
         }
     }
 }
