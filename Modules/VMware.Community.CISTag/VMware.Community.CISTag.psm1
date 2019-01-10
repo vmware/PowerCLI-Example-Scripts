@@ -34,23 +34,38 @@ function Get-CISTag {
         if ($PSBoundParameters.ContainsKey("Id")) {
             $tagOutput = $tagSvc.get($Id)
         } else {
-            $tagArray = @()
-            $tagIdList = $tagSvc.list() | Select-Object -ExpandProperty Value
-            foreach ($t in $tagIdList) {
-                $tagArray += $tagSvc.get($t)
+            if ($global:DefaultVIServer -and $global:DefaultVIServer.Name -eq $global:DefaultCisServers.Name) {
+                [Boolean]$vCenterConn = $true
+                $vCTagList = Get-Tag
+            } else {
+                $tagArray = @()
+                $tagIdList = $tagSvc.list() | Select-Object -ExpandProperty Value
+                [integer]$counter = 1
+                foreach ($t in $tagIdList) {
+                    $tagArray += $tagSvc.get($t)
+                    $counter++
+                    if ($counter -gt 200) {Start-Sleep -Milliseconds 1; $counter = 1}
+                }
             }
             if ($PSBoundParameters.ContainsKey("Name")) {
-                $tagOutput = $tagArray | Where {$_.Name -eq $Name}
+                if ($vCenterConn){
+                    $tagOutput = $vCTagList | where {$_.Name -eq $Name}
+                } else {$tagOutput = $tagArray | Where {$_.Name -eq $Name}}                
             } elseif ($PSBoundParameters.ContainsKey("Category")) { 
-                $tagCatid = Get-CISTagCategory -Name $Category | Select-Object -ExpandProperty Id
-                $tagIdList = $tagSvc.list_tags_for_category($tagCatid)
-                $tagArray2 = @()
-                foreach ($t in $tagIdList) {
-                    $tagArray2 += $tagSvc.get($t)
+                if ($vCenterConn){ 
+                    $tagOutput = $vCTagList | where {$_.Category -eq $Category}
+                } else {
+                    $tagCatid = Get-CISTagCategory -Name $Category | Select-Object -ExpandProperty Id
+                    $tagIdList = $tagSvc.list_tags_for_category($tagCatid)
+                    $tagArray2 = @()
+                    foreach ($t in $tagIdList) {
+                        $tagArray2 += $tagSvc.get($t)
+                    }
+                    $tagOutput = $tagArray2
                 }
-                $tagOutput = $tagArray2
             } else {
-                $tagOutput = $tagArray
+                if ($vCenterConn){$tagOutput = $vCTagList}
+                else {$tagOutput = $tagArray}
             }
         }
         $tagOutput | Select-Object Id, Name, Description
@@ -250,7 +265,7 @@ function Remove-CISTagCategory {
 .SYNOPSIS  
     Removes tag category information from the CIS REST API endpoint
 .DESCRIPTION 
-    Will remove a tag categorie
+    Will remove a tag category
 .NOTES  
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Name
