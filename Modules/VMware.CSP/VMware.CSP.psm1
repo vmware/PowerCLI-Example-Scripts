@@ -21,7 +21,8 @@
         [Parameter(Mandatory=$true)][String]$RefreshToken
     )
 
-    $results = Invoke-WebRequest -Uri "https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize?refresh_token=$RefreshToken" -Method POST -ContentType "application/json" -UseBasicParsing -Headers @{"csp-auth-token"="$RefreshToken"}
+    $body = "refresh_token=$RefreshToken"
+    $results = Invoke-WebRequest -Uri "https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize" -Method POST -ContentType "application/x-www-form-urlencoded" -UseBasicParsing -Body $body
     if($results.StatusCode -ne 200) {
         Write-Host -ForegroundColor Red "Failed to retrieve Access Token, please ensure your VMC Refresh Token is valid and try again"
         break
@@ -51,4 +52,43 @@ Function Get-CSPServices {
         $results = Invoke-WebRequest -Uri "https://console.cloud.vmware.com/csp/gateway/slc/api/definitions?expand=1" -Method GET -ContentType "application/json" -UseBasicParsing -Headers @{"csp-auth-token"="$env:cspAuthToken"}
         ((($results.Content) | ConvertFrom-Json).results | where {$_.visible -eq $true}).displayName
     }
+}
+
+Function Get-CSPRefreshTokenExpiry {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     William Lam
+        Date:           01/10/2019
+        Organization:   VMware
+        Blog:           https://www.virtuallyghetto.com
+        Twitter:        @lamw
+        ===========================================================================
+
+        .DESCRIPTION
+            Retrieve the expiry for a given CSP Refresh Token
+        .PARAMETER RefreshToken
+            Retrieve the expiry for a given CSP Refresh Token
+        .EXAMPLE
+            Get-CSPRefreshTokenExpiry -RefreshToken $RefreshToken
+    #>
+    Param (
+        [Parameter(Mandatory=$true)][String]$RefreshToken
+    )
+
+    $body = @{"tokenValue"="$RefreshToken"}
+    $json = $body | ConvertTo-Json
+    $results = Invoke-WebRequest -Uri "https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/details" -Method POST -ContentType "application/json" -UseBasicParsing -Body $json
+    $tokenDetails = (($results.Content) | ConvertFrom-Json)
+
+    $createDate = (Get-Date -Date "01/01/1970").AddMilliseconds($tokenDetails.createdAt).ToLocalTime()
+    $usedDate = (Get-Date -Date "01/01/1970").AddMilliseconds($tokenDetails.lastUsedAt).ToLocalTime()
+    $expiryDate = (Get-Date -Date "01/01/1970").AddMilliseconds($tokenDetails.expiresAt).ToLocalTime()
+
+    $tmp = [pscustomobject] @{
+        LastUsedDate = $usedDate;
+        CreatedDate = $createDate;
+        ExpiryDate = $expiryDate;
+    }
+    $tmp | Format-List
 }
