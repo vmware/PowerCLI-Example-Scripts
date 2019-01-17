@@ -476,7 +476,7 @@ Function New-NSXTFirewall {
 
         $services = @()
         foreach ($serviceName in $Service) {
-            if($group -eq "ANY") {
+            if($serviceName -eq "ANY") {
                 $services = @("ANY")
             } else {
                 $tmp = "/infra/services/$serviceName"
