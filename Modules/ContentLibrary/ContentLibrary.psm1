@@ -20,12 +20,12 @@
         [Parameter(Mandatory=$false)][String]$LibraryName
     )
 
-    $contentLibaryService = Get-CisService com.vmware.content.library
-    $libaryIDs = $contentLibaryService.list()
+    $contentLibraryService = Get-CisService com.vmware.content.library
+    $LibraryIDs = $contentLibraryService.list()
 
     $results = @()
-    foreach($libraryID in $libaryIDs) {
-        $library = $contentLibaryService.get($libraryID)
+    foreach($libraryID in $LibraryIDs) {
+        $library = $contentLibraryService.get($libraryID)
 
         # Use vCenter REST API to retrieve name of Datastore that is backing the Content Library
         $datastoreService = Get-CisService com.vmware.vcenter.datastore
@@ -108,18 +108,18 @@ Function Get-ContentLibraryItems {
         [Parameter(Mandatory=$false)][String]$LibraryItemName
     )
 
-    $contentLibaryService = Get-CisService com.vmware.content.library
-    $libaryIDs = $contentLibaryService.list()
+    $contentLibraryService = Get-CisService com.vmware.content.library
+    $LibraryIDs = $contentLibraryService.list()
 
     $results = @()
-    foreach($libraryID in $libaryIDs) {
-        $library = $contentLibaryService.get($libraryId)
+    foreach($libraryID in $LibraryIDs) {
+        $library = $contentLibraryService.get($libraryId)
         if($library.name -eq $LibraryName) {
-            $contentLibaryItemService = Get-CisService com.vmware.content.library.item
-            $itemIds = $contentLibaryItemService.list($libraryID)
+            $contentLibraryItemService = Get-CisService com.vmware.content.library.item
+            $itemIds = $contentLibraryItemService.list($libraryID)
 
             foreach($itemId in $itemIds) {
-                $item = $contentLibaryItemService.get($itemId)
+                $item = $contentLibraryItemService.get($itemId)
 
                 if(!$LibraryItemName) {
                     $itemResult = [pscustomobject] @{
@@ -179,28 +179,40 @@ Function Get-ContentLibraryItemFiles {
         [Parameter(Mandatory=$false)][String]$LibraryItemName
     )
 
-    $contentLibaryService = Get-CisService com.vmware.content.library
-    $libaryIDs = $contentLibaryService.list()
+    $contentLibraryService = Get-CisService com.vmware.content.library
+    $libraryIDs = $contentLibraryService.list()
 
     $results = @()
-    foreach($libraryID in $libaryIDs) {
-        $library = $contentLibaryService.get($libraryId)
+    foreach($libraryID in $libraryIDs) {
+        $library = $contentLibraryService.get($libraryId)
         if($library.name -eq $LibraryName) {
-            $contentLibaryItemService = Get-CisService com.vmware.content.library.item
-            $itemIds = $contentLibaryItemService.list($libraryID)
-
+            $contentLibraryItemService = Get-CisService com.vmware.content.library.item
+            $itemIds = $contentLibraryItemService.list($libraryID)
+            $DatastoreID = $library.storage_backings.datastore_id.Value
+            $Datastore = get-datastore -id "Datastore-$DatastoreID"
+            
             foreach($itemId in $itemIds) {
-                $itemName = ($contentLibaryItemService.get($itemId)).name
-                $contenLibraryItemFileSerice = Get-CisService com.vmware.content.library.item.file
-                $files = $contenLibraryItemFileSerice.list($itemId)
+                $itemName = ($contentLibraryItemService.get($itemId)).name
+                $contentLibraryItemFileSerice = Get-CisService com.vmware.content.library.item.file
+                $files = $contentLibraryItemFileSerice.list($itemId)
+                $contentLibraryItemStorageService = Get-CisService com.vmware.content.library.item.storage
 
                 foreach($file in $files) {
+                    if($contentLibraryItemStorageService.get($itemId, $($file.name)).storage_backing.type -eq "DATASTORE"){
+                        $filepath = $contentLibraryItemStorageService.get($itemId, $($file.name)).storage_uris.AbsolutePath.split("/")[5..7] -join "/"
+                        $fullfilepath = "[$($datastore.name)] $filepath"
+                    }
+                    else{
+                        $fullfilepath = "UNKNOWN"
+                    }
+                    
                     if(!$LibraryItemName) {
                         $fileResult = [pscustomobject] @{
                             Name = $file.name;
                             Version = $file.version;
                             Size = $file.size;
                             Stored = $file.cached;
+                            Path = $fullfilepath;
                         }
                         $results+=$fileResult
                     } else {
@@ -210,6 +222,7 @@ Function Get-ContentLibraryItemFiles {
                                 Version = $file.version;
                                 Size = $file.size;
                                 Stored = $file.cached;
+                                Path = $fullfilepath;
                             }
                             $results+=$fileResult
                         }
@@ -245,12 +258,12 @@ Function Set-ContentLibrary {
         [Parameter(Mandatory=$false)][Switch]$JSONPersistenceDisabled
     )
 
-    $contentLibaryService = Get-CisService com.vmware.content.library
-    $libaryIDs = $contentLibaryService.list()
+    $contentLibraryService = Get-CisService com.vmware.content.library
+    $LibraryIDs = $contentLibraryService.list()
 
     $found = $false
-    foreach($libraryID in $libaryIDs) {
-        $library = $contentLibaryService.get($libraryId)
+    foreach($libraryID in $LibraryIDs) {
+        $library = $contentLibraryService.get($libraryId)
         if($library.name -eq $LibraryName) {
             $found = $true
             break
@@ -361,12 +374,12 @@ Function Remove-SubscribedContentLibrary {
         [Parameter(Mandatory=$true)][String]$LibraryName
     )
 
-    $contentLibaryService = Get-CisService com.vmware.content.library
-    $libaryIDs = $contentLibaryService.list()
+    $contentLibraryService = Get-CisService com.vmware.content.library
+    $LibraryIDs = $contentLibraryService.list()
 
     $found = $false
-    foreach($libraryID in $libaryIDs) {
-        $library = $contentLibaryService.get($libraryId)
+    foreach($libraryID in $LibraryIDs) {
+        $library = $contentLibraryService.get($libraryId)
         if($library.name -eq $LibraryName) {
             $found = $true
             break
@@ -460,12 +473,12 @@ Function Remove-LocalContentLibrary {
         [Parameter(Mandatory=$true)][String]$LibraryName
     )
 
-    $contentLibaryService = Get-CisService com.vmware.content.library
-    $libaryIDs = $contentLibaryService.list()
+    $contentLibraryService = Get-CisService com.vmware.content.library
+    $LibraryIDs = $contentLibraryService.list()
 
     $found = $false
-    foreach($libraryID in $libaryIDs) {
-        $library = $contentLibaryService.get($libraryId)
+    foreach($libraryID in $LibraryIDs) {
+        $library = $contentLibraryService.get($libraryId)
         if($library.name -eq $LibraryName) {
             $found = $true
             break
@@ -493,49 +506,49 @@ Function Copy-ContentLibrary {
     ===========================================================================
     .DESCRIPTION
         This function copies all library items from one Content Library to another
-    .PARAMETER SourceLibaryName
+    .PARAMETER SourceLibraryName
         The name of the source Content Library to copy from
-    .PARAMETER DestinationLibaryName
+    .PARAMETER DestinationLibraryName
         The name of the desintation Content Library to copy to
     .PARAMETER DeleteSourceFile
         Whther or not to delete library item from the source Content Library after copy
     .EXAMPLE
-        Copy-ContentLibrary -SourceLibaryName Foo -DestinationLibaryName Bar
+        Copy-ContentLibrary -SourceLibraryName Foo -DestinationLibraryName Bar
     .EXAMPLE
-        Copy-ContentLibrary -SourceLibaryName Foo -DestinationLibaryName Bar -DeleteSourceFile $true
+        Copy-ContentLibrary -SourceLibraryName Foo -DestinationLibraryName Bar -DeleteSourceFile $true
 #>
     param(
-        [Parameter(Mandatory=$true)][String]$SourceLibaryName,
-        [Parameter(Mandatory=$true)][String]$DestinationLibaryName,
+        [Parameter(Mandatory=$true)][String]$SourceLibraryName,
+        [Parameter(Mandatory=$true)][String]$DestinationLibraryName,
         [Parameter(Mandatory=$false)][Boolean]$DeleteSourceFile=$false
     )
 
-    $sourceLibraryId = (Get-ContentLibrary -LibraryName $SourceLibaryName).Id
+    $sourceLibraryId = (Get-ContentLibrary -LibraryName $SourceLibraryName).Id
     if($sourceLibraryId -eq $null) {
-        Write-Host -ForegroundColor red "Unable to find Source Content Library named $SourceLibaryName"
+        Write-Host -ForegroundColor red "Unable to find Source Content Library named $SourceLibraryName"
         exit
     }
-    $destinationLibraryId = (Get-ContentLibrary -LibraryName $DestinationLibaryName).Id
+    $destinationLibraryId = (Get-ContentLibrary -LibraryName $DestinationLibraryName).Id
     if($destinationLibraryId -eq $null) {
-        Write-Host -ForegroundColor Red "Unable to find Destination Content Library named $DestinationLibaryName"
+        Write-Host -ForegroundColor Red "Unable to find Destination Content Library named $DestinationLibraryName"
         break
     }
 
-    $sourceItemFiles = Get-ContentLibraryItems -LibraryName $SourceLibaryName
+    $sourceItemFiles = Get-ContentLibraryItems -LibraryName $SourceLibraryName
     if($sourceItemFiles -eq $null) {
-        Write-Host -ForegroundColor red "Unable to retrieve Content Library Items from $SourceLibaryName"
+        Write-Host -ForegroundColor red "Unable to retrieve Content Library Items from $SourceLibraryName"
         break
     }
 
-    $contentLibaryItemService = Get-CisService com.vmware.content.library.item
+    $contentLibraryItemService = Get-CisService com.vmware.content.library.item
 
     foreach ($sourceItemFile in  $sourceItemFiles) {
         # Check to see if file already exists in destination Content Library
-        $result = Get-ContentLibraryItems -LibraryName $DestinationLibaryName -LibraryItemName $sourceItemFile.Name
+        $result = Get-ContentLibraryItems -LibraryName $DestinationLibraryName -LibraryItemName $sourceItemFile.Name
 
         if($result -eq $null) {
             # Create CopySpec
-            $copySpec = $contentLibaryItemService.Help.copy.destination_create_spec.Create()
+            $copySpec = $contentLibraryItemService.Help.copy.destination_create_spec.Create()
             $copySpec.library_id = $destinationLibraryId
             $copySpec.name = $sourceItemFile.Name
             $copySpec.description = $sourceItemFile.Description
@@ -545,7 +558,7 @@ Function Copy-ContentLibrary {
             # Perform Copy
             try {
                 Write-Host -ForegroundColor Cyan "Copying" $sourceItemFile.Name "..."
-                $copyResult = $contentLibaryItemService.copy($UniqueChangeId, $sourceItemFile.Id, $copySpec)
+                $copyResult = $contentLibraryItemService.copy($UniqueChangeId, $sourceItemFile.Id, $copySpec)
             } catch {
                 Write-Host -ForegroundColor Red "Failed to copy" $sourceItemFile.Name
                 $Error[0]
@@ -556,7 +569,7 @@ Function Copy-ContentLibrary {
             if($DeleteSourceFile) {
                 try {
                     Write-Host -ForegroundColor Magenta "Deleteing" $sourceItemFile.Name "..."
-                    $deleteResult = $contentLibaryItemService.delete($sourceItemFile.Id)
+                    $deleteResult = $contentLibraryItemService.delete($sourceItemFile.Id)
                 } catch {
                     Write-Host -ForegroundColor Red "Failed to delete" $sourceItemFile.Name
                     $Error[0]
@@ -570,7 +583,7 @@ Function Copy-ContentLibrary {
             if($DeleteSourceFile) {
                 try {
                     Write-Host -ForegroundColor Magenta "Deleteing" $sourceItemFile.Name "..."
-                    $deleteResult = $contentLibaryItemService.delete($sourceItemFile.Id)
+                    $deleteResult = $contentLibraryItemService.delete($sourceItemFile.Id)
                 } catch {
                     Write-Host -ForegroundColor Red "Failed to delete" $sourceItemFile.Name
                     break
@@ -597,7 +610,7 @@ Function New-VMTX {
         The name of the VM Template in Content Library
     .PARAMETER Description
         Description of the VM template
-    .PARAMETER LibaryName
+    .PARAMETER LibraryName
         The name of the Content Library to clone to
     .PARAMETER FolderName
         The name of vSphere Folder (Defaults to Workloads for VMC)
@@ -696,4 +709,4 @@ Function New-VMFromVMTX {
 
     Write-Host "`nDeploying new VM $NewVMName from VMTX Template $VMTXName ..."
     $results = $vmtxService.deploy($vmtxId,$vmtxDeploySpec)
-}
+}    

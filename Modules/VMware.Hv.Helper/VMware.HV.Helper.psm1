@@ -1761,8 +1761,8 @@ function Get-HVQueryResult {
     Version                     : 1.1
 
     ===Tested Against Environment====
-    Horizon View Server Version : 7.0.2, 7.1.0
-    PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
+    Horizon View Server Version : 7.0.2, 7.1.0,7.4
+    PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1, PowerCLI 10.1.1
     PowerShell Version          : 5.0
 #>
 
@@ -1775,7 +1775,7 @@ function Get-HVQueryResult {
       'FarmSummaryView','GlobalApplicationEntitlementInfo','GlobalEntitlementSummaryView',
       'MachineNamesView','MachineSummaryView','PersistentDiskInfo','PodAssignmentInfo',
       'RDSServerInfo','RDSServerSummaryView','RegisteredPhysicalMachineInfo','SampleInfo',
-      'SessionLocalSummaryView','TaskInfo','URLRedirectionInfo','UserHomeSiteInfo')]
+      'SessionLocalSummaryView','TaskInfo','URLRedirectionInfo','UserHomeSiteInfo','EventSummaryView','GlobalApplicationEntitlementInfo')]
     [string]$EntityType,
 
     [Parameter(Position = 1,Mandatory = $false)]
@@ -3568,30 +3568,35 @@ function New-HVPool {
     [string[]]
     $ConnectionServerRestrictions,
 
-    #desktopSpec.desktopSettings.logoffSettings.powerPloicy
+    #desktopSpec.desktopSettings.logoffSettings.powerPolicy
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('TAKE_NO_POWER_ACTION', 'ALWAYS_POWERED_ON', 'SUSPEND', 'POWER_OFF')]
     [string]$PowerPolicy = 'TAKE_NO_POWER_ACTION',
 
-    #desktopSpec.desktopSettings.logoffSettings.powerPloicy
+    #desktopSpec.desktopSettings.logoffSettings.powerPolicy
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('IMMEDIATELY', 'NEVER', 'AFTER')]
     [string]$AutomaticLogoffPolicy = 'NEVER',
 
     #desktopSpec.desktopSettings.logoffSettings.automaticLogoffMinutes
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateRange(1,[int]::MaxValue)]
     [int]$AutomaticLogoffMinutes = 120,
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToResetMachines
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [boolean]$allowUsersToResetMachines = $false,
 
     #desktopSpec.desktopSettings.logoffSettings.allowMultipleSessionsPerUser
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [boolean]$allowMultipleSessionsPerUser = $false,
 
     #desktopSpec.desktopSettings.logoffSettings.deleteOrRefreshMachineAfterLogoff
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('NEVER', 'DELETE', 'REFRESH')]
     [string]$deleteOrRefreshMachineAfterLogoff = 'NEVER',
@@ -3612,25 +3617,30 @@ function New-HVPool {
 
     #DesktopDisplayProtocolSettings
     #desktopSpec.desktopSettings.logoffSettings.supportedDisplayProtocols
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string[]]$supportedDisplayProtocols = @('RDP', 'PCOIP', 'BLAST'),
 
     #desktopSpec.desktopSettings.logoffSettings.defaultDisplayProtocol
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string]$defaultDisplayProtocol = 'PCOIP',
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToChooseProtocol
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [int]$allowUsersToChooseProtocol = $true,
 
     #desktopSpec.desktopSettings.logoffSettings.enableHTMLAccess
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [boolean]$enableHTMLAccess = $false,
 
     # DesktopPCoIPDisplaySettings
     #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.renderer3D
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('MANAGE_BY_VSPHERE_CLIENT', 'AUTOMATIC', 'SOFTWARE', 'HARDWARE', 'DISABLED')]
     [string]$renderer3D = 'DISABLED',
@@ -3725,7 +3735,7 @@ function New-HVPool {
     [string]
     $ResourcePool,
 
-	#desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.datacenter if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.datacenter if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
@@ -3739,7 +3749,7 @@ function New-HVPool {
     [string[]]
     $Datastores,
 
-	#desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores.storageOvercommit if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterStorageSettings.datastores.storageOvercommit if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
@@ -3980,7 +3990,8 @@ function New-HVPool {
     [string]
     $CustType,
 
-    #desktopSpec.automatedDesktopSpec.customizationSettings.reusePreExistingAccounts if LINKED_CLONE
+    #desktopSpec.automatedDesktopSpec.customizationSettings.reusePreExistingAccounts if LINKED_CLONE, INSTANT_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     [Boolean]
     $ReusePreExistingAccounts = $false,
@@ -4259,20 +4270,20 @@ function New-HVPool {
                 $redirectWindowsProfile = $false
             }
         }
-        if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings) {
-            $useViewStorageAccelerator = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.UseViewStorageAccelerator
+        if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings) {
+            $useViewStorageAccelerator = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.UseViewStorageAccelerator
             if ($useViewStorageAccelerator -and $LinkedClone) {
-                $viewComposerDiskTypes = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.ViewComposerDiskTypes
+                $viewComposerDiskTypes = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.ViewComposerDiskTypes
             }
             if (! $InstantClone -and $useViewStorageAccelerator) {
-                $regenerateViewStorageAcceleratorDays = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.RegenerateViewStorageAcceleratorDays
-                if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.blackoutTimes) {
-                    $blackoutTimesList =$jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.viewStorageAcceleratorSettings.blackoutTimes
+                $regenerateViewStorageAcceleratorDays = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.RegenerateViewStorageAcceleratorDays
+                if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.blackoutTimes) {
+                    $blackoutTimesList =$jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.viewStorageAcceleratorSettings.blackoutTimes
                     foreach ($blackout in $blackoutTimesList) {
                         $blackoutObj  = New-Object VMware.Hv.DesktopBlackoutTime
                         $blackoutObj.Days = $blackout.Days
                         $blackoutObj.StartTime = $blackout.StartTime
-                        $blackoutObj.EndTime = $blackoutObj.EndTime
+                        $blackoutObj.EndTime = $blackout.EndTime
                         $blackoutTimes += $blackoutObj
                     }
                 }
@@ -5211,6 +5222,7 @@ function Get-HVPoolCustomizationSetting {
         throw "No Instant Clone Engine Domain Administrator found with netBiosName: [$netBiosName]"
       }
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings = Get-CustomizationObject
+      $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts      
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.InstantCloneEngineDomainAdministrator = $instantCloneEngineDomainAdministrator
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.powerOffScriptName = $powerOffScriptName
       $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings.powerOffScriptParameters = $powerOffScriptParameters
@@ -7161,7 +7173,6 @@ function Get-HVMachine {
   $machineList = Find-HVMachine -Param $PSBoundParameters
   if (!$machineList) {
     Write-Host "Get-HVMachine: No Virtual Machine(s) Found with given search parameters"
-    break
   }
   $queryResults = @()
   $desktop_helper = New-Object VMware.Hv.MachineService
@@ -8119,8 +8130,7 @@ function Get-HVEntitlement {
     }
     if (! $results) {
       Write-Host "Get-HVEntitlement: No entitlements found with given search parameters"
-      break
-    }
+      }
     return $results
   }
   end {
@@ -9309,6 +9319,16 @@ function Set-HVApplicationIcon {
   }
 
   process {
+	if (!(Test-Path $IconPath)) {
+      Write-Error "File:[$IconPath] does not exist."
+      break
+    }
+
+    if ([IO.Path]::GetExtension($IconPath) -ne '.png') {
+      Write-Error "Unsupported file format:[$IconPath]. Only PNG image files are supported."
+      break
+    }
+
     try {
       $appInfo = Get-HVQueryResult -EntityType ApplicationInfo -Filter (Get-HVQueryFilter data.name -Eq $ApplicationName) -HvServer $HvServer
     } catch {
@@ -9319,11 +9339,6 @@ function Set-HVApplicationIcon {
 
     if ($null -eq $appInfo) {
       Write-Error "No application found with specified name:[$ApplicationName]."
-      break
-    }
-
-    if (!(Test-Path $IconPath)) {
-      Write-Error "File:[$IconPath] does not exists"
       break
     }
 
@@ -9989,63 +10004,75 @@ function Reset-HVMachine {
     $services.machine.Machine_ResetMachines($machine.id)
   }
 }
-function Remove-HVMachine(){
+function Remove-HVMachine {
 	<#
 	.Synopsis
-	   Remove a Horizon View desktop or desktops.
-	
+	    Remove a Horizon View desktop or desktops.
+
 	.DESCRIPTION
-	   Deletes a VM or an array of VM's from Horizon. Utilizes an Or query filter to match machine names. 
+	    Deletes a VM or an array of VM's from Horizon. Utilizes an Or query filter to match machine names.
 
     .PARAMETER HVServer
-		The Horizon server where the machine to be deleted resides.Parameter is not mandatory, 
-        but if you do not specify the server, than make sure you are connected to a Horizon server 
+		The Horizon server where the machine to be deleted resides. Parameter is not mandatory,
+        but if you do not specify the server, than make sure you are connected to a Horizon server
         first with connect-hvserver.
 
 	.PARAMETER MachineNames
-	   The name or names of the machine(s) to be deleted. Accepts a single VM or an array of VM names.This is a mandatory parameter. 
+        The name or names of the machine(s) to be deleted. Accepts a single VM or an array of VM names.This is a mandatory parameter.
+
+    .PARAMETER DeleteFromDisk
+        Determines whether the Machine VM should be deleted from vCenter Server. This is only applicable for managed machines.
+        This must always be true for machines in linked and instant clone desktops.
+        This defaults to true for linked and instant clone machines and false for all other types.
 
 	.EXAMPLE
-	   remove-HVMachine -HVServer 'horizonserver123' -MachineNames 'LAX-WIN10-002'
-	   Deletes VM 'LAX-WIN10-002' from HV Server 'horizonserver123'
+	    Remove-HVMachine -HVServer 'horizonserver123' -MachineNames 'LAX-WIN10-002'
+	    Deletes VM 'LAX-WIN10-002' from HV Server 'horizonserver123'
 
 	.EXAMPLE
-	   remove-HVMachine -HVServer 'horizonserver123' -MachineNames $machines
-	   Deletes VM's contained within an array of machine names from HV Server 'horizonserver123'
-	
+	    Remove-HVMachine -HVServer 'horizonserver123' -MachineNames $machines
+        Deletes VM's contained within an array of machine names from HV Server 'horizonserver123'
+
+    .EXAMPLE
+        Remove-HVMachine -HVServer 'horizonserver123' -MachineNames 'ManualVM01' -DeleteFromDisk:$false
+        Deletes VM 'ManualVM01' from Horizon inventory, but not from vSphere. Note this only works for Full Clone VMs.
+
 	.NOTES
 		Author                      : Jose Rodriguez
 		Author email                : jrodsguitar@gmail.com
 		Version                     : 1.0
-	
+
 		===Tested Against Environment====
 		Horizon View Server Version : 7.1.1
 		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
 		PowerShell Version          : 5.0
 	#>
-	
-	  [CmdletBinding(
+
+	[CmdletBinding(
 	    SupportsShouldProcess = $true,
 		ConfirmImpact = 'High'
 	    )]
-	
-	  param(
-		
+
+	param(
+
 		[Parameter(Mandatory = $true)]
 		[array]
-		$MachineNames,
-			
+        $MachineNames,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$DeleteFromDisk = $true,
+
 		[Parameter(Mandatory = $false)]
 		$HVServer = $null
-	  )
+	)
 
 #Connect to HV Server
 $services = Get-ViewAPIService -HVServer $HVServer
-  
-  if ($null -eq $services) {
-	  Write-Error "Could not retrieve ViewApi services from connection object"
+
+if ($null -eq $services) {
+	Write-Error "Could not retrieve ViewApi services from connection object"
 		break
-	  }
+	}
 
 #Connect to Query Service
 $queryService = New-Object 'Vmware.Hv.QueryServiceService'
@@ -10097,9 +10124,9 @@ $trys = 0
         foreach($session in $deleteMachine.base.session){
 
         $sessions = $null
-        [VMware.Hv.SessionId[]]$sessions += $session     
-            
-         }
+        [VMware.Hv.SessionId[]]$sessions += $session
+
+        }
 
     try{
 
@@ -10111,8 +10138,8 @@ $trys = 0
 
         #Wait more for Sessions to end
 
-        Start-Sleep -Seconds 5 
-                
+        Start-Sleep -Seconds 5
+
         }
 
     catch{
@@ -10122,39 +10149,39 @@ $trys = 0
         write-host ($deleteMachine.base.Name -join "`n") 
 
         start-sleep -seconds 5
-                   
+
     }
-          
-     if(($trys -le 10)){
-        
+
+    if(($trys -le 10)){
+
         write-host "`n"
         write-host "Retrying Logoffs: $trys times"
         #Recheck existing sessions
         $deleteMachine = $machineService.Machine_GetInfos($services,$deleteThisMachine.Id)
-           
+
         }
-              
-     $trys++
+
+    $trys++
 
     }
 
     until((!$deleteMachine.base.session.id) -or ($trys -gt 10))
- 
+
 }
 
 #Create delete spec for the DeleteMachines method
 $deleteSpec = [VMware.Hv.MachineDeleteSpec]::new()
-$deleteSpec.DeleteFromDisk = $true
+$deleteSpec.DeleteFromDisk = $DeleteFromDisk
 $deleteSpec.ArchivePersistentDisk = $false
-        
+
 #Delete the machines
-write-host "Attempting to Delete:" 
+if($DeleteFromDisk){write-host "Attempting to Delete:"}else{write-host "Attempting to remove from inventory:"}
 Write-Output ($deleteMachine.base.Name -join "`n")
 $bye = $machineService.Machine_DeleteMachines($services,$deleteMachine.id,$deleteSpec)
 
 [System.gc]::collect()
- 
-}        
+
+}
 
 function get-hvhealth {
 	<#
@@ -10886,4 +10913,671 @@ function remove-hvsite {
     [System.gc]::collect()
 }
 
-Export-ModuleMember Add-HVDesktop,Add-HVRDSServer,Connect-HVEvent,Disconnect-HVEvent,Get-HVPoolSpec,Get-HVInternalName, Get-HVEvent,Get-HVFarm,Get-HVFarmSummary,Get-HVPool,Get-HVPoolSummary,Get-HVMachine,Get-HVMachineSummary,Get-HVQueryResult,Get-HVQueryFilter,New-HVFarm,New-HVPool,Remove-HVFarm,Remove-HVPool,Set-HVFarm,Set-HVPool,Start-HVFarm,Start-HVPool,New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement, Set-HVMachine, New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVApplicationIcon, Remove-HVApplicationIcon, Get-HVGlobalSettings, Set-HVGlobalSettings, Set-HVGlobalEntitlement, Get-HVResourceStructure, Get-hvlocalsession, Get-HVGlobalSession, Reset-HVMachine, Remove-HVMachine, Get-HVHealth, new-hvpodfederation, remove-hvpodfederation, get-hvpodfederation, register-hvpod, unregister-hvpod, set-hvpodfederation,get-hvsite,new-hvsite,set-hvsite,remove-hvsite
+function Get-HVHomeSite {
+	<#
+	.Synopsis
+	   Gets the configured Horizon View Homesites
+
+	.DESCRIPTION
+    Gets the configured Horizon View Homesites
+
+  .PARAMETER Group
+		User principal name of a group
+
+  .PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+
+	.EXAMPLE
+     Get-HVHomeSite
+
+  .EXAMPLE
+    Get-HVHomeSite -group group@domain
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4
+		PowerCLI Version            : PowerCLI 10
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	    SupportsShouldProcess = $false,
+	    ConfirmImpact = 'High'
+	)]
+	
+	param(
+    [Parameter(Mandatory = $false)]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [String]
+    $Group,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+	)
+
+  begin{
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+	    Write-Error "Could not retrieve ViewApi services from connection object"
+		  break
+    }
+  }
+
+  process{
+    $hsresults = Get-HVQueryResult -EntityType UserHomeSiteInfo  -HvServer $HvServer
+    $resultsoverview=@()
+
+    foreach ($hsresult in $hsresults){
+    if ($hsresult.Globalentitlement){
+      $Globalentitlement = ($services.GlobalEntitlement.GlobalEntitlement_Get($hsresult.base.GlobalEntitlement)).base.displayname
+    }
+    else{
+      $Globalentitlement=""
+    }
+
+    if (($hsresult.globalapplicationEntitlement)){
+      $GlobalApplicationEntitlement = ($services.GlobalApplicationEntitlement.GlobalApplicationEntitlement_Get($hsresult.base.GlobalApplicationEntitlement)).base.displayname
+    }
+    else{
+      $GlobalApplicationEntitlement=""
+    }
+
+    $resultsoverview+=New-Object PSObject -Property @{"id" = ($hsresult).id;
+      "Group" = ($services.ADUserOrGroup.ADUserOrGroup_Get(($hsresult.base).userorgroup)).base.displayname;
+      "Site" = ($services.site.site_Get($hsresult.base.site)).base.displayname;
+      "Globalentitlement" =$Globalentitlement;
+      "Globalapplicationentitlement" =$GlobalApplicationEntitlement;
+    }
+    }
+    if ($group){
+      $results=$resultsoverview | where-object {$_.Group -eq $group} | select-object id,Group,Site,Globalentitlement,GlobalApplicationEntitlement
+    }
+    else{
+      $results=$resultsoverview | select-object id,Group,Site,Globalentitlement,GlobalApplicationEntitlement
+    }
+    return $results
+    [System.gc]::collect()
+  }
+  
+}
+
+function New-HVHomeSite {
+	<#
+	.Synopsis
+    Defines a homesite within a Horizon View Cloud Pod architecture
+
+	.DESCRIPTION
+    Creates a new homesite within a Cloud Pod Archtitecture. By default it will be applied to everything 
+    but the choice can be made to only apply for a single global entitlement or singel global application entitlement
+
+  .PARAMETER Group
+    User principal name of a group
+
+  .PARAMETER Site
+    Name of the Horizon View Site
+
+  .PARAMETER globalEntitlement
+    Name of the global entitlement
+
+  .PARAMETER globalApplicationEntitlement
+    Name of the global application entitlement
+
+	.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered in-place of hvServer
+
+	.EXAMPLE
+    New-HVHomeSite -group group@domain -site SITE
+
+  .EXAMPLE
+    New-HVHomeSite -group group@domain -site SITE -globalapplicationentitlement ge-ap01
+
+  .EXAMPLE
+    New-HVHomeSite -group group@domain -site SITE -globalentitlement GE_Production
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4
+		PowerCLI Version            : PowerCLI 10.1.1
+		PowerShell Version          : 5.0
+	#>
+	
+
+  [CmdletBinding(DefaultParameterSetName="Default")]
+	param(
+    [Parameter(Mandatory = $true,ParameterSetName="Default")]
+    [Parameter(ParameterSetName = "globalEntitlement")]
+    [Parameter(ParameterSetName = "globalApplicationEntitlement")]
+    [ValidatePattern("^.+?[@\\].+?$")]
+    [String]
+    $Group,
+
+    [Parameter(Mandatory = $true,ParameterSetName="Default")]
+    [Parameter(ParameterSetName = "globalEntitlement")]
+    [Parameter(ParameterSetName = "globalApplicationEntitlement")]
+    [String]
+    $Site,
+
+    [Parameter(Mandatory = $false,ParameterSetName="globalEntitlement")]
+    [String]
+    $globalEntitlement ,
+
+    [Parameter(Mandatory = $false,ParameterSetName="globalApplicationEntitlement")]
+    [String]
+    $globalApplicationEntitlement ,
+
+    [Parameter(Mandatory = $false,ParameterSetName="Default")]
+    [Parameter(ParameterSetName = "globalEntitlement")]
+    [Parameter(ParameterSetName = "globalApplicationEntitlement")]
+    $HvServer = $null
+  )
+
+  begin{
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+	    Write-Error "Could not retrieve ViewApi services from connection object"
+		  break
+    }
+  }
+
+  process {
+    $confirmFlag = Get-HVConfirmFlag -keys $PsBoundParameters.Keys
+    $groupinfo = Get-UserInfo -UserName $Group
+    $UserOrGroupName = $groupinfo.Name
+    $Domain = $groupinfo.Domain
+    $filter1 = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
+    $filter2 = Get-HVQueryFilter 'base.domain' -Eq $Domain
+    $filter3 = Get-HVQueryFilter 'base.group' -Eq $true
+    $andFilter = Get-HVQueryFilter -And -Filters @($filter1, $filter2, $filter3)
+    $adresults = Get-HVQueryResult -EntityType ADUserOrGroupSummaryView -Filter $andFilter -HvServer $HvServer
+    
+    if ($adresults.length -ne 1) {
+      Write-host "Unable to find specific group with given search parameters"
+      break
+    }
+    $userhomesitebase=new-object VMware.Hv.UserHomeSiteBase
+    $userhomesitebase.UserOrGroup=$adresults.id
+    $userhomesitebase.site=($services.site.site_list() | where-object {$_.base.displayname -eq $site}).id
+    if ($globalEntitlement){
+      $geresults = Get-HVQueryResult -EntityType GlobalEntitlementSummaryView -HvServer $HvServer
+      $geid=$geresults | where-object {$_.base.displayname -eq $globalEntitlement}
+      $userhomesitebase.globalEntitlement=$geid.id
+    }
+    elseif($globalApplicationEntitlement){
+      $gaefilter1 = Get-HVQueryFilter 'data.name' -Eq $globalApplicationEntitlement
+      $gaeresults = Get-HVQueryResult -EntityType ApplicationInfo -Filter $gaefilter1 -HvServer $HvServer
+      $userhomesitebase.GlobalApplicationEntitlement=$gaeresults.id
+    }
+  $services.UserHomeSite.UserHomeSite_Create($userhomesitebase)
+  }
+}
+
+function Set-HVEventDatabase {
+	<#
+  .Synopsis
+    Registers or changes a Horizon View Event database.
+
+	.DESCRIPTION
+    Registers or changes a Horizon View Event database
+
+  .PARAMETER ServerName
+    Name of the database server (Required)
+
+  .PARAMETER Databasetype
+    Database type, possible options: MYSQL,SQLSERVER,ORACLE. Defaults to SQLSERVER
+
+  .PARAMETER DatabasePort
+    Port number on the database server to which View will send events. Defaults to 1433. 
+
+  .PARAMETER Databasename
+    Name of the Database (required)
+
+  .PARAMETER TablePrefix
+    Prefix to use for the Event Databse. Allowed characters are letters, numbers, and the characters @, $, #,  _, and may not be longer than 6 characters.
+
+  .PARAMETER UserName
+    UserName to connect to the database (required)
+
+  .PARAMETER Password
+    Password of the user connecting to the database in Securestring format.
+    Can be created with:  $password = Read-Host 'Domain Password' -AsSecureString
+
+  .PARAMETER eventtime
+    Time to show the events for. Possible options are ONE_WEEK, TWO_WEEKS, THREE_WEEKS, ONE_MONTH,TWO_MONTHS, THREE_MONTHS, SIX_MONTHS
+
+  .PARAMETER EventNewTime
+    Time in days to classify events for new. Range 1-3
+
+	.PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered in-place of hvServer
+
+	.EXAMPLE
+    register-hveventdatabase -server SERVER@domain -database DATABASENAME -username USER@domain -password $password
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4
+		PowerCLI Version            : PowerCLI 10
+		PowerShell Version          : 5.0
+	#>
+
+	[CmdletBinding(
+	    SupportsShouldProcess = $false,
+	    ConfirmImpact = 'High'
+	)]
+
+	param(
+    [Parameter(Mandatory = $true)]
+    [string]
+    $ServerName,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $DatabaseType = "SQLSERVER",
+
+    [Parameter(Mandatory = $false)]
+    [int]
+    $DatabasePort = 1433,
+
+    [Parameter(Mandatory = $true)]
+    [string]
+    $DatabaseName,
+
+    [Parameter(Mandatory = $false)]
+    [string][ValidateLength(1,6)]
+    $TablePrefix,
+
+    [Parameter(Mandatory = $true)]
+
+    [String]
+    $UserName,
+
+    [Parameter(Mandatory = $true)]
+    [securestring]
+    $password,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('ONE_WEEK','TWO_WEEKS','THREE_WEEKS','ONE_MONTH','TWO_MONTHS','THREE_MONTHS','SIX_MONTHS')]
+    [string]
+    $eventtime="TWO_WEEKS",
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,3)]
+    [int]
+    $eventnewtime = 2,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+	    Write-Error "Could not retrieve ViewApi services from connection object"
+		  break
+    }
+  $temppw = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)
+  $PlainevdbPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($temppw)
+  $dbupassword = New-Object VMware.Hv.SecureString
+  $enc = [system.Text.Encoding]::UTF8
+  $dbupassword.Utf8String = $enc.GetBytes($PlainevdbPassword)
+
+  $eventservice=new-object vmware.hv.eventdatabaseservice
+  $eventservicehelper=$eventservice.getEventDatabaseInfoHelper()
+  $eventsettings=new-object VMware.Hv.EventDatabaseEventSettings
+  $eventdatabase=new-object VMware.Hv.EventDatabaseSettings
+  $eventsettings.ShowEventsForTime=$eventtime
+  $eventsettings.ClassifyEventsAsNewForDays=$eventnewtime
+  $eventdatabase.Server=$ServerName
+  $eventdatabase.type=$DatabaseType
+  $eventdatabase.port=$DatabasePort
+  $eventdatabase.name=$DatabaseName
+  $eventdatabase.username=$UserName
+  if($TablePrefix){
+    $eventdatabase.tablePrefix=$tableprefix
+  }
+
+  $eventdatabase.password=$dbupassword
+  $eventservicehelper.setDatabase($eventdatabase)
+  $eventservicehelper.setsettings($eventsettings)
+  $eventservice.update($services, $eventservicehelper)
+
+  [System.gc]::collect()
+}
+
+function Get-HVEventDatabase {
+	<#
+	.Synopsis
+	   Retreives information about the configured Event Database
+	
+	.DESCRIPTION
+    Collects information about the configured event database for aHorizon View pod
+  
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   Get-HVEventDatabase
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4
+		PowerCLI Version            : PowerCLI 10
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	    SupportsShouldProcess = $false,
+	    ConfirmImpact = 'High'
+	)]
+	
+	param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+	)
+
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+
+  $eventdatabase=$services.EventDatabase.EventDatabase_Get()
+  if ($eventdatabase.eventdatabaseset -eq $False){
+      write-output "No Event Database configuration found"
+  }
+  elseif ($eventdatabase.eventdatabaseset -eq $true){
+    $Eventdatabaseoverview=@()
+    $Eventdatabaseoverview+=New-Object PSObject -Property @{"Servername" = $eventdatabase.Database.Server;
+      "Type" = $eventdatabase.Database.Type;
+      "DatabaseName" = $eventdatabase.Database.Name;
+      "UserName" = $eventdatabase.Database.UserName;
+      "TablePrefix" = $eventdatabase.Database.TablePrefix;
+      "ShowEventsForTime" = $eventdatabase.settings.ShowEventsForTime;
+      "ClassifyEventsAsNewForDays" = $eventdatabase.settings.ClassifyEventsAsNewForDays;
+    } | select-object Servername,Type,DatabaseName,UserName,TablePrefix,ShowEventsForTime,ClassifyEventsAsNewForDays
+  }
+  return $Eventdatabaseoverview 
+  [System.gc]::collect()
+}
+
+function Clear-HVEventDatabase {
+	<#
+	.Synopsis
+	   Clears configurationof the configured Event Database
+	
+	.DESCRIPTION
+    Clears configurationof the configured Event Database
+  
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   Clear-HVEventDatabase
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4
+		PowerCLI Version            : PowerCLI 10
+		PowerShell Version          : 5.0
+	#>
+	
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High')]
+	
+	param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+	)
+
+  PROCESS {
+
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+    Write-Error "Could not retrieve ViewApi services from connection object"
+    break
+  }
+  if ($pscmdlet.ShouldProcess($($msg))) {
+      $services.EventDatabase.EventDatabase_Clear()
+  }
+  [System.gc]::collect()
+  }
+}
+
+function Set-HVlicense {
+	<#
+	.Synopsis
+	   Sets or changes the license for Horizon View
+	
+	.DESCRIPTION
+    Sets or changes the license for Horizon View
+   
+  .PARAMETER license
+    License key (string)
+
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   set-hvlicense -license "LICENSE-KEY"
+	   Returns information about the sites within a Horizon View Pod Federation.
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4,7.5
+		PowerCLI Version            : PowerCLI 10
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	    SupportsShouldProcess = $false,
+	    ConfirmImpact = 'High'
+	)]
+	
+	param(
+    [Parameter(Mandatory = $true)]
+    [string]
+    $license,
+        
+    [Parameter(Mandatory = $false)]
+	  $HvServer = $null
+	)
+
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+	  Write-Error "Could not retrieve ViewApi services from connection object"
+		break
+  }
+  
+  try {
+	  $services.license.license_set($license)
+  }
+	catch {
+	  write-error $_.exception message
+	  break
+	}
+  $licenseresult=$services.license.license_get()
+  return $licenseresult
+  [System.gc]::collect()
+}
+
+
+function Get-HVlicense {
+	<#
+	.Synopsis
+	   Gets the license for Horizon View
+	
+	.DESCRIPTION
+    Gets the license for Horizon View
+   
+  
+	.PARAMETER HvServer
+		Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+		first element from global:DefaultHVServers would be considered in-place of hvServer
+	
+	.EXAMPLE
+	   get-hvlicense
+	   
+
+	.NOTES
+		Author                      : Wouter Kursten
+		Author email                : wouter@retouw.nl
+		Version                     : 1.0
+	
+		===Tested Against Environment====
+		Horizon View Server Version : 7.4,7.5
+		PowerCLI Version            : PowerCLI 10
+		PowerShell Version          : 5.0
+	#>
+	
+	[CmdletBinding(
+	    SupportsShouldProcess = $false,
+	    ConfirmImpact = 'High'
+	)]
+	
+	param(
+    [Parameter(Mandatory = $false)]
+	  $HvServer = $null
+	)
+
+		
+  $services = Get-ViewAPIService -hvServer $hvServer
+  if ($null -eq $services) {
+	  Write-Error "Could not retrieve ViewApi services from connection object"
+		break
+  }
+   
+	$license=$services.license.license_get()
+	return $license
+  [System.gc]::collect()
+}
+
+function Set-HVInstantCloneMaintenance {
+  <#
+  .Synopsis
+	  Enable or disable instant clone maintanence mode
+  
+  .DESCRIPTION
+    Toggles a host in instant clone maintanence mode. Specify the VMHost name and enable or disable to toggle.
+   
+  .PARAMETER VMHost
+	  ESXi Host name to modify the InstantClone.Maintenance attribute
+  
+  .PARAMETER Enable
+    Enable Instant Clone maintenance mode.
+     
+  .PARAMETER Disable
+    Disable Instant Clone maintenance mode
+     	
+  .EXAMPLE
+    Set-HvInstantCloneMaintenance -VMHost <hostname> -Enable $true
+    Set-HvInstantCloneMaintenance -VMHost <hostname> -Disable $true
+     
+  .NOTES
+    Author                      : Jack McMichael
+    Author email                : @jackwmc4 / jackwmc4@gmail.com
+    Version                     : 1.0
+	
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.6
+    PowerCLI Version            : PowerCLI 11
+    PowerShell Version          : 5.1
+  #>
+  	
+  [CmdletBinding(
+    SupportsShouldProcess = $true,
+    ConfirmImpact = 'High')]
+
+	param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [string]
+    $VMHost,
+
+    [Parameter(Mandatory = $false)]
+    [switch]
+    $Enable,
+
+    [Parameter(Mandatory = $false)]
+    [switch]
+    $Disable,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+    if ($Enable) {
+      if ((Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -eq ""){
+        Set-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance" -Value "1" | Out-Null
+        Write-Host "Instant Clone Maintenance Mode: Enabling for $VMHost...(This could take some time)"
+      }
+      while ((Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -ne "2") {
+          Start-Sleep -Seconds 10
+      }
+    } elseif ($Disable) {
+      if (-not (Get-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance").Value -eq "") {
+        Set-Annotation -Entity (Get-VMHost -Name $VMHost) -CustomAttribute "InstantClone.Maintenance" -Value "" | Out-Null
+        Write-Host "Instant Clone Maintenance Mode: Disabling for $VMHost"
+      }
+      Set-VMhost $VMHost -State Connected | Out-Null
+    }
+    [System.gc]::collect()  
+  }
+}
+# Object related
+Export-ModuleMember -Function Get-HVMachine, Get-HVMachineSummary, Get-HVQueryResult, Get-HVQueryFilter, Get-HVInternalName
+# RDS Farm related
+Export-ModuleMember -Function Get-HVFarmSummary, Start-HVFarm, Start-HVPool, New-HVFarm, Remove-HVFarm, Get-HVFarm, Set-HVFarm, Add-HVRDSServer
+# Desktop Pool related
+Export-ModuleMember -Function Get-HVPoolSummary, New-HVPool, Remove-HVPool, Get-HVPool, Set-HVPool, Get-HVPoolSpec, Add-HVDesktop
+# Entitlement related
+Export-ModuleMember -Function New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement
+Export-ModuleMember -Function Set-HVMachine, Reset-HVMachine, Remove-HVMachine
+# Cloud Pod Architecture related
+Export-ModuleMember -Function New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVGlobalEntitlement, New-HVPodFederation, Remove-HVPodFederation, Get-HVPodFederation, Set-HVPodFederation
+Export-ModuleMember -Function Get-HVSite, New-HVSite, New-HVHomeSite, Remove-HVSite, Get-HVHomeSite, Set-HVSite, Register-HVPod, Unregister-HVPod
+# Published App related
+Export-ModuleMember -Function Get-HVGlobalSettings, Set-HVApplicationIcon, Remove-HVApplicationIcon, Set-HVGlobalSettings
+Export-ModuleMember -Function Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession
+# Event Database related
+Export-ModuleMember -Function Get-HVEventDatabase, Set-HVEventDatabase, Clear-HVEventDatabase, Get-HVEvent, Connect-HVEvent, Disconnect-HVEvent
+# Misc/other related
+Export-ModuleMember -Function Get-HVlicense, Set-HVlicense, Get-HVHealth, Set-HVInstantCloneMaintenance
