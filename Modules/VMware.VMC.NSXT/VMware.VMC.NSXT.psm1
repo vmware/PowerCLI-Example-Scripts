@@ -1362,3 +1362,82 @@ Function Remove-NSXTDistFirewall {
         }
     }
 }
+
+Function Get-NSXTRouteTable {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          02/02/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Retrieves NSX-T Routing Table
+    .DESCRIPTION
+        This cmdlet retrieves NSX-T Routing Table. By default, it shows all routes but you can filter by BGP, CONNECTED or STATIC routes
+    .EXAMPLE
+        Get-NSXTRouteTable
+    .EXAMPLE
+        Get-NSXTRouteTable -RouteSource BGP
+    .EXAMPLE
+        Get-NSXTRouteTable -RouteSource CONNECTED
+    .EXAMPLE
+        Get-NSXTRouteTable -RouteSource STATIC
+    .EXAMPLE
+        Get-NSXTRouteTable -RouteSource BGP -Troubleshoot
+#>
+    Param (
+        [Parameter(Mandatory=$False)][ValidateSet("BGP","CONNECTED","STATIC")]$RouteSource,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "GET"
+        $routeTableURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-0s/vmc/routing-table?enforcement_point_path=/infra/deployment-zones/default/enforcement-points/vmc-enforcementpoint"
+
+        if($RouteSource) {
+            $routeTableURL = $routeTableURL + "&route_source=$RouteSource"
+        }
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$routeTableURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $routeTableURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $routeTableURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Routing Table"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Succesfully retrieved NSX-T Routing Table`n"
+            $routeTables = ($requests.Content | ConvertFrom-Json).results
+
+            foreach ($routeTable in $routeTables) {
+                Write-Host "EdgeNode: $($routeTable.edge_node)"
+                Write-Host "Entries: $($routeTable.count)"
+
+                $routeEntries = $routeTable.route_entries
+                $routeEntryResults = @()
+                foreach ($routeEntry in $routeEntries) {
+                    $routeEntryResults += $routeEntry
+                }
+                $routeEntryResults | select network,next_hop,admin_distance,route_type | ft
+            }
+        }
+    }
+}
