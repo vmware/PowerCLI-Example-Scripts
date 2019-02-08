@@ -1441,3 +1441,58 @@ Function Get-NSXTRouteTable {
         }
     }
 }
+
+Function Get-NSXTOverviewInfo {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          02/02/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Retrieves NSX-T Overview including the VPN internet IP Address and SDDC Infra/Mgmt Subnets, etc.
+    .DESCRIPTION
+        This cmdlet retrieves NSX-T Overview details including the VPN internet IP Address and SDDC Infra/Mgmt Subnets, etc.
+    .EXAMPLE
+        Get-NSXTOverviewInfo
+#>
+Param (
+    [Parameter(Mandatory=$False)][ValidateSet("BGP","CONNECTED","STATIC")]$RouteSource,
+    [Switch]$Troubleshoot
+)
+
+If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+    $method = "GET"
+    $overviewURL = $global:nsxtProxyConnection.Server + "/cloud-service/api/v1/infra/sddc-user-config"
+
+    if($Troubleshoot) {
+        Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$overviewURL`n"
+    }
+
+    try {
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $requests = Invoke-WebRequest -Uri $overviewURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+        } else {
+            $requests = Invoke-WebRequest -Uri $overviewURL -Method $method -Headers $global:nsxtProxyConnection.headers
+        }
+    } catch {
+        if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+            Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+            break
+        } else {
+            Write-Error "Error in retrieving NSX-T Overview Information"
+            Write-Error "`n($_.Exception.Message)`n"
+            break
+        }
+    }
+
+    if($requests.StatusCode -eq 200) {
+        Write-Host "Succesfully retrieved NSX-T Overview Information"
+        ($requests.Content | ConvertFrom-Json)
+    }
+}
+}
