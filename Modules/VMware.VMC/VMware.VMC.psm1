@@ -20,7 +20,7 @@ Function Get-VMCCommand {
     .NOTES
         You can either use this cmdlet or the Get-Command cmdlet as seen in Example 2
 #>
-    Get-command -Module VimppppppMware.VimAutomation.Vmc
+    Get-command -Module VMware.VimAutomation.Vmc
     Get-Command -Module VMware.VMC
 
 }
