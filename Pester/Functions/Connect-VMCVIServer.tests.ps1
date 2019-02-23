@@ -22,6 +22,8 @@ Describe "$functionName" -Tag 'Unit' {
         return $object
     }
 
+    Mock Write-host {}
+
     Mock Connect-VIServer {}
 
     Mock Connect-CisServer {}

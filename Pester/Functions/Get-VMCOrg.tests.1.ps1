@@ -21,8 +21,9 @@ Describe "$functionName" -Tag 'Unit' {
         "user_name"    = $user_name
         "id"           = $id
     }
-    #$object | Add-Member -MemberType ScriptMethod -Name "list" -Value { $MockedList }
 
+    $object = [PSCustomObject]@{}
+    $object | Add-Member -MemberType ScriptMethod -Name "list" -Value { $MockedList }
 
     $MockedArray = @()
     $MockedArray += $MockedList
@@ -37,6 +38,7 @@ Describe "$functionName" -Tag 'Unit' {
     }
 
     Context "Behavior testing" {
+
         It "calls get-service to com.vmware.vmc.orgs" {
             { Get-VMCOrg -name $OrgName } | Should Not Throw
             Assert-MockCalled -CommandName Get-VMCService -Times 1 -Scope It -ParameterFilter { $name -eq $Service }
