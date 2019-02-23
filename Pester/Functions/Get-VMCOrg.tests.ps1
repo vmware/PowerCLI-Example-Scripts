@@ -25,9 +25,7 @@ Describe "$functionName" -Tag 'Unit' {
     $object = [PSCustomObject]@{}
     $object | Add-Member -MemberType ScriptMethod -Name "list" -Value { $MockedList }
 
-    $MockedArray = @()
-    $MockedArray += $MockedList
-    $MockedArray += $MockedList
+    $MockedArray = @($MockedList, $MockedList)
 
     Mock -CommandName Get-VMCService -MockWith { $object }
 
