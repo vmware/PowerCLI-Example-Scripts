@@ -10,7 +10,8 @@ Describe "$functionName" -Tag 'Unit' {
     $OrgId = "Mocked OrgID"
     $name = "MockedSDDCName"
     $Notname = "NotTheName"
-    $Service = "com.vmware.vmc.orgs.sddcs"
+    $id = "MockedId"
+    $Service = "com.vmware.vmc.orgs.tasks"
 
     $MockedList = [PSCustomObject]@{
         "name"         = $name
@@ -20,7 +21,7 @@ Describe "$functionName" -Tag 'Unit' {
     }
 
     $object = @(
-        @{"Id" = 1}
+        @{"Id" = $Id}
     )
     $object | Add-Member -MemberType ScriptMethod -Name "list" -Value { $MockedList }
 
@@ -33,48 +34,45 @@ Describe "$functionName" -Tag 'Unit' {
     Context "Sanity checking" {
         $command = Get-Command -Name $functionName
 
-        defParam $command 'Name'
         defParam $command 'Org'
     }
 
     Context "Behavior testing" {
 
-        It "calls Get-VMCOrg" {
-            { Get-VMCSDDC -Org $OrgId } | Should Not Throw
-            Assert-MockCalled -CommandName Get-VMCOrg -Times 1 -Scope It
-        }
-        It "calls Get-VMCOrg with the SDDC name supplied" {
-            { Get-VMCSDDC -Org $OrgId -name $name} | Should Not Throw
+        It "calls Get-VMCOrg with the Org name supplied" {
+            { Get-VMCTask -Org $name} | Should Not Throw
             Assert-MockCalled -CommandName Get-VMCOrg -Times 1 -Scope It -ParameterFilter { $name -eq $name }
         }
+
         # Testing with single "Org" so assert call twice.
-        It "calls get-service to com.vmware.vmc.orgs.sddcs" {
-            { Get-VMCSDDC -Org $OrgId } | Should Not Throw
+        It "calls get-service to com.vmware.vmc.orgs.tasks" {
+            { Get-VMCTask -Org $OrgId } | Should Not Throw
             Assert-MockCalled -CommandName Get-VMCService -Times 1 -Scope It -ParameterFilter { $name -eq $Service }
         }
 
         # Testing with two "Orgs" so assert call twice.
-        It "calls get-service to com.vmware.vmc.orgs.sddcs" {
+        It "calls get-service to com.vmware.vmc.orgs.tasks" {
             $object = @(
                 @{"Id" = 1}
                 @{"Id" = 2}
             )
             $object | Add-Member -MemberType ScriptMethod -Name "list" -Value { $MockedArray }
-            { Get-VMCSDDC -Org $OrgId } | Should Not Throw
+            { Get-VMCTask -Org $OrgId } | Should Not Throw
             Assert-MockCalled -CommandName Get-VMCService -Times 2 -Scope It -ParameterFilter { $name -eq $Service }
         }
 
         # Testing a single SDDC response
-        It "gets the SDDC details via list method and returns the properties" {
+        It "gets the task details via list method and returns the properties" {
             $object = [PSCustomObject]@{}
             $object | Add-Member -MemberType ScriptMethod -Name "list" -Value { $MockedList }
-            $(Get-VMCSDDC -Org $OrgId).name  | Should -be $name
+            $(Get-VMCTask -Org $OrgId).name  | Should -be $name
         }
         # Testing the multiple SDDC response
-        It "gets the SDDC details of the SDDC supplied and returns the properties" {
+        It "gets the task details of the SDDC supplied and returns the properties" {
             $object = @{}
             $object | Add-Member -MemberType ScriptMethod -Name "list" -Value { $MockedArray }
-            $(Get-VMCSDDC -Org $OrgId -name $name).name  | Should -be $name
+            $(Get-VMCTask -Org $OrgId)[0].name  | Should -be $name
+            $(Get-VMCTask -Org $OrgId)[1].name  | Should -be $Notname
         }
     }
 }
