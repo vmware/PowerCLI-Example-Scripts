@@ -30,6 +30,8 @@ inModuleScope VMware.VMC {
 
         Mock -CommandName Get-VMCService -MockWith { $object }
 
+        Mock -CommandName Write-Error -MockWith {}
+
         Context "Sanity checking" {
             $command = Get-Command -Name $functionName
 
@@ -46,11 +48,11 @@ inModuleScope VMware.VMC {
             It "gets the orgs via list method and returns the properties" {
                 $object = [PSCustomObject]@{}
                 $object | Add-Member -MemberType ScriptMethod -Name "list" -Value { $MockedList }
-                $(Get-VMCOrg -name $OrgName).display_name  | Should -be $display_name
-                $(Get-VMCOrg -name $OrgName).name  | Should -be $OrgName
-                $(Get-VMCOrg -name $OrgName).user_name  | Should -be $user_name
-                $(Get-VMCOrg -name $OrgName).created  | Should -be $created
-                $(Get-VMCOrg -name $OrgName).id  | Should -be $id
+                $(Get-VMCOrg).display_name  | Should -be $display_name
+                $(Get-VMCOrg).name  | Should -be $OrgName
+                $(Get-VMCOrg).user_name  | Should -be $user_name
+                $(Get-VMCOrg).created  | Should -be $created
+                $(Get-VMCOrg).id  | Should -be $id
             }
             # Testing the multiple SDDC response
             It "calls the Connect-CisServer" {
@@ -69,6 +71,11 @@ inModuleScope VMware.VMC {
                 $(Get-VMCOrg -name $OrgName)[1].user_name  | Should -be $user_name
                 $(Get-VMCOrg -name $OrgName)[1].created  | Should -be $created
                 $(Get-VMCOrg -name $OrgName)[1].id  | Should -be $id
+            }
+            It "gets writes an error if not connected" {
+                $global:DefaultVMCServers = $false
+                { Get-VMCOrg -name $OrgName } | Should Not Throw
+                Assert-MockCalled -CommandName Write-Error -Times 1 -Scope It -ParameterFilter { $org -eq $Org -and $Sddc -eq $Sddc  }
             }
         }
     }

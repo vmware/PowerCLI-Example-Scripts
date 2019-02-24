@@ -31,6 +31,8 @@ inModuleScope VMware.VMC {
 
         Mock -CommandName Get-VMCOrg { $object }
 
+        Mock -CommandName Write-Error -MockWith {}
+
         Context "Sanity checking" {
             $command = Get-Command -Name $functionName
 
@@ -76,6 +78,11 @@ inModuleScope VMware.VMC {
                 $object = @{}
                 $object | Add-Member -MemberType ScriptMethod -Name "list" -Value { $MockedArray }
                 $(Get-VMCSDDC -Org $OrgId -name $name).name  | Should -be $name
+            }
+            It "gets writes an error if not connected" {
+                $global:DefaultVMCServers = $false
+                { Get-VMCSDDC -Org $OrgId  } | Should Not Throw
+                Assert-MockCalled -CommandName Write-Error -Times 1 -Scope It -ParameterFilter { $org -eq $Org -and $Sddc -eq $Sddc  }
             }
         }
     }

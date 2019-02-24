@@ -30,6 +30,8 @@ inModuleScope VMware.VMC {
 
         Mock Connect-CisServer {}
 
+        Mock Write-Error
+
         Context "Sanity checking" {
             $command = Get-Command -Name $functionName
 
@@ -56,6 +58,11 @@ inModuleScope VMware.VMC {
                                                                                 $Server -eq $vc_public_ip `
                                                                                 -and $User -eq $cloud_username `
                                                                                 -and $Password -eq $Mockedcreds.password }
+            }
+            It "gets writes an error if not connected" {
+                $global:DefaultVMCServers = $false
+                { Connect-VMCVIServer -org $Org -Sddc $Sddc  } | Should Not Throw
+                Assert-MockCalled -CommandName Write-Error -Times 1 -Scope It -ParameterFilter { $org -eq $Org -and $Sddc -eq $Sddc  }
             }
         }
     }
