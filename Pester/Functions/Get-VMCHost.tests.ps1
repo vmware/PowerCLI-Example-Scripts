@@ -54,7 +54,7 @@ inModuleScope VMware.VMC {
             }
             # Testing a single SDDC response
             It "gets the task details via list method and returns the properties" {
-                $(Get-VMCVMHost -Org $OrgId).esx_id  | Should -be "Mocked_esx_id"#$esx_id
+                $(Get-VMCVMHost -Org $OrgId).esx_id  | Should -be $esx_id
                 $(Get-VMCVMHost -Org $OrgId).name  | Should -be $VMHost_name
                 $(Get-VMCVMHost -Org $OrgId).hostname  | Should -be $VMhostName
                 $(Get-VMCVMHost -Org $OrgId).esx_state  | Should -be $esx_state
