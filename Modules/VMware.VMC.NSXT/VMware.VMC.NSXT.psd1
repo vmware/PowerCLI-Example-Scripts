@@ -36,7 +36,7 @@ Description = 'PowerShell Module for Managing NSX-T on VMware Cloud on AWS'
 PowerShellVersion = '6.0'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Connect-NSXTProxy', 'Get-NSXTSegment', 'New-NSXTSegment', 'Remove-NSXTSegment', 'Get-NSXTGroup', 'New-NSXTGroup', 'Remove-NSXTGroup', 'Get-NSXTService', 'New-NSXTService', 'Get-NSXTFirewall', 'New-NSXTFirewall', 'Remove-NSXTFirewall', 'Get-NSXTDistFirewallSection', 'Get-NSXTDistFirewall', 'New-NSXTDistFirewall', 'Remove-NSXTDistFirewall', 'Get-NSXTRouteTable', 'Get-NSXTOverviewInfo'
+FunctionsToExport = 'Connect-NSXTProxy', 'Get-NSXTSegment', 'New-NSXTSegment', 'Remove-NSXTSegment', 'Get-NSXTGroup', 'New-NSXTGroup', 'Remove-NSXTGroup', 'Get-NSXTService', 'New-NSXTService', 'Get-NSXTFirewall', 'New-NSXTFirewall', 'Remove-NSXTFirewall', 'Get-NSXTDistFirewallSection', 'Get-NSXTDistFirewall', 'New-NSXTDistFirewall', 'Remove-NSXTDistFirewall', 'Get-NSXTRouteTable', 'Get-NSXTOverviewInfo', 'Get-NSXTInfraScope', 'Get-NSXTInfraGroup'
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
 

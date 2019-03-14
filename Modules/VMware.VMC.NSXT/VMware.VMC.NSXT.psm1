@@ -403,6 +403,27 @@ Function Get-NSXTFirewall {
                     }
                 }
 
+                $scopeEntries = $rule.scope
+                $scopes = @()
+                foreach ($scopeEntry in $scopeEntries) {
+                    $scopeLabelURL = $global:nsxtProxyConnection.Server + "/policy/api/v1" + $scopeEntry
+                    if($Troubleshoot) {
+                        Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$scopeLabelURL`n"
+                    }
+                    try {
+                        if($PSVersionTable.PSEdition -eq "Core") {
+                            $requests = Invoke-WebRequest -Uri $scopeLabelURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+                        } else {
+                            $requests = Invoke-WebRequest -Uri $scopeLabelURL -Method $method -Headers $global:nsxtProxyConnection.headers
+                        }
+                    } catch {
+                        Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                        break
+                    }
+                    $scope = ($requests.Content | ConvertFrom-Json)
+                    $scopes += $scope.display_name
+                }
+
                 $tmp = [pscustomobject] @{
                     SequenceNumber = $rule.sequence_number;
                     Name = $rule.display_name;
@@ -410,6 +431,7 @@ Function Get-NSXTFirewall {
                     Source = $source;
                     Destination = $destination;
                     Services = $service;
+                    Scope = $scopes;
                     Action = $rule.action;
                 }
                 $results+=$tmp
@@ -446,6 +468,9 @@ Function New-NSXTFirewall {
         [Parameter(Mandatory=$True)]$DestinationGroup,
         [Parameter(Mandatory=$True)]$Service,
         [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DENY")]$Action,
+        [Parameter(Mandatory=$false)]$InfraScope,
+        [Parameter(Mandatory=$false)]$SourceInfraGroup,
+        [Parameter(Mandatory=$false)]$DestinationInfraGroup,
         [Parameter(Mandatory=$false)][Boolean]$Logged=$false,
         [Switch]$Troubleshoot
     )
@@ -464,12 +489,26 @@ Function New-NSXTFirewall {
             }
         }
 
+        if(! $DestinationInfraGroup) {
+            foreach ($group in $SourceInfraGroup) {
+                $tmp = (Get-NSXTInfraGroup -Name $group).Path
+                $destinationGroups+= $tmp
+            }
+        }
+
         $sourceGroups = @()
         foreach ($group in $SourceGroup) {
             if($group -eq "ANY") {
                 $sourceGroups = @("ANY")
             } else {
                 $tmp = (Get-NSXTGroup -GatewayType $GatewayType -Name $group).Path
+                $sourceGroups+= $tmp
+            }
+        }
+
+        if(! $SourceInfraGroup) {
+            foreach ($group in $SourceInfraGroup) {
+                $tmp = (Get-NSXTInfraGroup -Name $group).Path
                 $sourceGroups+= $tmp
             }
         }
@@ -484,6 +523,16 @@ Function New-NSXTFirewall {
             }
         }
 
+        $scopeLabels = @()
+        if(! $InfraScope ) {
+            $scopeLabels = @("/infra/labels/$($GatewayType.toLower())")
+        } else {
+            foreach ($infraScopeName in $InfraScope) {
+                $scope = Get-NSXTInfraScope -Name $infraScopeName
+                $scopeLabels += $scope.Path
+            }
+        }
+
         $payload = @{
             display_name = $Name;
             resource_type = "CommunicationEntry";
@@ -491,7 +540,7 @@ Function New-NSXTFirewall {
             destination_groups = $destinationGroups;
             source_groups = $sourceGroups;
             logged = $Logged;
-            scope = @("/infra/labels/$($GatewayType.toLower())");
+            scope = $scopeLabels;
             services = $services;
             action = $Action;
         }
@@ -1496,3 +1545,145 @@ If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection f
     }
 }
 }
+
+Function Get-NSXTInfraScope {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          03/14/2019
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Returns all NSX-T Infrastructure Scopes
+        .DESCRIPTION
+            This cmdlet retrieves all NSX-T Infrastructure Scopes
+        .EXAMPLE
+            Get-NSXTInfraScope
+        .EXAMPLE
+            Get-NSXTInfraGroup -Name "VPN Tunnel Interface"
+    #>
+    param(
+        [Parameter(Mandatory=$false)][String]$Name,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "GET"
+        $infraLabelURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/labels"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$infraLabelURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $infraLabelURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $infraLabelURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Infrastructure Scopes"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            $infraLables = ($requests.Content | ConvertFrom-Json).results
+
+            if ($PSBoundParameters.ContainsKey("Name")){
+                $infraLables = $infraLables | where {$_.display_name -eq $Name}
+            }
+
+            $results = @()
+            foreach ($infraLabel in $infraLables) {
+                $tmp = [pscustomobject] @{
+                    Name = $infraLabel.display_name;
+                    Id = $infraLabel.Id;
+                    Path = $infraLabel.Path;
+                }
+                $results+=$tmp
+            }
+            $results
+        }
+    }
+}
+
+Function Get-NSXTInfraGroup {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          03/14/2019
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Returns all NSX-T Infrastructure Groups for CGW
+        .DESCRIPTION
+            This cmdlet retrieves all NSX-T Infrastructure Groups for CGW
+        .EXAMPLE
+            Get-NSXTInfraGroup
+        .EXAMPLE
+            Get-NSXTInfraGroup -Name "S3 Prefixes"
+    #>
+        param(
+            [Parameter(Mandatory=$false)][String]$Name,
+            [Switch]$Troubleshoot
+        )
+
+        If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+            $method = "GET"
+            $infraGroupsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-0s/vmc/groups"
+
+            if($Troubleshoot) {
+                Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$infraGroupsURL`n"
+            }
+
+            try {
+                if($PSVersionTable.PSEdition -eq "Core") {
+                    $requests = Invoke-WebRequest -Uri $infraGroupsURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+                } else {
+                    $requests = Invoke-WebRequest -Uri $infraGroupsURL -Method $method -Headers $global:nsxtProxyConnection.headers
+                }
+            } catch {
+                if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                    Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                    break
+                } else {
+                    Write-Error "Error in retrieving NSX-T Infrastructure Groups"
+                    Write-Error "`n($_.Exception.Message)`n"
+                    break
+                }
+            }
+
+            if($requests.StatusCode -eq 200) {
+                $groups = ($requests.Content | ConvertFrom-Json).results
+
+                if ($PSBoundParameters.ContainsKey("Name")){
+                    $groups = $groups | where {$_.display_name -eq $Name}
+                }
+
+                $results = @()
+                foreach ($group in $groups) {
+                    $tmp = [pscustomobject] @{
+                        Name = $group.display_name;
+                        ID = $group.id;
+                        Path = $group.path;
+                    }
+                    $results+=$tmp
+                }
+                $results
+            }
+        }
+    }
