@@ -489,7 +489,7 @@ Function New-NSXTFirewall {
             }
         }
 
-        if(! $DestinationInfraGroup) {
+        if($DestinationInfraGroup) {
             foreach ($group in $DestinationInfraGroup) {
                 $tmp = (Get-NSXTInfraGroup -Name $group).Path
                 $destinationGroups+= $tmp
@@ -506,7 +506,7 @@ Function New-NSXTFirewall {
             }
         }
 
-        if(! $SourceInfraGroup) {
+        if($SourceInfraGroup) {
             foreach ($group in $SourceInfraGroup) {
                 $tmp = (Get-NSXTInfraGroup -Name $group).Path
                 $sourceGroups+= $tmp
