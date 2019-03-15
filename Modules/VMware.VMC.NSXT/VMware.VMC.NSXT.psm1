@@ -464,8 +464,8 @@ Function New-NSXTFirewall {
         [Parameter(Mandatory=$True)]$Name,
         [Parameter(Mandatory=$true)][ValidateSet("MGW","CGW")][String]$GatewayType,
         [Parameter(Mandatory=$True)]$SequenceNumber,
-        [Parameter(Mandatory=$True)]$SourceGroup,
-        [Parameter(Mandatory=$True)]$DestinationGroup,
+        [Parameter(Mandatory=$False)]$SourceGroup,
+        [Parameter(Mandatory=$False)]$DestinationGroup,
         [Parameter(Mandatory=$True)]$Service,
         [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DENY")]$Action,
         [Parameter(Mandatory=$false)]$InfraScope,
@@ -490,7 +490,7 @@ Function New-NSXTFirewall {
         }
 
         if(! $DestinationInfraGroup) {
-            foreach ($group in $SourceInfraGroup) {
+            foreach ($group in $DestinationInfraGroup) {
                 $tmp = (Get-NSXTInfraGroup -Name $group).Path
                 $destinationGroups+= $tmp
             }
