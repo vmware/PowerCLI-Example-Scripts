@@ -524,8 +524,8 @@ Function New-NSXTFirewall {
         }
 
         $scopeLabels = @()
-        if(! $InfraScope ) {
-            $scopeLabels = @("/infra/labels/$($GatewayType.toLower())")
+        if(!$InfraScope) {
+            $scopeLabels = @("/infra/labels/$($GatewayType.toLower())-all")
         } else {
             foreach ($infraScopeName in $InfraScope) {
                 $scope = Get-NSXTInfraScope -Name $infraScopeName
