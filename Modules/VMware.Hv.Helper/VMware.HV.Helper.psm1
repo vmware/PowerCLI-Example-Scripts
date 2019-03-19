@@ -7064,7 +7064,7 @@ function Get-HVBaseImageVM {
     containing the name of the vCenter, or as a vCenter object as returned by Get-HVvCenterServer. If the value is
     not passed or null then first element returned from Get-HVvCenterServer would be considered in place of VirtualCenter.
 
-  .PARAMETER ImageType
+  .PARAMETER Type
     A parameter to define the type of compatability to check the base image VM list against. Valid options are 'VDI', 'RDS', or 'ALL'
     'VDI' will return all desktop compatible Base Image VMs.
     'RDS' will return all RDSH compatible Base Image VMs.
@@ -7072,14 +7072,14 @@ function Get-HVBaseImageVM {
     The default value is 'ALL'.
 
   .PARAMETER Name
-    The name of a virtual machine (if known), to filter Base Image VMs on. Wildcards are accepted. If Name is specified, then ImageType
+    The name of a virtual machine (if known), to filter Base Image VMs on. Wildcards are accepted. If Name is specified, then Type
     is not considered for filtering.
 
   .EXAMPLE
-    Get-HVBaseImageVM -VirtualCenter 'vCenter1' -ImageType VDI
+    Get-HVBaseImageVM -VirtualCenter 'vCenter1' -Type VDI
 
   .EXAMPLE
-    Get-HVBaseImageVM -VirtualCenter $vCenter1 -ImageType ALL
+    Get-HVBaseImageVM -VirtualCenter $vCenter1 -Type ALL
 
   .EXAMPLE
     Get-HVBaseImageVM -Name '*WIN10*'
@@ -7099,7 +7099,7 @@ function Get-HVBaseImageVM {
   #>
 
   [cmdletbinding(
-    DefaultParameterSetName='ImageType'
+    DefaultParameterSetName='Type'
   )]
 
   param(
@@ -7109,9 +7109,9 @@ function Get-HVBaseImageVM {
     [Parameter(Mandatory = $false)]
     $VirtualCenter = $null,
 
-    [Parameter(Mandatory = $false,ParameterSetName = 'ImageType')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'Type')]
     [ValidateSet('VDI','RDS','ALL')]
-    $ImageType = 'VDI',
+    $Type = 'VDI',
 
     [Parameter(Mandatory = $false,ParameterSetName = 'Name')]
     [string]$Name = $null
@@ -7153,7 +7153,7 @@ function Get-HVBaseImageVM {
     If ($null -ne $PSBoundParameters.Name) {
       $CompatibleBaseImageVMs = $BaseImageVMList | Where-Object {$_.Name -like $Name}
     } Else {
-      Switch ($ImageType) {
+      Switch ($Type) {
 
         'VDI' {
           $CompatibleBaseImageVMs = $BaseImageVMList | Where-Object {
@@ -7231,7 +7231,7 @@ function Get-HVBaseImageSnapshot {
   #>
 
   [cmdletbinding(
-    DefaultParameterSetName='ImageType'
+    DefaultParameterSetName='Type'
   )]
 
   param(
