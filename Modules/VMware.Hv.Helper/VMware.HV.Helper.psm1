@@ -3813,13 +3813,19 @@ function New-HVPool {
     # flashSettings
     #desktopSpec.desktopSettings.flashSettings.quality
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('NO_CONTROL', 'LOW', 'MEDIUM', 'HIGH')]
-    [string]$quality = 'NO_CONTROL',
+    [string]$Quality = 'NO_CONTROL',
 
     #desktopSpec.desktopSettings.flashSettings.throttling
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('DISABLED', 'CONSERVATIVE', 'MODERATE', 'AGGRESSIVE')]
-    [string]$throttling = 'DISABLED',
+    [string]$Throttling = 'DISABLED',
 
     #mirageConfigurationOverrides
     #desktopSpec.desktopSettings.mirageConfigurationOverrides.overrideGlobalSetting
