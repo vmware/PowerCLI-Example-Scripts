@@ -2057,7 +2057,7 @@ function New-HVFarm {
     Set to true to enable provision of RDSServers immediately in farm.
     Applicable to Linked Clone and Instant Clone farms.
 
-.PARAMETER StopOnProvisioningError
+.PARAMETER StopProvisioningOnError
     Set to true to stop provisioning of all RDSServers on error.
     Applicable to Linked Clone and Instant Clone farms.
 
@@ -2130,11 +2130,11 @@ function New-HVFarm {
     Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
-    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description 'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
+    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description 'created LC Farm from PS' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
     Creates new linkedClone farm by using naming pattern
 
 .EXAMPLE
-    New-HVFarm -InstantClone -FarmName 'ICFarmCL' -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_5' -VmFolder 'Instant_Clone_VMs' -HostOrCluster 'vimal-cluster' -ResourcePool 'vimal-cluster' -Datastores 'datastore1' -FarmDisplayName 'IC Farm using CL' -Description 'created IC Farm from PS command-line' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "ICFarmCL-" -NetBiosName "ad-vimalg"
+    New-HVFarm -InstantClone -FarmName 'ICFarmCL' -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_5' -VmFolder 'Instant_Clone_VMs' -HostOrCluster 'vimal-cluster' -ResourcePool 'vimal-cluster' -Datastores 'datastore1' -FarmDisplayName 'IC Farm using CL' -Description 'created IC Farm from PS command-line' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern "ICFarmCL-" -NetBiosName "ad-vimalg"
     Creates new linkedClone farm by using naming pattern 
 
 .EXAMPLE
@@ -2344,11 +2344,11 @@ function New-HVFarm {
     [boolean]
     $EnableProvisioning = $true,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.stopOnProvisioningError if LINKED_CLONE, INSTANT_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.stopProvisioningOnError if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
-    $StopOnProvisioningError = $true,
+    $StopProvisioningOnError = $true,
 
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -3448,7 +3448,7 @@ function New-HVPool {
 .PARAMETER BlackoutTimes
     A list of blackout times.
 
-.PARAMETER StopOnProvisioningError
+.PARAMETER StopProvisioningOnError
     Set to true to stop provisioning of all VMs on error.
     Applicable to Full, Linked, Instant Clone Pools.
 
@@ -3575,7 +3575,7 @@ function New-HVPool {
     first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
-   C:\PS>New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
+   C:\PS>New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
    Create new automated linked clone pool with naming method pattern
 
 .EXAMPLE
@@ -4030,12 +4030,12 @@ function New-HVPool {
     [boolean]
     $EnableProvisioning = $true,
 
-    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.stopOnProvisioningError if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.stopProvisioningOnError if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [boolean]
-    $StopOnProvisioningError = $true,
+    $StopProvisioningOnError = $true,
 
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
