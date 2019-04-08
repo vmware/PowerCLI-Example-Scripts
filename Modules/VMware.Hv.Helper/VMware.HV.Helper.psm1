@@ -4310,6 +4310,7 @@ function New-HVPool {
           $adContainer = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.AdContainer
         }
         $custType = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CustomizationType
+        $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
         if ($jsonObject.AutomatedDesktopSpec.ProvisioningType -eq "INSTANT_CLONE_ENGINE") {
           $InstantClone = $true
           if ($null -ne $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings) {
@@ -4330,7 +4331,6 @@ function New-HVPool {
             'SYS_PREP' {
               $sysprepCustomizationSettings = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings
               $sysPrepName = $sysprepCustomizationSettings.customizationSpec
-              $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
             }
             'QUICK_PREP' {
               $powerOffScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptName
@@ -5401,7 +5401,7 @@ function Get-HVPoolCustomizationSetting {
         }
         if ($null -eq $ViewComposerDomainAdministratorID) {
           throw "No Composer Domain Administrator found with netBiosName: [$netBiosName]"
-        }
+        } 
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings = Get-CustomizationObject
@@ -5425,6 +5425,7 @@ function Get-HVPoolCustomizationSetting {
           throw "The customization type: [$custType] is not supported for LinkedClone Pool"
         }
         $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.DomainAdministrator = $ViewComposerDomainAdministratorID
+        $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
       } elseIf ($FullClone) {
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
