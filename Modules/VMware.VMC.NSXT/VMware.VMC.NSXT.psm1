@@ -205,7 +205,7 @@ Function New-NSXTSegment {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully created new NSX-T Segment $Name"
+            Write-Host "Successfully created new NSX-T Segment $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
         }
     }
@@ -260,7 +260,7 @@ Function Remove-NSXTSegment {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully removed NSX-T Segment $Name"
+            Write-Host "Successfully removed NSX-T Segment $Name"
         }
     }
 }
@@ -577,7 +577,7 @@ Function New-NSXTFirewall {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully created new NSX-T Firewall Rule $Name"
+            Write-Host "Successfully created new NSX-T Firewall Rule $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
         }
     }
@@ -633,7 +633,7 @@ Function Remove-NSXTFirewall {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully removed NSX-T Firewall Rule"
+            Write-Host "Successfully removed NSX-T Firewall Rule"
         }
     }
 }
@@ -791,7 +791,7 @@ Function New-NSXTGroup {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully created new NSX-T Group $Name"
+            Write-Host "Successfully created new NSX-T Group $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
         }
     }
@@ -847,7 +847,7 @@ Function Remove-NSXTGroup {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully removed NSX-T Group $Name"
+            Write-Host "Successfully removed NSX-T Group $Name"
         }
     }
 }
@@ -997,7 +997,7 @@ Function New-NSXTService {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully created new NSX-T Service $Name"
+            Write-Host "Successfully created new NSX-T Service $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
         }
     }
@@ -1352,7 +1352,7 @@ Function New-NSXTDistFirewall {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully created new NSX-T Distributed Firewall Rule $Name"
+            Write-Host "Successfully created new NSX-T Distributed Firewall Rule $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
         }
     }
@@ -1411,7 +1411,7 @@ Function Remove-NSXTDistFirewall {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully removed NSX-T Distributed Firewall Rule"
+            Write-Host "Successfully removed NSX-T Distributed Firewall Rule"
         }
     }
 }
@@ -1477,7 +1477,7 @@ Function Get-NSXTRouteTable {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully retrieved NSX-T Routing Table`n"
+            Write-Host "Successfully retrieved NSX-T Routing Table`n"
             $routeTables = ($requests.Content | ConvertFrom-Json).results
 
             foreach ($routeTable in $routeTables) {
@@ -1544,7 +1544,7 @@ If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection f
     }
 
     if($requests.StatusCode -eq 200) {
-        Write-Host "Succesfully retrieved NSX-T Overview Information"
+        Write-Host "Successfully retrieved NSX-T Overview Information"
         ($requests.Content | ConvertFrom-Json)
     }
 }
@@ -1872,7 +1872,7 @@ Function New-NSXTRouteBasedVPN {
                 }
 
                 if($requests.StatusCode -eq 200) {
-                    Write-Host "Succesfully created Route Based VPN"
+                    Write-Host "Successfully created Route Based VPN"
                     ($requests.Content | ConvertFrom-Json)
                 }
             }
@@ -2005,7 +2005,7 @@ Function Remove-NSXTRouteBasedVPN {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully removed NSX-T IPSEC Tunnel: $Name"
+            Write-Host "Successfully removed NSX-T IPSEC Tunnel: $Name"
         }
 
         # Delete BGP Neighbor
@@ -2034,7 +2034,7 @@ Function Remove-NSXTRouteBasedVPN {
         }
 
         if($requests.StatusCode -eq 200) {
-            Write-Host "Succesfully removed NSX-T BGP Neighbor"
+            Write-Host "Successfully removed NSX-T BGP Neighbor"
         }
     }
 }
