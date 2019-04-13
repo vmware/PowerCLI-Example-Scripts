@@ -1641,53 +1641,400 @@ Function Get-NSXTInfraGroup {
         .EXAMPLE
             Get-NSXTInfraGroup -Name "S3 Prefixes"
     #>
-        param(
-            [Parameter(Mandatory=$false)][String]$Name,
-            [Switch]$Troubleshoot
-        )
+    param(
+        [Parameter(Mandatory=$false)][String]$Name,
+        [Switch]$Troubleshoot
+    )
 
-        If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
-            $method = "GET"
-            $infraGroupsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-0s/vmc/groups"
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "GET"
+        $infraGroupsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-0s/vmc/groups"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$infraGroupsURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $infraGroupsURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $infraGroupsURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Infrastructure Groups"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            $groups = ($requests.Content | ConvertFrom-Json).results
+
+            if ($PSBoundParameters.ContainsKey("Name")){
+                $groups = $groups | where {$_.display_name -eq $Name}
+            }
+
+            $results = @()
+            foreach ($group in $groups) {
+                $tmp = [pscustomobject] @{
+                    Name = $group.display_name;
+                    ID = $group.id;
+                    Path = $group.path;
+                }
+                $results+=$tmp
+            }
+            $results
+        }
+    }
+}
+
+Function New-NSXTRouteBasedVPN {
+    <#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          04/13/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns all NSX-T Infrastructure Scopes
+    .DESCRIPTION
+        This cmdlet retrieves all NSX-T Infrastructure Scopes
+    .EXAMPLE
+        New-NSXTRouteBasedVPN -Name VPN3 `
+            -PublicIP 18.184.241.223 `
+            -RemotePublicIP 18.194.148.62 `
+            -BGPLocalIP 169.254.51.2 `
+            -BGPRemoteIP 169.254.51.1 `
+            -BGPLocalASN 65056 `
+            -BGPremoteASN 64512 `
+            -BGPNeighborID 60 `
+            -TunnelEncryption AES_256 `
+            -TunnelDigestEncryption SHA2_256 `
+            -IKEEncryption AES_256 `
+            -IKEDigestEncryption SHA2_256 `
+            -DHGroup GROUP14 `
+            -IKEVersion IKE_V1 `
+            -PresharedPassword VMware123. `
+            -Troubleshoot
+    #>
+    param(
+        [Parameter(Mandatory=$true)][String]$Name,
+        [Parameter(Mandatory=$true)][String]$PublicIP,
+        [Parameter(Mandatory=$true)][String]$RemotePublicIP,
+        [Parameter(Mandatory=$true)][String]$BGPLocalIP,
+        [Parameter(Mandatory=$true)][String]$BGPRemoteIP,
+        [Parameter(Mandatory=$false)][int]$BGPLocalPrefix=30,
+        [Parameter(Mandatory=$true)][ValidateRange(64512,65534)][int]$BGPLocalASN,
+        [Parameter(Mandatory=$true)][ValidateRange(64512,65534)][int]$RemoteBGPASN,
+        [Parameter(Mandatory=$true)][String]$BGPNeighborID,
+        [Parameter(Mandatory=$true)][String][ValidateSet("AES_128","AES_256","AES_GCM_128","AES_GCM_192","AES_GCM_256")]$TunnelEncryption,
+        [Parameter(Mandatory=$true)][String][ValidateSet("SHA1","SHA2_256")]$TunnelDigestEncryption,
+        [Parameter(Mandatory=$true)][String][ValidateSet("AES_128","AES_256","AES_GCM_128","AES_GCM_192","AES_GCM_256")]$IKEEncryption,
+        [Parameter(Mandatory=$true)][String][ValidateSet("SHA1","SHA2_256")]$IKEDigestEncryption,
+        [Parameter(Mandatory=$true)][String][ValidateSet("GROUP2","GROUP5","GROUP14","GROUP15","GROUP16")]$DHGroup,
+        [Parameter(Mandatory=$true)][String][ValidateSet("IKE_V1","IKE_V2","IKE_FLEX")]$IKEVersion,
+        [Parameter(Mandatory=$true)][String]$PresharedPassword,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+
+        ## Configure BGP ASN
+
+        $payload = @{
+            local_as_num = $BGPLocalASN;
+        }
+        $body = $payload | ConvertTo-Json -Depth 5
+
+        $ASNmethod = "patch"
+        $bgpAsnURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-0s/vmc/locale-services/default/bgp"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $ASNmethod`n$bgpAsnURL`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $bgpAsnURL -Body $body -Method $ASNmethod -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $bgpAsnURL -Body $body -Method $ASNmethod -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in updating BGP ASN"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            ## Configure BGP Neighbor
+
+            $payload = @{
+                resource_type = "BgpNeighborConfig";
+                id = $BGPNeighborID;
+                remote_as_num = $RemoteBGPASN;
+                neighbor_address = $BGPRemoteIP;
+            }
+            $body = $payload | ConvertTo-Json -Depth 5
+
+            $method = "put"
+            $bgpNeighborURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-0s/vmc/locale-services/default/bgp/neighbors/$BGPNeighborID"
 
             if($Troubleshoot) {
-                Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$infraGroupsURL`n"
+                Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$bgpNeighborURL`n"
+                Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
             }
 
             try {
                 if($PSVersionTable.PSEdition -eq "Core") {
-                    $requests = Invoke-WebRequest -Uri $infraGroupsURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+                    $requests = Invoke-WebRequest -Uri $bgpNeighborURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
                 } else {
-                    $requests = Invoke-WebRequest -Uri $infraGroupsURL -Method $method -Headers $global:nsxtProxyConnection.headers
+                    $requests = Invoke-WebRequest -Uri $bgpNeighborURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers
                 }
             } catch {
                 if($_.Exception.Response.StatusCode -eq "Unauthorized") {
                     Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
                     break
                 } else {
-                    Write-Error "Error in retrieving NSX-T Infrastructure Groups"
+                    Write-Error "Error in configuring BGP Neighbor"
                     Write-Error "`n($_.Exception.Message)`n"
                     break
                 }
             }
 
             if($requests.StatusCode -eq 200) {
-                $groups = ($requests.Content | ConvertFrom-Json).results
+                ## Configure Route Based Policy VPN
 
-                if ($PSBoundParameters.ContainsKey("Name")){
-                    $groups = $groups | where {$_.display_name -eq $Name}
+                $TunnelSubnets = @{
+                    ip_addresses = @("$BGPLocalIP");
+                    prefix_length = $BGPLocalPrefix;
                 }
 
-                $results = @()
-                foreach ($group in $groups) {
-                    $tmp = [pscustomobject] @{
-                        Name = $group.display_name;
-                        ID = $group.id;
-                        Path = $group.path;
+                $payload = @{
+                    display_name = $Name;
+                    enabled = $true;
+                    local_address = $PublicIP;
+                    remote_private_address = $RemotePublicIP;
+                    remote_public_address = $RemotePublicIP;
+                    passphrases = @("$PresharedPassword");
+                    tunnel_digest_algorithms = @("$TunnelDigestEncryption");
+                    ike_digest_algorithms = @("$IKEDigestEncryption");
+                    ike_encryption_algorithms = @("$IKEEncryption");
+                    enable_perfect_forward_secrecy = $true;
+                    dh_groups = @("$DHGroup");
+                    ike_version = $IKEVersion;
+                    l3vpn_session = @{
+                        resource_type = "RouteBasedL3VpnSession";
+                        tunnel_subnets = @($TunnelSubnets);
+                        default_rule_logging = $false;
+                        force_whitelisting = $false;
+                        routing_config_path = "/infra/tier-0s/vmc/locale-services/default/bgp/neighbors/$BGPNeighborID";
+                    };
+                    tunnel_encryption_algorithms = @("$TunnelEncryption");
+                }
+                $body = $payload | ConvertTo-Json -Depth 5
+
+                $routeBasedVPNURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-0s/vmc/locale-services/default/l3vpns/$Name"
+
+                if($Troubleshoot) {
+                    Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$bgpNeighborURL`n"
+                    Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+                }
+
+                try {
+                    if($PSVersionTable.PSEdition -eq "Core") {
+                        $requests = Invoke-WebRequest -Uri $routeBasedVPNURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+                    } else {
+                        $requests = Invoke-WebRequest -Uri $routeBasedVPNURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers
                     }
-                    $results+=$tmp
+                } catch {
+                    if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                        Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                        break
+                    } else {
+                        Write-Error "Error in configuring Route Based VPN"
+                        Write-Error "`n($_.Exception.Message)`n"
+                        break
+                    }
                 }
-                $results
+
+                if($requests.StatusCode -eq 200) {
+                    Write-Host "Succesfully created Route Based VPN"
+                    ($requests.Content | ConvertFrom-Json)
+                }
             }
         }
     }
+}
+
+Function Get-NSXTRouteBasedVPN {
+    <#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          04/13/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns all NSX-T Route Based VPN Tunnels
+    .DESCRIPTION
+        This cmdlet retrieves all NSX-T Route Based VPN Tunnels description
+    .EXAMPLE
+        Get-NSXTRouteBasedVPN
+    .EXAMPLE
+        Get-NSXTRouteBasedVPN -Name "VPN-T1"
+    #>
+    param(
+        [Parameter(Mandatory=$false)][String]$Name,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "GET"
+        $routeBaseVPNURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-0s/vmc/locale-services/default/l3vpns"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$routeBaseVPNURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $routeBaseVPNURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $routeBaseVPNURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Route Based VPN Tunnels"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            $groups = ($requests.Content | ConvertFrom-Json).results
+
+            if ($PSBoundParameters.ContainsKey("Name")){
+                $groups = $groups | where {$_.display_name -eq $Name}
+            }
+
+            $results = @()
+            foreach ($group in $groups) {
+                $tmp = [pscustomobject] @{
+                    Name = $group.display_name;
+                    ID = $group.id;
+                    Path = $group.path;
+                    RoutingConfigPath = $group.l3vpn_session.routing_config_path;
+                }
+                $results+=$tmp
+            }
+            $results
+        }
+    }
+}
+
+Function Remove-NSXTRouteBasedVPN {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          04/13/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Removes a route based VPN Tunnel and it's associated BGP neighbor
+    .DESCRIPTION
+        This cmdlet removes a route based VPN Tunnel and it's associated BGP neighbor
+    .EXAMPLE
+        Remove-NSXTRouteBasedVPN -Name VPN1 -Troubleshoot
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$Name,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $TunnelId = (Get-NSXTRouteBasedVPN -Name $Name).ID
+        $path = (Get-NSXTRouteBasedVPN -Name $Name).RoutingConfigPath
+
+        # Delete IPSEC tunnel
+        $method = "DELETE"
+        $deleteVPNtunnelURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-0s/vmc/locale-services/default/l3vpns/$TunnelId"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$deleteVPNtunnelURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $deleteVPNtunnelURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $deleteVPNtunnelURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in removing NSX-T IPSEC Tunnel: $Name"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Succesfully removed NSX-T IPSEC Tunnel: $Name"
+        }
+
+        # Delete BGP Neighbor
+        $method = "DELETE"
+        $deleteBGPnbURL = $global:nsxtProxyConnection.Server + "/policy/api/v1$path"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$deleteBGPnbURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $deleteBGPnbURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $deleteBGPnbURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in removing NSX-T BGP Neighbor"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Succesfully removed NSX-T BGP Neighbor"
+        }
+    }
+}
