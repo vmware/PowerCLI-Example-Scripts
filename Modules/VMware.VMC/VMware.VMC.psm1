@@ -690,7 +690,7 @@ Function Get-VMCLogicalNetwork {
         Created by:     Kyle Ruddy
         Date:          03/06/2018
         Organization: 	VMware
-        Blog:          https://thatcouldbeaproblem.com
+        Blog:          https://www.kmruddy.com
         Twitter:       @kmruddy
         ===========================================================================
 
@@ -761,7 +761,7 @@ Function Remove-VMCLogicalNetwork {
         Created by:     Kyle Ruddy
         Date:          03/06/2018
         Organization: 	VMware
-        Blog:          https://thatcouldbeaproblem.com
+        Blog:          https://www.kmruddy.com
         Twitter:       @kmruddy
         ===========================================================================
 
@@ -808,7 +808,7 @@ Function New-VMCLogicalNetwork {
     Created by:     Kyle Ruddy
     Date:          03/06/2018
     Organization: 	VMware
-    Blog:          https://thatcouldbeaproblem.com
+    Blog:          https://www.kmruddy.com
     Twitter:       @kmruddy
     ===========================================================================
 
@@ -917,21 +917,133 @@ Function Get-VMCPublicIP {
         .EXAMPLE
             Get-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName
     #>
-        Param (
-            [Parameter(Mandatory=$True)]$OrgName,
-            [Parameter(Mandatory=$True)]$SDDCName
-        )
+    Param (
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$SDDCName
+    )
 
-        If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
-            $orgId = (Get-VMCOrg -Name $OrgName).Id
-            $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
 
-            $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
-            $publicIPs = $publicIPService.list($orgId,$sddcId)
+        $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+        $publicIPs = $publicIPService.list($orgId,$sddcId)
 
-            $publicIPs | select public_ip, name, allocation_id
+        $publicIPs | select public_ip, name, allocation_id
+    }
+}
+
+Function New-VMCPublicIP {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          09/12/2018
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Request a new public IP Address for a given SDDC
+        .DESCRIPTION
+            This cmdlet requests a new public IP Address for a given SDDC
+        .EXAMPLE
+            New-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName -Description "Test for Randy"
+    #>
+    Param (
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$SDDCName,
+        [Parameter(Mandatory=$False)]$Description
+    )
+
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+
+        $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+
+        $publicIPSpec = $publicIPService.Help.create.spec.Create()
+        $publicIPSpec.count = 1
+        $publicIPSpec.names = @($Description)
+
+        Write-Host "Requesting a new public IP Address for your SDDC ..."
+        $results = $publicIPService.create($orgId,$sddcId,$publicIPSpec)
+    }
+}
+
+Function Remove-VMCPublicIP {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    William Lam
+        Date:          09/12/2018
+        Organization:  VMware
+        Blog:          http://www.virtuallyghetto.com
+        Twitter:       @lamw
+        ===========================================================================
+
+        .SYNOPSIS
+            Removes a specific public IP Addresses for a given SDDC
+        .DESCRIPTION
+            This cmdlet removes a specific public IP Address for a given SDDC
+        .EXAMPLE
+            Remove-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName -AllocationId "eipalloc-0567acf34e436c01f"
+    #>
+    Param (
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$SDDCName,
+        [Parameter(Mandatory=$True)]$AllocationId
+    )
+
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+
+        $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+
+        Write-Host "Deleting public IP Address with ID $AllocationId ..."
+        $results = $publicIPService.delete($orgId,$sddcId,$AllocationId)
+    }
+}
+
+Function Set-VMCSDDC {
+    <#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          01/12/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Rename an SDDC
+    .DESCRIPTION
+        This cmdlet renames an SDDC
+    .EXAMPLE
+        Set-VMCSDDC -SDDC $SDDCName -OrgName $OrgName -Name $NewSDDCName
+    #>
+    Param (
+        [Parameter(Mandatory=$True)]$SDDCName,
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$Name
+    )
+
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $sddc = Get-VMCSDDC -Org $OrgName -Name $SDDCName
+        if($sddc) {
+            $sddcService = Get-VmcService com.vmware.vmc.orgs.sddcs
+            $renameSpec = $sddcService.help.patch.sddc_patch_request.Create()
+            $renameSpec.name = $Name
+
+            Write-Host "`nRenaming SDDC `'$SDDCName`' to `'$Name`' ...`n"
+            $results = $sddcService.patch($sddc.org_id,$sddc.id,$renameSpec)
         }
     }
+}
+
 Function New-VMCPublicIP {
 <#
     .NOTES
@@ -970,6 +1082,7 @@ Function New-VMCPublicIP {
         $results = $publicIPService.create($orgId,$sddcId,$publicIPSpec)
     }
 }
+
 Function Remove-VMCPublicIP {
 <#
     .NOTES
@@ -1004,6 +1117,7 @@ Function Remove-VMCPublicIP {
         $results = $publicIPService.delete($orgId,$sddcId,$AllocationId)
     }
 }
+
 Function Get-VMCEdge {
 <#
 .NOTES
@@ -1059,6 +1173,7 @@ Twitter:       @LucD22
         }
     }
 }
+
 Function Get-VMCEdgeStatus {
 <#
 .NOTES
@@ -1120,6 +1235,7 @@ Twitter:       @LucD22
         }
     }
 }
+
 Function Get-VMCEdgeNic {
 <#
 .NOTES
@@ -1168,6 +1284,7 @@ Twitter:       @LucD22
         }
     }
 }
+
 Function Get-VMCEdgeNicStat {
 <#
 .NOTES
@@ -1233,6 +1350,7 @@ Twitter:       @LucD22
         }
     }
 }
+
 Function Get-VMCEdgeUplinkStat {
 <#
 .NOTES
@@ -1299,10 +1417,205 @@ Twitter:       @LucD22
         }
     }
 }
+Function New-VMCSDDCCluster {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/16/2019
+        Organization: 	VMware
+        Blog:          https://www.kmruddy.com
+        Twitter:       @kmruddy
+        ===========================================================================
+    
+        .SYNOPSIS
+            Creates a new cluster for the designated SDDC
+        .DESCRIPTION
+            Creates a new cluster
+        .EXAMPLE
+            New-VMCSDDCCluster -OrgName <Org Name> -SDDCName <SDDC Name> -HostCount 1 -CPUCoreCount 8
+    #>
+        [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
+        param(
+            [Parameter(Mandatory=$true)][String]$OrgName,
+            [Parameter(Mandatory=$true)][String]$SDDCName,
+            [Parameter(Mandatory=$true)][Int]$HostCount,
+            [Parameter(Mandatory=$true)][ValidateSet("8","16","32")]$CPUCoreCount
+        )
+
+        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+        $orgId = Get-VMCOrg -Name $OrgName | Select-Object -ExpandProperty Id
+        $sddcId = Get-VMCSDDC -Name $SDDCName -Org $OrgName | Select-Object -ExpandProperty Id
+
+        if(-not $orgId) {
+            Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+            break
+        }
+        if(-not $sddcId) {
+            Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+            break
+        }
+
+        $sddcClusterSvc = Get-VmcService -Name com.vmware.vmc.orgs.sddcs.clusters
+
+        $sddcClusterCreateSpec = $sddcClusterSvc.Help.create.cluster_config.Create()
+        $sddcClusterCreateSpec.host_cpu_cores_count = $CPUCoreCount
+        $sddcClusterCreateSpec.num_hosts = $HostCount
+
+        $sddcClusterTask = $sddcClusterSvc.Create($org.Id, $sddc.Id, $sddcClusterCreateSpec)
+        $sddcClusterTask | Select-Object Id,Task_Type,Status,Created | Format-Table
+}
+Function Get-VMCSDDCCluster {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/16/2019
+        Organization: 	VMware
+        Blog:          https://www.kmruddy.com
+        Twitter:       @kmruddy
+        ===========================================================================
+    
+        .SYNOPSIS
+            Retreives cluster information for the designated SDDC
+        .DESCRIPTION
+            Lists cluster information for an SDDC
+        .EXAMPLE
+            Get-VMCSDDCCluster -OrgName <Org Name> -SDDCName <SDDC Name> -HostCount 1 -CPUCoreCount 8
+    #>
+        [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='Low')]
+        param(
+            [Parameter(Mandatory=$true)][String]$OrgName,
+            [Parameter(Mandatory=$true)][String]$SddcName
+        )
+
+        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+        $orgId = Get-VMCOrg -Name $OrgName | Select-Object -ExpandProperty Id
+        $sddcId = Get-VMCSDDC -Name $SDDCName -Org $OrgName | Select-Object -ExpandProperty Id
+
+        if(-not $orgId) {
+            Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+            break
+        }
+        if(-not $sddcId) {
+            Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+            break
+        }
+
+        $clusterOutput = @()
+        $sddcClusters = Get-VMCSDDC -Org $OrgName -Name $SDDCName | Select-Object -ExpandProperty resource_config | Select-Object -ExpandProperty clusters
+        foreach ($c in $sddcClusters) {
+            $tempCluster = "" | Select-Object Id, Name, State
+            $tempCluster.Id = $c.cluster_id
+            $tempCluster.Name = $c.cluster_name
+            $tempCluster.State = $c.cluster_state
+            $clusterOutput += $tempCluster
+        }
+        return $clusterOutput
+}
+Function New-VMCSDDCCluster {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/16/2019
+        Organization: 	VMware
+        Blog:          https://www.kmruddy.com
+        Twitter:       @kmruddy
+        ===========================================================================
+    
+        .SYNOPSIS
+            Creates a new cluster for the designated SDDC
+        .DESCRIPTION
+            Creates a new cluster
+        .EXAMPLE
+            New-VMCSDDCCluster -OrgName <Org Name> -SDDCName <SDDC Name> -HostCount 1 -CPUCoreCount 8
+    #>
+        [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
+        param(
+            [Parameter(Mandatory=$true)][String]$OrgName,
+            [Parameter(Mandatory=$true)][String]$SddcName,
+            [Parameter(Mandatory=$true)][Int]$HostCount,
+            [Parameter(Mandatory=$false)][ValidateSet("8","16","36","48")]$CPUCoreCount
+        )
+
+        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+        $orgId = Get-VMCOrg -Name $OrgName | Select-Object -ExpandProperty Id
+        $sddcId = Get-VMCSDDC -Name $SDDCName -Org $OrgName | Select-Object -ExpandProperty Id
+
+        if(-not $orgId) {
+            Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+            break
+        }
+        if(-not $sddcId) {
+            Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+            break
+        }
+
+        $sddcClusterSvc = Get-VmcService -Name com.vmware.vmc.orgs.sddcs.clusters
+
+        $sddcClusterCreateSpec = $sddcClusterSvc.Help.create.cluster_config.Create()
+        $sddcClusterCreateSpec.host_cpu_cores_count = $CPUCoreCount
+        $sddcClusterCreateSpec.num_hosts = $HostCount
+
+        $sddcClusterTask = $sddcClusterSvc.Create($org.Id, $sddc.Id, $sddcClusterCreateSpec)
+        $sddcClusterTask | Select-Object Id,Task_Type,Status,Created | Format-Table
+}
+Function Remove-VMCSDDCCluster {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/16/2019
+        Organization: 	VMware
+        Blog:          https://www.kmruddy.com
+        Twitter:       @kmruddy
+        ===========================================================================
+    
+        .SYNOPSIS
+            Removes a specified cluster from the designated SDDC
+        .DESCRIPTION
+            Deletes a cluster from an SDDC
+        .EXAMPLE
+            Remove-VMCSDDCCluster -OrgName <Org Name> -SDDCName <SDDC Name> -Cluster <Cluster Name>
+    #>
+        [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
+        param(
+            [Parameter(Mandatory=$true)][String]$OrgName,
+            [Parameter(Mandatory=$true)][String]$SDDCName,
+            [Parameter(Mandatory=$true)][String]$ClusterName
+        )
+
+        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+        $orgId = Get-VMCOrg -Name $OrgName | Select-Object -ExpandProperty Id
+        $sddcId = Get-VMCSDDC -Name $SDDCName -Org $OrgName | Select-Object -ExpandProperty Id
+        $clusterId = Get-VMCSDDCCluster -SddcName $SDDCName -OrgName $OrgName | Where-Object {$_.Name -eq $ClusterName} | Select-Object -ExpandProperty Id
+
+        if(-not $orgId) {
+            Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+            break
+        }
+        if(-not $sddcId) {
+            Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+            break
+        }
+        if(-not $clusterId) {
+            Write-Host -ForegroundColor red "Unable to find cluster $ClusterName, please verify input"
+            break
+        }
+
+        $sddcClusterTask = $sddcClusterSvc.Delete($orgId, $sddcId, $clusterId)
+        $sddcClusterTask | Select-Object Id,Task_Type,Status,Created | Format-Table
+}
 
 Export-ModuleMember -Function 'Get-VMCCommand', 'Connect-VMCVIServer', 'Get-VMCOrg', 'Get-VMCSDDC',
     'Get-VMCTask', 'Get-VMCSDDCDefaultCredential', 'Get-VMCSDDCPublicIP', 'Get-VMCVMHost',
     'Get-VMCSDDCVersion', 'Get-VMCFirewallRule', 'Export-VMCFirewallRule', 'Import-VMCFirewallRule',
     'Remove-VMCFirewallRule', 'Get-VMCLogicalNetwork', 'Remove-VMCLogicalNetwork', 'New-VMCLogicalNetwork',
-    'Get-VMCSDDCSummary', 'Get-VMCPublicIP', 'New-VMCPublicIP', 'Remove-VMCPublicIP',
-    'Get-VMCEdge', 'Get-VMCEdgeNic', 'Get-VMCEdgeStatus', 'Get-VMCEdgeNicStat', 'Get-VMCEdgeUplinkStat'
+    'Get-VMCSDDCSummary', 'Get-VMCPublicIP', 'New-VMCPublicIP', 'Remove-VMCPublicIP', 'Set-VMCSDDC',
+    'Get-VMCEdge', 'Get-VMCEdgeNic', 'Get-VMCEdgeStatus', 'Get-VMCEdgeNicStat', 'Get-VMCEdgeUplinkStat',
+    'Get-VMCSDDCCluster', 'New-VMCSDDCCluster', 'Remove-VMCSDDCCluster'
