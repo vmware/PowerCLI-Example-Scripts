@@ -152,6 +152,8 @@ Function New-NSXTSegment {
         This cmdlet creates a new NSX-T Segment (Logical Networks)
     .EXAMPLE
         New-NSXTSegment -Name "sddc-cgw-network-4" -Gateway "192.168.4.1/24" -DHCP -DHCPRange "192.168.4.2-192.168.4.254"
+    .EXAMPLE
+        New-NSXTSegment -Name "sddc-cgw-network-5" -Gateway "192.168.5.1/24"
 #>
     Param (
         [Parameter(Mandatory=$True)]$Name,
@@ -163,14 +165,14 @@ Function New-NSXTSegment {
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
         if($DHCP) {
-            $dhcpConf = @($DHCPRange)
+            $subnets = @{
+                gateway_address = $gateway;
+                dhcp_ranges = @($DHCPRange)
+            }
         } else {
-            $dhcpConf = @($null)
-        }
-
-        $subnets = @{
-            gateway_address = $gateway;
-            dhcp_ranges = $dhcpConf;
+            $subnets = @{
+                gateway_address = $gateway;
+            }
         }
 
         $payload = @{
