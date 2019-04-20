@@ -1144,7 +1144,7 @@ Function Get-NSXTDistFirewallSection {
         Get-NSXTDistFirewallSection
 #>
     param(
-        [Parameter(Mandatory=$true)][String]$Name,
+        [Parameter(Mandatory=$false)][String]$Name,
         [Switch]$Troubleshoot
     )
 
@@ -1376,7 +1376,7 @@ Function New-NSXTDistFirewall {
         [Parameter(Mandatory=$True)]$SourceGroup,
         [Parameter(Mandatory=$True)]$DestinationGroup,
         [Parameter(Mandatory=$True)]$Service,
-        [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DENY")]$Action,
+        [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DROP")]$Action,
         [Parameter(Mandatory=$false)][Boolean]$Logged=$false,
         [Switch]$Troubleshoot
     )
