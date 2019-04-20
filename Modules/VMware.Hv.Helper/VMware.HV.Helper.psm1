@@ -94,6 +94,159 @@ function Get-VcenterID {
   return $virtualCenterId
 }
 
+function Get-HVvCenterServer {
+  <#
+  .Synopsis
+    Gets a list of all configured vCenter Servers
+
+  .DESCRIPTION
+    Queries and returns the vCenter Servers configured for the pod of the specified HVServer.
+
+  .PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+  .PARAMETER Name
+    A string value to query a vCenter Server by Name, if it is known.
+
+  .EXAMPLE
+    Get-HVvCenterServer
+
+  .EXAMPLE
+    Get-HVvCenterServer -Name 'vCenter1'
+
+  .OUTPUTS
+    Returns array of object type VMware.Hv.VirtualCenterInfo
+
+  .NOTES
+      Author                      : Matt Frey.
+      Author email                : mfrey@vmware.com
+      Version                     : 1.0
+
+      ===Tested Against Environment====
+      Horizon View Server Version : 7.7
+      PowerCLI Version            : PowerCLI 11.2.0
+      PowerShell Version          : 5.1
+  #>
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Name = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+
+    if ($null -ne $PSBoundParameters.Name) {
+      $vCenterList = $services.VirtualCenter.VirtualCenter_List() | Where-Object {$_.ServerSpec.ServerName -eq $Name}
+    } else {
+      $vCenterList = $services.VirtualCenter.VirtualCenter_List()
+    }
+
+  }
+
+  end {
+
+    return $vCenterList
+
+  }
+}
+
+function Get-HVvCenterServerHealth {
+  <#
+  .Synopsis
+    Gets a the health info for a given vCenter Server.
+
+  .DESCRIPTION
+    Queries and returns the VirtualCenterHealthInfo specified HVServer.
+
+  .PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+  .PARAMETER VirtualCenter
+    A parameter to specify which vCenter Server to check health for. If not specified, this function will return the
+    health info for all vCenter Servers.
+
+  .EXAMPLE
+    Get-HVvCenterServerHealth -VirtualCenter 'vCenter1'
+
+  .EXAMPLE
+    Get-HVvCenterServerHealth -VirtualCenter $vCenter1
+
+  .EXAMPLE
+    Get-HVvCenterServerHealth
+
+  .OUTPUTS
+    Returns array of object type VMware.Hv.VirtualCenterInfo
+
+  .NOTES
+      Author                      : Matt Frey.
+      Author email                : mfrey@vmware.com
+      Version                     : 1.0
+
+      ===Tested Against Environment====
+      Horizon View Server Version : 7.7
+      PowerCLI Version            : PowerCLI 11.2.0
+      PowerShell Version          : 5.1
+  #>
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $false)]
+    $VirtualCenter = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+
+    if ($null -eq $PSBoundParameters.VirtualCenter) {
+      $VirtualCenterHealth = $services.VirtualCenterHealth.VirtualCenterHealth_List()
+    } else {
+      $objType = $VirtualCenter.getType() | Select-Object -ExpandProperty Name
+      Switch ($objType) {
+        'String' {
+          $VirtualCenterHealth = $services.VirtualCenterHealth.VirtualCenterHealth_Get($(Get-HVvCenterServer -Name $VirtualCenter | Select-Object -ExpandProperty Id))
+        }
+        'VirtualCenterInfo' {
+          $VirtualCenterHealth = $services.VirtualCenterHealth.VirtualCenterHealth_Get($($VirtualCenter | Select-Object -ExpandProperty Id))
+        }
+        'VirtualCenterId' {
+          $VirtualCenterHealth = $services.VirtualCenterHealth.VirtualCenterHealth_Get($VirtualCenter)
+        }
+      }
+    }
+
+  }
+
+  end {
+
+    return $VirtualCenterHealth
+
+  }
+}
+
 function Get-JsonObject {
   param(
     [Parameter(Mandatory = $true)]
@@ -461,8 +614,6 @@ function Add-HVRDSServer {
     [System.gc]::collect()
   }
 }
-
-
 
 function Connect-HVEvent {
 <#
@@ -1906,7 +2057,7 @@ function New-HVFarm {
     Set to true to enable provision of RDSServers immediately in farm.
     Applicable to Linked Clone and Instant Clone farms.
 
-.PARAMETER StopOnProvisioningError
+.PARAMETER StopProvisioningOnError
     Set to true to stop provisioning of all RDSServers on error.
     Applicable to Linked Clone and Instant Clone farms.
 
@@ -1979,11 +2130,11 @@ function New-HVFarm {
     Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
-    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description 'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
+    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description 'created LC Farm from PS' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
     Creates new linkedClone farm by using naming pattern
 
 .EXAMPLE
-    New-HVFarm -InstantClone -FarmName 'ICFarmCL' -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_5' -VmFolder 'Instant_Clone_VMs' -HostOrCluster 'vimal-cluster' -ResourcePool 'vimal-cluster' -Datastores 'datastore1' -FarmDisplayName 'IC Farm using CL' -Description 'created IC Farm from PS command-line' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "ICFarmCL-" -NetBiosName "ad-vimalg"
+    New-HVFarm -InstantClone -FarmName 'ICFarmCL' -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_5' -VmFolder 'Instant_Clone_VMs' -HostOrCluster 'vimal-cluster' -ResourcePool 'vimal-cluster' -Datastores 'datastore1' -FarmDisplayName 'IC Farm using CL' -Description 'created IC Farm from PS command-line' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern "ICFarmCL-" -NetBiosName "ad-vimalg"
     Creates new linkedClone farm by using naming pattern 
 
 .EXAMPLE
@@ -2193,11 +2344,11 @@ function New-HVFarm {
     [boolean]
     $EnableProvisioning = $true,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.stopOnProvisioningError if LINKED_CLONE, INSTANT_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.stopProvisioningOnError if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
-    $StopOnProvisioningError = $true,
+    $StopProvisioningOnError = $true,
 
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -2790,7 +2941,6 @@ function Test-HVFarmSpec {
   }
 }
 
-
 function Get-HVFarmProvisioningData {
   param(
     [Parameter(Mandatory = $false)]
@@ -2865,7 +3015,6 @@ function Get-HVFarmProvisioningData {
   return $vmObject
 }
 
-
 function Get-HVFarmStorageObject {
   param(
 
@@ -2933,7 +3082,6 @@ function Get-HVFarmStorageObject {
   return $storageObject
 }
 
-
 function Get-HVFarmNetworkSetting {
   param(
     [Parameter(Mandatory = $false)]
@@ -2944,7 +3092,6 @@ function Get-HVFarmNetworkSetting {
   }
   return $networkObject
 }
-
 
 function Get-HVFarmCustomizationSetting {
   param(
@@ -3077,7 +3224,6 @@ function Get-FarmSpec {
   $farm_spec_helper.getDataObject().Data.MirageConfigurationOverrides = $farm_helper.getFarmMirageConfigurationOverridesHelper( ).getDataObject()
   return $farm_spec_helper.getDataObject()
 }
-
 
 function New-HVPool {
 <#
@@ -3302,7 +3448,7 @@ function New-HVPool {
 .PARAMETER BlackoutTimes
     A list of blackout times.
 
-.PARAMETER StopOnProvisioningError
+.PARAMETER StopProvisioningOnError
     Set to true to stop provisioning of all VMs on error.
     Applicable to Full, Linked, Instant Clone Pools.
 
@@ -3429,7 +3575,7 @@ function New-HVPool {
     first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
-   C:\PS>New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
+   C:\PS>New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
    Create new automated linked clone pool with naming method pattern
 
 .EXAMPLE
@@ -3884,12 +4030,12 @@ function New-HVPool {
     [boolean]
     $EnableProvisioning = $true,
 
-    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.stopOnProvisioningError if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.stopProvisioningOnError if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [boolean]
-    $StopOnProvisioningError = $true,
+    $StopProvisioningOnError = $true,
 
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -4164,6 +4310,7 @@ function New-HVPool {
           $adContainer = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.AdContainer
         }
         $custType = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CustomizationType
+        $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
         if ($jsonObject.AutomatedDesktopSpec.ProvisioningType -eq "INSTANT_CLONE_ENGINE") {
           $InstantClone = $true
           if ($null -ne $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings) {
@@ -4184,7 +4331,6 @@ function New-HVPool {
             'SYS_PREP' {
               $sysprepCustomizationSettings = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings
               $sysPrepName = $sysprepCustomizationSettings.customizationSpec
-              $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
             }
             'QUICK_PREP' {
               $powerOffScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptName
@@ -4928,7 +5074,6 @@ function Get-HVPoolProvisioningData {
   return $vmObject
 }
 
-
 function Get-HVHostOrClusterID {
 <#
 .Synopsis
@@ -5256,7 +5401,7 @@ function Get-HVPoolCustomizationSetting {
         }
         if ($null -eq $ViewComposerDomainAdministratorID) {
           throw "No Composer Domain Administrator found with netBiosName: [$netBiosName]"
-        }
+        } 
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings = Get-CustomizationObject
@@ -5280,6 +5425,7 @@ function Get-HVPoolCustomizationSetting {
           throw "The customization type: [$custType] is not supported for LinkedClone Pool"
         }
         $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.DomainAdministrator = $ViewComposerDomainAdministratorID
+        $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
       } elseIf ($FullClone) {
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
@@ -6906,6 +7052,239 @@ function Get-Machine ($Pool,$MachineList) {
     $remainingCount = $queryResults.RemainingCount
   }
   return $machines
+}
+
+function Get-HVBaseImageVM {
+  <#
+  .Synopsis
+    Gets a list of compatible base image virtual machines.
+
+  .DESCRIPTION
+    Queries and returns BaseImageVmInfo for the specified vCenter Server.
+
+  .PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered in place of hvServer.
+
+  .PARAMETER VirtualCenter
+    A parameter to specify which vCenter Server to check base image VMs for. It can be specified as a String,
+    containing the name of the vCenter, or as a vCenter object as returned by Get-HVvCenterServer. If the value is
+    not passed or null then first element returned from Get-HVvCenterServer would be considered in place of VirtualCenter.
+
+  .PARAMETER Type
+    A parameter to define the type of compatability to check the base image VM list against. Valid options are 'VDI', 'RDS', or 'ALL'
+    'VDI' will return all desktop compatible Base Image VMs.
+    'RDS' will return all RDSH compatible Base Image VMs.
+    'ALL' will return all Base Image VMs, regardless of compatibility.
+    The default value is 'ALL'.
+
+  .PARAMETER Name
+    The name of a virtual machine (if known), to filter Base Image VMs on. Wildcards are accepted. If Name is specified, then Type
+    is not considered for filtering.
+
+  .EXAMPLE
+    Get-HVBaseImageVM -VirtualCenter 'vCenter1' -Type VDI
+
+  .EXAMPLE
+    Get-HVBaseImageVM -VirtualCenter $vCenter1 -Type ALL
+
+  .EXAMPLE
+    Get-HVBaseImageVM -Name '*WIN10*'
+
+  .OUTPUTS
+    Returns array of object type VMware.Hv.BaseImageVmInfo
+
+  .NOTES
+      Author                      : Matt Frey.
+      Author email                : mfrey@vmware.com
+      Version                     : 1.0
+
+      ===Tested Against Environment====
+      Horizon View Server Version : 7.7
+      PowerCLI Version            : PowerCLI 11.2.0
+      PowerShell Version          : 5.1
+  #>
+
+  [cmdletbinding(
+    DefaultParameterSetName='Type'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $false)]
+    $VirtualCenter = $null,
+
+    [Parameter(Mandatory = $false,ParameterSetName = 'Type')]
+    [ValidateSet('VDI','RDS','ALL')]
+    $Type = 'VDI',
+
+    [Parameter(Mandatory = $false,ParameterSetName = 'Name')]
+    [string]$Name = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+
+    if ($null -eq $PSBoundParameters.VirtualCenter) {
+      $VirtualCenterId = Get-HVvCenterServer | Select-Object -First 1 -ExpandProperty Id
+    } else {
+      $objType = $VirtualCenter.getType() | Select-Object -ExpandProperty Name
+      Switch ($objType) {
+        'String' {
+          $VirtualCenterId = Get-HVvCenterServer -Name $VirtualCenter | Select-Object -ExpandProperty Id
+        }
+        'VirtualCenterInfo' {
+          $VirtualCenterId = $VirtualCenter | Select-Object -ExpandProperty Id
+        }
+        'VirtualCenterId' {
+          $VirtualCenterId = $VirtualCenter
+        }
+      }
+    }
+
+  }
+
+  process {
+
+    $BaseImageVMList = $services.BaseImageVM.BaseImageVM_List($VirtualCenterId)
+
+    #For all conditions, see https://vdc-download.vmware.com/vmwb-repository/dcr-public/3721109b-48a5-4ffb-a0ad-6d6a44f2f288/ff45dfca-1050-4265-93ef-4e7d702322e4/vdi.utils.virtualcenter.BaseImageVm.BaseImageVmIncompatibleReasons.html
+
+    If ($null -ne $PSBoundParameters.Name) {
+      $CompatibleBaseImageVMs = $BaseImageVMList | Where-Object {$_.Name -like $Name}
+    } Else {
+      Switch ($Type) {
+
+        'VDI' {
+          $CompatibleBaseImageVMs = $BaseImageVMList | Where-Object {
+            ($_.IncompatibleReasons.InUseByDesktop -eq $false) -and
+            ($_.IncompatibleReasons.InUseByLinkedCloneDesktop -eq $false) -and
+            ($_.IncompatibleReasons.ViewComposerReplica -eq $false) -and
+            ($_.IncompatibleReasons.UnsupportedOS -eq $false) -and
+            ($_.IncompatibleReasons.NoSnapshots -eq $false) -and
+            (($null -eq $_.IncompatibleReasons.InstantInternal) -or ($_.IncompatibleReasons.InstantInternal -eq $false))
+          }
+        }
+        'RDS' {
+          $CompatibleBaseImageVMs = $BaseImageVMList | Where-Object {
+            ($_.IncompatibleReasons.InUseByDesktop -eq $false) -and
+            ($_.IncompatibleReasons.InUseByLinkedCloneDesktop -eq $false) -and
+            ($_.IncompatibleReasons.ViewComposerReplica -eq $false) -and
+            ($_.IncompatibleReasons.UnsupportedOSForLinkedCloneFarm -eq $false) -and
+            ($_.IncompatibleReasons.NoSnapshots -eq $false) -and
+            (($null -eq $_.IncompatibleReasons.InstantInternal) -or ($_.IncompatibleReasons.InstantInternal -eq $false))
+          }
+        }
+        'ALL' {
+          $CompatibleBaseImageVMs = $BaseImageVMList
+        }
+
+      }
+    }
+
+  }
+
+  end {
+
+    return $CompatibleBaseImageVMs
+
+  }
+}
+
+function Get-HVBaseImageSnapshot {
+  <#
+  .Synopsis
+    Gets a list of compatible base image virtual machines.
+
+  .DESCRIPTION
+    Queries and returns BaseImageVmInfo for the specified vCenter Server.
+
+  .PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered in place of hvServer.
+
+  .PARAMETER BaseImageVM
+    The BaseImageVM to query snapshots for. This parameter is required. Wildcards are accepted. This parameter also supports
+    pipeline operations with Get-HVBaseImageVM
+
+  .EXAMPLE
+    Get-HVBaseImageSnapshots -BaseImageVM 'WIN10-BaseImage'
+
+  .EXAMPLE
+    Get-HVBaseImageSnapshots -BaseImageVM '*WIN10*'
+
+  .EXAMPLE
+    Get-HVBaseImageVM -Name 'WIN10-BaseImage' | Get-HVBaseImageSnapshots
+
+  .OUTPUTS
+    Array of object type VMware.Hv.BaseImageSnapshotInfo
+
+  .NOTES
+      Author                      : Matt Frey.
+      Author email                : mfrey@vmware.com
+      Version                     : 1.0
+
+      ===Tested Against Environment====
+      Horizon View Server Version : 7.7
+      PowerCLI Version            : PowerCLI 11.2.0
+      PowerShell Version          : 5.1
+  #>
+
+  [cmdletbinding(
+    DefaultParameterSetName='Type'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $true,ValueFromPipeLine=$true)]
+    $BaseImageVM = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+
+  }
+
+  process {
+
+    if ($null -ne $PSBoundParameters.BaseImageVM) {
+      $objType = $BaseImageVM.getType() | Select-Object -ExpandProperty Name
+      Switch ($objType) {
+        'String' {
+          $BaseImageVMObj = Get-HVBaseImageVM -Name $BaseImageVM
+        }
+        'BaseImageVMInfo' {
+          $BaseImageVMObj = $BaseImageVM
+        }
+        'Object[]' {
+          Write-Error 'This function cannot accept an array of Base Image VMs. You must specify only a single Base Image VM.'
+          Break
+        }
+      }
+      $BaseImageSnapshotList = $services.BaseImageSnapshot.BaseImageSnapshot_List($BaseImageVMObj.Id)
+    }
+
+  }
+
+  end {
+
+    return $BaseImageSnapshotList
+
+  }
 }
 
 function Set-HVPoolSpec {
@@ -11585,5 +11964,7 @@ Export-ModuleMember -Function Get-HVGlobalSettings, Set-HVApplicationIcon, Remov
 Export-ModuleMember -Function Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession
 # Event Database related
 Export-ModuleMember -Function Get-HVEventDatabase, Set-HVEventDatabase, Clear-HVEventDatabase, Get-HVEvent, Connect-HVEvent, Disconnect-HVEvent
+# vCenter Server related
+Export-ModuleMember -Function Get-HVvCenterServer, Get-HVvCenterServerHealth
 # Misc/other related
-Export-ModuleMember -Function Get-HVlicense, Set-HVlicense, Get-HVHealth, Set-HVInstantCloneMaintenance
+Export-ModuleMember -Function Get-HVlicense, Set-HVlicense, Get-HVHealth, Set-HVInstantCloneMaintenance, Get-HVBaseImageVM, Get-HVBaseImageVMSnapshot
