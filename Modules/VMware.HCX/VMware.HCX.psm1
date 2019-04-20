@@ -453,12 +453,23 @@ Function Get-HcxMigration {
         Get-HcxMigration -MigrationId <MigrationID>
 #>
     Param (
-        [Parameter(Mandatory=$false)][String]$MigrationId,
+        [Parameter(Mandatory=$false)][String[]]$MigrationId,
         [Switch]$RunningMigrations
     )
 
     If (-Not $global:hcxConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxManager " } Else {
-        $spec = @{}
+        If($PSBoundParameters.ContainsKey("MigrationId")){
+            $spec = @{
+                filter = @{
+                    migrationId = $MigrationId
+                }
+                paging =@{
+                    pageSize = $MigrationId.Count
+                }
+            }
+        } Else {
+            $spec = @{}
+        }
         $body = $spec | ConvertTo-Json
 
         $hcxQueryUrl = $global:hcxConnection.Server + "/migrations?action=query"
@@ -468,10 +479,10 @@ Function Get-HcxMigration {
             $requests = Invoke-WebRequest -Uri $hcxQueryUrl -Method POST -Headers $global:hcxConnection.headers -UseBasicParsing
         }
 
-        $migrations = ($requests.content | ConvertFrom-Json).rows
-
         if($PSBoundParameters.ContainsKey("MigrationId")){
-            $migrations = $migrations | where { $_.migrationId -eq $MigrationId }
+            $migrations = ($requests.content | ConvertFrom-Json).items
+        } else {
+            $migrations = ($requests.content | ConvertFrom-Json).rows
         }
 
         if($RunningMigrations){
