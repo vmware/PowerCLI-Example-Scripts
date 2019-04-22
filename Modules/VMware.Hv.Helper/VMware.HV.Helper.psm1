@@ -1004,8 +1004,7 @@ function Get-HVFarm {
   if (! $farmList) {
     if (! $SuppressInfo) {
       Write-Host "Get-HVFarm: No Farm Found with given search parameters"
-	}
-    return $farmList
+	  }
   }
   $farm_service_helper = New-Object VMware.Hv.FarmService
   $queryResults = @()
