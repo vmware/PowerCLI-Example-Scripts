@@ -190,7 +190,7 @@ Function Get-ContentLibraryItemFiles {
             $itemIds = $contentLibraryItemService.list($libraryID)
             $DatastoreID = $library.storage_backings.datastore_id.Value
             $Datastore = get-datastore -id "Datastore-$DatastoreID"
-            
+
             foreach($itemId in $itemIds) {
                 $itemName = ($contentLibraryItemService.get($itemId)).name
                 $contentLibraryItemFileSerice = Get-CisService com.vmware.content.library.item.file
@@ -205,7 +205,7 @@ Function Get-ContentLibraryItemFiles {
                     else{
                         $fullfilepath = "UNKNOWN"
                     }
-                    
+
                     if(!$LibraryItemName) {
                         $fileResult = [pscustomobject] @{
                             Name = $file.name;
@@ -709,4 +709,72 @@ Function New-VMFromVMTX {
 
     Write-Host "`nDeploying new VM $NewVMName from VMTX Template $VMTXName ..."
     $results = $vmtxService.deploy($vmtxId,$vmtxDeploySpec)
-}    
+}
+
+Function New-SubscribedContentLibrary {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Organization:  VMware
+    Blog:          www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+    .DESCRIPTION
+        This function creates a new Subscriber Content Library from Subscription URL
+    .PARAMETER LibraryName
+        The name of the new vSphere Content Library
+    .PARAMETER DatastoreName
+        The name of the vSphere Datastore to store the Content Library
+    .PARAMETER SubscriptionURL
+        The URL of the published Content Library
+    .PARAMETER SubscriptionThumbprint
+        The SSL Thumbprint for the published Content Library
+    .PARAMETER OnDemand
+        Specifies whether content is downloaded on-demand (e.g. no immediately)
+    .PARAMETER AutomaticSync
+        Specifies whether automatic synchronization with the external content library is enabled
+    .EXAMPLE
+        New-SubscribedContentLibrary -LibraryName NestedESXi -DatastoreName vsanDatastore -SubscriptionURL https://download3.vmware.com/software/vmw-tools/lib.json  -SubscriptionThumbprint "7a:c4:08:2d:d3:55:56:af:9f:26:43:65:d0:31:99:0b:d2:f3:d8:69" -AutomaticSync
+    .EXAMPLE
+        New-SubscribedContentLibrary -LibraryName NestedESXi -DatastoreName vsanDatastore -SubscriptionURL https://download3.vmware.com/software/vmw-tools/lib.json -SubscriptionThumbprint "7a:c4:08:2d:d3:55:56:af:9f:26:43:65:d0:31:99:0b:d2:f3:d8:69" -OnDemand
+#>
+    param(
+        [Parameter(Mandatory=$true)][String]$LibraryName,
+        [Parameter(Mandatory=$true)][String]$DatastoreName,
+        [Parameter(Mandatory=$true)][String]$SubscriptionURL,
+        [Parameter(Mandatory=$true)][String]$SubscriptionThumbprint,
+        [Parameter(Mandatory=$false)][Switch]$OnDemand,
+        [Parameter(Mandatory=$false)][Switch]$AutomaticSync
+    )
+
+    $datastore = Get-Datastore -Name $DatastoreName
+
+    if($datastore) {
+        $datastoreId = $datastore.ExtensionData.MoRef.Value
+        $subscribeLibraryService = Get-CisService -Name "com.vmware.content.subscribed_library"
+
+        $StorageSpec = [pscustomobject] @{
+                        datastore_id = $datastoreId;
+                        type         = "DATASTORE";
+        }
+
+        $UniqueChangeId = [guid]::NewGuid().tostring()
+
+        $createSpec = $subscribeLibraryService.help.create.create_spec.create()
+        $createSpec.name = $LibraryName
+        $createSpec.type = "SUBSCRIBED"
+        $addResults = $createSpec.storage_backings.Add($StorageSpec)
+
+        if($OnDemand) { $OnDemandFlag = $true } else { $OnDemandFlag = $false }
+        if($AutomaticSync) { $AutomaticSyncFlag = $true } else { $AutomaticSyncFlag = $false }
+        $createSpec.subscription_info.on_demand = $OnDemandFlag
+        $createSpec.subscription_info.automatic_sync_enabled = $AutomaticSyncFlag
+        $createSpec.subscription_info.subscription_url = $SubscriptionURL
+        $createSpec.subscription_info.authentication_method = "NONE"
+        $createSpec.subscription_info.ssl_thumbprint = $SubscriptionThumbprint
+
+        Write-Host "Creating new Subscribed Content Library called $LibraryName ..."
+        $library = $subscribeLibraryService.create($UniqueChangeId, $createSpec)
+    }
+}
