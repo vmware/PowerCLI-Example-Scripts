@@ -1144,7 +1144,7 @@ Function Get-NSXTDistFirewallSection {
         Get-NSXTDistFirewallSection
 #>
     param(
-        [Parameter(Mandatory=$true)][String]$Name,
+        [Parameter(Mandatory=$false)][String]$Name,
         [Switch]$Troubleshoot
     )
 
@@ -1181,6 +1181,60 @@ Function Get-NSXTDistFirewallSection {
             }
 
             $sections | Sort-Object -Propert display_name | select display_name, id
+        }
+    }
+}
+
+Function Remove-NSXTDistFirewallSection {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          04/20/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Removes an NSX-T Distributed Firewall Section
+    .DESCRIPTION
+        This cmdlet removes an NSX-T Distributed Firewall Section
+    .EXAMPLE
+        Remove-NSXTDistFirewallSection -Id <ID> -Troubleshoot
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$Id,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection  found, please use Connect-NSXTProxy" } Else {
+        $method = "DELETE"
+        $deleteDistFirewallSectioneURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/domains/cgw/communication-maps/$Id"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$deleteDistFirewallSectioneURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $deleteDistFirewallSectioneURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $deleteDistFirewallSectioneURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in removing NSX-T Distributed Firewall Section"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Successfully removed NSX-T Distributed Firewall Section $Id"
         }
     }
 }
@@ -1376,7 +1430,7 @@ Function New-NSXTDistFirewall {
         [Parameter(Mandatory=$True)]$SourceGroup,
         [Parameter(Mandatory=$True)]$DestinationGroup,
         [Parameter(Mandatory=$True)]$Service,
-        [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DENY")]$Action,
+        [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DROP")]$Action,
         [Parameter(Mandatory=$false)][Boolean]$Logged=$false,
         [Switch]$Troubleshoot
     )
