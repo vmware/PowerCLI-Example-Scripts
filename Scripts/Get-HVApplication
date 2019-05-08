@@ -1,0 +1,71 @@
+Function Get-HVApplication {
+<#
+.Synopsis
+   Gets the application information.
+
+.DESCRIPTION
+   Gets the application information. This will be useful to find out whether the specified application exists or not. If the application name is not specified, this will lists all the applications in the Pod.
+
+.PARAMETER ApplicationName
+   Name of the application.
+
+.PARAMETER HvServer
+   View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER FormatList
+   Displays the list of the available applications in Table Format if this parameter is set to True.
+
+.EXAMPLE
+   Get-HVApplication -ApplicationName 'App1' -HvServer $HvServer
+   Queries and returns 'App1' information.
+
+.EXAMPLE
+   Get-HVApplication -HvServer $HvServer -FormatList:$True
+   Lists all the applications in the Pod.
+
+.OUTPUTS
+   Returns the information of the specified application if it specified, else displays all the available applications.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.2
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [string]$ApplicationName = $Null,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    $HvServer = $Null,
+
+    [Parameter(Mandatory = $False)]
+    [string]$FormatList = $False
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve View API services from connection object."
+        break
+    }
+  }
+  process {
+    if ($ApplicationName) {
+        $eqFilter = Get-HVQueryFilter 'data.name' -Eq $ApplicationName
+        $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -Filter $eqFilter -HvServer $HvServer
+        if(!$ResourceObjs){Write-host "No application found with specified name: $ApplicationName"; return}
+        Write-host "Application found with specified name: $ApplicationName"
+        return $ResourceObjs
+    }
+    $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -HvServer $HvServer
+    if ($FormatList -eq $True){ return $ResourceObjs.data | Format-Table -AutoSize}
+    return $ResourceObjs.data
+    }
+  end {
+    [System.GC]::Collect()
+  }
+}
