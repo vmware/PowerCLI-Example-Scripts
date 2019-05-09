@@ -570,7 +570,7 @@ Function Get-HcxVCConfig {
 #>
     If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
         $vcConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/vcenter"
-		$pscConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/lookupservice"
+        $pscConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/lookupservice"
 
         if($PSVersionTable.PSEdition -eq "Core") {
             $vcRequests = Invoke-WebRequest -Uri $vcConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
@@ -580,12 +580,12 @@ Function Get-HcxVCConfig {
             $ssoRequests = Invoke-WebRequest -Uri $pscConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
         }
         $vcData = ($vcRequests.content | ConvertFrom-Json).data.items
-		$ssoData = ($ssoRequests.content | ConvertFrom-Json).data.items
+        $ssoData = ($ssoRequests.content | ConvertFrom-Json).data.items
 
         $tmp = [pscustomobject] @{
             Name = $vcData.config.name;
-			UserName = $vcData.Config.userName
-			LookupServiceUrl = $ssoData.config.lookupServiceUrl
+            UserName = $vcData.Config.userName
+            LookupServiceUrl = $ssoData.config.lookupServiceUrl
             Version = $vcData.config.version;
             Build = $vcData.config.buildNumber;
             UUID = $vcData.config.vcuuid;
@@ -838,7 +838,7 @@ Function Get-HcxNSXConfig {
 
         $tmp = [pscustomobject] @{
             Name = $nsxData.config.url;
-			UserName = $nsxData.config.userName
+            UserName = $nsxData.config.userName
             Version = $nsxData.config.version;
             HCXUUID = $nsxData.config.uuid;
         }
@@ -1250,7 +1250,7 @@ Function Set-HcxProxy {
         [Parameter(Mandatory=$True)]$ProxyPort,
         [Parameter(Mandatory=$False)]$ProxyUser,
         [Parameter(Mandatory=$False)]$ProxyPassword,
-		[Parameter(Mandatory=$False)]$ProxyExclusions,
+        [Parameter(Mandatory=$False)]$ProxyExclusions,
         [Switch]$Troubleshoot
     )
 
