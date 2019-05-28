@@ -874,8 +874,8 @@ Function Get-VMCSDDCSummary {
             Get-VMCSDDCSummary -Name <SDDC Name> -Org <Org Name>
     #>
         Param (
-            [Parameter(Mandatory=$True)]$OrgName,
-            [Parameter(Mandatory=$True)]$SDDCName
+            [Parameter(Mandatory=$True)]$Org,
+            [Parameter(Mandatory=$True)]$Name
         )
 
         If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
@@ -895,6 +895,7 @@ Function Get-VMCSDDCSummary {
                 InstanceType = $sddc.resource_config.sddc_manifest.esx_ami.instance_type;
                 VpcCIDR = $sddc.resource_config.vpc_info.vpc_cidr;
                 NSXT = $sddc.resource_config.nsxt;
+                VPC_VGW = $sddc.resource_config.vpc_info.vgw_id;
             }
             $results
         }
@@ -903,7 +904,7 @@ Function Get-VMCPublicIP {
     <#
         .NOTES
         ===========================================================================
-        Created by:    William Lam
+        Created by:    William LamVPC_VGW
         Date:          09/12/2018
         Organization:  VMware
         Blog:          http://www.virtuallyghetto.com
