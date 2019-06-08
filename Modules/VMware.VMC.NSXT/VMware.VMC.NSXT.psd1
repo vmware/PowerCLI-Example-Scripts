@@ -42,7 +42,7 @@ FunctionsToExport = 'Connect-NSXTProxy', 'Get-NSXTSegment', 'New-NSXTSegment', '
 'Get-NSXTDistFirewall', 'New-NSXTDistFirewall', 'Remove-NSXTDistFirewall', 'Get-NSXTRouteTable', `
 'Get-NSXTOverviewInfo', 'Get-NSXTInfraScope', 'Get-NSXTInfraGroup', 'New-NSXTRouteBasedVPN', `
 'Get-NSXTRouteBasedVPN', 'Remove-NSXTRouteBasedVPN', 'Remove-NSXTService', 'New-NSXTDistFirewallSection', 'Get-NSXTDistFirewallSection', `
-'New-NSXTPolicyBasedVPN', 'Get-NSXTPolicyBasedVPN', 'Remove-NSXTPolicyBasedVPN'
+'New-NSXTPolicyBasedVPN', 'Get-NSXTPolicyBasedVPN', 'Remove-NSXTPolicyBasedVPN', 'Get-NSXTDNS', 'Set-NSXTDNS'
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
 
