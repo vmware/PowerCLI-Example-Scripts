@@ -2334,7 +2334,7 @@ Twitter:       @lamw
         }
     }
 }
-    
+
 Function Get-NSXTPolicyBasedVPN {
 <#
 .NOTES
@@ -2473,6 +2473,133 @@ Function Remove-NSXTPolicyBasedVPN {
 
         if($requests.StatusCode -eq 200) {
             Write-Host "Successfully removed NSX-T VPN Tunnel: $Name"
+        }
+    }
+}
+
+Function Get-NSXTDNS {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          06/08/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns DNS Zone configuration for MGW or CGW
+    .DESCRIPTION
+        This cmdlet retrieves DNS Zone configuration for MGW or CGW
+    .EXAMPLE
+        Get-NSXTDNS -GatewayType MGW
+    .EXAMPLE
+        Get-NSXTDNS -GatewayType CGW
+#>
+    param(
+        [Parameter(Mandatory=$true)][ValidateSet("MGW","CGW")][String]$GatewayType,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "GET"
+        $dnsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/dns-forwarder-zones/$($GatewayType.toLower())-dns-zone"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$dnsURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $dnsURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $dnsURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T DNS Zones"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            $dnsZone = ($requests.Content | ConvertFrom-Json)
+
+            $results = [pscustomobject] @{
+                Name = $dnsZone.display_name;
+                DNS1 = $dnsZone.upstream_servers[0];
+                DNS2 = $dnsZone.upstream_servers[1];
+                Domain = $dnsZone.dns_domain_names;
+            }
+            $results
+        }
+    }
+}
+
+Function Set-NSXTDNS {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          06/08/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns DNS Zone configuration for MGW or CGW
+    .DESCRIPTION
+        This cmdlet retrieves DNS Zone configuration for MGW or CGW
+    .EXAMPLE
+        Set-NSXTDNS -GatewayType MGW -DNS @("192.168.1.14","192.168.1.15")
+    .EXAMPLE
+        Set-NSXTDNS -GatewayType CGW -DNS @("8.8.8.8")
+#>
+    param(
+        [Parameter(Mandatory=$true)][ValidateSet("MGW","CGW")][String]$GatewayType,
+        [Parameter(Mandatory=$true)][String[]]$DNS,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "PATCH"
+        $dnsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/dns-forwarder-zones/$($GatewayType.toLower())-dns-zone"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$dnsURL`n"
+        }
+
+        $payload = @{
+            upstream_servers = @($DNS)
+        }
+
+        $body = $payload | ConvertTo-Json -Depth 5
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $dnsURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $dnsURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in updating NSX-T DNS Zones"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Successfully updated NSX-T DNS for $GatewayType"
         }
     }
 }
