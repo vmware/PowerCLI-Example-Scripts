@@ -40,7 +40,7 @@ function Get-CISTag {
             } else {
                 $tagArray = @()
                 $tagIdList = $tagSvc.list() | Select-Object -ExpandProperty Value
-                [integer]$counter = 1
+                [int]$counter = 1
                 foreach ($t in $tagIdList) {
                     $tagArray += $tagSvc.get($t)
                     $counter++
@@ -49,11 +49,11 @@ function Get-CISTag {
             }
             if ($PSBoundParameters.ContainsKey("Name")) {
                 if ($vCenterConn){
-                    $tagOutput = $vCTagList | where {$_.Name -eq $Name}
-                } else {$tagOutput = $tagArray | Where {$_.Name -eq $Name}}                
+                    $tagOutput = $vCTagList | Where-Object {$_.Name -eq $Name}
+                } else {$tagOutput = $tagArray | Where-Where-Object {$_.Name -eq $Name}}                
             } elseif ($PSBoundParameters.ContainsKey("Category")) { 
                 if ($vCenterConn){ 
-                    $tagOutput = $vCTagList | where {$_.Category -eq $Category}
+                    $tagOutput = $vCTagList | Where-Object {$_.Category -eq $Category}
                 } else {
                     $tagCatid = Get-CISTagCategory -Name $Category | Select-Object -ExpandProperty Id
                     $tagIdList = $tagSvc.list_tags_for_category($tagCatid)
@@ -199,7 +199,7 @@ function Get-CISTagCategory {
                 $tagCatArray += $tagCatSvc.get($tc)
             }
             if ($PSBoundParameters.ContainsKey("Name")) {
-                $tagCatOutput = $tagCatArray | Where {$_.Name -eq $Name}
+                $tagCatOutput = $tagCatArray | Where-Where-Object {$_.Name -eq $Name}
             } else {
                 $tagCatOutput = $tagCatArray
             }
@@ -337,6 +337,8 @@ function Get-CISTagAssignment {
         if ($PSBoundParameters.ContainsKey("ObjectId")) {
             if ($ObjectId.split('-')[0] -eq 'vm') {
                 $objType = 'VirtualMachine'
+            } elseif ($ObjectId.Split('-')[0] -eq 'datastore') {
+                $objType = 'Datastore'
             } else {Write-Warning 'Only VirtualMachine types currently supported.'; break}
             $objObject = $tagAssocSvc.help.list_attached_tags.object_id.create()
             $objObject.id = $ObjectId
@@ -366,7 +368,7 @@ function Get-CISTagAssignment {
             $tagIdOutput = @()
             $tagCategories = Get-CISTagCategory | Sort-Object -Property Name
             if ($Category) {
-                $tagCatId = $tagCategories | where {$_.Name -eq $Category} | Select-Object -ExpandProperty Id
+                $tagCatId = $tagCategories | Where-Object {$_.Name -eq $Category} | Select-Object -ExpandProperty Id
                 $tagIdOutput += $tagSvc.list_tags_for_category($tagCatId)
             } else {
                 foreach ($tagCat in $tagCategories) {
@@ -380,9 +382,9 @@ function Get-CISTagAssignment {
             foreach ($tagId in $tagIdOutput) {
                 $tagAttObj = @()
                 if ($Entity) {
-                    $tagAttObj += $tagAssocSvc.list_attached_objects($tagId) | where {$_.type -eq $viObject.type -and $_.id -eq $viObject.Value}
+                    $tagAttObj += $tagAssocSvc.list_attached_objects($tagId) | Where-Object {$_.type -eq $viObject.type -and $_.id -eq $viObject.Value}
                 } else {
-                    $tagAttObj += $tagAssocSvc.list_attached_objects($tagId) | where {$_.id -eq $ObjectId}
+                    $tagAttObj += $tagAssocSvc.list_attached_objects($tagId) | Where-Object {$_.id -eq $ObjectId}
                 }
                 foreach ($obj in $tagAttObj) {
                     if ($obj.type -eq "VirtualMachine") {
@@ -393,7 +395,7 @@ function Get-CISTagAssignment {
                     }
                     else {$objName = 'Object Not Found'}                
                     $tempObject = "" | Select-Object Tag, Entity
-                    $tempObject.Tag = $tagReference | where {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
+                    $tempObject.Tag = $tagReference | Where-Object {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
                     $tempObject.Entity = $objName
                     $tagOutput += $tempObject
                 }
@@ -419,7 +421,7 @@ function Get-CISTagAssignment {
                         $objName = $vmSvc.list($filterVmObj) | Select-Object -ExpandProperty Name
                     } else {$objName = 'Object Not Found'}                
                     $tempObject = "" | Select-Object Tag, Entity
-                    $tempObject.Tag = $tagReference | where {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
+                    $tempObject.Tag = $tagReference | Where-Object {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
                     $tempObject.Entity = $objName
                     $tagOutput += $tempObject
                 }
@@ -536,7 +538,9 @@ function New-CISTagAssignment {
         } elseif ($PSBoundParameters.ContainsKey("TagId") -and $PSBoundParameters.ContainsKey("ObjectId")) {
             if ($ObjectId.split('-')[0] -eq 'vm') {
                 $objType = 'VirtualMachine'
-            } else {Write-Warning 'Only VirtualMachine types currently supported.'; break}
+            } elseif ($ObjectId.Split('-')[0] -eq 'datastore') {
+                $objType = 'Datastore'
+            } else {Write-Warning 'Only VirtualMachine and Datastore types currently supported.'; break}
             if ($TagId -is [array] -and $ObjectId -isnot [array]) {
                 $objObject = $tagAssocSvc.help.attach_multiple_tags_to_object.object_id.create()
                 $objObject.id = $ObjectId
@@ -674,7 +678,9 @@ function Remove-CISTagAssignment {
         } elseif ($PSBoundParameters.ContainsKey("TagId") -and $PSBoundParameters.ContainsKey("ObjectId")) {
             if ($ObjectId.split('-')[0] -eq 'vm') {
                 $objType = 'VirtualMachine'
-            } else {Write-Warning 'Only VirtualMachine types currently supported.'; break}
+            } elseif ($ObjectId.Split('-')[0] -eq 'datastore') {
+                $objType = 'Datastore'
+            }else {Write-Warning 'Only VirtualMachine types currently supported.'; break}
             if ($TagId -is [array] -and $ObjectId -isnot [array]) {
                 $objObject = $tagAssocSvc.help.detach_multiple_tags_from_object.object_id.create()
                 $objObject.id = $ObjectId
