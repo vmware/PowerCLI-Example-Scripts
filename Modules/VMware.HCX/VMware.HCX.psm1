@@ -453,12 +453,23 @@ Function Get-HcxMigration {
         Get-HcxMigration -MigrationId <MigrationID>
 #>
     Param (
-        [Parameter(Mandatory=$false)][String]$MigrationId,
+        [Parameter(Mandatory=$false)][String[]]$MigrationId,
         [Switch]$RunningMigrations
     )
 
     If (-Not $global:hcxConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxManager " } Else {
-        $spec = @{}
+        If($PSBoundParameters.ContainsKey("MigrationId")){
+            $spec = @{
+                filter = @{
+                    migrationId = $MigrationId
+                }
+                paging =@{
+                    pageSize = $MigrationId.Count
+                }
+            }
+        } Else {
+            $spec = @{}
+        }
         $body = $spec | ConvertTo-Json
 
         $hcxQueryUrl = $global:hcxConnection.Server + "/migrations?action=query"
@@ -468,10 +479,10 @@ Function Get-HcxMigration {
             $requests = Invoke-WebRequest -Uri $hcxQueryUrl -Method POST -Headers $global:hcxConnection.headers -UseBasicParsing
         }
 
-        $migrations = ($requests.content | ConvertFrom-Json).rows
-
         if($PSBoundParameters.ContainsKey("MigrationId")){
-            $migrations = $migrations | where { $_.migrationId -eq $MigrationId }
+            $migrations = ($requests.content | ConvertFrom-Json).items
+        } else {
+            $migrations = ($requests.content | ConvertFrom-Json).rows
         }
 
         if($RunningMigrations){
@@ -559,22 +570,60 @@ Function Get-HcxVCConfig {
 #>
     If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
         $vcConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/vcenter"
+        $pscConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/lookupservice"
 
         if($PSVersionTable.PSEdition -eq "Core") {
             $vcRequests = Invoke-WebRequest -Uri $vcConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+            $ssoRequests = Invoke-WebRequest -Uri $pscConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
         } else {
             $vcRequests = Invoke-WebRequest -Uri $vcConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+            $ssoRequests = Invoke-WebRequest -Uri $pscConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
         }
         $vcData = ($vcRequests.content | ConvertFrom-Json).data.items
+        $ssoData = ($ssoRequests.content | ConvertFrom-Json).data.items
 
         $tmp = [pscustomobject] @{
             Name = $vcData.config.name;
+            UserName = $vcData.Config.userName
+            LookupServiceUrl = $ssoData.config.lookupServiceUrl
             Version = $vcData.config.version;
             Build = $vcData.config.buildNumber;
             UUID = $vcData.config.vcuuid;
             HCXUUID = $vcData.config.uuid;
         }
         $tmp
+    }
+}
+
+Function Get-HcxLicense {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:    Mark McGilly
+        Date:          4/29/2019
+        Organization:  Liberty Mutual Insurance
+        ===========================================================================
+
+        .SYNOPSIS
+            Returns the license key that is registered with HCX Manager
+        .DESCRIPTION
+            This cmdlet returns the license key registered with HCX Manager
+        .EXAMPLE
+            Get-HcxLicense
+    #>
+
+        If (-Not $global:hcxVAMIConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $hcxConfigUrl = $global:hcxVAMIConnection.Server + "/api/admin/global/config/hcx"
+
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $licenseRequests = Invoke-WebRequest -Uri $hcxConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing -SkipCertificateCheck
+        } else {
+            $licenseRequests = Invoke-WebRequest -Uri $hcxConfigUrl -Method GET -Headers $global:hcxVAMIConnection.headers -UseBasicParsing
+        }
+        $license = ($licenseRequests.content | ConvertFrom-Json).data.items
+        if($licenseRequests) {
+            $license.config.activationKey
+        }
     }
 }
 
@@ -789,6 +838,7 @@ Function Get-HcxNSXConfig {
 
         $tmp = [pscustomobject] @{
             Name = $nsxData.config.url;
+            UserName = $nsxData.config.userName
             Version = $nsxData.config.version;
             HCXUUID = $nsxData.config.uuid;
         }
@@ -1200,6 +1250,7 @@ Function Set-HcxProxy {
         [Parameter(Mandatory=$True)]$ProxyPort,
         [Parameter(Mandatory=$False)]$ProxyUser,
         [Parameter(Mandatory=$False)]$ProxyPassword,
+        [Parameter(Mandatory=$False)]$ProxyExclusions,
         [Switch]$Troubleshoot
     )
 
@@ -1214,7 +1265,7 @@ Function Set-HcxProxy {
             config = @{
                 proxyHost = "$ProxyServer";
                 proxyPort = "$ProxyPort";
-                nonProxyHosts = "";
+                nonProxyHosts = "$ProxyExclusions";
                 userName = "$ProxyUser";
                 password = "$ProxyPassword";
             }
