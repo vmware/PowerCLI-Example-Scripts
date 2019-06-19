@@ -94,6 +94,159 @@ function Get-VcenterID {
   return $virtualCenterId
 }
 
+function Get-HVvCenterServer {
+  <#
+  .Synopsis
+    Gets a list of all configured vCenter Servers
+
+  .DESCRIPTION
+    Queries and returns the vCenter Servers configured for the pod of the specified HVServer.
+
+  .PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+  .PARAMETER Name
+    A string value to query a vCenter Server by Name, if it is known.
+
+  .EXAMPLE
+    Get-HVvCenterServer
+
+  .EXAMPLE
+    Get-HVvCenterServer -Name 'vCenter1'
+
+  .OUTPUTS
+    Returns array of object type VMware.Hv.VirtualCenterInfo
+
+  .NOTES
+      Author                      : Matt Frey.
+      Author email                : mfrey@vmware.com
+      Version                     : 1.0
+
+      ===Tested Against Environment====
+      Horizon View Server Version : 7.7
+      PowerCLI Version            : PowerCLI 11.2.0
+      PowerShell Version          : 5.1
+  #>
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Name = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+
+    if ($null -ne $PSBoundParameters.Name) {
+      $vCenterList = $services.VirtualCenter.VirtualCenter_List() | Where-Object {$_.ServerSpec.ServerName -eq $Name}
+    } else {
+      $vCenterList = $services.VirtualCenter.VirtualCenter_List()
+    }
+
+  }
+
+  end {
+
+    return $vCenterList
+
+  }
+}
+
+function Get-HVvCenterServerHealth {
+  <#
+  .Synopsis
+    Gets a the health info for a given vCenter Server.
+
+  .DESCRIPTION
+    Queries and returns the VirtualCenterHealthInfo specified HVServer.
+
+  .PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+  .PARAMETER VirtualCenter
+    A parameter to specify which vCenter Server to check health for. If not specified, this function will return the
+    health info for all vCenter Servers.
+
+  .EXAMPLE
+    Get-HVvCenterServerHealth -VirtualCenter 'vCenter1'
+
+  .EXAMPLE
+    Get-HVvCenterServerHealth -VirtualCenter $vCenter1
+
+  .EXAMPLE
+    Get-HVvCenterServerHealth
+
+  .OUTPUTS
+    Returns array of object type VMware.Hv.VirtualCenterInfo
+
+  .NOTES
+      Author                      : Matt Frey.
+      Author email                : mfrey@vmware.com
+      Version                     : 1.0
+
+      ===Tested Against Environment====
+      Horizon View Server Version : 7.7
+      PowerCLI Version            : PowerCLI 11.2.0
+      PowerShell Version          : 5.1
+  #>
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $false)]
+    $VirtualCenter = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+
+    if ($null -eq $PSBoundParameters.VirtualCenter) {
+      $VirtualCenterHealth = $services.VirtualCenterHealth.VirtualCenterHealth_List()
+    } else {
+      $objType = $VirtualCenter.getType() | Select-Object -ExpandProperty Name
+      Switch ($objType) {
+        'String' {
+          $VirtualCenterHealth = $services.VirtualCenterHealth.VirtualCenterHealth_Get($(Get-HVvCenterServer -Name $VirtualCenter | Select-Object -ExpandProperty Id))
+        }
+        'VirtualCenterInfo' {
+          $VirtualCenterHealth = $services.VirtualCenterHealth.VirtualCenterHealth_Get($($VirtualCenter | Select-Object -ExpandProperty Id))
+        }
+        'VirtualCenterId' {
+          $VirtualCenterHealth = $services.VirtualCenterHealth.VirtualCenterHealth_Get($VirtualCenter)
+        }
+      }
+    }
+
+  }
+
+  end {
+
+    return $VirtualCenterHealth
+
+  }
+}
+
 function Get-JsonObject {
   param(
     [Parameter(Mandatory = $true)]
@@ -461,8 +614,6 @@ function Add-HVRDSServer {
     [System.gc]::collect()
   }
 }
-
-
 
 function Connect-HVEvent {
 <#
@@ -1004,8 +1155,7 @@ function Get-HVFarm {
   if (! $farmList) {
     if (! $SuppressInfo) {
       Write-Host "Get-HVFarm: No Farm Found with given search parameters"
-	}
-    return $farmList
+	  }
   }
   $farm_service_helper = New-Object VMware.Hv.FarmService
   $queryResults = @()
@@ -1906,7 +2056,7 @@ function New-HVFarm {
     Set to true to enable provision of RDSServers immediately in farm.
     Applicable to Linked Clone and Instant Clone farms.
 
-.PARAMETER StopOnProvisioningError
+.PARAMETER StopProvisioningOnError
     Set to true to stop provisioning of all RDSServers on error.
     Applicable to Linked Clone and Instant Clone farms.
 
@@ -1979,11 +2129,11 @@ function New-HVFarm {
     Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
-    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description 'created LC Farm from PS' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
+    New-HVFarm -LinkedClone -FarmName 'LCFarmTest' -ParentVM 'Win_Server_2012_R2' -SnapshotVM 'Snap_RDS' -VmFolder 'PoolVM' -HostOrCluster 'cls' -ResourcePool 'cls' -Datastores 'datastore1 (5)' -FarmDisplayName 'LC Farm Test' -Description 'created LC Farm from PS' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern "LCFarmVM_PS" -MinReady 1 -MaximumCount 1  -SysPrepName "RDSH_Cust2" -NetBiosName "adviewdev"
     Creates new linkedClone farm by using naming pattern
 
 .EXAMPLE
-    New-HVFarm -InstantClone -FarmName 'ICFarmCL' -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_5' -VmFolder 'Instant_Clone_VMs' -HostOrCluster 'vimal-cluster' -ResourcePool 'vimal-cluster' -Datastores 'datastore1' -FarmDisplayName 'IC Farm using CL' -Description 'created IC Farm from PS command-line' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern "ICFarmCL-" -NetBiosName "ad-vimalg"
+    New-HVFarm -InstantClone -FarmName 'ICFarmCL' -ParentVM 'vm-rdsh-ic' -SnapshotVM 'Snap_5' -VmFolder 'Instant_Clone_VMs' -HostOrCluster 'vimal-cluster' -ResourcePool 'vimal-cluster' -Datastores 'datastore1' -FarmDisplayName 'IC Farm using CL' -Description 'created IC Farm from PS command-line' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern "ICFarmCL-" -NetBiosName "ad-vimalg"
     Creates new linkedClone farm by using naming pattern 
 
 .EXAMPLE
@@ -2193,11 +2343,11 @@ function New-HVFarm {
     [boolean]
     $EnableProvisioning = $true,
 
-    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.stopOnProvisioningError if LINKED_CLONE, INSTANT_CLONE
+    #farmSpec.automatedfarmSpec.virtualCenterProvisioningSettings.stopProvisioningOnError if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]
-    $StopOnProvisioningError = $true,
+    $StopProvisioningOnError = $true,
 
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -2790,7 +2940,6 @@ function Test-HVFarmSpec {
   }
 }
 
-
 function Get-HVFarmProvisioningData {
   param(
     [Parameter(Mandatory = $false)]
@@ -2865,7 +3014,6 @@ function Get-HVFarmProvisioningData {
   return $vmObject
 }
 
-
 function Get-HVFarmStorageObject {
   param(
 
@@ -2933,7 +3081,6 @@ function Get-HVFarmStorageObject {
   return $storageObject
 }
 
-
 function Get-HVFarmNetworkSetting {
   param(
     [Parameter(Mandatory = $false)]
@@ -2944,7 +3091,6 @@ function Get-HVFarmNetworkSetting {
   }
   return $networkObject
 }
-
 
 function Get-HVFarmCustomizationSetting {
   param(
@@ -3077,7 +3223,6 @@ function Get-FarmSpec {
   $farm_spec_helper.getDataObject().Data.MirageConfigurationOverrides = $farm_helper.getFarmMirageConfigurationOverridesHelper( ).getDataObject()
   return $farm_spec_helper.getDataObject()
 }
-
 
 function New-HVPool {
 <#
@@ -3302,7 +3447,7 @@ function New-HVPool {
 .PARAMETER BlackoutTimes
     A list of blackout times.
 
-.PARAMETER StopOnProvisioningError
+.PARAMETER StopProvisioningOnError
     Set to true to stop provisioning of all VMs on error.
     Applicable to Full, Linked, Instant Clone Pools.
 
@@ -3429,7 +3574,7 @@ function New-HVPool {
     first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
-   C:\PS>New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopOnProvisioningError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
+   C:\PS>New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
    Create new automated linked clone pool with naming method pattern
 
 .EXAMPLE
@@ -3667,13 +3812,19 @@ function New-HVPool {
     # flashSettings
     #desktopSpec.desktopSettings.flashSettings.quality
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('NO_CONTROL', 'LOW', 'MEDIUM', 'HIGH')]
-    [string]$quality = 'NO_CONTROL',
+    [string]$Quality = 'NO_CONTROL',
 
     #desktopSpec.desktopSettings.flashSettings.throttling
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('DISABLED', 'CONSERVATIVE', 'MODERATE', 'AGGRESSIVE')]
-    [string]$throttling = 'DISABLED',
+    [string]$Throttling = 'DISABLED',
 
     #mirageConfigurationOverrides
     #desktopSpec.desktopSettings.mirageConfigurationOverrides.overrideGlobalSetting
@@ -3878,12 +4029,12 @@ function New-HVPool {
     [boolean]
     $EnableProvisioning = $true,
 
-    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.stopOnProvisioningError if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.stopProvisioningOnError if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [boolean]
-    $StopOnProvisioningError = $true,
+    $StopProvisioningOnError = $true,
 
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -4158,6 +4309,7 @@ function New-HVPool {
           $adContainer = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.AdContainer
         }
         $custType = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CustomizationType
+        $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
         if ($jsonObject.AutomatedDesktopSpec.ProvisioningType -eq "INSTANT_CLONE_ENGINE") {
           $InstantClone = $true
           if ($null -ne $jsonObject.AutomatedDesktopSpec.CustomizationSettings.CloneprepCustomizationSettings) {
@@ -4178,7 +4330,6 @@ function New-HVPool {
             'SYS_PREP' {
               $sysprepCustomizationSettings = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings
               $sysPrepName = $sysprepCustomizationSettings.customizationSpec
-              $reusePreExistingAccounts = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.reusePreExistingAccounts
             }
             'QUICK_PREP' {
               $powerOffScriptName = $jsonObject.AutomatedDesktopSpec.CustomizationSettings.QuickprepCustomizationSettings.PowerOffScriptName
@@ -4922,7 +5073,6 @@ function Get-HVPoolProvisioningData {
   return $vmObject
 }
 
-
 function Get-HVHostOrClusterID {
 <#
 .Synopsis
@@ -5250,7 +5400,7 @@ function Get-HVPoolCustomizationSetting {
         }
         if ($null -eq $ViewComposerDomainAdministratorID) {
           throw "No Composer Domain Administrator found with netBiosName: [$netBiosName]"
-        }
+        } 
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings = Get-CustomizationObject
@@ -5274,6 +5424,7 @@ function Get-HVPoolCustomizationSetting {
           throw "The customization type: [$custType] is not supported for LinkedClone Pool"
         }
         $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.DomainAdministrator = $ViewComposerDomainAdministratorID
+        $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
       } elseIf ($FullClone) {
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
@@ -6900,6 +7051,239 @@ function Get-Machine ($Pool,$MachineList) {
     $remainingCount = $queryResults.RemainingCount
   }
   return $machines
+}
+
+function Get-HVBaseImageVM {
+  <#
+  .Synopsis
+    Gets a list of compatible base image virtual machines.
+
+  .DESCRIPTION
+    Queries and returns BaseImageVmInfo for the specified vCenter Server.
+
+  .PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered in place of hvServer.
+
+  .PARAMETER VirtualCenter
+    A parameter to specify which vCenter Server to check base image VMs for. It can be specified as a String,
+    containing the name of the vCenter, or as a vCenter object as returned by Get-HVvCenterServer. If the value is
+    not passed or null then first element returned from Get-HVvCenterServer would be considered in place of VirtualCenter.
+
+  .PARAMETER Type
+    A parameter to define the type of compatability to check the base image VM list against. Valid options are 'VDI', 'RDS', or 'ALL'
+    'VDI' will return all desktop compatible Base Image VMs.
+    'RDS' will return all RDSH compatible Base Image VMs.
+    'ALL' will return all Base Image VMs, regardless of compatibility.
+    The default value is 'ALL'.
+
+  .PARAMETER Name
+    The name of a virtual machine (if known), to filter Base Image VMs on. Wildcards are accepted. If Name is specified, then Type
+    is not considered for filtering.
+
+  .EXAMPLE
+    Get-HVBaseImageVM -VirtualCenter 'vCenter1' -Type VDI
+
+  .EXAMPLE
+    Get-HVBaseImageVM -VirtualCenter $vCenter1 -Type ALL
+
+  .EXAMPLE
+    Get-HVBaseImageVM -Name '*WIN10*'
+
+  .OUTPUTS
+    Returns array of object type VMware.Hv.BaseImageVmInfo
+
+  .NOTES
+      Author                      : Matt Frey.
+      Author email                : mfrey@vmware.com
+      Version                     : 1.0
+
+      ===Tested Against Environment====
+      Horizon View Server Version : 7.7
+      PowerCLI Version            : PowerCLI 11.2.0
+      PowerShell Version          : 5.1
+  #>
+
+  [cmdletbinding(
+    DefaultParameterSetName='Type'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $false)]
+    $VirtualCenter = $null,
+
+    [Parameter(Mandatory = $false,ParameterSetName = 'Type')]
+    [ValidateSet('VDI','RDS','ALL')]
+    $Type = 'VDI',
+
+    [Parameter(Mandatory = $false,ParameterSetName = 'Name')]
+    [string]$Name = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+
+    if ($null -eq $PSBoundParameters.VirtualCenter) {
+      $VirtualCenterId = Get-HVvCenterServer | Select-Object -First 1 -ExpandProperty Id
+    } else {
+      $objType = $VirtualCenter.getType() | Select-Object -ExpandProperty Name
+      Switch ($objType) {
+        'String' {
+          $VirtualCenterId = Get-HVvCenterServer -Name $VirtualCenter | Select-Object -ExpandProperty Id
+        }
+        'VirtualCenterInfo' {
+          $VirtualCenterId = $VirtualCenter | Select-Object -ExpandProperty Id
+        }
+        'VirtualCenterId' {
+          $VirtualCenterId = $VirtualCenter
+        }
+      }
+    }
+
+  }
+
+  process {
+
+    $BaseImageVMList = $services.BaseImageVM.BaseImageVM_List($VirtualCenterId)
+
+    #For all conditions, see https://vdc-download.vmware.com/vmwb-repository/dcr-public/3721109b-48a5-4ffb-a0ad-6d6a44f2f288/ff45dfca-1050-4265-93ef-4e7d702322e4/vdi.utils.virtualcenter.BaseImageVm.BaseImageVmIncompatibleReasons.html
+
+    If ($null -ne $PSBoundParameters.Name) {
+      $CompatibleBaseImageVMs = $BaseImageVMList | Where-Object {$_.Name -like $Name}
+    } Else {
+      Switch ($Type) {
+
+        'VDI' {
+          $CompatibleBaseImageVMs = $BaseImageVMList | Where-Object {
+            ($_.IncompatibleReasons.InUseByDesktop -eq $false) -and
+            ($_.IncompatibleReasons.InUseByLinkedCloneDesktop -eq $false) -and
+            ($_.IncompatibleReasons.ViewComposerReplica -eq $false) -and
+            ($_.IncompatibleReasons.UnsupportedOS -eq $false) -and
+            ($_.IncompatibleReasons.NoSnapshots -eq $false) -and
+            (($null -eq $_.IncompatibleReasons.InstantInternal) -or ($_.IncompatibleReasons.InstantInternal -eq $false))
+          }
+        }
+        'RDS' {
+          $CompatibleBaseImageVMs = $BaseImageVMList | Where-Object {
+            ($_.IncompatibleReasons.InUseByDesktop -eq $false) -and
+            ($_.IncompatibleReasons.InUseByLinkedCloneDesktop -eq $false) -and
+            ($_.IncompatibleReasons.ViewComposerReplica -eq $false) -and
+            ($_.IncompatibleReasons.UnsupportedOSForLinkedCloneFarm -eq $false) -and
+            ($_.IncompatibleReasons.NoSnapshots -eq $false) -and
+            (($null -eq $_.IncompatibleReasons.InstantInternal) -or ($_.IncompatibleReasons.InstantInternal -eq $false))
+          }
+        }
+        'ALL' {
+          $CompatibleBaseImageVMs = $BaseImageVMList
+        }
+
+      }
+    }
+
+  }
+
+  end {
+
+    return $CompatibleBaseImageVMs
+
+  }
+}
+
+function Get-HVBaseImageSnapshot {
+  <#
+  .Synopsis
+    Gets a list of compatible base image virtual machines.
+
+  .DESCRIPTION
+    Queries and returns BaseImageVmInfo for the specified vCenter Server.
+
+  .PARAMETER HvServer
+    Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered in place of hvServer.
+
+  .PARAMETER BaseImageVM
+    The BaseImageVM to query snapshots for. This parameter is required. Wildcards are accepted. This parameter also supports
+    pipeline operations with Get-HVBaseImageVM
+
+  .EXAMPLE
+    Get-HVBaseImageSnapshots -BaseImageVM 'WIN10-BaseImage'
+
+  .EXAMPLE
+    Get-HVBaseImageSnapshots -BaseImageVM '*WIN10*'
+
+  .EXAMPLE
+    Get-HVBaseImageVM -Name 'WIN10-BaseImage' | Get-HVBaseImageSnapshots
+
+  .OUTPUTS
+    Array of object type VMware.Hv.BaseImageSnapshotInfo
+
+  .NOTES
+      Author                      : Matt Frey.
+      Author email                : mfrey@vmware.com
+      Version                     : 1.0
+
+      ===Tested Against Environment====
+      Horizon View Server Version : 7.7
+      PowerCLI Version            : PowerCLI 11.2.0
+      PowerShell Version          : 5.1
+  #>
+
+  [cmdletbinding(
+    DefaultParameterSetName='Type'
+  )]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $true,ValueFromPipeLine=$true)]
+    $BaseImageVM = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+
+  }
+
+  process {
+
+    if ($null -ne $PSBoundParameters.BaseImageVM) {
+      $objType = $BaseImageVM.getType() | Select-Object -ExpandProperty Name
+      Switch ($objType) {
+        'String' {
+          $BaseImageVMObj = Get-HVBaseImageVM -Name $BaseImageVM
+        }
+        'BaseImageVMInfo' {
+          $BaseImageVMObj = $BaseImageVM
+        }
+        'Object[]' {
+          Write-Error 'This function cannot accept an array of Base Image VMs. You must specify only a single Base Image VM.'
+          Break
+        }
+      }
+      $BaseImageSnapshotList = $services.BaseImageSnapshot.BaseImageSnapshot_List($BaseImageVMObj.Id)
+    }
+
+  }
+
+  end {
+
+    return $BaseImageSnapshotList
+
+  }
 }
 
 function Set-HVPoolSpec {
@@ -11562,12 +11946,542 @@ function Set-HVInstantCloneMaintenance {
     [System.gc]::collect()  
   }
 }
+
+Function Get-HVApplication {
+<#
+.Synopsis
+   Gets the application information.
+
+.DESCRIPTION
+   Gets the application information. This will be useful to find out whether the specified application exists or not. If the application name is not specified, this will lists all the applications in the Pod.
+
+.PARAMETER ApplicationName
+   Name of the application.
+
+.PARAMETER HvServer
+   View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER FormatList
+   Displays the list of the available applications in Table Format if this parameter is set to True.
+
+.EXAMPLE
+   Get-HVApplication -ApplicationName 'App1' -HvServer $HvServer
+   Queries and returns 'App1' information.
+
+.EXAMPLE
+   Get-HVApplication -HvServer $HvServer -FormatList:$True
+   Lists all the applications in the Pod.
+
+.OUTPUTS
+   Returns the information of the specified application if it specified, else displays all the available applications.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.2
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [string]$ApplicationName = $Null,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    $HvServer = $Null,
+
+    [Parameter(Mandatory = $False)]
+    [string]$FormatList = $False
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve View API services from connection object."
+        break
+    }
+  }
+  process {
+    if ($ApplicationName) {
+        $eqFilter = Get-HVQueryFilter 'data.name' -Eq $ApplicationName
+        $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -Filter $eqFilter -HvServer $HvServer
+        if(!$ResourceObjs){Write-host "No application found with specified name: $ApplicationName"; return}
+        Write-host "Application found with specified name: $ApplicationName"
+        return $ResourceObjs
+    }
+    $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -HvServer $HvServer
+    if ($FormatList -eq $True){ return $ResourceObjs.data | Format-Table -AutoSize}
+    return $ResourceObjs.data
+    }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
+Function Remove-HVApplication {
+<#
+.Synopsis
+   Removes the specified application if exists.
+
+.DESCRIPTION
+   Removes the specified application if exists.
+
+.PARAMETER ApplicationName
+   Application to be deleted.
+   The name of the application must be given that is to be searched for and remove if exists.
+
+.PARAMETER HvServer
+   View API service object of Connect-HVServer cmdlet.
+
+.EXAMPLE
+   Remove-HVApplication -ApplicationName 'App1' -HvServer $HvServer
+   Removes 'App1', if exists.
+
+.OUTPUTS
+   Removes the specified application if exists.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.2
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [string]$ApplicationName,
+
+    [Parameter(Mandatory = $False)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve View API services from connection object"
+        break
+    }
+  }
+  process {
+    $App= Get-HVApplication -ApplicationName $ApplicationName -HvServer $HvServer
+    if (!$App) {
+        Write-Host "Application '$ApplicationName' not found. $_"
+        return
+    }
+    $AppService= New-Object VMware.Hv.ApplicationService
+    $AppService.Application_Delete($services,$App.Id)
+    if ($?) {
+        Write-Host "'$ApplicationName' has been successfully removed."
+    }
+  }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
+Function New-HVManualApplication {
+<#
+.Synopsis
+   Creates a Manual Application.
+
+.DESCRIPTION
+   Creates Application manually with given parameters.
+
+.PARAMETER HvServer
+    View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER Name
+    The Application name is the unique identifier used to identify this Application.
+
+.PARAMETER DisplayName
+    The display name is the name that users will see when they connect to view client. If the display name is left blank, it defaults to Name.
+
+.PARAMETER Description
+    The description is a set of notes about the Application.
+
+.PARAMETER ExecutablePath
+    Path to Application executable.
+
+.PARAMETER Version
+    Application version.
+
+.PARAMETER Publisher
+    Application publisher.
+
+.PARAMETER Enabled
+    Indicates if Application is enabled.
+
+.PARAMETER EnablePreLaunch
+    Application can be pre-launched if value is true.
+
+.PARAMETER ConnectionServerRestrictions
+    Connection server restrictions. This is a list of tags that access to the application is restricted to. Empty/Null list means that the application can be accessed from any connection server.
+
+.PARAMETER CategoryFolderName
+    Name of the category folder in the user's OS containing a shortcut to the application. Unset if the application does not belong to a category.
+
+.PARAMETER ClientRestrictions
+    Client restrictions to be applied to Application. Currently it is valid for RDSH pools.
+
+.PARAMETER ShortcutLocations
+    Locations of the category folder in the user's OS containing a shortcut to the desktop. The value must be set if categoryFolderName is provided.
+
+.PARAMETER MultiSessionMode
+    Multi-session mode for the application. An application launched in multi-session mode does not support reconnect behavior when user logs in from a different client instance.
+
+.PARAMETER MaxMultiSessions
+    Maximum number of multi-sessions a user can have in this application pool.
+
+.PARAMETER StartFolder
+    Starting folder for Application.
+
+.PARAMETER Args
+    Parameters to pass to application when launching.
+
+.PARAMETER Farm
+    Farm name.
+
+.PARAMETER AutoUpdateFileTypes
+    Whether or not the file types supported by this application should be allowed to automatically update to reflect changes reported by the agent.
+
+.PARAMETER AutoUpdateOtherFileTypes
+    Whether or not the other file types supported by this application should be allowed to automatically update to reflect changes reported by the agent.
+
+.EXAMPLE
+   New-HVManualApplication -Name 'App1' -DisplayName 'DisplayName' -Description 'ApplicationDescription' -ExecutablePath "PathOfTheExecutable" -Version 'AppVersion' -Publisher 'PublisherName' -Farm 'FarmName'
+   Creates a manual application App1 in the farm specified.
+
+.OUTPUTS
+    A success message is displayed when done.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [VMware.VimAutomation.HorizonView.Impl.V1.ViewServerImpl]$HvServer,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [string][ValidateLength(1,64)]$Name,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,256)]$DisplayName = $Name,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,1024)]$Description,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String]$ExecutablePath,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String]$Version,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String]$Publisher,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$Enabled = $True,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$EnablePreLaunch=$False,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [string[]]$ConnectionServerRestrictions,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True, ParameterSetName = 'categoryFolderName')]
+    [String][ValidateRange(1,64)]$CategoryFolderName,
+
+    #Below Parameter is for Client restrictions to be applied to Application. Currently it is valid for RDSH pools.
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$clientRestrictions = $False,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True, ParameterSetName = 'categoryFolderName')]
+    [String[]]$ShortcutLocations,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [ValidateSet('DISABLED','ENABLED_DEFAULT_OFF','ENABLED_DEFAULT_ON','ENABLED_ENFORCED')]
+    [String]$MultiSessionMode = 'DISABLED',
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [ValidateScript({if(($MultiSessionMode -eq 'ENABLED_DEFAULT_OFF') -or ($MultiSessionMode -eq 'ENABLED_DEFAULT_ON') -or ($MultiSessionMode -eq 'ENABLED_ENFORCED')){$_ -eq 1}})]
+    [Int]$MaxMultiSessions,
+
+    #Below parameters are for ExecutionData, moved ExecutablePath, Version and Publisher to above from this.
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String]$StartFolder,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String]$Args,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String]$Farm,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$AutoUpdateFileTypes = $True,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$AutoUpdateOtherFileTypes = $True
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve View API services from connection object"
+        break
+    }
+    $FarmInfo = Get-HVFarm -FarmName $Farm
+    if ($null -eq $FarmInfo) {
+        Write-Error "Could not find the specified Farm."
+        break
+    }
+  }
+  process {
+    $App = Get-HVApplication -ApplicationName $Name -HvServer $HvServer
+    if ($App) {
+        Write-Host "Application already exists with the name : $Name"
+        return
+    }
+    $AppData = New-Object VMware.Hv.ApplicationData -Property @{ 'Name' = $Name; 'DisplayName' = $DisplayName; 'Description' = $Description; 'Enabled' = $Enabled; 'EnableAntiAffinityRules' = $EnableAntiAffinityRules; 'AntiAffinityPatterns' = $AntiAffinityPatterns; 'AntiAffinityCount' = $AntiAffinityCount; 'EnablePreLaunch' = $EnablePreLaunch; 'multiSessionMode' = $MultiSessionMode; 'maxMultiSessions' = $MaxMultiSessions; 'ConnectionServerRestrictions' = $ConnectionServerRestrictions; 'CategoryFolderName' = $CategoryFolderName; 'ClientRestrictions' = $ClientRestrictions; 'ShortcutLocations' = $ShortcutLocations}
+    $ExecutionData = New-object VMware.Hv.ApplicationExecutionData -Property @{ 'ExecutablePath' = $ExecutablePath; 'Version' = $Version; 'Publisher' = $Publisher; 'StartFolder' = $StartFolder; 'Args' = $Args; 'Farm' = $FarmInfo.id; 'AutoUpdateFileTypes' = $AutoUpdateFileTypes; 'AutoUpdateOtherFileTypes' = $AutoUpdateOtherFileTypes}
+    $AppSpec = New-Object VMware.Hv.ApplicationSpec -Property @{ 'Data' = $AppData; 'ExecutionData' = $ExecutionData}
+    $AppService = New-Object VMware.Hv.ApplicationService
+    $AppService.Application_Create($services,$AppSpec)
+    if ($?) {
+        Write-Host "Application '$Name' created successfully"
+        return
+    }
+    Write-Host "Application creation of '$Name' has failed. $_"
+  }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
+Function Get-HVPreInstalledApplication {
+<#
+.Synopsis
+   Gets the list of Pre-installed Applications from the RDS Server(s).
+
+.DESCRIPTION
+   Gets the list of Pre-installed Applications from the RDS Server(s).
+
+.PARAMETER FarmName
+   Name of the Farm on which to discover installed applications.
+
+.PARAMETER HvServer
+   View API service object of Connect-HVServer cmdlet.
+
+.EXAMPLE
+   Get-HVPreInstalledApplication -FarmName 'Farm1' -HvServer $HvServer
+   Gets the list of Applications present in 'Farm1', if exists.
+
+.OUTPUTS
+   Gets the list of Applications from the specified Farm if exists.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,64)]$FarmName,
+
+    [Parameter(Mandatory = $False)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve ViewApi services from connection object"
+        break
+    }
+    $Farm = Get-HVFarm -FarmName $FarmName
+    if($null -eq $Farm) {
+        Write-Error "Could not find the specified Farm."
+        break
+    }
+  }
+  process {
+    $FarmService = New-Object VMware.Hv.FarmService
+    $Data = $FarmService.Farm_DiscoverInstalledApplications($services,$Farm.Id)
+    return $Data
+  }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
+Function New-HVPreInstalledApplication {
+<#
+.Synopsis
+   Creates a application pool from Pre-installed applications on RDS Server(s).
+
+.DESCRIPTION
+   Creates a application pool from Pre-installed applications on RDS Server(s).
+
+.PARAMETER HvServer
+    View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER ApplicationName
+    The Application name is the unique identifier used to identify this Application.
+
+.PARAMETER DisplayName
+    The display name is the name that users will see when they connect to view client. If the display name is left blank, it defaults to Name.
+
+.PARAMETER FarmName
+    Farm name.
+
+.PARAMETER EnablePreLaunch
+    Application can be pre-launched if value is true.
+
+.PARAMETER ConnectionServerRestrictions
+    Connection server restrictions. This is a list of tags that access to the application is restricted to. Empty/Null list means that the application can be accessed from any connection server.
+
+.PARAMETER CategoryFolderName
+    Name of the category folder in the user's OS containing a shortcut to the application. Unset if the application does not belong to a category.
+
+.PARAMETER ClientRestrictions
+    Client restrictions to be applied to Application. Currently it is valid for RDSH pools.
+
+.EXAMPLE
+   New-HVPreInstalledApplication -ApplicationName 'App1' -DisplayName 'DisplayName' -FarmName 'FarmName'
+   Creates a application App1 from the farm specified.
+
+.EXAMPLE
+   New-HVPreInstalledApplication -ApplicationName 'App2' -FarmName FarmManual -EnablePreLaunch $True
+   Creates a application App2 from the farm specified and the PreLaunch option will be enabled.
+
+.OUTPUTS
+    A success message is displayed when done.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $False)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [string][ValidateLength(1,64)]$ApplicationName,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,256)]$DisplayName = $ApplicationName,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,64)]$FarmName,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$EnablePreLaunch=$False,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [string[]]$ConnectionServerRestrictions,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True,ParameterSetName = 'categoryFolderName')]
+    [String][ValidateRange(1,64)]$CategoryFolderName,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$clientRestrictions = $False
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve ViewApi services from connection object"
+        break
+    }
+    $FarmInfo = Get-HVFarm -FarmName $FarmName
+    if($null -eq $FarmInfo) {
+        Write-Error "Could not find the specified Farm $FarmName."
+        break
+    }
+  }
+  process {
+    #Validate the Application name uniqueness with existing applications.
+    $ResourceObjs = Get-HVApplication -HvServer $HvServer
+    foreach($App in ($ResourceObjs.name)) {
+        if($App -eq $ApplicationName) {
+            Write-Host "$ApplicationName already exists in the Application Pool."
+            return
+        }
+    }
+    #Validate the application name uniqueness with Desktops.
+    $DesktopSummary = Get-HVQueryResult -EntityType DesktopSummaryView -HvServer $hvserver
+    foreach($App in $DesktopSummary) {
+        if($App.DesktopSummaryData.Name -eq $ApplicationName) {
+            Write-Host "$ApplicationName already exists in the Desktop Pool."
+            return
+        }
+    }
+    #get all the applications installed in RDS Server(s).
+    $AppsInRDS = Get-HVPreinstalledApplication -FarmName $FarmName
+    $AppFoundInRDS = $False
+    foreach($App in ($AppsInRDS)) {
+        if($($App.name) -eq ($ApplicationName)) {
+            $AppFoundInRDS = $True
+            $ApplicationID = $ApplicationName -replace " ","_"
+            $ApplicationData = New-Object VMware.Hv.ApplicationData -Property @{ 'Name' = $ApplicationID;
+                            'DisplayName' = $DisplayName;
+                            'EnablePreLaunch' = $EnablePreLaunch;
+                            'ConnectionServerRestrictions' = $ConnectionServerRestrictions;
+                            'CategoryFolderName' = $CategoryFolderName;
+                            'ClientRestrictions' = $ClientRestrictions }
+            $ExecutionData = New-object VMware.Hv.ApplicationExecutionData -Property @{ 'ExecutablePath' = $App.ExecutionData.ExecutablePath;
+                            'Version' = $App.ExecutionData.Version;
+                            'Publisher' = $App.ExecutionData.Publisher;
+                            'Args' = $App.ExecutionData.Args;
+                            'StartFolder' = $App.ExecutionData.StartFolder;
+                            'Farm' = $FarmInfo.Id;
+                            'AutoUpdateFileTypes' = $App.ExecutionData.AutoUpdateFileTypes;
+                            'AutoUpdateOtherFileTypes' = $App.executionData.AutoUpdateOtherFileTypes }
+            $ApplicationSpec = New-Object VMware.Hv.ApplicationSpec -Property @{ 'Data' = $ApplicationData; 'ExecutionData' = $ExecutionData}
+            $AppService = New-Object VMware.Hv.ApplicationService
+            $AppService.Application_Create($services,$ApplicationSpec)
+            if($?) {
+                Write-Host "Application '$ApplicationName' created successfully"
+                return
+            }
+            Write-Host "Failed to create Application '$ApplicationName'. $_ "
+            return
+        }
+    }
+    if ($AppFoundInRDS -eq $False) {
+        Write-Host ""$ApplicationName" does not exist in any of the RDS Server(s) belongs to the Farm $FarmName."
+    }
+  }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
 # Object related
 Export-ModuleMember -Function Get-HVMachine, Get-HVMachineSummary, Get-HVQueryResult, Get-HVQueryFilter, Get-HVInternalName
 # RDS Farm related
 Export-ModuleMember -Function Get-HVFarmSummary, Start-HVFarm, Start-HVPool, New-HVFarm, Remove-HVFarm, Get-HVFarm, Set-HVFarm, Add-HVRDSServer
 # Desktop Pool related
 Export-ModuleMember -Function Get-HVPoolSummary, New-HVPool, Remove-HVPool, Get-HVPool, Set-HVPool, Get-HVPoolSpec, Add-HVDesktop
+# Application Pool related
+Export-ModuleMember -Function Get-HVApplication, Remove-HVApplication, New-HVManualApplication, Get-HVPreInstalledApplication, New-HVPreInstalledApplication
 # Entitlement related
 Export-ModuleMember -Function New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement
 Export-ModuleMember -Function Set-HVMachine, Reset-HVMachine, Remove-HVMachine
@@ -11579,5 +12493,7 @@ Export-ModuleMember -Function Get-HVGlobalSettings, Set-HVApplicationIcon, Remov
 Export-ModuleMember -Function Get-HVResourceStructure, Get-HVLocalSession, Get-HVGlobalSession
 # Event Database related
 Export-ModuleMember -Function Get-HVEventDatabase, Set-HVEventDatabase, Clear-HVEventDatabase, Get-HVEvent, Connect-HVEvent, Disconnect-HVEvent
+# vCenter Server related
+Export-ModuleMember -Function Get-HVvCenterServer, Get-HVvCenterServerHealth
 # Misc/other related
-Export-ModuleMember -Function Get-HVlicense, Set-HVlicense, Get-HVHealth, Set-HVInstantCloneMaintenance
+Export-ModuleMember -Function Get-HVlicense, Set-HVlicense, Get-HVHealth, Set-HVInstantCloneMaintenance, Get-HVBaseImageVM, Get-HVBaseImageVMSnapshot
