@@ -1358,3 +1358,345 @@ Function Remove-HcxProxy {
         }
     }
 }
+
+Function Connect-HcxCloudServer {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          06/19/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Connect to the HCX Cloud Service
+    .DESCRIPTION
+        This cmdlet connects to the HCX Cloud Service
+    .EXAMPLE
+        Connect-HcxCloudServer -RefreshToken
+#>
+    Param (
+        [Parameter(Mandatory=$true)][String]$RefreshToken,
+        [Switch]$Troubleshoot
+    )
+
+    $results = Invoke-WebRequest -Uri "https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize?refresh_token=$RefreshToken" -Method POST -ContentType "application/json" -UseBasicParsing -Headers @{"csp-auth-token"="$RefreshToken"}
+    if($results.StatusCode -ne 200) {
+        Write-Host -ForegroundColor Red "Failed to retrieve Access Token, please ensure your VMC Refresh Token is valid and try again"
+        break
+    }
+    $accessToken = ($results | ConvertFrom-Json).access_token
+
+    $payload = @{
+        token = $accessToken;
+    }
+    $body = $payload | ConvertTo-Json
+
+    $hcxCloudLoginUrl = "https://connect.hcx.vmware.com/provider/csp/api/sessions"
+
+    if($PSVersionTable.PSEdition -eq "Core") {
+        $results = Invoke-WebRequest -Uri $hcxCloudLoginUrl -Body $body -Method POST -UseBasicParsing -ContentType "application/json" -SkipCertificateCheck
+    } else {
+        $results = Invoke-WebRequest -Uri $hcxCloudLoginUrl -Body $body -Method POST -UseBasicParsing -ContentType "application/json"
+    }
+
+    if($results.StatusCode -eq 200) {
+        $hcxAuthToken = $results.Headers.'x-hm-authorization'
+
+        $headers = @{
+            "x-hm-authorization"="$hcxAuthToken"
+            "Content-Type"="application/json"
+            "Accept"="application/json"
+        }
+
+        $global:hcxCloudConnection = new-object PSObject -Property @{
+            'Server' = "https://connect.hcx.vmware.com/provider/csp/consumer/api";
+            'headers' = $headers
+        }
+        $global:hcxCloudConnection
+    } else {
+        Write-Error "Failed to connect to HCX Cloud Service, please verify your CSP Refresh Token is valid"
+    }
+}
+
+Function Get-HCXCloudActivationKey {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          06/19/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns the activation keys from HCX Cloud
+    .DESCRIPTION
+        This cmdlet returns the activation keys from HCX Cloud
+    .EXAMPLE
+        Get-HCXCloudActivationKeys
+    .EXAMPLE
+        Get-HCXCloudActivationKeys -Type [AVAILABLE|CONSUMED|DEACTIVATED|DELETED]
+#>
+    Param (
+        [Parameter(Mandatory=$false)][ValidateSet("AVAILABLE","CONSUMED","DEACTIVATED","DELETED")][String]$Type,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxCloudConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $method = "GET"
+        $hcxLicenseUrl = $global:hcxCloudConnection.Server + "/activationKeys"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $METHOD`n$hcxLicenseUrl`n"
+        }
+
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $results = Invoke-WebRequest -Uri $hcxLicenseUrl -Method $method -Headers $global:hcxCloudConnection.headers -UseBasicParsing -SkipCertificateCheck
+        } else {
+            $results = Invoke-WebRequest -Uri $hcxLicenseUrl -Method $method -Headers $global:hcxCloudConnection.headers -UseBasicParsing
+        }
+        if($Type) {
+            ($results.content | ConvertFrom-Json).result.activationKeys | where { $_.status -eq $Type}
+        } else {
+            ($results.content | ConvertFrom-Json).result.activationKeys
+        }
+    }
+}
+
+Function Get-HCXCloudSubscription {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          06/19/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns the subscription information for HCX CLoud Service
+    .DESCRIPTION
+        This cmdlet returns the subscription information for HCX Cloud Service
+    .EXAMPLE
+        Get-HCXCloudSubscription
+#>
+    Param (
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxCloudConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $method = "GET"
+        $hcxSubscriptionUrl = $global:hcxCloudConnection.Server + "/subscriptions"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $METHOD`n$hcxSubscriptionUrl`n"
+        }
+
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $results = Invoke-WebRequest -Uri $hcxSubscriptionUrl -Method $method -Headers $global:hcxCloudConnection.headers -UseBasicParsing -SkipCertificateCheck
+        } else {
+            $results = Invoke-WebRequest -Uri $hcxSubscriptionUrl -Method $method -Headers $global:hcxCloudConnection.headers -UseBasicParsing
+        }
+
+        ($results.content | ConvertFrom-Json).subscriptions | select @{Name = "SID"; Expression = {$_.sid}},@{Name = "STATUS"; Expression = {$_.status}},@{Name = 'OfferName'; Expression = {$_.subscriptionComponents.offerName}}
+    }
+}
+
+Function New-HCXCloudActivationKey {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          06/19/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Requests new HCX Activation License Key
+    .DESCRIPTION
+        This cmdlet requests new HCX Activation License Key
+    .EXAMPLE
+        Get-HCXCloudActivationKey -SID <SID> -SystemType [HCX-CLOUD|HCX-ENTERPRISE]
+#>
+    Param (
+        [Parameter(Mandatory=$true)][String]$SID,
+        [Parameter(Mandatory=$true)][ValidateSet("HCX-CLOUD","HCX-ENTERPRISE")][String]$SystemType,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxCloudConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $method = "POST"
+        $hcxLicenseUrl = $global:hcxCloudConnection.Server + "/activationKeys"
+
+        $payload = @{
+            numberOfKeys = "1";
+            sid = $SID;
+            systemType = ($SystemType).toLower();
+        }
+        $body = $payload | ConvertTo-Json
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $METHOD`n$hcxSubscriptionUrl`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $hcxLicenseUrl -Method $method -Body $body -Headers $global:hcxCloudConnection.headers -UseBasicParsing -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $hcxLicenseUrl -Method $method -Body $body -Headers $global:hcxCloudConnection.headers -UseBasicParsing
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe HCX Cloud session is no longer valid, please re-run the Connect-HCXCloudServer cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in requesting new HCX license key"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Successfully requestd new $SystemType License Key"
+            ($requests.content | ConvertFrom-Json).activationKeys
+        }
+    }
+}
+
+Function Get-HCXCloud {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          06/19/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Returns HCX deployment information for all SDDCs
+    .DESCRIPTION
+        This cmdlet returns HCX deployment information for all SDDCs
+    .EXAMPLE
+        Get-HCXCloud
+#>
+    Param (
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxCloudConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $method = "GET"
+        $hcxCloudSDDCUrl = $global:hcxCloudConnection.Server + "/sddcs"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $METHOD`n$hcxSubscriptionUrl`n"
+        }
+
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $results = Invoke-WebRequest -Uri $hcxCloudSDDCUrl -Method $method -Headers $global:hcxCloudConnection.headers -UseBasicParsing -SkipCertificateCheck
+        } else {
+            $results = Invoke-WebRequest -Uri $hcxCloudSDDCUrl -Method $method -Headers $global:hcxCloudConnection.headers -UseBasicParsing
+        }
+
+        ($results.content | ConvertFrom-Json).sddcs | Sort-Object -Property Name | select @{Name = "SDDCName"; Expression = {$_.name}}, @{Name = "SDDCID"; Expression = {$_.id}}, @{Name = "HCXStatus"; Expression = {$_.activationStatus}}, @{Name = "Region"; Expression = {$_.region}}
+    }
+}
+
+Function Set-HCXCloud {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          06/19/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Activate or Deactivate HCX for given VMC SDDC
+    .DESCRIPTION
+        This cmdlet activates or deactivates HCX for given VMC SDDC
+    .EXAMPLE
+        Set-HCXCloud -Activate -SDDCID $SDDCID
+    .EXAMPLE
+        Set-HCXCloud -Deactivate -SDDCID $SDDCID
+#>
+    Param (
+        [Parameter(Mandatory=$true)][String]$SDDCID,
+        [Switch]$Activate,
+        [Switch]$Deactivate,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:hcxCloudConnection) { Write-error "HCX Auth Token not found, please run Connect-HcxVAMI " } Else {
+        $method = "POST"
+
+        if($Activate) {
+            $HcxSid = (Get-HCXCloudSubscription | where {$_.STATUS -eq "ACTIVE"}).SID
+
+            # Check to see if there is an available HCX-Cloud Key
+            $HcxKey = ((Get-HCXCloudActivationKeys -Type AVAILABLE | where {$_.systemType -eq 'hcx-cloud'}) | select -First 1).activationKey
+            if($HcxKey -eq $null) {
+                $HcxKey = New-HCXCloudActivationKey -SID $HcxSid -SystemType HCX-CLOUD
+            }
+
+            if($HCXKey -eq $null -or $HcxSid -eq $null) {
+                Write-Error "Failed to retrieve HCX Subscription ID or request HCX Cloud License Key"
+                break
+            }
+
+            $hcxSDDCUrl = $global:hcxCloudConnection.Server + "/sddcs/$($SDDCID)?action=activate"
+
+            $payload = @{
+                activationKey = $HcxKey;
+            }
+        } else {
+            $payload = ""
+
+            $hcxSDDCUrl = $global:hcxCloudConnection.Server + "/sddcs/$($SDDCID)?action=deactivate"
+        }
+
+        $body = $payload | ConvertTo-Json
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $METHOD`n$hcxSDDCUrl`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $hcxSDDCUrl -Method $method -Body $body -Headers $global:hcxCloudConnection.headers -UseBasicParsing -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $hcxSDDCUrl -Method $method -Body $body -Headers $global:hcxCloudConnection.headers -UseBasicParsing
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe HCX Cloud session is no longer valid, please re-run the Connect-HCXCloudServer cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in attempting to activate or deactivate HCX"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            if($Activate) {
+                Write-Host "Activating HCX for SDDC: $SDDCID, starting deployment. You can monitor the status using the HCX Cloud Console"
+            } else {
+                Write-Host "Deactivating HCX for SDDC: $SDDCID, starting un-deploymentt. You can monitor the status using the HCX Cloud Console"
+            }
+            ($requests.content | ConvertFrom-Json)
+        }
+    }
+}
