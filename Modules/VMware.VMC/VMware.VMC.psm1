@@ -81,13 +81,13 @@ Function Get-VMCOrg {
         Return all the info about the orgs you are a part of
 #>
     Param (
-       [Parameter(Mandatory=$false)]$Name
+        [Parameter(Mandatory=$false)]$Name
     )
 
     If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use Connect-VMC to connect" } Else {
         $orgService = Get-VMCService com.vmware.vmc.orgs
         if ($PSBoundParameters.ContainsKey("Name")){
-            $orgs = $orgService.list() | Where {$_.display_name -match $Name}
+            $orgs = $orgService.list() | Where {$_.display_name -eq $Name}
         } Else {
             $orgs = $orgService.list()
         }
@@ -130,7 +130,7 @@ Function Get-VMCSDDC {
             $orgID = $org.ID
             $sddcService = Get-VMCService com.vmware.vmc.orgs.sddcs
             if ($PSBoundParameters.ContainsKey("Name")){
-                $sddcService.list($OrgID) | Where {$_.name -match $Name}
+                $sddcService.list($OrgID) | Where {$_.name -eq $Name}
             } Else {
                 $sddcService.list($OrgID)
             }
