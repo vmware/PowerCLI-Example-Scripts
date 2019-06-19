@@ -36,7 +36,11 @@ Description = 'PowerShell Module for Managing Hybrid Cloud Extension (HCX) on VM
 PowerShellVersion = '6.0'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Connect-HcxServer', 'Get-HcxCloudConfig', 'Get-HcxEndpoint', 'New-HcxMigration', 'Get-HcxMigration', 'Connect-HcxVAMI', 'Get-HcxVCConfig', 'Set-HcxLicense', 'Set-HcxVCConfig', 'Get-HcxNSXConfig', 'Set-HcxNSXConfig', 'Get-HcxCity', 'Get-HcxLocation', 'Set-HcxLocation', 'Get-HcxRoleMapping', 'Set-HcxRoleMapping', 'Get-HcxProxy', 'Set-HcxProxy', 'Remove-HcxProxy'
+FunctionsToExport = 'Connect-HcxServer', 'Get-HcxCloudConfig', 'Get-HcxEndpoint', 'New-HcxMigration', 'Get-HcxMigration', 'Connect-HcxVAMI',
+'Get-HcxVCConfig', 'Set-HcxLicense', 'Set-HcxVCConfig', 'Get-HcxNSXConfig', 'Set-HcxNSXConfig', 'Get-HcxCity', 'Get-HcxLocation', 'Set-HcxLocation',
+'Get-HcxRoleMapping', 'Set-HcxRoleMapping', 'Get-HcxProxy', 'Set-HcxProxy', 'Remove-HcxProxy', 'Connect-HcxCloudServer', 'Get-HCXCloudActivationKey',
+'Get-HCXCloudSubscription', 'New-HCXCloudActivationKey', 'Get-HCXCloud', 'Set-HCXCloud'
+
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
 
