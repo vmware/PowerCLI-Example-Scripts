@@ -1645,7 +1645,7 @@ Function Set-HCXCloud {
             $HcxSid = (Get-HCXCloudSubscription | where {$_.STATUS -eq "ACTIVE"}).SID
 
             # Check to see if there is an available HCX-Cloud Key
-            $HcxKey = ((Get-HCXCloudActivationKeys -Type AVAILABLE | where {$_.systemType -eq 'hcx-cloud'}) | select -First 1).activationKey
+            $HcxKey = ((Get-HCXCloudActivationKey -Type AVAILABLE | where {$_.systemType -eq 'hcx-cloud'}) | select -First 1).activationKey
             if($HcxKey -eq $null) {
                 $HcxKey = New-HCXCloudActivationKey -SID $HcxSid -SystemType HCX-CLOUD
             }
