@@ -37,12 +37,13 @@ PowerShellVersion = '6.0'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Connect-NSXTProxy', 'Get-NSXTSegment', 'New-NSXTSegment', 'Remove-NSXTSegment', `
-'Get-NSXTGroup', 'New-NSXTGroup', 'Remove-NSXTGroup', 'Get-NSXTService', 'New-NSXTService', `
+'Get-NSXTGroup', 'New-NSXTGroup', 'Remove-NSXTGroup', 'Get-NSXTServiceDefinition', 'New-NSXTServiceDefinition', `
 'Get-NSXTFirewall', 'New-NSXTFirewall', 'Remove-NSXTFirewall', 'Get-NSXTDistFirewallSection', `
 'Get-NSXTDistFirewall', 'New-NSXTDistFirewall', 'Remove-NSXTDistFirewall', 'Get-NSXTRouteTable', `
 'Get-NSXTOverviewInfo', 'Get-NSXTInfraScope', 'Get-NSXTInfraGroup', 'New-NSXTRouteBasedVPN', `
-'Get-NSXTRouteBasedVPN', 'Remove-NSXTRouteBasedVPN', 'Remove-NSXTService', 'New-NSXTDistFirewallSection', 'Get-NSXTDistFirewallSection', `
-'New-NSXTPolicyBasedVPN', 'Get-NSXTPolicyBasedVPN', 'Remove-NSXTPolicyBasedVPN', 'Get-NSXTDNS', 'Set-NSXTDNS'
+'Get-NSXTRouteBasedVPN', 'Remove-NSXTRouteBasedVPN', 'Remove-NSXTServiceDefinition', 'New-NSXTDistFirewallSection', 'Get-NSXTDistFirewallSection', `
+'New-NSXTPolicyBasedVPN', 'Get-NSXTPolicyBasedVPN', 'Remove-NSXTPolicyBasedVPN', 'Get-NSXTDNS', 'Set-NSXTDNS', 'Get-NSXTPublicIP', 'New-NSXTPublicIP', `
+'Get-NSXTNatRule', 'New-NSXTNatRule', 'Remove-NSXTNatRule'
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
 
