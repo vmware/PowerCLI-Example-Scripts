@@ -520,7 +520,7 @@ Function New-NSXTFirewall {
             if($serviceName -eq "ANY") {
                 $services = @("ANY")
             } else {
-                $tmp = (Get-NSXTService -Name "$serviceName").Path
+                $tmp = (Get-NSXTServiceDefinition -Name "$serviceName").Path
                 $services+=$tmp
             }
         }
@@ -854,7 +854,7 @@ Function Remove-NSXTGroup {
     }
 }
 
-Function Get-NSXTService {
+Function Get-NSXTServiceDefinition {
 <#
     .NOTES
     ===========================================================================
@@ -870,9 +870,9 @@ Function Get-NSXTService {
     .DESCRIPTION
         This cmdlet retrieves all NSX-T Services
     .EXAMPLE
-        Get-NSXTService
+        Get-NSXTServiceDefinition
     .EXAMPLE
-        Get-NSXTService -Name "WINS"
+        Get-NSXTServiceDefinition -Name "WINS"
 #>
     param(
         [Parameter(Mandatory=$false)][String]$Name,
@@ -933,7 +933,7 @@ Function Get-NSXTService {
     }
 }
 
-Function Remove-NSXTService {
+Function Remove-NSXTServiceDefinition {
 <#
     .NOTES
     ===========================================================================
@@ -949,7 +949,7 @@ Function Remove-NSXTService {
     .DESCRIPTION
         This cmdlet removes an NSX-T Service
     .EXAMPLE
-        Remove-NSXTService -Id VMware-Blast -Troubleshoot
+        Remove-NSXTServiceDefinition -Id VMware-Blast -Troubleshoot
 #>
     Param (
         [Parameter(Mandatory=$True)]$Id,
@@ -987,7 +987,7 @@ Function Remove-NSXTService {
     }
 }
 
-Function New-NSXTService {
+Function New-NSXTServiceDefinition {
 <#
     .NOTES
     ===========================================================================
@@ -1003,7 +1003,7 @@ Function New-NSXTService {
     .DESCRIPTION
         This cmdlet creates a new NSX-T Service
     .EXAMPLE
-        New-NSXTService -Name "MyHTTP2" -Protocol TCP -DestinationPorts @("8080","8081")
+        New-NSXTServiceDefinition -Name "MyHTTP2" -Protocol TCP -DestinationPorts @("8080","8081")
 #>
     Param (
         [Parameter(Mandatory=$True)]$Name,
@@ -2571,15 +2571,16 @@ Function Set-NSXTDNS {
         $method = "PATCH"
         $dnsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/dns-forwarder-zones/$($GatewayType.toLower())-dns-zone"
 
-        if($Troubleshoot) {
-            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$dnsURL`n"
-        }
-
         $payload = @{
             upstream_servers = @($DNS)
         }
 
         $body = $payload | ConvertTo-Json -Depth 5
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$dnsURL`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
 
         try {
             if($PSVersionTable.PSEdition -eq "Core") {
@@ -2600,6 +2601,291 @@ Function Set-NSXTDNS {
 
         if($requests.StatusCode -eq 200) {
             Write-Host "Successfully updated NSX-T DNS for $GatewayType"
+        }
+    }
+}
+
+Function Get-NSXTPublicIP {
+    param(
+        [Parameter(Mandatory=$false)][String]$Name,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "GET"
+        $publicIPURL = ($global:nsxtProxyConnection.Server).replace("/sks-nsxt-manager","") + "/cloud-service/api/v1/infra/public-ips"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$publicIPURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $publicIPURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $publicIPURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Public IPs"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            $results = ($requests.Content | ConvertFrom-Json).results | select display_name,id,ip
+
+            if ($PSBoundParameters.ContainsKey("Name")){
+                $results | where {$_.display_name -eq $Name}
+            } else {
+                $results
+            }
+        }
+    }
+}
+
+Function New-NSXTPublicIP {
+    Param(
+        [Parameter(Mandatory=$false)][String]$Name,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "PUT"
+        $publicIPURL = ($global:nsxtProxyConnection.Server).replace("/sks-nsxt-manager","") + "/cloud-service/api/v1/infra/public-ips/$($Name)"
+
+        $payload = @{
+            display_name = "$Name";
+        }
+
+        $body = $payload | ConvertTo-Json
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$publicIPURL`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $publicIPURL -Method $method -Body $body -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $publicIPURL -Method $method -Body $body -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Public IPs"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Successfully requested new NSX-T Public IP Address"
+            ($requests.Content | ConvertFrom-Json) | select display_name,id,ip
+        }
+    }
+}
+
+Function Remove-NSXTPublicIP {
+    Param(
+        [Parameter(Mandatory=$false)][String]$Name,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "DELETE"
+        $publicIPURL = ($global:nsxtProxyConnection.Server).replace("/sks-nsxt-manager","") + "/cloud-service/api/v1/infra/public-ips/$($Name)"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$publicIPURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $publicIPURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $publicIPURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in deleting NSX-T Public IPs"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Successfully deleted NSX-T Public IP Address $Name"
+        }
+    }
+}
+
+Function Get-NSXTNatRule {
+    param(
+        [Parameter(Mandatory=$false)][String]$Name,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "GET"
+        $natURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-1s/cgw/nat/USER/nat-rules"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$natURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $natURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $natURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in retrieving NSX-T Public IPs"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            $results = ($requests.Content | ConvertFrom-Json).results | select id,display_name,sequence_number,source_network,translated_network,destination_network,translated_ports,service,scope
+
+            if ($PSBoundParameters.ContainsKey("Name")){
+                $results | where {$_.display_name -eq $Name}
+            } else {
+                $results
+            }
+        }
+    }
+}
+
+Function New-NSXTNatRule {
+    Param(
+        [Parameter(Mandatory=$true)][String]$Name,
+        [Parameter(Mandatory=$true)][String]$PublicIP,
+        [Parameter(Mandatory=$true)][String]$InternalIP,
+        [Parameter(Mandatory=$true)][String]$Service,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $method = "PUT"
+        $natURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-1s/cgw/nat/USER/nat-rules/$($Name)"
+
+        if($service -eq "ANY") {
+            $payload = @{
+                display_name = $Name;
+                action = "REFLEXIVE";
+                service = "";
+                translated_network = $PublicIP;
+                source_network = $InternalIP;
+                scope = @("/infra/labels/cgw-public");
+                firewall_match = "MATCH_INTERNAL_ADDRESS";
+                logging = $false;
+                enabled = $true;
+                sequence_number = 0;
+            }
+        } else {
+            $nsxtService = Get-NSXTServiceDefinition -Name $Service
+            $servicePath = $nsxtService.path
+            $servicePort = $nsxtService.Destination
+
+            $payload = @{
+                display_name = $Name;
+                action = "DNAT";
+                service = $servicePath;
+                translated_network = $InternalIP;
+                translated_ports = $servicePort;
+                destination_network = $PublicIP
+                scope = @("/infra/labels/cgw-public");
+                firewall_match = "MATCH_EXTERNAL_ADDRESS";
+                logging = $false;
+                enabled = $true;
+                sequence_number = 0;
+            }
+        }
+
+        $body = $payload | ConvertTo-Json -Depth 5
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$natURL`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $natURL -Method $method -Body $body -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $natURL -Method $method -Body $body -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in creating NSX-T NAT Rule"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Successfully create new NAT Rule"
+            ($requests.Content | ConvertFrom-Json) | select id,display_name,sequence_number,source_network,translated_network,destination_network,translated_ports,service,scope
+        }
+    }
+}
+
+Function Remove-NSXTNatRule {
+    Param(
+        [Parameter(Mandatory=$false)][String]$Name,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+
+        $natRuleId = (Get-NSXTNatRule -Name $Name).id
+
+        $method = "DELETE"
+        $natURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-1s/cgw/nat/USER/nat-rules/$($natRuleId)"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$natURL`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $natURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $natURL -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in deleting NSX-T NAT Rule"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Successfully deleted NAT Rule $Name"
         }
     }
 }
