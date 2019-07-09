@@ -1160,7 +1160,7 @@ Function Get-NSXTDistFirewallSection {
             if($PSVersionTable.PSEdition -eq "Core") {
                 $requests = Invoke-WebRequest -Uri $distFirewallSectionURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
             } else {
-                $requests = Invoke-WebRequest -Uri $distFirdistFirewallSectionURL -Method $method -Headers $global:nsxtProxyConnection.headers
+                $requests = Invoke-WebRequest -Uri $distFirewallSectionURL -Method $method -Headers $global:nsxtProxyConnection.headers
             }
         } catch {
             if($_.Exception.Response.StatusCode -eq "Unauthorized") {
