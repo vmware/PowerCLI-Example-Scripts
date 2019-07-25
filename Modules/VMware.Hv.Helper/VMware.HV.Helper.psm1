@@ -1155,8 +1155,7 @@ function Get-HVFarm {
   if (! $farmList) {
     if (! $SuppressInfo) {
       Write-Host "Get-HVFarm: No Farm Found with given search parameters"
-	}
-    return $farmList
+	  }
   }
   $farm_service_helper = New-Object VMware.Hv.FarmService
   $queryResults = @()
@@ -11947,12 +11946,542 @@ function Set-HVInstantCloneMaintenance {
     [System.gc]::collect()  
   }
 }
+
+Function Get-HVApplication {
+<#
+.Synopsis
+   Gets the application information.
+
+.DESCRIPTION
+   Gets the application information. This will be useful to find out whether the specified application exists or not. If the application name is not specified, this will lists all the applications in the Pod.
+
+.PARAMETER ApplicationName
+   Name of the application.
+
+.PARAMETER HvServer
+   View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER FormatList
+   Displays the list of the available applications in Table Format if this parameter is set to True.
+
+.EXAMPLE
+   Get-HVApplication -ApplicationName 'App1' -HvServer $HvServer
+   Queries and returns 'App1' information.
+
+.EXAMPLE
+   Get-HVApplication -HvServer $HvServer -FormatList:$True
+   Lists all the applications in the Pod.
+
+.OUTPUTS
+   Returns the information of the specified application if it specified, else displays all the available applications.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.2
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [string]$ApplicationName = $Null,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    $HvServer = $Null,
+
+    [Parameter(Mandatory = $False)]
+    [string]$FormatList = $False
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve View API services from connection object."
+        break
+    }
+  }
+  process {
+    if ($ApplicationName) {
+        $eqFilter = Get-HVQueryFilter 'data.name' -Eq $ApplicationName
+        $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -Filter $eqFilter -HvServer $HvServer
+        if(!$ResourceObjs){Write-host "No application found with specified name: $ApplicationName"; return}
+        Write-host "Application found with specified name: $ApplicationName"
+        return $ResourceObjs
+    }
+    $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -HvServer $HvServer
+    if ($FormatList -eq $True){ return $ResourceObjs.data | Format-Table -AutoSize}
+    return $ResourceObjs.data
+    }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
+Function Remove-HVApplication {
+<#
+.Synopsis
+   Removes the specified application if exists.
+
+.DESCRIPTION
+   Removes the specified application if exists.
+
+.PARAMETER ApplicationName
+   Application to be deleted.
+   The name of the application must be given that is to be searched for and remove if exists.
+
+.PARAMETER HvServer
+   View API service object of Connect-HVServer cmdlet.
+
+.EXAMPLE
+   Remove-HVApplication -ApplicationName 'App1' -HvServer $HvServer
+   Removes 'App1', if exists.
+
+.OUTPUTS
+   Removes the specified application if exists.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.2
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [string]$ApplicationName,
+
+    [Parameter(Mandatory = $False)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve View API services from connection object"
+        break
+    }
+  }
+  process {
+    $App= Get-HVApplication -ApplicationName $ApplicationName -HvServer $HvServer
+    if (!$App) {
+        Write-Host "Application '$ApplicationName' not found. $_"
+        return
+    }
+    $AppService= New-Object VMware.Hv.ApplicationService
+    $AppService.Application_Delete($services,$App.Id)
+    if ($?) {
+        Write-Host "'$ApplicationName' has been successfully removed."
+    }
+  }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
+Function New-HVManualApplication {
+<#
+.Synopsis
+   Creates a Manual Application.
+
+.DESCRIPTION
+   Creates Application manually with given parameters.
+
+.PARAMETER HvServer
+    View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER Name
+    The Application name is the unique identifier used to identify this Application.
+
+.PARAMETER DisplayName
+    The display name is the name that users will see when they connect to view client. If the display name is left blank, it defaults to Name.
+
+.PARAMETER Description
+    The description is a set of notes about the Application.
+
+.PARAMETER ExecutablePath
+    Path to Application executable.
+
+.PARAMETER Version
+    Application version.
+
+.PARAMETER Publisher
+    Application publisher.
+
+.PARAMETER Enabled
+    Indicates if Application is enabled.
+
+.PARAMETER EnablePreLaunch
+    Application can be pre-launched if value is true.
+
+.PARAMETER ConnectionServerRestrictions
+    Connection server restrictions. This is a list of tags that access to the application is restricted to. Empty/Null list means that the application can be accessed from any connection server.
+
+.PARAMETER CategoryFolderName
+    Name of the category folder in the user's OS containing a shortcut to the application. Unset if the application does not belong to a category.
+
+.PARAMETER ClientRestrictions
+    Client restrictions to be applied to Application. Currently it is valid for RDSH pools.
+
+.PARAMETER ShortcutLocations
+    Locations of the category folder in the user's OS containing a shortcut to the desktop. The value must be set if categoryFolderName is provided.
+
+.PARAMETER MultiSessionMode
+    Multi-session mode for the application. An application launched in multi-session mode does not support reconnect behavior when user logs in from a different client instance.
+
+.PARAMETER MaxMultiSessions
+    Maximum number of multi-sessions a user can have in this application pool.
+
+.PARAMETER StartFolder
+    Starting folder for Application.
+
+.PARAMETER Args
+    Parameters to pass to application when launching.
+
+.PARAMETER Farm
+    Farm name.
+
+.PARAMETER AutoUpdateFileTypes
+    Whether or not the file types supported by this application should be allowed to automatically update to reflect changes reported by the agent.
+
+.PARAMETER AutoUpdateOtherFileTypes
+    Whether or not the other file types supported by this application should be allowed to automatically update to reflect changes reported by the agent.
+
+.EXAMPLE
+   New-HVManualApplication -Name 'App1' -DisplayName 'DisplayName' -Description 'ApplicationDescription' -ExecutablePath "PathOfTheExecutable" -Version 'AppVersion' -Publisher 'PublisherName' -Farm 'FarmName'
+   Creates a manual application App1 in the farm specified.
+
+.OUTPUTS
+    A success message is displayed when done.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [VMware.VimAutomation.HorizonView.Impl.V1.ViewServerImpl]$HvServer,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [string][ValidateLength(1,64)]$Name,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,256)]$DisplayName = $Name,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,1024)]$Description,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String]$ExecutablePath,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String]$Version,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String]$Publisher,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$Enabled = $True,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$EnablePreLaunch=$False,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [string[]]$ConnectionServerRestrictions,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True, ParameterSetName = 'categoryFolderName')]
+    [String][ValidateRange(1,64)]$CategoryFolderName,
+
+    #Below Parameter is for Client restrictions to be applied to Application. Currently it is valid for RDSH pools.
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$clientRestrictions = $False,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True, ParameterSetName = 'categoryFolderName')]
+    [String[]]$ShortcutLocations,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [ValidateSet('DISABLED','ENABLED_DEFAULT_OFF','ENABLED_DEFAULT_ON','ENABLED_ENFORCED')]
+    [String]$MultiSessionMode = 'DISABLED',
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [ValidateScript({if(($MultiSessionMode -eq 'ENABLED_DEFAULT_OFF') -or ($MultiSessionMode -eq 'ENABLED_DEFAULT_ON') -or ($MultiSessionMode -eq 'ENABLED_ENFORCED')){$_ -eq 1}})]
+    [Int]$MaxMultiSessions,
+
+    #Below parameters are for ExecutionData, moved ExecutablePath, Version and Publisher to above from this.
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String]$StartFolder,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String]$Args,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String]$Farm,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$AutoUpdateFileTypes = $True,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$AutoUpdateOtherFileTypes = $True
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve View API services from connection object"
+        break
+    }
+    $FarmInfo = Get-HVFarm -FarmName $Farm
+    if ($null -eq $FarmInfo) {
+        Write-Error "Could not find the specified Farm."
+        break
+    }
+  }
+  process {
+    $App = Get-HVApplication -ApplicationName $Name -HvServer $HvServer
+    if ($App) {
+        Write-Host "Application already exists with the name : $Name"
+        return
+    }
+    $AppData = New-Object VMware.Hv.ApplicationData -Property @{ 'Name' = $Name; 'DisplayName' = $DisplayName; 'Description' = $Description; 'Enabled' = $Enabled; 'EnableAntiAffinityRules' = $EnableAntiAffinityRules; 'AntiAffinityPatterns' = $AntiAffinityPatterns; 'AntiAffinityCount' = $AntiAffinityCount; 'EnablePreLaunch' = $EnablePreLaunch; 'multiSessionMode' = $MultiSessionMode; 'maxMultiSessions' = $MaxMultiSessions; 'ConnectionServerRestrictions' = $ConnectionServerRestrictions; 'CategoryFolderName' = $CategoryFolderName; 'ClientRestrictions' = $ClientRestrictions; 'ShortcutLocations' = $ShortcutLocations}
+    $ExecutionData = New-object VMware.Hv.ApplicationExecutionData -Property @{ 'ExecutablePath' = $ExecutablePath; 'Version' = $Version; 'Publisher' = $Publisher; 'StartFolder' = $StartFolder; 'Args' = $Args; 'Farm' = $FarmInfo.id; 'AutoUpdateFileTypes' = $AutoUpdateFileTypes; 'AutoUpdateOtherFileTypes' = $AutoUpdateOtherFileTypes}
+    $AppSpec = New-Object VMware.Hv.ApplicationSpec -Property @{ 'Data' = $AppData; 'ExecutionData' = $ExecutionData}
+    $AppService = New-Object VMware.Hv.ApplicationService
+    $AppService.Application_Create($services,$AppSpec)
+    if ($?) {
+        Write-Host "Application '$Name' created successfully"
+        return
+    }
+    Write-Host "Application creation of '$Name' has failed. $_"
+  }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
+Function Get-HVPreInstalledApplication {
+<#
+.Synopsis
+   Gets the list of Pre-installed Applications from the RDS Server(s).
+
+.DESCRIPTION
+   Gets the list of Pre-installed Applications from the RDS Server(s).
+
+.PARAMETER FarmName
+   Name of the Farm on which to discover installed applications.
+
+.PARAMETER HvServer
+   View API service object of Connect-HVServer cmdlet.
+
+.EXAMPLE
+   Get-HVPreInstalledApplication -FarmName 'Farm1' -HvServer $HvServer
+   Gets the list of Applications present in 'Farm1', if exists.
+
+.OUTPUTS
+   Gets the list of Applications from the specified Farm if exists.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,64)]$FarmName,
+
+    [Parameter(Mandatory = $False)]
+    $HvServer = $null
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve ViewApi services from connection object"
+        break
+    }
+    $Farm = Get-HVFarm -FarmName $FarmName
+    if($null -eq $Farm) {
+        Write-Error "Could not find the specified Farm."
+        break
+    }
+  }
+  process {
+    $FarmService = New-Object VMware.Hv.FarmService
+    $Data = $FarmService.Farm_DiscoverInstalledApplications($services,$Farm.Id)
+    return $Data
+  }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
+Function New-HVPreInstalledApplication {
+<#
+.Synopsis
+   Creates a application pool from Pre-installed applications on RDS Server(s).
+
+.DESCRIPTION
+   Creates a application pool from Pre-installed applications on RDS Server(s).
+
+.PARAMETER HvServer
+    View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER ApplicationName
+    The Application name is the unique identifier used to identify this Application.
+
+.PARAMETER DisplayName
+    The display name is the name that users will see when they connect to view client. If the display name is left blank, it defaults to Name.
+
+.PARAMETER FarmName
+    Farm name.
+
+.PARAMETER EnablePreLaunch
+    Application can be pre-launched if value is true.
+
+.PARAMETER ConnectionServerRestrictions
+    Connection server restrictions. This is a list of tags that access to the application is restricted to. Empty/Null list means that the application can be accessed from any connection server.
+
+.PARAMETER CategoryFolderName
+    Name of the category folder in the user's OS containing a shortcut to the application. Unset if the application does not belong to a category.
+
+.PARAMETER ClientRestrictions
+    Client restrictions to be applied to Application. Currently it is valid for RDSH pools.
+
+.EXAMPLE
+   New-HVPreInstalledApplication -ApplicationName 'App1' -DisplayName 'DisplayName' -FarmName 'FarmName'
+   Creates a application App1 from the farm specified.
+
+.EXAMPLE
+   New-HVPreInstalledApplication -ApplicationName 'App2' -FarmName FarmManual -EnablePreLaunch $True
+   Creates a application App2 from the farm specified and the PreLaunch option will be enabled.
+
+.OUTPUTS
+    A success message is displayed when done.
+
+.NOTES
+    Author                      : Samiullasha S
+    Author email                : ssami@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.0
+#>
+  param (
+    [Parameter(Mandatory = $False)]
+    $HvServer = $null,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [string][ValidateLength(1,64)]$ApplicationName,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,256)]$DisplayName = $ApplicationName,
+
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String][ValidateLength(1,64)]$FarmName,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$EnablePreLaunch=$False,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [string[]]$ConnectionServerRestrictions,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True,ParameterSetName = 'categoryFolderName')]
+    [String][ValidateRange(1,64)]$CategoryFolderName,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [Boolean]$clientRestrictions = $False
+  )
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve ViewApi services from connection object"
+        break
+    }
+    $FarmInfo = Get-HVFarm -FarmName $FarmName
+    if($null -eq $FarmInfo) {
+        Write-Error "Could not find the specified Farm $FarmName."
+        break
+    }
+  }
+  process {
+    #Validate the Application name uniqueness with existing applications.
+    $ResourceObjs = Get-HVApplication -HvServer $HvServer
+    foreach($App in ($ResourceObjs.name)) {
+        if($App -eq $ApplicationName) {
+            Write-Host "$ApplicationName already exists in the Application Pool."
+            return
+        }
+    }
+    #Validate the application name uniqueness with Desktops.
+    $DesktopSummary = Get-HVQueryResult -EntityType DesktopSummaryView -HvServer $hvserver
+    foreach($App in $DesktopSummary) {
+        if($App.DesktopSummaryData.Name -eq $ApplicationName) {
+            Write-Host "$ApplicationName already exists in the Desktop Pool."
+            return
+        }
+    }
+    #get all the applications installed in RDS Server(s).
+    $AppsInRDS = Get-HVPreinstalledApplication -FarmName $FarmName
+    $AppFoundInRDS = $False
+    foreach($App in ($AppsInRDS)) {
+        if($($App.name) -eq ($ApplicationName)) {
+            $AppFoundInRDS = $True
+            $ApplicationID = $ApplicationName -replace " ","_"
+            $ApplicationData = New-Object VMware.Hv.ApplicationData -Property @{ 'Name' = $ApplicationID;
+                            'DisplayName' = $DisplayName;
+                            'EnablePreLaunch' = $EnablePreLaunch;
+                            'ConnectionServerRestrictions' = $ConnectionServerRestrictions;
+                            'CategoryFolderName' = $CategoryFolderName;
+                            'ClientRestrictions' = $ClientRestrictions }
+            $ExecutionData = New-object VMware.Hv.ApplicationExecutionData -Property @{ 'ExecutablePath' = $App.ExecutionData.ExecutablePath;
+                            'Version' = $App.ExecutionData.Version;
+                            'Publisher' = $App.ExecutionData.Publisher;
+                            'Args' = $App.ExecutionData.Args;
+                            'StartFolder' = $App.ExecutionData.StartFolder;
+                            'Farm' = $FarmInfo.Id;
+                            'AutoUpdateFileTypes' = $App.ExecutionData.AutoUpdateFileTypes;
+                            'AutoUpdateOtherFileTypes' = $App.executionData.AutoUpdateOtherFileTypes }
+            $ApplicationSpec = New-Object VMware.Hv.ApplicationSpec -Property @{ 'Data' = $ApplicationData; 'ExecutionData' = $ExecutionData}
+            $AppService = New-Object VMware.Hv.ApplicationService
+            $AppService.Application_Create($services,$ApplicationSpec)
+            if($?) {
+                Write-Host "Application '$ApplicationName' created successfully"
+                return
+            }
+            Write-Host "Failed to create Application '$ApplicationName'. $_ "
+            return
+        }
+    }
+    if ($AppFoundInRDS -eq $False) {
+        Write-Host ""$ApplicationName" does not exist in any of the RDS Server(s) belongs to the Farm $FarmName."
+    }
+  }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
 # Object related
 Export-ModuleMember -Function Get-HVMachine, Get-HVMachineSummary, Get-HVQueryResult, Get-HVQueryFilter, Get-HVInternalName
 # RDS Farm related
 Export-ModuleMember -Function Get-HVFarmSummary, Start-HVFarm, Start-HVPool, New-HVFarm, Remove-HVFarm, Get-HVFarm, Set-HVFarm, Add-HVRDSServer
 # Desktop Pool related
 Export-ModuleMember -Function Get-HVPoolSummary, New-HVPool, Remove-HVPool, Get-HVPool, Set-HVPool, Get-HVPoolSpec, Add-HVDesktop
+# Application Pool related
+Export-ModuleMember -Function Get-HVApplication, Remove-HVApplication, New-HVManualApplication, Get-HVPreInstalledApplication, New-HVPreInstalledApplication
 # Entitlement related
 Export-ModuleMember -Function New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement
 Export-ModuleMember -Function Set-HVMachine, Reset-HVMachine, Remove-HVMachine

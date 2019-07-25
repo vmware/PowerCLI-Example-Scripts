@@ -81,13 +81,13 @@ Function Get-VMCOrg {
         Return all the info about the orgs you are a part of
 #>
     Param (
-       [Parameter(Mandatory=$false)]$Name
+        [Parameter(Mandatory=$false)]$Name
     )
 
     If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use Connect-VMC to connect" } Else {
         $orgService = Get-VMCService com.vmware.vmc.orgs
         if ($PSBoundParameters.ContainsKey("Name")){
-            $orgs = $orgService.list() | Where {$_.display_name -match $Name}
+            $orgs = $orgService.list() | Where {$_.display_name -eq $Name}
         } Else {
             $orgs = $orgService.list()
         }
@@ -130,7 +130,7 @@ Function Get-VMCSDDC {
             $orgID = $org.ID
             $sddcService = Get-VMCService com.vmware.vmc.orgs.sddcs
             if ($PSBoundParameters.ContainsKey("Name")){
-                $sddcService.list($OrgID) | Where {$_.name -match $Name}
+                $sddcService.list($OrgID) | Where {$_.name -eq $Name}
             } Else {
                 $sddcService.list($OrgID)
             }
@@ -874,8 +874,8 @@ Function Get-VMCSDDCSummary {
             Get-VMCSDDCSummary -Name <SDDC Name> -Org <Org Name>
     #>
         Param (
-            [Parameter(Mandatory=$True)]$OrgName,
-            [Parameter(Mandatory=$True)]$SDDCName
+            [Parameter(Mandatory=$True)]$Org,
+            [Parameter(Mandatory=$True)]$Name
         )
 
         If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
@@ -895,6 +895,7 @@ Function Get-VMCSDDCSummary {
                 InstanceType = $sddc.resource_config.sddc_manifest.esx_ami.instance_type;
                 VpcCIDR = $sddc.resource_config.vpc_info.vpc_cidr;
                 NSXT = $sddc.resource_config.nsxt;
+                VPC_VGW = $sddc.resource_config.vpc_info.vgw_id;
             }
             $results
         }
@@ -903,7 +904,7 @@ Function Get-VMCPublicIP {
     <#
         .NOTES
         ===========================================================================
-        Created by:    William Lam
+        Created by:    William LamVPC_VGW
         Date:          09/12/2018
         Organization:  VMware
         Blog:          http://www.virtuallyghetto.com
