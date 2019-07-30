@@ -12283,7 +12283,6 @@ Function New-HVManualApplication {
         return
     }
     Write-Host "Application creation of '$Name' has failed. $_"
-    Return $AppSpec
   }
   end {
     [System.GC]::Collect()
