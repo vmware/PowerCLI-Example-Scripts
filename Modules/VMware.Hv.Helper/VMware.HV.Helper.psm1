@@ -213,6 +213,8 @@ function Get-HVvCenterServerHealth {
   begin {
     $services = Get-ViewAPIService -hvServer $hvServer
 
+    Write-Warning "Get-HvVcenterServerHealth is targeted for deprecation in a future release. Use Get-HVHealth -Servicename VirtualCenter instead."
+
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -8019,6 +8021,10 @@ function Get-HVInternalName {
          $info = $services.ViewComposerDomainAdministrator.ViewComposerDomainAdministrator_Get($AdministratorId)
          return $info.base.userName
        }
+       'GlobalApplicationEntitlement' {
+         $info = $services.GlobalApplicationEntitlement.GlobalApplicationEntitlement_Get($EntityId)
+         return $info.Base.displayName
+       }
        default {
          $base64String  = $tokens[$tokens.Length-1]
          $mod = $base64String.Length % 4
@@ -10567,7 +10573,7 @@ $bye = $machineService.Machine_DeleteMachines($services,$deleteMachine.id,$delet
 
 }
 
-function get-hvhealth {
+function Get-HVHealth {
 	<#
 	.Synopsis
 	   Pulls health information from Horizon View
@@ -10577,7 +10583,7 @@ function get-hvhealth {
 	
 	.PARAMETER Servicename
 	  The name of the service to query the health for.
-    This will default to Connection server health. 
+    This will default to Connection server health.
     Available services are ADDomain,CertificateSSOConnector,ConnectionServer,EventDatabase,SAMLAuthenticator,SecurityServer,ViewComposer,VirtualCenter,Pod
 		
 	.PARAMETER HvServer
@@ -10585,12 +10591,12 @@ function get-hvhealth {
 		first element from global:DefaultHVServers would be considered in-place of hvServer
 	
 	.EXAMPLE
-	   get-hvhealth -service connectionserver
+	   Get-HVHealth -service connectionserver
 	   Returns health for the connectionserver(s)
 
 	
 	.EXAMPLE
-	   get-hvhealth -service ViewComposer
+	   Get-HVHealth -service ViewComposer
 	   Returns health for the View composer server(s)
 	
 	.NOTES
@@ -12011,9 +12017,13 @@ Function Get-HVApplication {
         return $ResourceObjs
     }
     $ResourceObjs = Get-HVQueryResult -EntityType ApplicationInfo -HvServer $HvServer
-    if ($FormatList -eq $True){ return $ResourceObjs.data | Format-Table -AutoSize}
-    return $ResourceObjs.data
+    if ($FormatList -eq $True){
+      return $ResourceObjs.data | Format-Table -AutoSize
+    } else {
+      return $ResourceObjs
     }
+
+  }
   end {
     [System.GC]::Collect()
   }
@@ -12085,10 +12095,10 @@ Function Remove-HVApplication {
 Function New-HVManualApplication {
 <#
 .Synopsis
-   Creates a Manual Application.
+    Creates a Manual Application.
 
 .DESCRIPTION
-   Creates Application manually with given parameters.
+    Creates Application manually with given parameters.
 
 .PARAMETER HvServer
     View API service object of Connect-HVServer cmdlet.
@@ -12150,9 +12160,12 @@ Function New-HVManualApplication {
 .PARAMETER AutoUpdateOtherFileTypes
     Whether or not the other file types supported by this application should be allowed to automatically update to reflect changes reported by the agent.
 
+.PARAMETER GlobalApplicationEntitlement
+    Specify the Display Name of a Global Application Entitlement to add this Application Pool to.
+
 .EXAMPLE
-   New-HVManualApplication -Name 'App1' -DisplayName 'DisplayName' -Description 'ApplicationDescription' -ExecutablePath "PathOfTheExecutable" -Version 'AppVersion' -Publisher 'PublisherName' -Farm 'FarmName'
-   Creates a manual application App1 in the farm specified.
+    New-HVManualApplication -Name 'App1' -DisplayName 'DisplayName' -Description 'ApplicationDescription' -ExecutablePath "PathOfTheExecutable" -Version 'AppVersion' -Publisher 'PublisherName' -Farm 'FarmName'
+    Creates a manual application App1 in the farm specified.
 
 .OUTPUTS
     A success message is displayed when done.
@@ -12230,7 +12243,10 @@ Function New-HVManualApplication {
     [Boolean]$AutoUpdateFileTypes = $True,
 
     [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
-    [Boolean]$AutoUpdateOtherFileTypes = $True
+    [Boolean]$AutoUpdateOtherFileTypes = $True,
+
+    [Parameter(Mandatory = $False)]
+    [String]$GlobalApplicationEntitlement = $null
   )
   begin {
     $services = Get-ViewAPIService -HvServer $HvServer
@@ -12243,6 +12259,13 @@ Function New-HVManualApplication {
         Write-Error "Could not find the specified Farm."
         break
     }
+    if ( $PSBoundParameters.ContainsKey('GlobalApplicationEntitlement') ) {
+      $GlobalApplicationEntitlementInfo = Get-HVGlobalEntitlement -DisplayName $GlobalApplicationEntitlement
+      $GlobalApplicationEntitlementId = $GlobalApplicationEntitlementInfo.Id
+    } else {
+      $GlobalApplicationEntitlementId = $null
+    }
+
   }
   process {
     $App = Get-HVApplication -ApplicationName $Name -HvServer $HvServer
@@ -12250,9 +12273,9 @@ Function New-HVManualApplication {
         Write-Host "Application already exists with the name : $Name"
         return
     }
-    $AppData = New-Object VMware.Hv.ApplicationData -Property @{ 'Name' = $Name; 'DisplayName' = $DisplayName; 'Description' = $Description; 'Enabled' = $Enabled; 'EnableAntiAffinityRules' = $EnableAntiAffinityRules; 'AntiAffinityPatterns' = $AntiAffinityPatterns; 'AntiAffinityCount' = $AntiAffinityCount; 'EnablePreLaunch' = $EnablePreLaunch; 'multiSessionMode' = $MultiSessionMode; 'maxMultiSessions' = $MaxMultiSessions; 'ConnectionServerRestrictions' = $ConnectionServerRestrictions; 'CategoryFolderName' = $CategoryFolderName; 'ClientRestrictions' = $ClientRestrictions; 'ShortcutLocations' = $ShortcutLocations}
-    $ExecutionData = New-object VMware.Hv.ApplicationExecutionData -Property @{ 'ExecutablePath' = $ExecutablePath; 'Version' = $Version; 'Publisher' = $Publisher; 'StartFolder' = $StartFolder; 'Args' = $Args; 'Farm' = $FarmInfo.id; 'AutoUpdateFileTypes' = $AutoUpdateFileTypes; 'AutoUpdateOtherFileTypes' = $AutoUpdateOtherFileTypes}
-    $AppSpec = New-Object VMware.Hv.ApplicationSpec -Property @{ 'Data' = $AppData; 'ExecutionData' = $ExecutionData}
+    $AppData = New-Object VMware.Hv.ApplicationData -Property @{ 'name' = $Name; 'displayName' = $DisplayName; 'description' = $Description; 'enabled' = $Enabled; 'enableAntiAffinityRules' = $EnableAntiAffinityRules; 'antiAffinityPatterns' = $AntiAffinityPatterns; 'antiAffinityCount' = $AntiAffinityCount; 'enablePreLaunch' = $EnablePreLaunch; 'connectionServerRestrictions' = $ConnectionServerRestrictions; 'categoryFolderName' = $CategoryFolderName; 'clientRestrictions' = $ClientRestrictions; 'shortcutLocations' = $ShortcutLocations; 'globalApplicationEntitlement' = $GlobalApplicationEntitlementId }
+    $ExecutionData = New-Object VMware.Hv.ApplicationExecutionData -Property @{ 'executablePath' = $ExecutablePath; 'version' = $Version; 'publisher' = $Publisher; 'startFolder' = $StartFolder; 'args' = $Args; 'farm' = $FarmInfo.id; 'autoUpdateFileTypes' = $AutoUpdateFileTypes; 'autoUpdateOtherFileTypes' = $AutoUpdateOtherFileTypes}
+    $AppSpec = New-Object VMware.Hv.ApplicationSpec -Property @{ 'data' = $AppData; 'executionData' = $ExecutionData}
     $AppService = New-Object VMware.Hv.ApplicationService
     $AppService.Application_Create($services,$AppSpec)
     if ($?) {
@@ -12260,6 +12283,7 @@ Function New-HVManualApplication {
         return
     }
     Write-Host "Application creation of '$Name' has failed. $_"
+    Return $AppSpec
   }
   end {
     [System.GC]::Collect()
