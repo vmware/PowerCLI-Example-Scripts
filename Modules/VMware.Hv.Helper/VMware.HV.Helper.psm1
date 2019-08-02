@@ -12161,7 +12161,7 @@ Function New-HVManualApplication {
     Whether or not the other file types supported by this application should be allowed to automatically update to reflect changes reported by the agent.
 
 .PARAMETER GlobalApplicationEntitlement
-    Specify the Display Name of a Global Application Entitlement to add this Application Pool to.
+    The name of a Global Application Entitlement to associate this Application pool with.
 
 .EXAMPLE
     New-HVManualApplication -Name 'App1' -DisplayName 'DisplayName' -Description 'ApplicationDescription' -ExecutablePath "PathOfTheExecutable" -Version 'AppVersion' -Publisher 'PublisherName' -Farm 'FarmName'
@@ -12497,6 +12497,240 @@ Function New-HVPreInstalledApplication {
   }
 }
 
+function Set-HVApplication {
+<#
+.Synopsis
+    Updates settings for an existing Application Pool.
+
+.DESCRIPTION
+    Updates settings for an existing Application Pool. It does not update the Application Icon. See Set-HVApplicationIcon for a function to update icons. This function specifically targets ApplicationInfo.Data and Application.ExecutionData properties.
+
+.PARAMETER HvServer
+    View API service object of Connect-HVServer cmdlet.
+
+.PARAMETER Name
+    The Application name is the unique identifier used to identify this Application. This cannot be updated but is used to specify which application should be updated.
+
+.PARAMETER DisplayName
+    The display name is the name that users will see when they connect to view client. If the display name is left blank, it defaults to Name.
+
+.PARAMETER Description
+    The description is a set of notes about the Application.
+
+.PARAMETER GlobalApplicationEntitlement
+    The name of a Global Application Entitlement to associate this Application pool with.
+
+.PARAMETER ExecutablePath
+    Path to Application executable.
+
+.PARAMETER Version
+    Application version.
+
+.PARAMETER Publisher
+    Application publisher.
+
+.PARAMETER Enabled
+    Indicates if Application is enabled.
+
+.PARAMETER EnablePreLaunch
+    Application can be pre-launched if value is true.
+
+.PARAMETER ConnectionServerRestrictions
+    Connection server restrictions. This is a list of tags that access to the application is restricted to. Empty/Null list means that the application can be accessed from any connection server.
+
+.PARAMETER CategoryFolderName
+    Name of the category folder in the user's OS containing a shortcut to the application. Unset if the application does not belong to a category.
+
+.PARAMETER ClientRestrictions
+    Client restrictions to be applied to Application. Currently it is valid for RDSH pools.
+
+.PARAMETER ShortcutLocations
+    Locations of the category folder in the user's OS containing a shortcut to the desktop. The value must be set if categoryFolderName is provided.
+
+.PARAMETER StartFolder
+    Starting folder for Application.
+
+.PARAMETER Args
+    Parameters to pass to application when launching.
+
+.PARAMETER Farm
+    Farm name.
+
+.PARAMETER AutoUpdateFileTypes
+    Whether or not the file types supported by this application should be allowed to automatically update to reflect changes reported by the agent.
+
+.PARAMETER AutoUpdateOtherFileTypes
+    Whether or not the other file types supported by this application should be allowed to automatically update to reflect changes reported by the agent.
+
+.PARAMETER GlobalApplicationEntitlement
+    Specify the Display Name of a Global Application Entitlement to add this Application Pool to.
+
+.EXAMPLE
+    New-HVManualApplication -Name 'App1' -DisplayName 'DisplayName' -Description 'ApplicationDescription' -ExecutablePath "PathOfTheExecutable" -Version 'AppVersion' -Publisher 'PublisherName' -Farm 'FarmName'
+    Creates a manual application App1 in the farm specified.
+
+.OUTPUTS
+    A success message is displayed when done.
+
+.NOTES
+    Author                      : Matt Frey
+    Author email                : mfrey@vmware.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 7.8.0
+    PowerCLI Version            : PowerCLI 11.1
+    PowerShell Version          : 5.1
+#>
+param (
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [VMware.VimAutomation.HorizonView.Impl.V1.ViewServerImpl]$HvServer,
+
+  [Parameter(Mandatory = $True, ValueFromPipeline = $True, Position = 0)]
+  [string][ValidateLength(1,64)]$Name,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [String][ValidateLength(1,256)]$DisplayName = $Name,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [String][ValidateLength(1,1024)]$Description,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [String]$ExecutablePath,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [String]$Version,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [String]$Publisher,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [Boolean]$Enabled = $True,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [Boolean]$EnablePreLaunch=$False,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [string[]]$ConnectionServerRestrictions,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True, ParameterSetName = 'categoryFolderName')]
+  [String][ValidateRange(1,64)]$CategoryFolderName,
+
+  #Below Parameter is for Client restrictions to be applied to Application. Currently it is valid for RDSH pools.
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [Boolean]$clientRestrictions = $False,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True, ParameterSetName = 'categoryFolderName')]
+  [String[]]$ShortcutLocations,
+
+  #Below parameters are for ExecutionData, moved ExecutablePath, Version and Publisher to above from this.
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [String]$StartFolder,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [String]$Args,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [Boolean]$AutoUpdateFileTypes = $True,
+
+  [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+  [Boolean]$AutoUpdateOtherFileTypes = $True,
+
+  [Parameter(Mandatory = $False)]
+  [String]$GlobalApplicationEntitlement = $null
+)
+  begin {
+    $services = Get-ViewAPIService -HvServer $HvServer
+    if ($null -eq $services) {
+        Write-Error "Could not retrieve View API services from connection object"
+        break
+    }
+  }
+  process {
+    $App = Get-HVApplication -ApplicationName $Name -HvServer $HvServer
+    if (!$App) {
+        Write-Error "Application $App not found. Please check the syntax or spelling."
+        return
+    }
+
+    $updates = @()
+    if ($PSBoundParameters.ContainsKey("DisplayName")) {
+    	$updates += Get-MapEntry -key 'data.displayName' -value $DisplayName
+    }
+    if ($PSBoundParameters.ContainsKey("Description")) {
+    	$updates += Get-MapEntry -key 'data.description' -value $Description
+    }
+    if ($PSBoundParameters.ContainsKey("Enabled")) {
+      $updates += Get-MapEntry -key 'data.enabled' -value $Enabled
+    }
+    if ($PSBoundParameters.ContainsKey("EnableAntiAffinityRules")) {
+    	$updates += Get-MapEntry -key 'data.enableAntiAffinityRules' -value $EnableAntiAffinityRules
+    }
+    if ($PSBoundParameters.ContainsKey("EnableAntiAffinityPatterns")) {
+    	$updates += Get-MapEntry -key 'data.enableAntiAffinityPatterns' -value $EnableAntiAffinityPatterns
+    }
+    if ($PSBoundParameters.ContainsKey("EnableAntiAffinityCount")) {
+    	$updates += Get-MapEntry -key 'data.enableAntiAffinityCount' -value $EnableAntiAffinityCount
+    }
+    if ($PSBoundParameters.ContainsKey("EnablePreLaunch")) {
+    	$updates += Get-MapEntry -key 'data.enablePreLaunch' -value $EnablePreLaunch
+    }
+    if ($PSBoundParameters.ContainsKey("ConnectionServerRestrictions")) {
+    	$updates += Get-MapEntry -key 'data.connectionServerRestrictions' -value $ConnectionServerRestrictions
+    }
+    if ($PSBoundParameters.ContainsKey("EnableAntiAffinityRules")) {
+    	$updates += Get-MapEntry -key 'data.enableAntiAffinityRules' -value $EnableAntiAffinityRules
+    }
+    if ($PSBoundParameters.ContainsKey("CategoryFolderName")) {
+    	$updates += Get-MapEntry -key 'data.categoryFolderName' -value $CategoryFolderName
+    }
+    if ($PSBoundParameters.ContainsKey("ClientRestrictions")) {
+    	$updates += Get-MapEntry -key 'data.clientRestrictions' -value $ClientRestrictions
+    }
+    if ($PSBoundParameters.ContainsKey("ShortcutLocations")) {
+    	$updates += Get-MapEntry -key 'data.shortcutLocations' -value $ShortcutLocations
+    }
+    if ($PSBoundParameters.ContainsKey("GlobalApplicationEntitlement")) {
+      $GlobalApplicationEntitlementInfo = Get-HVGlobalEntitlement -DisplayName $GlobalApplicationEntitlement
+      $GlobalApplicationEntitlementId = $GlobalApplicationEntitlementInfo.Id
+    	$updates += Get-MapEntry -key 'data.globalApplicationEntitlement' -value $GlobalApplicationEntitlementId
+    }
+
+    if ($PSBoundParameters.ContainsKey("ExecutablePath")) {
+      $updates += Get-MapEntry -key 'executionData.executablePath' -value $ExecutablePath
+    }
+    if ($PSBoundParameters.ContainsKey("Version")) {
+    	$updates += Get-MapEntry -key 'executionData.version' -value $Version
+    }
+    if ($PSBoundParameters.ContainsKey("Publisher")) {
+    	$updates += Get-MapEntry -key 'executionData.publisher' -value $Publisher
+    }
+    if ($PSBoundParameters.ContainsKey("StartFolder")) {
+    	$updates += Get-MapEntry -key 'executionData.startFolder' -value $StartFolder
+    }
+    if ($PSBoundParameters.ContainsKey("Args")) {
+    	$updates += Get-MapEntry -key 'executionData.args' -value $Args
+    }
+    if ($PSBoundParameters.ContainsKey("AutoUpdateFileTypes")) {
+    	$updates += Get-MapEntry -key 'executionData.autoUpdateFileTypes' -value $AutoUpdateFileTypes
+    }
+    if ($PSBoundParameters.ContainsKey("AutoUpdateOtherFileTypes")) {
+    	$updates += Get-MapEntry -key 'executionData.autoUpdateOtherFileTypes' -value $AutoUpdateOtherFileTypes
+    }
+
+    $AppService = New-Object VMware.Hv.ApplicationService
+    $AppService.Application_Update($services,$App.Id,$updates)
+    if ($?) {
+        Write-Host "Application '$Name' updated successfully"
+        return
+    }
+    Write-Host "Application update to '$Name' has failed. $_"
+  }
+  end {
+    [System.GC]::Collect()
+  }
+}
+
 # Object related
 Export-ModuleMember -Function Get-HVMachine, Get-HVMachineSummary, Get-HVQueryResult, Get-HVQueryFilter, Get-HVInternalName
 # RDS Farm related
@@ -12504,7 +12738,7 @@ Export-ModuleMember -Function Get-HVFarmSummary, Start-HVFarm, Start-HVPool, New
 # Desktop Pool related
 Export-ModuleMember -Function Get-HVPoolSummary, New-HVPool, Remove-HVPool, Get-HVPool, Set-HVPool, Get-HVPoolSpec, Add-HVDesktop
 # Application Pool related
-Export-ModuleMember -Function Get-HVApplication, Remove-HVApplication, New-HVManualApplication, Get-HVPreInstalledApplication, New-HVPreInstalledApplication
+Export-ModuleMember -Function Get-HVApplication, Remove-HVApplication, New-HVManualApplication, Get-HVPreInstalledApplication, New-HVPreInstalledApplication, Set-HVApplication
 # Entitlement related
 Export-ModuleMember -Function New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement
 Export-ModuleMember -Function Set-HVMachine, Reset-HVMachine, Remove-HVMachine
