@@ -1,5 +1,5 @@
 #Script Module : VMware.Hv.Helper
-#Version       : 1.2
+#Version       : 1.3
 
 #Copyright © 2016 VMware, Inc. All Rights Reserved.
 
@@ -10618,7 +10618,7 @@ function Get-HVHealth {
 	  param(
 		
 		[Parameter(Mandatory = $false)]
-    [ValidateSet('ADDomain', 'CertificateSSOConnector', 'ConnectionServer', 'EventDatabase', 'SAMLAuthenticator', 'SecurityServer', 'ViewComposer', 'VirtualCenter', 'pod')]
+    [ValidateSet('ADDomain', 'CertificateSSOConnector', 'ConnectionServer', 'EventDatabase', 'SAMLAuthenticator', 'SecurityServer', 'ViewComposer', 'VirtualCenter', 'Pod')]
     [string]
     $Servicename = 'ConnectionServer',
 			
