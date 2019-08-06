@@ -8384,10 +8384,10 @@ function Get-HVEntitlement {
       $userInfo = Get-UserInfo -UserName $User
       $UserOrGroupName = $userInfo.Name
       $Domain = $userInfo.Domain
-      $nameFilter = Get-HVQueryFilter 'base.name' -Eq $UserOrGroupName
+      $nameFilter = Get-HVQueryFilter 'base.loginName' -Eq $UserOrGroupName
       $AndFilter += $nameFilter
-      $doaminFilter = Get-HVQueryFilter 'base.domain' -Eq $Domain
-      $AndFilter += $doaminFilter
+      $domainFilter = Get-HVQueryFilter 'base.domain' -Eq $Domain
+      $AndFilter += $domainFilter
     }
     if ($type -eq 'group'){
     	$IsGroup = ($Type -eq 'Group')
