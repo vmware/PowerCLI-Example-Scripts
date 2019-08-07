@@ -12043,7 +12043,11 @@ Function Remove-HVApplication {
     PowerCLI Version            : PowerCLI 11.1
     PowerShell Version          : 5.0
 #>
-  param (
+[CmdletBinding(
+  SupportsShouldProcess = $true,
+  ConfirmImpact = 'High'
+)]
+param (
     [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
     [string]$ApplicationName,
 
@@ -12064,9 +12068,11 @@ Function Remove-HVApplication {
         return
     }
     $AppService= New-Object VMware.Hv.ApplicationService
-    $AppService.Application_Delete($services,$App.Id)
-    if ($?) {
-        Write-Host "'$ApplicationName' has been successfully removed."
+    if ($pscmdlet.ShouldProcess($ApplicationName)) {
+      $AppService.Application_Delete($services,$App.Id)
+      if ($?) {
+          Write-Host "'$ApplicationName' has been successfully removed."
+      }
     }
   }
   end {
@@ -12343,10 +12349,13 @@ Function New-HVPreInstalledApplication {
     View API service object of Connect-HVServer cmdlet.
 
 .PARAMETER ApplicationName
-    The Application name is the unique identifier used to identify this Application.
+    The Application name to search within the Farm for. This should match the output of (Get-HVPreinstalledApplication).Name
+
+.PARAMETER ApplicationID
+    The unique identifier for this application. The ApplicationID can only contain alphanumeric characters, dashes, and underscores. If ApplicationID is not specified, it will be set to match the ApplicationName, with the spaces converted to underscore (_).
 
 .PARAMETER DisplayName
-    The display name is the name that users will see when they connect to view client. If the display name is left blank, it defaults to Name.
+    The display name is the name that users will see when they connect with the Horizon Client. If the display name is left blank, it defaults to ApplicationName.
 
 .PARAMETER FarmName
     Farm name.
@@ -12364,12 +12373,16 @@ Function New-HVPreInstalledApplication {
     Client restrictions to be applied to Application. Currently it is valid for RDSH pools.
 
 .EXAMPLE
-   New-HVPreInstalledApplication -ApplicationName 'App1' -DisplayName 'DisplayName' -FarmName 'FarmName'
-   Creates a application App1 from the farm specified.
+    New-HVPreInstalledApplication -ApplicationName 'App1' -DisplayName 'DisplayName' -FarmName 'FarmName'
+    Creates a application App1 from the farm specified.
 
 .EXAMPLE
-   New-HVPreInstalledApplication -ApplicationName 'App2' -FarmName FarmManual -EnablePreLaunch $True
-   Creates a application App2 from the farm specified and the PreLaunch option will be enabled.
+    New-HVPreInstalledApplication -ApplicationName 'App2' -FarmName FarmManual -EnablePreLaunch $True
+    Creates a application App2 from the farm specified and the PreLaunch option will be enabled.
+
+.EXAMPLE
+    New-HVPreInstalledApplication -ApplicationName 'Excel 2016' -ApplicationID 'Excel-2016' -DisplayName 'Excel' -FarmName 'RDS-FARM-01'
+    Creates an application, Excel-2016, from the farm RDS-FARM-01. The application will display as 'Excel' to the end user.
 
 .OUTPUTS
     A success message is displayed when done.
@@ -12385,11 +12398,11 @@ Function New-HVPreInstalledApplication {
     PowerShell Version          : 5.0
 #>
   param (
-    [Parameter(Mandatory = $False)]
-    $HvServer = $null,
-
     [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
     [string][ValidateLength(1,64)]$ApplicationName,
+
+    [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+    [string][ValidateLength(1,64)][ValidatePattern('(?#Alphanumeric, dashes,and underscores)^[a-zA-Z\d-_]+$')]$ApplicationID = $($ApplicationName -replace " ","_"),
 
     [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
     [String][ValidateLength(1,256)]$DisplayName = $ApplicationName,
@@ -12407,7 +12420,10 @@ Function New-HVPreInstalledApplication {
     [String][ValidateRange(1,64)]$CategoryFolderName,
 
     [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
-    [Boolean]$clientRestrictions = $False
+    [Boolean]$clientRestrictions = $False,
+    
+    [Parameter(Mandatory = $False)]
+    $HvServer = $null
   )
   begin {
     $services = Get-ViewAPIService -HvServer $HvServer
@@ -12424,17 +12440,17 @@ Function New-HVPreInstalledApplication {
   process {
     #Validate the Application name uniqueness with existing applications.
     $ResourceObjs = Get-HVApplication -HvServer $HvServer
-    foreach($App in ($ResourceObjs.name)) {
-        if($App -eq $ApplicationName) {
-            Write-Host "$ApplicationName already exists in the Application Pool."
+    foreach($App in ($ResourceObjs.Data.Name)) {
+        if($App -eq $ApplicationID) {
+            Write-Error "$ApplicationID already exists in the Application Pool. Use the -ApplicationID parameter to specify a unique ID."
             return
         }
     }
     #Validate the application name uniqueness with Desktops.
     $DesktopSummary = Get-HVQueryResult -EntityType DesktopSummaryView -HvServer $hvserver
     foreach($App in $DesktopSummary) {
-        if($App.DesktopSummaryData.Name -eq $ApplicationName) {
-            Write-Host "$ApplicationName already exists in the Desktop Pool."
+        if($App.DesktopSummaryData.Data.Name -eq $ApplicationID) {
+            Write-Error "$ApplicationID already exists in the Desktop Pool. Use the -ApplicationID parameter to specify a unique ID."
             return
         }
     }
@@ -12444,7 +12460,6 @@ Function New-HVPreInstalledApplication {
     foreach($App in ($AppsInRDS)) {
         if($($App.name) -eq ($ApplicationName)) {
             $AppFoundInRDS = $True
-            $ApplicationID = $ApplicationName -replace " ","_"
             $ApplicationData = New-Object VMware.Hv.ApplicationData -Property @{ 'Name' = $ApplicationID;
                             'DisplayName' = $DisplayName;
                             'EnablePreLaunch' = $EnablePreLaunch;
@@ -12463,15 +12478,15 @@ Function New-HVPreInstalledApplication {
             $AppService = New-Object VMware.Hv.ApplicationService
             $AppService.Application_Create($services,$ApplicationSpec)
             if($?) {
-                Write-Host "Application '$ApplicationName' created successfully"
+                Write-Host "Application '$ApplicationId' created successfully"
                 return
             }
-            Write-Host "Failed to create Application '$ApplicationName'. $_ "
+            Write-Host "Failed to create Application '$ApplicationId'. $_ "
             return
         }
     }
     if ($AppFoundInRDS -eq $False) {
-        Write-Host ""$ApplicationName" does not exist in any of the RDS Server(s) belongs to the Farm $FarmName."
+        Write-Error "$ApplicationName does not exist in any of the RDS Server(s) belongs to the Farm $FarmName. Run (Get-HVPreinstalledApplication -FarmName $FarmName).Name to see a list of valid, preinstalled applications."
     }
   }
   end {
