@@ -25,46 +25,47 @@ Function Get-VMCCommand {
 
 }
 Function Connect-VMCVIServer {
-    <#
-        .NOTES
-        ===========================================================================
-        Created by:    VMware
-        Date:          11/17/2017
-        Organization:  VMware
-        Blog:          http://vmware.com/go/powercli
-        Twitter:       @powercli
-        ===========================================================================
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    VMware
+    Date:          11/17/2017
+    Organization:  VMware
+    Blog:          http://vmware.com/go/powercli
+    Twitter:       @powercli
+   ===========================================================================
     
-        .SYNOPSIS
-            Cmdlet to connect to your VMC vCenter Server
-        .DESCRIPTION
-            This will connect you to both the VMC ViServer as well as the CiSServer at the same time.
-        .EXAMPLE
-            Connect-VMCVIServer -Server <VMC vCenter address> -User <Username> -Password <Password>
-        .NOTES
-            Easiest way is to pipe through your credentials from Get-VMCSDDCDefaultCredential
-    #>
-        Param (
-            [Parameter(Mandatory=$true)]$Org,
-            [Parameter(Mandatory=$true)]$Sddc,
-            [switch]$Autologin,
-            [switch]$UseManagementIP
-        )
+    .SYNOPSIS
+        Cmdlet to connect to your VMC vCenter Server
+    .DESCRIPTION
+        This will connect you to both the VMC ViServer as well as the CiSServer at the same time.
+    .EXAMPLE
+        Connect-VMCVIServer -Server <VMC vCenter address> -User <Username> -Password <Password>
+    .NOTES
+        Easiest way is to pipe through your credentials from Get-VMCSDDCDefaultCredential
+#>
+    Param (
+        [Parameter(Mandatory=$true)]$Org,
+        [Parameter(Mandatory=$true)]$Sddc,
+        [switch]$Autologin,
+        [switch]$UseManagementIP
+    )
     
-        If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
-            $creds = Get-VMCSDDCDefaultCredential -Org $Org -Sddc $Sddc
-            If($UseManagementIP){
-                $Server = $creds.vc_management_ip
-            }Else{
-                $Server = $creds.vc_public_ip
-            }
-    
-            Write-Host "Connecting to VMC vCenter Server" $Server
-            Connect-VIServer -Server $Server -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
-            Write-Host "Connecting to VMC CIS Endpoint" $Server
-            Connect-CisServer -Server $Server -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $creds = Get-VMCSDDCDefaultCredential -Org $Org -Sddc $Sddc
+        If($UseManagementIP){
+            $Server = $creds.vc_management_ip
+        }Else{
+            $Server = $creds.vc_public_ip
         }
+
+        Write-Host "Connecting to VMC vCenter Server" $Server
+        Connect-VIServer -Server $Server -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
+        Write-Host "Connecting to VMC CIS Endpoint" $Server
+        Connect-CisServer -Server $Server -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
     }
+}
+
 Function Get-VMCOrg {
 <#
     .NOTES
