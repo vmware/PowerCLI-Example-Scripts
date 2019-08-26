@@ -2243,6 +2243,21 @@ function New-HVFarm {
     [boolean]
     $EnableHTMLAccess = $false,
 
+    #farmSpec.data.displayProtocolSettings.EnableCollaboration
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $EnableCollaboration = $false,
+
+    #farmSpec.data.displayProtocolSettings.EnableGRIDvGPUs
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $EnableGRIDvGPUs = $false,
+
+    #farmSpec.data.displayProtocolSettings.VGPUGridProfile
+    [Parameter(Mandatory = $false)]
+    [string]
+    $VGPUGridProfile,
+    
     #farmSpec.data.serverErrorThreshold
     [Parameter(Mandatory = $false)]
     [ValidateRange(0,[Int]::MaxValue)]
@@ -2659,6 +2674,12 @@ function New-HVFarm {
         $defaultDisplayProtocol = $jsonObject.Data.DisplayProtocolSettings.DefaultDisplayProtocol
         $allowDisplayProtocolOverride = $jsonObject.Data.DisplayProtocolSettings.AllowDisplayProtocolOverride
         $enableHTMLAccess = $jsonObject.Data.DisplayProtocolSettings.EnableHTMLAccess
+        $EnableCollaboration = $jsonObject.Data.DisplayProtocolSettings.EnableCollaboration
+        
+        if ($null -ne $jsonObject.Data.DisplayProtocolSettings.VGPUGridProfile) {
+          $EnableGRIDvGPUs = $jsonObject.Data.DisplayProtocolSettings.EnableGRIDvGPUs
+          $VGPUGridProfile = $jsonObject.Data.DisplayProtocolSettings.VGPUGridProfile
+        }
       }
       if ($null -ne $jsonObject.Data.serverErrorThreshold) {
         $serverErrorThreshold = $jsonObject.Data.serverErrorThreshold
@@ -2802,6 +2823,11 @@ function New-HVFarm {
         $farmData.DisplayProtocolSettings.DefaultDisplayProtocol = $defaultDisplayProtocol
         $farmData.DisplayProtocolSettings.AllowDisplayProtocolOverride = $AllowDisplayProtocolOverride
         $farmData.DisplayProtocolSettings.EnableHTMLAccess = $enableHTMLAccess
+        $farmData.DisplayProtocolSettings.EnableCollaboration = $EnableCollaboration
+        if($VGPUGridProfile -ne $false){
+          $farmData.DisplayProtocolSettings.EnableGRIDvGPUs = $EnableGRIDvGPUs
+          $farmData.DisplayProtocolSettings.VGPUGridProfile = $VGPUGridProfile
+        }
     }
     if ($farmData.MirageConfigurationOverrides){
         $farmData.MirageConfigurationOverrides.OverrideGlobalSetting = $overrideGlobalSetting
