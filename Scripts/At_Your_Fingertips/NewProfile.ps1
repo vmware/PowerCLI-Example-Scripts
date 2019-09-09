@@ -4,43 +4,50 @@
 # History:
 # 1.0 - August 4th 2019 - LucD
 #       Initial version (for session HBI1729BU VMworld US 2019)
+# 2.0 - September 9th 2019 - virtualex
+#       Added PowerShell-Core compatibility
 #
 # 1) PS prompt
+# - detect pwsh-core
 # - current (local) time
 # - execution time of the previous command
 # - shortened PWD
 # 2) Window title
 # - User/Admin
-# - PS-32/54-Edition-Version
+# - PS-32/64-Edition-Version
 # - PCLI version
 # - git repo/branch
 # - VC/ESXi:defaultServer-User [# connections]
 
 function prompt
 {
+    # Detect PS-Core
+    If ($PSVersionTable.PSEdition -eq 'Core') {
+        Write-Host '(Core) ' -NoNewLine
+    }
     # Current time
     $date = (Get-Date).ToString('HH:mm:ss')
-    Write-Host -Object '[' -NoNewline
+    Write-Host -Object '[' -NoNewLine
     Write-Host -Object $date -ForegroundColor Cyan -BackgroundColor DarkBlue -NoNewline
-    Write-Host -Object ']' -NoNewline
+    Write-Host -Object ']' -NoNewLine
 
     # Execution time previous command
     $history = Get-History -ErrorAction Ignore -Count 1
     if ($history)
     {
         $time = ([DateTime](New-TimeSpan -Start $history.StartExecutionTime -End $history.EndExecutionTime).Ticks).ToString('HH:mm:ss.ffff')
-        Write-host -Object '[' -NoNewLine
-        Write-Host -Object "$time" -ForegroundColor Yellow -BackgroundColor DarkBlue -NoNewline
-        Write-host -Object '] ' -NoNewLine
+        Write-Host -Object '[' -NoNewLine
+        Write-Host -Object "$time" -ForegroundColor Yellow -BackgroundColor DarkBlue -NoNewLine
+        Write-Host -Object '] ' -NoNewLine
     }
 
-    # Shorted PWD
+    # Shortened PWD
     $path = $pwd.Path.Split('\')
     if ($path.Count -gt 3)
     {
         $path = $path[0], '..', $path[-2], $path[-1]
     }
-    Write-Host -Object "$($path -join '\')" -NoNewline
+    Write-Host -Object "$($path -join '\')" -NoNewLine
 
     # Prompt function needs to return something,
     # otherwise the default 'PS>' will be added
@@ -53,18 +60,27 @@ function prompt
 function Set-Title
 {
     # Running as Administrator or a regular user
-    $userInfo = [Security.Principal.WindowsIdentity]::GetCurrent()
-    if ((New-Object Security.Principal.WindowsPrincipal $userInfo).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))
-    {
-        $role = 'Admin'
-    }
-    else
-    {
-        $role = 'User'
+    If (($PSVersionTable.PSEdition -eq 'Core') -and ($IsWindows -eq 'True') -or ($PSVersionTable.PSEdition -ine 'Core'))
+    { 
+        $userInfo = [Security.Principal.WindowsIdentity]::GetCurrent()
+        if ((New-Object Security.Principal.WindowsPrincipal $userInfo).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))
+        {
+            $role = 'Admin'
+        }
+        else
+        {
+            $role = 'User'
+        }
     }
 
     # Usertype user@hostname
+    If (($PSVersionTable.PSEdition -eq 'Core') -and ($IsWindows -ine 'True')) {
+        $env:computername = hostname
+        $user = "$($env:user)@$($env:computername)"
+    }
+    Else {
     $user = "$role $($userInfo.Name)@$($env:computername)"
+    }
 
     # PowerShell environment/PS version
     $bits = 32
