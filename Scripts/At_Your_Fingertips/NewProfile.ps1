@@ -8,7 +8,6 @@
 #       Added PowerShell-Core compatibility
 #
 # 1) PS prompt
-# - detect pwsh-core
 # - current (local) time
 # - execution time of the previous command
 # - shortened PWD
@@ -21,10 +20,6 @@
 
 function prompt
 {
-    # Detect PS-Core
-    If ($PSVersionTable.PSEdition -eq 'Core') {
-        Write-Host '(Core) ' -NoNewLine
-    }
     # Current time
     $date = (Get-Date).ToString('HH:mm:ss')
     Write-Host -Object '[' -NoNewLine
