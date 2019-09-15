@@ -8,7 +8,6 @@
 #       Added PowerShell-Core compatibility
 #
 # 1) PS prompt
-# - detect pwsh-core
 # - current (local) time
 # - execution time of the previous command
 # - shortened PWD
@@ -21,10 +20,6 @@
 
 function prompt
 {
-    # Detect PS-Core
-    If ($PSVersionTable.PSEdition -eq 'Core') {
-        Write-Host '(Core) ' -NoNewLine
-    }
     # Current time
     $date = (Get-Date).ToString('HH:mm:ss')
     Write-Host -Object '[' -NoNewLine
@@ -60,7 +55,7 @@ function prompt
 function Set-Title
 {
     # Running as Administrator or a regular user
-    If (($PSVersionTable.PSEdition -eq 'Core') -and ($IsWindows -eq 'True') -or ($PSVersionTable.PSEdition -ine 'Core'))
+    If (($PSEdition -eq 'Core') -and ($IsWindows -eq 'True') -or ($PSEdition -ine 'Core'))
     { 
         $userInfo = [Security.Principal.WindowsIdentity]::GetCurrent()
         if ((New-Object Security.Principal.WindowsPrincipal $userInfo).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))
@@ -74,7 +69,7 @@ function Set-Title
     }
 
     # Usertype user@hostname
-    If (($PSVersionTable.PSEdition -eq 'Core') -and ($IsWindows -ine 'True')) {
+    If (($PSEdition -eq 'Core') -and ($IsWindows -ine 'True')) {
         $env:computername = hostname
         $user = "$($env:user)@$($env:computername)"
     }

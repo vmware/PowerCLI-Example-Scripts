@@ -33,8 +33,8 @@ Function Connect-VMCVIServer {
     Organization:  VMware
     Blog:          http://vmware.com/go/powercli
     Twitter:       @powercli
-    ===========================================================================
-
+   ===========================================================================
+    
     .SYNOPSIS
         Cmdlet to connect to your VMC vCenter Server
     .DESCRIPTION
@@ -47,17 +47,25 @@ Function Connect-VMCVIServer {
     Param (
         [Parameter(Mandatory=$true)]$Org,
         [Parameter(Mandatory=$true)]$Sddc,
-        [switch]$Autologin
+        [switch]$Autologin,
+        [switch]$UseManagementIP
     )
-
+    
     If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
         $creds = Get-VMCSDDCDefaultCredential -Org $Org -Sddc $Sddc
-        Write-Host "Connecting to VMC vCenter Server" $creds.vc_public_ip
-        Connect-VIServer -Server $creds.vc_public_ip -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
-        Write-Host "Connecting to VMC CIS Endpoint" $creds.vc_public_ip
-        Connect-CisServer -Server $creds.vc_public_ip -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
+        If($UseManagementIP){
+            $Server = $creds.vc_management_ip
+        }Else{
+            $Server = $creds.vc_public_ip
+        }
+
+        Write-Host "Connecting to VMC vCenter Server" $Server
+        Connect-VIServer -Server $Server -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
+        Write-Host "Connecting to VMC CIS Endpoint" $Server
+        Connect-CisServer -Server $Server -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
     }
 }
+
 Function Get-VMCOrg {
 <#
     .NOTES

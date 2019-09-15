@@ -5,15 +5,23 @@ function Export-Tag {
       [VMware.VimAutomation.ViCore.Types.V1.VIServer]$Server, 
       
       [Parameter(Mandatory = $True, Position = 2)]
-      [string]$Destination
+      [string]$Destination,
+	  
+	  [Parameter(Mandatory = $False, Position = 3)]
+      [boolean]$ExportAssignments
    )
    
    # Retrieve all categories
    $categoryList = Get-TagCategory -Server $server
    # Retrieve all tags
    $tagList = Get-Tag -Server $server
-   # Store the tags and categories in a list to export them at once
-   $export = @($categoryList, $tagList)
+   # Store the tags, categories and assignments (if selected) in a list to export them at once
+   If ($ExportAssignments) {
+      $tagAssignments = Get-TagAssignment -Server $server
+      $export = @($categoryList, $tagList, $tagAssignments)
+   } else {
+      $export = @($categoryList, $tagList)
+   }
    # Export the tags and categories to the specified destination
    Export-Clixml -InputObject $export -Path $destination
 }
@@ -25,7 +33,10 @@ function Import-Tag {
       [VMware.VimAutomation.ViCore.Types.V1.VIServer]$Server, 
       
       [Parameter(Mandatory = $True, Position = 2)]
-      [string]$Source
+      [string]$Source,
+	  
+	  [Parameter(Mandatory = $False, Position = 3)]
+      [boolean]$ImportAssignments
    )
    
    # Import the tags and categories from the specified source
@@ -61,5 +72,24 @@ function Import-Tag {
          -Category $category `
          -Server $server `
       | Out-Null
+   }
+   
+   # Restore the assignments if selected
+   If ($ImportAssignments) {
+      # Check for assignments in the file
+      If ($import[2]) {
+         # If tags were found, assign them
+	     $tagAssignments = $import[2]
+		 ForEach ($assignment in $tagAssignments) {
+		    New-TagAssignment `
+			   -Tag (Get-Tag -Server $server -Name $assignment.Tag.Name -Category $assignment.Tag.Category) `
+			   -Entity (Get-VIObjectByVIView -MORef $assignment.Entity.id) `
+			   -Server $server `
+			| Out-Null
+		 }
+	  } else {
+	    # If no assignments were found, output warning
+		Write-Warning "Source file does not contain tag assignments."
+	  }
    }
 }
