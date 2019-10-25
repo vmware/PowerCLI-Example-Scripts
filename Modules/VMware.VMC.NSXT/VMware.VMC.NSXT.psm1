@@ -159,6 +159,7 @@ Function New-NSXTSegment {
         [Parameter(Mandatory=$True)]$Name,
         [Parameter(Mandatory=$True)]$Gateway,
         [Parameter(Mandatory=$False)]$DHCPRange,
+        [Parameter(Mandatory=$False)]$DomainName,
         [Switch]$DHCP,
         [Switch]$Troubleshoot
     )
@@ -179,6 +180,11 @@ Function New-NSXTSegment {
             display_name = $Name;
             subnets = @($subnets)
         }
+
+        if($DomainName) {
+            $payload.domain_name = $DomainName
+        }
+
         $body = $payload | ConvertTo-Json -depth 4
 
         $method = "PUT"
