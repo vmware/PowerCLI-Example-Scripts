@@ -469,7 +469,7 @@ Function New-NSXTFirewall {
         [Parameter(Mandatory=$False)]$SourceGroup,
         [Parameter(Mandatory=$False)]$DestinationGroup,
         [Parameter(Mandatory=$True)]$Service,
-        [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DENY")]$Action,
+        [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DROP")]$Action,
         [Parameter(Mandatory=$false)]$InfraScope,
         [Parameter(Mandatory=$false)]$SourceInfraGroup,
         [Parameter(Mandatory=$false)]$DestinationInfraGroup,
