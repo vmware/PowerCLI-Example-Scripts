@@ -153,12 +153,15 @@ Function New-NSXTSegment {
     .EXAMPLE
         New-NSXTSegment -Name "sddc-cgw-network-4" -Gateway "192.168.4.1/24" -DHCP -DHCPRange "192.168.4.2-192.168.4.254"
     .EXAMPLE
+        New-NSXTSegment -Name "sddc-cgw-network-4" -Gateway "192.168.4.1/24" -DHCP -DHCPRange "192.168.4.2-192.168.4.254" -DomainName 'vmc.local'
+    .EXAMPLE
         New-NSXTSegment -Name "sddc-cgw-network-5" -Gateway "192.168.5.1/24"
 #>
     Param (
         [Parameter(Mandatory=$True)]$Name,
         [Parameter(Mandatory=$True)]$Gateway,
         [Parameter(Mandatory=$False)]$DHCPRange,
+        [Parameter(Mandatory=$False)]$DomainName,
         [Switch]$DHCP,
         [Switch]$Troubleshoot
     )
@@ -179,6 +182,11 @@ Function New-NSXTSegment {
             display_name = $Name;
             subnets = @($subnets)
         }
+
+        if($DomainName) {
+            $payload.domain_name = $DomainName
+        }
+
         $body = $payload | ConvertTo-Json -depth 4
 
         $method = "PUT"
