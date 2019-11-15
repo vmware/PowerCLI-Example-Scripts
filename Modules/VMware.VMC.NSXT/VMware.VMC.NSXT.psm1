@@ -754,18 +754,46 @@ Function New-NSXTGroup {
         This cmdlet creates a new NSX-T Firewall Rule on MGW or CGW
     .EXAMPLE
         New-NSXTGroup -GatewayType MGW -Name Foo -IPAddress @("172.31.0.0/24")
+    .EXAMPLE
+        New-NSXTGroup -GatewayType CGW -Name Foo -Tag Bar
+    .EXAMPLE
+        New-NSXTGroup -GatewayType CGW -Name Foo -VmName Bar -Operator CONTAINS
+    .EXAMPLE
+        New-NSXTGroup -GatewayType CGW -Name Foo -VmName Bar -Operator STARTSWITH
 #>
+    [CmdletBinding(DefaultParameterSetName = 'IPAddress')]
     Param (
         [Parameter(Mandatory=$True)]$Name,
         [Parameter(Mandatory=$true)][ValidateSet("MGW","CGW")][String]$GatewayType,
-        [Parameter(Mandatory=$True)][String[]]$IPAddress,
+        [Parameter(Mandatory=$true, ParameterSetName='IPAddress')][String[]]$IPAddress,
+        [Parameter(Mandatory=$true, ParameterSetName='Tag')][String]$Tag,
+        [Parameter(Mandatory=$true, ParameterSetName='VmName')][String]$VmName,
+        [Parameter(Mandatory=$true, ParameterSetName='VmName')][ValidateSet('CONTAINS','STARTSWITH')][String]$Operator,
         [Switch]$Troubleshoot
     )
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
-        $expression = @{
-            resource_type = "IPAddressExpression";
-            ip_addresses = $IPAddress;
+        if ($PSCmdlet.ParameterSetName -eq 'Tag') {
+            $expression = @{
+                resource_type = 'Condition'
+                member_type   = 'VirtualMachine'
+                value         = $Tag
+                key           = 'Tag'
+                operator      = 'EQUALS'
+            }
+        } elseif ($PSCmdlet.ParameterSetName -eq 'VmName') {
+            $expression = @{
+                resource_type = 'Condition'
+                member_type   = 'VirtualMachine'
+                value         = $VmName
+                key           = 'Name'
+                operator      = $Operator.ToUpper()
+            }
+        } else {
+            $expression = @{
+                resource_type = "IPAddressExpression";
+                ip_addresses  = $IPAddress;
+            }
         }
 
         $payload = @{
