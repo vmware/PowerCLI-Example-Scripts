@@ -89,7 +89,7 @@ function Set-Title
     $pcliModule = Get-Module -Name VMware.PowerCLI -ListAvailable |
     Sort-Object -Property Version -Descending |
     Select-Object -First 1
-    $pcli = " - PCLI: $($pcliModule.Version.ToString())"
+	$pcli = " - PCLI: $(if($pcliModule){$pcliModule.Version.ToString()}else{'na'})"
 
     # If git is present and if in a git controlled folder, display repositoryname/current_branch
     $gitStr = ''
