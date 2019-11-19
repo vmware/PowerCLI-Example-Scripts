@@ -40,7 +40,7 @@ function Get-CISTag {
             } else {
                 $tagArray = @()
                 $tagIdList = $tagSvc.list() | Select-Object -ExpandProperty Value
-                [integer]$counter = 1
+                [int]$counter = 1
                 foreach ($t in $tagIdList) {
                     $tagArray += $tagSvc.get($t)
                     $counter++
@@ -49,11 +49,11 @@ function Get-CISTag {
             }
             if ($PSBoundParameters.ContainsKey("Name")) {
                 if ($vCenterConn){
-                    $tagOutput = $vCTagList | where {$_.Name -eq $Name}
-                } else {$tagOutput = $tagArray | Where {$_.Name -eq $Name}}                
+                    $tagOutput = $vCTagList | Where-Object {$_.Name -eq $Name}
+                } else {$tagOutput = $tagArray | Where-Object {$_.Name -eq $Name}}                
             } elseif ($PSBoundParameters.ContainsKey("Category")) { 
                 if ($vCenterConn){ 
-                    $tagOutput = $vCTagList | where {$_.Category -eq $Category}
+                    $tagOutput = $vCTagList | Where-Object {$_.Category -eq $Category}
                 } else {
                     $tagCatid = Get-CISTagCategory -Name $Category | Select-Object -ExpandProperty Id
                     $tagIdList = $tagSvc.list_tags_for_category($tagCatid)
@@ -199,7 +199,7 @@ function Get-CISTagCategory {
                 $tagCatArray += $tagCatSvc.get($tc)
             }
             if ($PSBoundParameters.ContainsKey("Name")) {
-                $tagCatOutput = $tagCatArray | Where {$_.Name -eq $Name}
+                $tagCatOutput = $tagCatArray | Where-Object {$_.Name -eq $Name}
             } else {
                 $tagCatOutput = $tagCatArray
             }
@@ -336,8 +336,10 @@ function Get-CISTagAssignment {
         $tagAssocSvc = Get-CisService -Name com.vmware.cis.tagging.tag_association
         if ($PSBoundParameters.ContainsKey("ObjectId")) {
             if ($ObjectId.split('-')[0] -eq 'vm') {
-                $objType = 'VirtualMachine'
-            } else {Write-Warning 'Only VirtualMachine types currently supported.'; break}
+                $objType = "VirtualMachine"
+            } elseif ($ObjectId.Split('-')[0] -eq 'datastore') {
+                $objType = 'Datastore'
+            } else {Write-Warning 'Only VirtualMachine and Datastore types currently supported.'; break}
             $objObject = $tagAssocSvc.help.list_attached_tags.object_id.create()
             $objObject.id = $ObjectId
             $objObject.type = $objType
@@ -354,8 +356,15 @@ function Get-CISTagAssignment {
                 $filterVmNameObj = $vmsvc.help.list.filter.create()
                 $filterVmNameObj.names.add($Entity) | Out-Null
                 $objId = $vmSvc.list($filterVmNameObj) | Select-Object -ExpandProperty vm
-                if ($objId) {$objType = 'VirtualMachine'}
-                else {Write-Warning "No entities found."; break}
+                if ($objId) {$objType = "VirtualMachine"}
+                else {   
+                    $dsSvc = Get-CisService com.vmware.vcenter.datastore
+                    $filterDsNameObj = $dsSvc.Help.list.filter.Create()
+                    $filterDsNameObj.names.add($Entity) | Out-Null
+                    $objId = $dsSvc.list($filterDsNameObj) | Select-Object -ExpandProperty datastore
+                    if ($objId) {$objType = "Datastore"}
+                    else {Write-Warning "No entities found."; break}
+                }
                 $objObject = $tagAssocSvc.help.list_attached_tags.object_id.create()
                 $objObject.id = $objId
                 $objObject.type = $objType
@@ -366,7 +375,7 @@ function Get-CISTagAssignment {
             $tagIdOutput = @()
             $tagCategories = Get-CISTagCategory | Sort-Object -Property Name
             if ($Category) {
-                $tagCatId = $tagCategories | where {$_.Name -eq $Category} | Select-Object -ExpandProperty Id
+                $tagCatId = $tagCategories | Where-Object {$_.Name -eq $Category} | Select-Object -ExpandProperty Id
                 $tagIdOutput += $tagSvc.list_tags_for_category($tagCatId)
             } else {
                 foreach ($tagCat in $tagCategories) {
@@ -380,9 +389,9 @@ function Get-CISTagAssignment {
             foreach ($tagId in $tagIdOutput) {
                 $tagAttObj = @()
                 if ($Entity) {
-                    $tagAttObj += $tagAssocSvc.list_attached_objects($tagId) | where {$_.type -eq $viObject.type -and $_.id -eq $viObject.Value}
+                    $tagAttObj += $tagAssocSvc.list_attached_objects($tagId) | Where-Object {$_.type -eq $viObject.type -and $_.id -eq $viObject.Value}
                 } else {
-                    $tagAttObj += $tagAssocSvc.list_attached_objects($tagId) | where {$_.id -eq $ObjectId}
+                    $tagAttObj += $tagAssocSvc.list_attached_objects($tagId) | Where-Object {$_.id -eq $ObjectId}
                 }
                 foreach ($obj in $tagAttObj) {
                     if ($obj.type -eq "VirtualMachine") {
@@ -390,10 +399,14 @@ function Get-CISTagAssignment {
                         $filterVmObj = $vmsvc.help.list.filter.create()
                         $filterVmObj.vms.add($obj.Id) | Out-Null
                         $objName = $vmSvc.list($filterVmObj) | Select-Object -ExpandProperty Name
-                    }
-                    else {$objName = 'Object Not Found'}                
+                    } elseif ($obj.type -eq "Datastore") {
+                        if (-Not $dsSvc) {$dsSvc = Get-CisService -Name com.vmware.vcenter.datastore}
+                        $filterDsObj = $dsSvc.help.list.filter.create()
+                        $filterDsObj.datastores.add($obj.Id) | Out-Null
+                        $objName = $dsSvc.list($filterDsObj) | Select-Object -ExpandProperty Name
+                    } else {$objName = 'Object Not Found'}                
                     $tempObject = "" | Select-Object Tag, Entity
-                    $tempObject.Tag = $tagReference | where {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
+                    $tempObject.Tag = $tagReference | Where-Object {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
                     $tempObject.Entity = $objName
                     $tagOutput += $tempObject
                 }
@@ -404,8 +417,10 @@ function Get-CISTagAssignment {
                 $tagAttObj += $tagAssocSvc.list_attached_objects($tagId)
                 if ($global:DefaultVIServer -and $global:DefaultVIServer.Name -eq $global:DefaultCisServers.Name) {
                     [Boolean]$vCenterConn = $true
-                }  elseif ($tagAttObj.Type -contains 'VirtualMachine') {
+                } elseif ($tagAttObj.Type -contains "VirtualMachine") {
                     if (-Not $vmSvc) {$vmSvc = Get-CisService -Name com.vmware.vcenter.vm}
+                } elseif ($tagAttObj.Type -contains "Datastore") {
+                    if (-Not $dsSvc) {$dsSvc = Get-CisService -Name com.vmware.vcenter.datastore}
                 }
                 foreach ($obj in $tagAttObj) {
                     if ($vCenterConn) {
@@ -417,9 +432,13 @@ function Get-CISTagAssignment {
                         $filterVmObj = $vmsvc.help.list.filter.create()
                         $filterVmObj.vms.add($obj.Id) | Out-Null
                         $objName = $vmSvc.list($filterVmObj) | Select-Object -ExpandProperty Name
+                    } elseif ($obj.type -eq "Datastore") {
+                        $filterDsObj = $dsSvc.help.list.filter.create()
+                        $filterDsObj.datastores.add($obj.Id) | Out-Null
+                        $objName = $dsSvc.list($filterDsObj) | Select-Object -ExpandProperty Name
                     } else {$objName = 'Object Not Found'}                
                     $tempObject = "" | Select-Object Tag, Entity
-                    $tempObject.Tag = $tagReference | where {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
+                    $tempObject.Tag = $tagReference | Where-Object {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
                     $tempObject.Entity = $objName
                     $tagOutput += $tempObject
                 }
@@ -479,12 +498,19 @@ function New-CISTagAssignment {
                     $objObject.id = $viObject.Value
                     $objObject.type = $viObject.type
                 } else {
-                    $vmSvc = Get-CisService -Name com.vmware.vcenter.vm
+                    if (-Not $vmSvc) {$vmSvc = Get-CisService -Name com.vmware.vcenter.vm}
                     $filterVmNameObj = $vmsvc.help.list.filter.create()
                     $filterVmNameObj.names.add($Entity) | Out-Null
                     $objId = $vmSvc.list($filterVmNameObj) | Select-Object -ExpandProperty vm
-                    if ($objId) {$objType = 'VirtualMachine'}
-                    else {Write-Warning "No entities found."; break}
+                    if ($objId) {$objType = "VirtualMachine"}
+                    else {
+                        if (-Not $dsSvc) {$dsSvc = Get-CisService -Name com.vmware.vcenter.datastore}
+                        $filterDsNameObj = $dsSvc.Help.list.filter.Create()
+                        $filterDsNameObj.names.add($Entity) | Out-Null
+                        $objId = $dsSvc.list($filterDsNameObj) | Select-Object -ExpandProperty datastore
+                        if ($objId) {$objType = "Datastore"}
+                        else {Write-Warning "No entities found."; break}
+                    }
                     $objObject = $tagAssocSvc.help.list_attached_tags.object_id.create()
                     $objObject.id = $objId
                     $objObject.type = $objType
@@ -500,12 +526,19 @@ function New-CISTagAssignment {
                         $objObject.id = $viObject.Value
                         $objObject.type = $viObject.type
                     } else {
-                        $vmSvc = Get-CisService -Name com.vmware.vcenter.vm
+                        if (-Not $vmSvc) {$vmSvc = Get-CisService -Name com.vmware.vcenter.vm}
                         $filterVmNameObj = $vmsvc.help.list.filter.create()
                         $filterVmNameObj.names.add($Entity) | Out-Null
                         $objId = $vmSvc.list($filterVmNameObj) | Select-Object -ExpandProperty vm
-                        if ($objId) {$objType = 'VirtualMachine'}
-                        else {Write-Warning "No entities found."; break}
+                        if ($objId) {$objType = "VirtualMachine"}
+                        else {
+                            if (-Not $dsSvc) {$dsSvc = Get-CisService -Name com.vmware.vcenter.datastore}
+                            $filterDsObj = $dsSvc.help.list.filter.create()
+                            $filterDsObj.datastores.add($obj.Id) | Out-Null
+                            $objId = $dsSvc.list($filterDsObj) | Select-Object -ExpandProperty Datastore
+                            if ($objId) {$objType = "Datastore"}
+                            else {Write-Warning "No entities found."; break}
+                        }
                         $objObject = $tagAssocSvc.help.list_attached_tags.object_id.create()
                         $objObject.id = $objId
                         $objObject.type = $objType
@@ -521,12 +554,19 @@ function New-CISTagAssignment {
                     $objObject.id = $viObject.Value
                     $objObject.type = $viObject.type
                 } else {
-                    $vmSvc = Get-CisService -Name com.vmware.vcenter.vm
+                    if (-Not $vmSvc) {$vmSvc = Get-CisService -Name com.vmware.vcenter.vm}
                     $filterVmNameObj = $vmsvc.help.list.filter.create()
                     $filterVmNameObj.names.add($Entity) | Out-Null
                     $objId = $vmSvc.list($filterVmNameObj) | Select-Object -ExpandProperty vm
-                    if ($objId) {$objType = 'VirtualMachine'}
-                    else {Write-Warning "No entities found."; break}
+                    if ($objId) {$objType = "VirtualMachine"}
+                    else {
+                        if (-Not $dsSvc) {$dsSvc = Get-CisService -Name com.vmware.vcenter.datastore}
+                        $filterDsNameObj = $dsSvc.Help.list.filter.Create()
+                        $filterDsNameObj.names.add($Entity) | Out-Null
+                        $objId = $dsSvc.list($filterDsNameObj) | Select-Object -ExpandProperty datastore
+                        if ($objId) {$objType = "Datastore"}
+                        else {Write-Warning "No entities found."; break}
+                    }
                     $objObject = $tagAssocSvc.help.list_attached_tags.object_id.create()
                     $objObject.id = $objId
                     $objObject.type = $objType
@@ -535,8 +575,10 @@ function New-CISTagAssignment {
             }
         } elseif ($PSBoundParameters.ContainsKey("TagId") -and $PSBoundParameters.ContainsKey("ObjectId")) {
             if ($ObjectId.split('-')[0] -eq 'vm') {
-                $objType = 'VirtualMachine'
-            } else {Write-Warning 'Only VirtualMachine types currently supported.'; break}
+                $objType = "VirtualMachine"
+            } elseif ($ObjectId.Split('-')[0] -eq 'datastore') {
+                $objType = 'Datastore'
+            } else {Write-Warning 'Only VirtualMachine and Datastore types currently supported.'; break}
             if ($TagId -is [array] -and $ObjectId -isnot [array]) {
                 $objObject = $tagAssocSvc.help.attach_multiple_tags_to_object.object_id.create()
                 $objObject.id = $ObjectId
@@ -621,8 +663,15 @@ function Remove-CISTagAssignment {
                     $filterVmNameObj = $vmsvc.help.list.filter.create()
                     $filterVmNameObj.names.add($Entity) | Out-Null
                     $objId = $vmSvc.list($filterVmNameObj) | Select-Object -ExpandProperty vm
-                    if ($objId) {$objType = 'VirtualMachine'}
-                    else {Write-Warning "No entities found."; break}
+                    if ($objId) {$objType = "VirtualMachine"}
+                    else {
+                        if (-Not $dsSvc) {$dsSvc = Get-CisService -Name com.vmware.vcenter.datastore}
+                        $filterDsNameObj = $dsSvc.Help.list.filter.Create()
+                        $filterDsNameObj.names.add($Entity) | Out-Null
+                        $objId = $dsSvc.list($filterDsNameObj) | Select-Object -ExpandProperty datastore
+                        if ($objId) {$objType = "Datastore"}
+                        else {Write-Warning "No entities found."; break}
+                    }
                     $objObject = $tagAssocSvc.help.detach_multiple_tags_from_object.object_id.create()
                     $objObject.id = $objId
                     $objObject.type = $objType
@@ -642,8 +691,15 @@ function Remove-CISTagAssignment {
                         $filterVmNameObj = $vmsvc.help.list.filter.create()
                         $filterVmNameObj.names.add($Entity) | Out-Null
                         $objId = $vmSvc.list($filterVmNameObj) | Select-Object -ExpandProperty vm
-                        if ($objId) {$objType = 'VirtualMachine'}
-                        else {Write-Warning "No entities found."; break}
+                        if ($objId) {$objType = "VirtualMachine"}
+                        else {
+                            if (-Not $dsSvc) {$dsSvc = Get-CisService -Name com.vmware.vcenter.datastore}
+                            $filterDsNameObj = $dsSvc.Help.list.filter.Create()
+                            $filterDsNameObj.names.add($Entity) | Out-Null
+                            $objId = $dsSvc.list($filterDsNameObj) | Select-Object -ExpandProperty datastore
+                            if ($objId) {$objType = "Datastore"}
+                            else {Write-Warning "No entities found."; break}
+                        }
                         $objObject = $tagAssocSvc.help.detach_tag_from_multiple_objects.object_ids.element.create()
                         $objObject.id = $objId
                         $objObject.type = $objType
@@ -663,8 +719,15 @@ function Remove-CISTagAssignment {
                     $filterVmNameObj = $vmsvc.help.list.filter.create()
                     $filterVmNameObj.names.add($Entity) | Out-Null
                     $objId = $vmSvc.list($filterVmNameObj) | Select-Object -ExpandProperty vm
-                    if ($objId) {$objType = 'VirtualMachine'}
-                    else {Write-Warning "No entities found."; break}
+                    if ($objId) {$objType = "VirtualMachine"}
+                    else {
+                        if (-Not $dsSvc) {$dsSvc = Get-CisService -Name com.vmware.vcenter.datastore}
+                        $filterDsNameObj = $dsSvc.Help.list.filter.Create()
+                        $filterDsNameObj.names.add($Entity) | Out-Null
+                        $objId = $dsSvc.list($filterDsNameObj) | Select-Object -ExpandProperty datastore
+                        if ($objId) {$objType = "Datastore"}
+                        else {Write-Warning "No entities found."; break}
+                    }
                     $objObject = $tagAssocSvc.help.detach.object_id.create()
                     $objObject.id = $objId
                     $objObject.type = $objType
@@ -673,8 +736,10 @@ function Remove-CISTagAssignment {
             }
         } elseif ($PSBoundParameters.ContainsKey("TagId") -and $PSBoundParameters.ContainsKey("ObjectId")) {
             if ($ObjectId.split('-')[0] -eq 'vm') {
-                $objType = 'VirtualMachine'
-            } else {Write-Warning 'Only VirtualMachine types currently supported.'; break}
+                $objType = "VirtualMachine"
+            } elseif ($ObjectId.Split('-')[0] -eq 'datastore') {
+                $objType = 'Datastore'
+            }else {Write-Warning 'Only VirtualMachine types currently supported.'; break}
             if ($TagId -is [array] -and $ObjectId -isnot [array]) {
                 $objObject = $tagAssocSvc.help.detach_multiple_tags_from_object.object_id.create()
                 $objObject.id = $ObjectId
