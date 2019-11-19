@@ -153,12 +153,15 @@ Function New-NSXTSegment {
     .EXAMPLE
         New-NSXTSegment -Name "sddc-cgw-network-4" -Gateway "192.168.4.1/24" -DHCP -DHCPRange "192.168.4.2-192.168.4.254"
     .EXAMPLE
+        New-NSXTSegment -Name "sddc-cgw-network-4" -Gateway "192.168.4.1/24" -DHCP -DHCPRange "192.168.4.2-192.168.4.254" -DomainName 'vmc.local'
+    .EXAMPLE
         New-NSXTSegment -Name "sddc-cgw-network-5" -Gateway "192.168.5.1/24"
 #>
     Param (
         [Parameter(Mandatory=$True)]$Name,
         [Parameter(Mandatory=$True)]$Gateway,
         [Parameter(Mandatory=$False)]$DHCPRange,
+        [Parameter(Mandatory=$False)]$DomainName,
         [Switch]$DHCP,
         [Switch]$Troubleshoot
     )
@@ -179,6 +182,11 @@ Function New-NSXTSegment {
             display_name = $Name;
             subnets = @($subnets)
         }
+
+        if($DomainName) {
+            $payload.domain_name = $DomainName
+        }
+
         $body = $payload | ConvertTo-Json -depth 4
 
         $method = "PUT"
@@ -469,7 +477,7 @@ Function New-NSXTFirewall {
         [Parameter(Mandatory=$False)]$SourceGroup,
         [Parameter(Mandatory=$False)]$DestinationGroup,
         [Parameter(Mandatory=$True)]$Service,
-        [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DENY")]$Action,
+        [Parameter(Mandatory=$True)][ValidateSet("ALLOW","DROP")]$Action,
         [Parameter(Mandatory=$false)]$InfraScope,
         [Parameter(Mandatory=$false)]$SourceInfraGroup,
         [Parameter(Mandatory=$false)]$DestinationInfraGroup,
@@ -746,18 +754,46 @@ Function New-NSXTGroup {
         This cmdlet creates a new NSX-T Firewall Rule on MGW or CGW
     .EXAMPLE
         New-NSXTGroup -GatewayType MGW -Name Foo -IPAddress @("172.31.0.0/24")
+    .EXAMPLE
+        New-NSXTGroup -GatewayType CGW -Name Foo -Tag Bar
+    .EXAMPLE
+        New-NSXTGroup -GatewayType CGW -Name Foo -VmName Bar -Operator CONTAINS
+    .EXAMPLE
+        New-NSXTGroup -GatewayType CGW -Name Foo -VmName Bar -Operator STARTSWITH
 #>
+    [CmdletBinding(DefaultParameterSetName = 'IPAddress')]
     Param (
         [Parameter(Mandatory=$True)]$Name,
         [Parameter(Mandatory=$true)][ValidateSet("MGW","CGW")][String]$GatewayType,
-        [Parameter(Mandatory=$True)][String[]]$IPAddress,
+        [Parameter(Mandatory=$true, ParameterSetName='IPAddress')][String[]]$IPAddress,
+        [Parameter(Mandatory=$true, ParameterSetName='Tag')][String]$Tag,
+        [Parameter(Mandatory=$true, ParameterSetName='VmName')][String]$VmName,
+        [Parameter(Mandatory=$true, ParameterSetName='VmName')][ValidateSet('CONTAINS','STARTSWITH')][String]$Operator,
         [Switch]$Troubleshoot
     )
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
-        $expression = @{
-            resource_type = "IPAddressExpression";
-            ip_addresses = $IPAddress;
+        if ($PSCmdlet.ParameterSetName -eq 'Tag') {
+            $expression = @{
+                resource_type = 'Condition'
+                member_type   = 'VirtualMachine'
+                value         = $Tag
+                key           = 'Tag'
+                operator      = 'EQUALS'
+            }
+        } elseif ($PSCmdlet.ParameterSetName -eq 'VmName') {
+            $expression = @{
+                resource_type = 'Condition'
+                member_type   = 'VirtualMachine'
+                value         = $VmName
+                key           = 'Name'
+                operator      = $Operator.ToUpper()
+            }
+        } else {
+            $expression = @{
+                resource_type = "IPAddressExpression";
+                ip_addresses  = $IPAddress;
+            }
         }
 
         $payload = @{
