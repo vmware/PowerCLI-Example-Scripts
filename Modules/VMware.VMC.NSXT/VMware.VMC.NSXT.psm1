@@ -1473,7 +1473,7 @@ Function New-NSXTDistFirewall {
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
 
-        $sectionId = (Get-NSXTDistFirewallSection -Name $Section).Id
+        $sectionId = (Get-NSXTDistFirewallSection -Name $Section)[0].Id
 
         $destinationGroups = @()
         foreach ($group in $DestinationGroup) {
