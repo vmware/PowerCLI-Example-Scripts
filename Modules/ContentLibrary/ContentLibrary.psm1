@@ -344,8 +344,8 @@ Function New-ExtReplicatedContentLibrary {
         $createSpec = $subscribeLibraryService.Help.create.create_spec.Create()
         $createSpec.name = $LibraryName
         $addResults = $createSpec.storage_backings.Add($StorageSpec)
-        $createSpec.subscription_info.automatic_sync_enabled = $false
-        $createSpec.subscription_info.on_demand = $true
+        $createSpec.subscription_info.automatic_sync_enabled = $AutoSync
+        $createSpec.subscription_info.on_demand = $OnDemand
         $createSpec.subscription_info.subscription_url = $subscribeUrl
         $createSpec.subscription_info.authentication_method = "NONE"
         $createSpec.type = "SUBSCRIBED"
