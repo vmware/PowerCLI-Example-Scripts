@@ -1513,7 +1513,7 @@ Function New-NSXTDistFirewall {
             logged = $Logged;
             scope = @("ANY");
             services = $services;
-            action = $Action;
+            action = $Action.ToUpper();
         }
 
         $body = $payload | ConvertTo-Json -depth 5
