@@ -223,11 +223,6 @@ Function Set-VMHostCryptoKey {
           Write-Error "Change Crypto Key on VMHost: $VMHost failed.$_!`n"
           return
        }
-
-       # Remove the old host key
-       Write-Verbose "Removing the old hostKey: $($OldKey.KeyId) on $VMHost...`n"
-       $VMHostCM = Get-View $VMHostView.ConfigManager.CryptoManager
-       $VMHostCM.RemoveKeys($OldKey, $true)
     }
 }
 
