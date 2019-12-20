@@ -1,5 +1,5 @@
 #Script Module : VMware.Hv.Helper
-#Version       : 1.3
+#Version       : 1.3.1
 
 #Copyright © 2016 VMware, Inc. All Rights Reserved.
 
