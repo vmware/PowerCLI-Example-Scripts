@@ -3746,6 +3746,7 @@ function New-HVPool {
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToResetMachines
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [boolean]$allowUsersToResetMachines = $false,
 
     #desktopSpec.desktopSettings.logoffSettings.allowMultipleSessionsPerUser
@@ -3777,23 +3778,27 @@ function New-HVPool {
     #desktopSpec.desktopSettings.logoffSettings.supportedDisplayProtocols
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string[]]$supportedDisplayProtocols = @('RDP', 'PCOIP', 'BLAST'),
 
     #desktopSpec.desktopSettings.logoffSettings.defaultDisplayProtocol
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
-    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string]$defaultDisplayProtocol = 'PCOIP',
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToChooseProtocol
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [int]$allowUsersToChooseProtocol = $true,
 
     #desktopSpec.desktopSettings.logoffSettings.enableHTMLAccess
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [boolean]$enableHTMLAccess = $false,
 
     # DesktopPCoIPDisplaySettings
