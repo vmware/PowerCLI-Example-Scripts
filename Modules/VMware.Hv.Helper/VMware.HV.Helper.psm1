@@ -6208,6 +6208,9 @@ function Set-HVPool {
     $ResourcePool,
 
     [Parameter(Mandatory = $false)]
+    [switch]$clearGlobalEntitlement,
+
+    [Parameter(Mandatory = $false)]
     [boolean]$allowUsersToChooseProtocol,
 
     [Parameter(Mandatory = $false)]
@@ -6317,6 +6320,12 @@ function Set-HVPool {
           $ResourcePoolID = Get-HVResourcePoolID $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services, $pool.AutomatedDesktopData.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster)
           $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.resourcePool' -value $ResourcePoolID
       }
+    }
+
+    if ($clearGlobalEntitlement) {
+    	$update = New-Object VMware.Hv.MapEntry
+    	$update.key = 'globalEntitlementData.globalEntitlement'
+    	$updates += $update
     }
 
     $info = $services.PodFederation.PodFederation_get()
