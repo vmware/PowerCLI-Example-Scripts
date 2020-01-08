@@ -1,5 +1,5 @@
 #Script Module : VMware.Hv.Helper
-#Version       : 1.3
+#Version       : 1.3.1
 
 #Copyright © 2016 VMware, Inc. All Rights Reserved.
 
@@ -3746,6 +3746,7 @@ function New-HVPool {
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToResetMachines
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [boolean]$allowUsersToResetMachines = $false,
 
     #desktopSpec.desktopSettings.logoffSettings.allowMultipleSessionsPerUser
@@ -3777,23 +3778,27 @@ function New-HVPool {
     #desktopSpec.desktopSettings.logoffSettings.supportedDisplayProtocols
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string[]]$supportedDisplayProtocols = @('RDP', 'PCOIP', 'BLAST'),
 
     #desktopSpec.desktopSettings.logoffSettings.defaultDisplayProtocol
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
-    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string]$defaultDisplayProtocol = 'PCOIP',
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToChooseProtocol
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [int]$allowUsersToChooseProtocol = $true,
 
     #desktopSpec.desktopSettings.logoffSettings.enableHTMLAccess
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [boolean]$enableHTMLAccess = $false,
 
     # DesktopPCoIPDisplaySettings
@@ -7767,7 +7772,7 @@ function Get-HVPoolSpec {
   if (! $DesktopInfoPsObj.GlobalEntitlementData.GlobalEntitlement) {
     $DesktopPsObj.GlobalEntitlementData = $null
   } else {
-    $entityId.Id = $DesktopInfoPsObj.GlobalEntitlementData.GlobalEntitlement.Id
+    $entityId = $DesktopInfoPsObj.GlobalEntitlementData.GlobalEntitlement
     $DesktopPsObj.GlobalEntitlementData = Get-HVInternalName -EntityId $entityId
   }
 
@@ -8025,7 +8030,13 @@ function Get-HVInternalName {
        }
        'GlobalApplicationEntitlement' {
          $info = $services.GlobalApplicationEntitlement.GlobalApplicationEntitlement_Get($EntityId)
-         return $info.Base.displayName
+         return $info.base.displayName
+       }
+       'GlobalEntitlement' {
+        $GlobalEntitlementID = New-Object VMware.Hv.GlobalEntitlementId
+        $GlobalEntitlementID.Id = $EntityID.Id
+        $info = $services.GlobalEntitlement.GlobalEntitlement_Get($GlobalEntitlementID)
+        return $info.base.displayname
        }
        default {
          $base64String  = $tokens[$tokens.Length-1]
