@@ -33,8 +33,8 @@ Function Connect-VMCVIServer {
     Organization:  VMware
     Blog:          http://vmware.com/go/powercli
     Twitter:       @powercli
-    ===========================================================================
-
+   ===========================================================================
+    
     .SYNOPSIS
         Cmdlet to connect to your VMC vCenter Server
     .DESCRIPTION
@@ -47,17 +47,25 @@ Function Connect-VMCVIServer {
     Param (
         [Parameter(Mandatory=$true)]$Org,
         [Parameter(Mandatory=$true)]$Sddc,
-        [switch]$Autologin
+        [switch]$Autologin,
+        [switch]$UseManagementIP
     )
-
+    
     If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
         $creds = Get-VMCSDDCDefaultCredential -Org $Org -Sddc $Sddc
-        Write-Host "Connecting to VMC vCenter Server" $creds.vc_public_ip
-        Connect-VIServer -Server $creds.vc_public_ip -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
-        Write-Host "Connecting to VMC CIS Endpoint" $creds.vc_public_ip
-        Connect-CisServer -Server $creds.vc_public_ip -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
+        If($UseManagementIP){
+            $Server = $creds.vc_management_ip
+        }Else{
+            $Server = $creds.vc_public_ip
+        }
+
+        Write-Host "Connecting to VMC vCenter Server" $Server
+        Connect-VIServer -Server $Server -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
+        Write-Host "Connecting to VMC CIS Endpoint" $Server
+        Connect-CisServer -Server $Server -User $creds.cloud_username -Password $creds.cloud_password | Add-Member -MemberType Noteproperty -Name Location -Value "VMC"
     }
 }
+
 Function Get-VMCOrg {
 <#
     .NOTES
@@ -81,13 +89,13 @@ Function Get-VMCOrg {
         Return all the info about the orgs you are a part of
 #>
     Param (
-       [Parameter(Mandatory=$false)]$Name
+        [Parameter(Mandatory=$false)]$Name
     )
 
     If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use Connect-VMC to connect" } Else {
         $orgService = Get-VMCService com.vmware.vmc.orgs
         if ($PSBoundParameters.ContainsKey("Name")){
-            $orgs = $orgService.list() | Where {$_.display_name -match $Name}
+            $orgs = $orgService.list() | Where {$_.display_name -eq $Name}
         } Else {
             $orgs = $orgService.list()
         }
@@ -130,7 +138,7 @@ Function Get-VMCSDDC {
             $orgID = $org.ID
             $sddcService = Get-VMCService com.vmware.vmc.orgs.sddcs
             if ($PSBoundParameters.ContainsKey("Name")){
-                $sddcService.list($OrgID) | Where {$_.name -match $Name}
+                $sddcService.list($OrgID) | Where {$_.name -eq $Name}
             } Else {
                 $sddcService.list($OrgID)
             }
@@ -320,7 +328,6 @@ Function Get-VMCSDDCVersion {
         }
     }
 }
-
 Function Get-VMCFirewallRule {
     <#
         .NOTES
@@ -394,9 +401,8 @@ Function Get-VMCFirewallRule {
         }
         $results
     }
-
-    Function Export-VMCFirewallRule {
-    <#
+Function Export-VMCFirewallRule {
+<#
         .NOTES
         ===========================================================================
         Created by:     William Lam
@@ -413,45 +419,45 @@ Function Get-VMCFirewallRule {
         .EXAMPLE
             Export-VMCFirewallRule -OrgName <Org Name> -SDDCName <SDDC Name> -GatewayType <MGW or CGW> -Path "C:\Users\lamw\Desktop\VMCFirewallRules.json"
     #>
-        param(
+    param(
             [Parameter(Mandatory=$false)][String]$SDDCName,
             [Parameter(Mandatory=$false)][String]$OrgName,
             [Parameter(Mandatory=$true)][ValidateSet("MGW","CGW")][String]$GatewayType,
             [Parameter(Mandatory=$false)][String]$Path
         )
 
-        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+    if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
 
-        if($GatewayType -eq "MGW") {
+    if($GatewayType -eq "MGW") {
             $EdgeId = "edge-1"
         } else {
             $EdgeId = "edge-2"
         }
 
-        $orgId = (Get-VMCOrg -Name $OrgName).Id
-        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+    $orgId = (Get-VMCOrg -Name $OrgName).Id
+    $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
 
-        if(-not $orgId) {
+    if(-not $orgId) {
             Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
             break
         }
-        if(-not $sddcId) {
+    if(-not $sddcId) {
             Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
             break
         }
 
-        $firewallConfigService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.edges.firewall.config
+    $firewallConfigService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.edges.firewall.config
 
-        $firewallRules = ($firewallConfigService.get($orgId, $sddcId, $EdgeId)).firewall_rules.firewall_rules
-        if(-not $ShowAll) {
+    $firewallRules = ($firewallConfigService.get($orgId, $sddcId, $EdgeId)).firewall_rules.firewall_rules
+    if(-not $ShowAll) {
             $firewallRules = $firewallRules | where { $_.rule_type -ne "default_policy" -and $_.rule_type -ne "internal_high" -and $_.name -ne "vSphere Cluster HA" -and $_.name -ne "Outbound Access" } | Sort-Object -Property rule_tag
         } else {
             $firewallRules = $firewallRules | Sort-Object -Property rule_tag
         }
 
-        $results = @()
-        $count = 0
-        foreach ($firewallRule in $firewallRules) {
+    $results = @()
+    $count = 0
+    foreach ($firewallRule in $firewallRules) {
             if($firewallRule.source.ip_address.Count -ne 0) {
                 $source = $firewallRule.source.ip_address
             } else {
@@ -473,16 +479,15 @@ Function Get-VMCFirewallRule {
             $count+=1
             $results+=$tmp
         }
-        if($Path) {
+    if($Path) {
             Write-Host -ForegroundColor Green "Exporting $count VMC Firewall Rules to $Path ..."
             $results | ConvertTo-Json | Out-File $Path
         } else {
             $results | ConvertTo-Json
         }
-    }
-
-    Function Import-VMCFirewallRule {
-    <#
+}
+Function Import-VMCFirewallRule {
+<#
         .NOTES
         ===========================================================================
         Created by:     William Lam
@@ -499,43 +504,43 @@ Function Get-VMCFirewallRule {
         .EXAMPLE
             Import-VMCFirewallRule -OrgName <Org Name> -SDDCName <SDDC Name> -GatewayType <MGW or CGW> -Path "C:\Users\lamw\Desktop\VMCFirewallRules.json"
     #>
-        param(
+    param(
             [Parameter(Mandatory=$false)][String]$SDDCName,
             [Parameter(Mandatory=$false)][String]$OrgName,
             [Parameter(Mandatory=$true)][ValidateSet("MGW","CGW")][String]$GatewayType,
             [Parameter(Mandatory=$false)][String]$Path
         )
 
-        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+    if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
 
-        if($GatewayType -eq "MGW") {
+    if($GatewayType -eq "MGW") {
             $EdgeId = "edge-1"
         } else {
             $EdgeId = "edge-2"
         }
 
-        $orgId = (Get-VMCOrg -Name $OrgName).Id
-        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+    $orgId = (Get-VMCOrg -Name $OrgName).Id
+    $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
 
-        if(-not $orgId) {
+    if(-not $orgId) {
             Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
             break
         }
-        if(-not $sddcId) {
+    if(-not $sddcId) {
             Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
             break
         }
 
-        $firewallService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.edges.firewall.config.rules
+    $firewallService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.edges.firewall.config.rules
 
-        $vmcFirewallRulesJSON = Get-Content -Raw $Path | ConvertFrom-Json
+    $vmcFirewallRulesJSON = Get-Content -Raw $Path | ConvertFrom-Json
 
-        # Create top level Firewall Rules Object
-        $firewallRules = $firewallService.Help.add.firewall_rules.Create()
-        # Create top top level Firewall Rule Spec which will be an array of individual Firewall rules as we process them in next section
-        $ruleSpec = $firewallService.Help.add.firewall_rules.firewall_rules.Create()
+    # Create top level Firewall Rules Object
+    $firewallRules = $firewallService.Help.add.firewall_rules.Create()
+    # Create top top level Firewall Rule Spec which will be an array of individual Firewall rules as we process them in next section
+    $ruleSpec = $firewallService.Help.add.firewall_rules.firewall_rules.Create()
 
-        foreach ($vmcFirewallRule in $vmcFirewallRulesJSON) {
+    foreach ($vmcFirewallRule in $vmcFirewallRulesJSON) {
             # Create Individual Firewall Rule Element Spec
             $ruleElementSpec = $firewallService.Help.add.firewall_rules.firewall_rules.Element.Create()
 
@@ -632,14 +637,13 @@ Function Get-VMCFirewallRule {
             Write-host "Creating VMC Firewall Rule Spec:" $vmcFirewallRule.Name "..."
             $ruleSpecAdd = $ruleSpec.Add($ruleElementSpec)
         }
-        $firewallRules.firewall_rules = $ruleSpec
+    $firewallRules.firewall_rules = $ruleSpec
 
-        Write-host "Adding VMC Firewall Rules ..."
-        $firewallRuleAdd = $firewallService.add($orgId,$sddcId,$EdgeId,$firewallRules)
-    }
-
-    Function Remove-VMCFirewallRule {
-    <#
+    Write-host "Adding VMC Firewall Rules ..."
+    $firewallRuleAdd = $firewallService.add($orgId,$sddcId,$EdgeId,$firewallRules)
+}
+Function Remove-VMCFirewallRule {
+<#
         .NOTES
         ===========================================================================
         Created by:     William Lam
@@ -656,38 +660,37 @@ Function Get-VMCFirewallRule {
         .EXAMPLE
             Remove-VMCFirewallRule -OrgName <Org Name> -SDDCName <SDDC Name> -GatewayType <MGW or CGW> -RuleId <Rule Id>
     #>
-        param(
+    param(
             [Parameter(Mandatory=$false)][String]$SDDCName,
             [Parameter(Mandatory=$false)][String]$OrgName,
             [Parameter(Mandatory=$true)][ValidateSet("MGW","CGW")][String]$GatewayType,
             [Parameter(Mandatory=$false)][String]$RuleId
         )
 
-        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+    if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
 
-        if($GatewayType -eq "MGW") {
+    if($GatewayType -eq "MGW") {
             $EdgeId = "edge-1"
         } else {
             $EdgeId = "edge-2"
         }
 
-        $orgId = (Get-VMCOrg -Name $OrgName).Id
-        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+    $orgId = (Get-VMCOrg -Name $OrgName).Id
+    $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
 
-        if(-not $orgId) {
+    if(-not $orgId) {
             Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
             break
         }
-        if(-not $sddcId) {
+    if(-not $sddcId) {
             Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
             break
         }
 
-        $firewallService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.edges.firewall.config.rules
-        Write-Host "Removing VMC Firewall Rule Id $RuleId ..."
-        $firewallService.delete($orgId,$sddcId,$EdgeId,$RuleId)
-    }
-
+    $firewallService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.edges.firewall.config.rules
+    Write-Host "Removing VMC Firewall Rule Id $RuleId ..."
+    $firewallService.delete($orgId,$sddcId,$EdgeId,$RuleId)
+}
 Function Get-VMCLogicalNetwork {
     <#
         .NOTES
@@ -695,7 +698,7 @@ Function Get-VMCLogicalNetwork {
         Created by:     Kyle Ruddy
         Date:          03/06/2018
         Organization: 	VMware
-        Blog:          https://thatcouldbeaproblem.com
+        Blog:          https://www.kmruddy.com
         Twitter:       @kmruddy
         ===========================================================================
 
@@ -727,9 +730,17 @@ Function Get-VMCLogicalNetwork {
         break
     }
 
-    $logicalNetworkService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.logical
+    # @LucD22 - 21/10/18 - Fix for issue #176 VMware.VMC module only lists firts 20 Logical networks
+    # Loop until entries (total_count) are returned
 
-    $logicalNetworks = ($logicalNetworkService.get_0($orgId, $sddcId)).data | Sort-Object -Property id
+    $index = [long]0
+
+    $logicalNetworks = do{
+        $netData = $logicalNetworkService.get_0($orgId,$sddcId,$pagesize,$index)
+        $netData.data | Sort-Object -Property id
+        $index = $index + $netdata.paging_info.page_size    
+    }
+    until($index -ge $netData.paging_info.total_count)
 
     if($LogicalNetworkName) {
         $logicalNetworks = $logicalNetworks | Where-Object {$_.Name -eq $LogicalNetworkName}
@@ -751,7 +762,6 @@ Function Get-VMCLogicalNetwork {
     }
     $results
 }
-
 Function Remove-VMCLogicalNetwork {
     <#
         .NOTES
@@ -759,7 +769,7 @@ Function Remove-VMCLogicalNetwork {
         Created by:     Kyle Ruddy
         Date:          03/06/2018
         Organization: 	VMware
-        Blog:          https://thatcouldbeaproblem.com
+        Blog:          https://www.kmruddy.com
         Twitter:       @kmruddy
         ===========================================================================
 
@@ -799,25 +809,24 @@ Function Remove-VMCLogicalNetwork {
     $logicalNetworkService = Get-VmcService com.vmware.vmc.orgs.sddcs.networks.logical
     $logicalNetworkService.delete($orgId,$sddcId,$lsId)
 }
-
 Function New-VMCLogicalNetwork {
-    <#
-        .NOTES
-        ===========================================================================
-        Created by:     Kyle Ruddy
-        Date:          03/06/2018
-        Organization: 	VMware
-        Blog:          https://thatcouldbeaproblem.com
-        Twitter:       @kmruddy
-        ===========================================================================
+<#
+    .NOTES
+    ===========================================================================
+    Created by:     Kyle Ruddy
+    Date:          03/06/2018
+    Organization: 	VMware
+    Blog:          https://www.kmruddy.com
+    Twitter:       @kmruddy
+    ===========================================================================
 
-        .SYNOPSIS
-            Creates a new Logical Network
-        .DESCRIPTION
-            Creates a new Logical Network
-        .EXAMPLE
-            New-VMCLogicalNetwork -OrgName <Org Name> -SDDCName <SDDC Name> -LogicalNetworkName <LogicalNetwork Name> -SubnetMask <Subnet Mask Prefix> -Gateway <Gateway IP Address>
-    #>
+    .SYNOPSIS
+        Creates a new Logical Network
+    .DESCRIPTION
+        Creates a new Logical Network
+    .EXAMPLE
+        New-VMCLogicalNetwork -OrgName <Org Name> -SDDCName <SDDC Name> -LogicalNetworkName <LogicalNetwork Name> -SubnetMask <Subnet Mask Prefix> -Gateway <Gateway IP Address>
+#>
     [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
     param(
         [Parameter(Mandatory=$true)][String]$SDDCName,
@@ -854,7 +863,6 @@ Function New-VMCLogicalNetwork {
     $logicalNetworkService.create($orgId, $sddcId, $logicalNetworkSpec)
     Get-VMCLogicalNetwork -OrgName $OrgName -SDDCName $SDDCName -LogicalNetworkName $LogicalNetworkName
 }
-
 Function Get-VMCSDDCSummary {
     <#
         .NOTES
@@ -874,8 +882,8 @@ Function Get-VMCSDDCSummary {
             Get-VMCSDDCSummary -Name <SDDC Name> -Org <Org Name>
     #>
         Param (
-            [Parameter(Mandatory=$True)]$OrgName,
-            [Parameter(Mandatory=$True)]$SDDCName
+            [Parameter(Mandatory=$True)]$Org,
+            [Parameter(Mandatory=$True)]$Name
         )
 
         If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
@@ -895,16 +903,16 @@ Function Get-VMCSDDCSummary {
                 InstanceType = $sddc.resource_config.sddc_manifest.esx_ami.instance_type;
                 VpcCIDR = $sddc.resource_config.vpc_info.vpc_cidr;
                 NSXT = $sddc.resource_config.nsxt;
+                VPC_VGW = $sddc.resource_config.vpc_info.vgw_id;
             }
             $results
         }
 }
-
 Function Get-VMCPublicIP {
     <#
         .NOTES
         ===========================================================================
-        Created by:    William Lam
+        Created by:    William LamVPC_VGW
         Date:          09/12/2018
         Organization:  VMware
         Blog:          http://www.virtuallyghetto.com
@@ -918,23 +926,23 @@ Function Get-VMCPublicIP {
         .EXAMPLE
             Get-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName
     #>
-        Param (
-            [Parameter(Mandatory=$True)]$OrgName,
-            [Parameter(Mandatory=$True)]$SDDCName
-        )
+    Param (
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$SDDCName
+    )
 
-        If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
-            $orgId = (Get-VMCOrg -Name $OrgName).Id
-            $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
 
-            $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
-            $publicIPs = $publicIPService.list($orgId,$sddcId)
+        $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+        $publicIPs = $publicIPService.list($orgId,$sddcId)
 
-            $publicIPs | select public_ip, name, allocation_id
-        }
+        $publicIPs | select public_ip, name, allocation_id
     }
+}
 
-    Function New-VMCPublicIP {
+Function New-VMCPublicIP {
     <#
         .NOTES
         ===========================================================================
@@ -952,28 +960,28 @@ Function Get-VMCPublicIP {
         .EXAMPLE
             New-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName -Description "Test for Randy"
     #>
-        Param (
-            [Parameter(Mandatory=$True)]$OrgName,
-            [Parameter(Mandatory=$True)]$SDDCName,
-            [Parameter(Mandatory=$False)]$Description
-        )
+    Param (
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$SDDCName,
+        [Parameter(Mandatory=$False)]$Description
+    )
 
-        If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
-            $orgId = (Get-VMCOrg -Name $OrgName).Id
-            $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
 
-            $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+        $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
 
-            $publicIPSpec = $publicIPService.Help.create.spec.Create()
-            $publicIPSpec.count = 1
-            $publicIPSpec.names = @($Description)
+        $publicIPSpec = $publicIPService.Help.create.spec.Create()
+        $publicIPSpec.count = 1
+        $publicIPSpec.names = @($Description)
 
-            Write-Host "Requesting a new public IP Address for your SDDC ..."
-            $results = $publicIPService.create($orgId,$sddcId,$publicIPSpec)
-        }
+        Write-Host "Requesting a new public IP Address for your SDDC ..."
+        $results = $publicIPService.create($orgId,$sddcId,$publicIPSpec)
     }
+}
 
-    Function Remove-VMCPublicIP {
+Function Remove-VMCPublicIP {
     <#
         .NOTES
         ===========================================================================
@@ -991,21 +999,632 @@ Function Get-VMCPublicIP {
         .EXAMPLE
             Remove-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName -AllocationId "eipalloc-0567acf34e436c01f"
     #>
-        Param (
-            [Parameter(Mandatory=$True)]$OrgName,
-            [Parameter(Mandatory=$True)]$SDDCName,
-            [Parameter(Mandatory=$True)]$AllocationId
-        )
+    Param (
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$SDDCName,
+        [Parameter(Mandatory=$True)]$AllocationId
+    )
 
-        If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
-            $orgId = (Get-VMCOrg -Name $OrgName).Id
-            $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
 
-            $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+        $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
 
-            Write-Host "Deleting public IP Address with ID $AllocationId ..."
-            $results = $publicIPService.delete($orgId,$sddcId,$AllocationId)
+        Write-Host "Deleting public IP Address with ID $AllocationId ..."
+        $results = $publicIPService.delete($orgId,$sddcId,$AllocationId)
+    }
+}
+
+Function Set-VMCSDDC {
+    <#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          01/12/2019
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Rename an SDDC
+    .DESCRIPTION
+        This cmdlet renames an SDDC
+    .EXAMPLE
+        Set-VMCSDDC -SDDC $SDDCName -OrgName $OrgName -Name $NewSDDCName
+    #>
+    Param (
+        [Parameter(Mandatory=$True)]$SDDCName,
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$Name
+    )
+
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $sddc = Get-VMCSDDC -Org $OrgName -Name $SDDCName
+        if($sddc) {
+            $sddcService = Get-VmcService com.vmware.vmc.orgs.sddcs
+            $renameSpec = $sddcService.help.patch.sddc_patch_request.Create()
+            $renameSpec.name = $Name
+
+            Write-Host "`nRenaming SDDC `'$SDDCName`' to `'$Name`' ...`n"
+            $results = $sddcService.patch($sddc.org_id,$sddc.id,$renameSpec)
         }
     }
+}
 
-Export-ModuleMember -Function 'Get-VMCCommand', 'Connect-VMCVIServer', 'Get-VMCOrg', 'Get-VMCSDDC', 'Get-VMCTask', 'Get-VMCSDDCDefaultCredential', 'Get-VMCSDDCPublicIP', 'Get-VMCVMHost', 'Get-VMCSDDCVersion', 'Get-VMCFirewallRule', 'Export-VMCFirewallRule', 'Import-VMCFirewallRule', 'Remove-VMCFirewallRule', 'Get-VMCLogicalNetwork', 'Remove-VMCLogicalNetwork', 'New-VMCLogicalNetwork', 'Get-VMCSDDCSummary', 'Get-VMCPublicIP', 'New-VMCPublicIP', 'Remove-VMCPublicIP'
+Function New-VMCPublicIP {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/12/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Request a new public IP Address for a given SDDC
+    .DESCRIPTION
+        This cmdlet requests a new public IP Address for a given SDDC
+    .EXAMPLE
+        New-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName -Description "Test for Randy"
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$SDDCName,
+        [Parameter(Mandatory=$False)]$Description
+    )
+
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+
+        $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+
+        $publicIPSpec = $publicIPService.Help.create.spec.Create()
+        $publicIPSpec.count = 1
+        $publicIPSpec.names = @($Description)
+
+        Write-Host "Requesting a new public IP Address for your SDDC ..."
+        $results = $publicIPService.create($orgId,$sddcId,$publicIPSpec)
+    }
+}
+
+Function Remove-VMCPublicIP {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          09/12/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Removes a specific public IP Addresses for a given SDDC
+    .DESCRIPTION
+        This cmdlet removes a specific public IP Address for a given SDDC
+    .EXAMPLE
+        Remove-VMCPublicIP -OrgName $OrgName -SDDCName $SDDCName -AllocationId "eipalloc-0567acf34e436c01f"
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$OrgName,
+        [Parameter(Mandatory=$True)]$SDDCName,
+        [Parameter(Mandatory=$True)]$AllocationId
+    )
+
+    If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+
+        $publicIPService = Get-VmcService "com.vmware.vmc.orgs.sddcs.publicips"
+
+        Write-Host "Deleting public IP Address with ID $AllocationId ..."
+        $results = $publicIPService.delete($orgId,$sddcId,$AllocationId)
+    }
+}
+
+Function Get-VMCEdge {
+<#
+.NOTES
+===========================================================================
+Created by:    Luc Dekens
+Date:          23/10/2018
+Organization:  Community
+Blog:          http://lucd.info
+Twitter:       @LucD22
+===========================================================================
+
+.SYNOPSIS
+    Returns all the VMC Edges
+.DESCRIPTION
+    Returns all the VMC Edges
+.EXAMPLE
+    Get-VMCEdge -OrgName $orgName -SddcName $SDDCName -EdgeType gatewayServices
+#>
+    Param (
+        [Parameter(Mandatory=$True)]
+        [string]$OrgName,
+        [Parameter(Mandatory=$True)]
+        [string]$SDDCName,
+        [ValidateSet('gatewayServices','distributedRouter')]
+        [string]$EdgeType = ''
+    )
+
+    If (-Not $global:DefaultVMCServers) {
+        Write-error "No VMC Connection found, please use the Connect-VMC to connect"
+    }
+    Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+
+        $edgeService = Get-VmcService -Name 'com.vmware.vmc.orgs.sddcs.networks.edges'
+        $index = [long]0
+        $edges = do{
+            $edgeData = $edgeService.get($orgId,$sddcId,$EdgeType,'',$index)
+            $edgeData.edge_page.data | Sort-Object -Property id
+            $index = $index + $edgeData.edge_page.paging_info.page_size    
+        }
+        until($index -ge $edgeData.paging_info.total_count)
+        $edges | %{
+            [pscustomobject]@{
+                Name = $_.Name
+                Id = $_.id
+                Type = $_.edge_type
+                State = $_.state
+                Status = $_.edge_status
+                VNics = $_.number_of_connected_vnics
+                TenantId = $_.tenant_id
+            }
+        }
+    }
+}
+
+Function Get-VMCEdgeStatus {
+<#
+.NOTES
+===========================================================================
+Created by:    Luc Dekens
+Date:          23/10/2018
+Organization:  Community
+Blog:          http://lucd.info
+Twitter:       @LucD22
+===========================================================================
+
+.SYNOPSIS
+    Returns the status of the gateway
+.DESCRIPTION
+     Retrieve the status of the specified management or compute gateway (NSX Edge).
+.EXAMPLE
+    Get-VMCEdgeStatus -OrgName $orgName -SddcName $SDDCName -Edge $EdgeName
+#>
+    Param (
+        [Parameter(Mandatory=$True)]
+        [string]$OrgName,
+        [Parameter(Mandatory=$True)]
+        [string]$SDDCName,
+        [Parameter(Mandatory=$True)]
+        [string]$EdgeName
+    )
+
+    If (-Not $global:DefaultVMCServers) {
+        Write-error "No VMC Connection found, please use the Connect-VMC to connect"
+    }
+    Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+        $edgeId = Get-VMCEdge -SDDCName $SDDCName -Org $OrgName | where{$_.Name -eq $EdgeName} | select -ExpandProperty Id
+
+        $statusService = Get-VmcService -Name 'com.vmware.vmc.orgs.sddcs.networks.edges.status'
+        $status = $statusService.get($orgId,$sddcId,$edgeId)
+
+        $vmStatus = $status.edge_vm_status | %{
+            [pscustomobject]@{
+                Name = $_.name
+                State = $_.edge_VM_status
+                HAState = $_.ha_state
+                Index = $_.index
+            }        
+        }
+        $featureStatus = $status.feature_statuses | %{
+            [pscustomobject]@{
+                Service = $_.service
+                Status = $_.status
+            }
+        }
+        [pscustomobject]@{
+            Time = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($status.timestamp/1000))
+            Status = $status.edge_status
+            PublishStatus = $status.publish_status
+            SystemStatus = $_.system_status
+            NicInUse = $status.ha_vnic_in_use
+        }
+    }
+}
+
+Function Get-VMCEdgeNic {
+<#
+.NOTES
+===========================================================================
+Created by:    Luc Dekens
+Date:          23/10/2018
+Organization:  Community
+Blog:          http://lucd.info
+Twitter:       @LucD22
+===========================================================================
+
+.SYNOPSIS
+    Returns all interfaces for the gateway
+.DESCRIPTION
+    Retrieve all interfaces for the specified management or compute gateway (NSX Edge).
+.EXAMPLE
+    Get-VMCEdgeNic -OrgName $orgName -SddcName $SDDCName -Edge $EdgeName
+#>
+    Param (
+        [Parameter(Mandatory=$True)]
+        [string]$OrgName,
+        [Parameter(Mandatory=$True)]
+        [string]$SDDCName,
+        [Parameter(Mandatory=$True)]
+        [string]$EdgeName
+    )
+
+    If (-Not $global:DefaultVMCServers) {
+        Write-error "No VMC Connection found, please use the Connect-VMC to connect"
+    }
+    Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+        $edgeId = Get-VMCEdge -SDDCName $SDDCName -Org $OrgName | where{$_.Name -eq $EdgeName} | select -ExpandProperty Id
+
+        $vnicService = Get-VmcService -Name 'com.vmware.vmc.orgs.sddcs.networks.edges.vnics'
+        $vnicService.get($orgId,$sddcId,$edgeId) | select -ExpandProperty vnics | %{
+            [pscustomobject]@{
+                Label = $_.label
+                Name = $_.Name
+                Type = $_.type
+                Index = $_.index
+                IsConnected = $_.is_connected
+                Portgroup = $_.portgroup_name
+            }
+        }
+    }
+}
+
+Function Get-VMCEdgeNicStat {
+<#
+.NOTES
+===========================================================================
+Created by:    Luc Dekens
+Date:          23/10/2018
+Organization:  Community
+Blog:          http://lucd.info
+Twitter:       @LucD22
+===========================================================================
+
+.SYNOPSIS
+    Returns statistics for the gateway interfaces
+.DESCRIPTION
+     Retrieve interface statistics for a management or compute gateway (NSX Edge).
+.EXAMPLE
+    Get-VMCEdgeNicStat -OrgName $orgName -SddcName $SDDCName -Edge $EdgeName
+#>
+    [CmdletBinding(DefaultParameterSetName='Default')]
+    Param (
+        [Parameter(Mandatory=$True)]
+        [string]$OrgName,
+        [Parameter(Mandatory=$True)]
+        [string]$SDDCName,
+        [Parameter(Mandatory=$True)]
+        [string]$EdgeName
+#        [DateTime]$Start,
+#        [DateTime]$Finish
+    )
+
+    If (-Not $global:DefaultVMCServers) {
+        Write-error "No VMC Connection found, please use the Connect-VMC to connect"
+    }
+    Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+        $edgeId = Get-VMCEdge -SDDCName $SDDCName -Org $OrgName | where{$_.Name -eq $EdgeName} | select -ExpandProperty Id
+
+#        $epoch = Get-Date 01/01/1970
+#        
+#        if($start){
+#            $startEpoch = (New-TimeSpan -Start $epoch -End $Start.ToUniversalTime()).TotalMilliseconds
+#        }
+#        if($Finish){
+#            $finishEpoch = (New-TimeSpan -Start $epoch -End $Finish.ToUniversalTime()).TotalMilliseconds
+#        }
+
+        $vnicStatService = Get-VmcService -Name 'com.vmware.vmc.orgs.sddcs.networks.edges.statistics.interfaces'
+#        $stats = $vnicStatService.get($orgId,$sddcId,$edgeId,[long]$startEpoch,[long]$finishEpoch)
+        $stats = $vnicStatService.get($orgId,$sddcId,$edgeId)
+
+        $stats.data_dto | Get-Member -MemberType NoteProperty | where{$_.Name -ne 'Help'} | %{$_.Name} | %{
+            $stats.data_dto."$_" | %{
+                [pscustomobject]@{
+                    vNIC = $_.vnic
+                    Timestamp = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($_.timestamp))
+                    In = $_.in
+                    Out = $_.out
+                    Unit = 'Kbps'
+                    Interval = $stats.meta_dto.interval
+                }
+            }
+        }
+    }
+}
+
+Function Get-VMCEdgeUplinkStat {
+<#
+.NOTES
+===========================================================================
+Created by:    Luc Dekens
+Date:          23/10/2018
+Organization:  Community
+Blog:          http://lucd.info
+Twitter:       @LucD22
+===========================================================================
+
+.SYNOPSIS
+    Returns statistics for the uplink interfaces
+.DESCRIPTION
+     Retrieve uplink interface statistics for a management or compute gateway (NSX Edge).
+.EXAMPLE
+    Get-VMCEdgeUplinkStat -OrgName $orgName -SddcName $SDDCName -Edge $EdgeName
+#>
+    Param (
+        [Parameter(Mandatory=$True)]
+        [string]$OrgName,
+        [Parameter(Mandatory=$True)]
+        [string]$SDDCName,
+        [Parameter(Mandatory=$True)]
+        [string]$EdgeName
+#        [DateTime]$Start,
+#        [DateTime]$Finish
+    )
+
+    If (-Not $global:DefaultVMCServers) {
+        Write-error "No VMC Connection found, please use the Connect-VMC to connect"
+    }
+    Else {
+        $orgId = (Get-VMCOrg -Name $OrgName).Id
+        $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
+        $edgeId = Get-VMCEdge -SDDCName $SDDCName -Org $OrgName | where{$_.Name -eq $EdgeName} | select -ExpandProperty Id
+
+#        $epoch = Get-Date 01/01/1970
+#        
+#        if($start){
+#            $startEpoch = (New-TimeSpan -Start $epoch -End $Start.ToUniversalTime()).TotalMilliseconds
+#        }
+#        if($Finish){
+#            $finishEpoch = (New-TimeSpan -Start $epoch -End $Finish.ToUniversalTime()).TotalMilliseconds
+#        }
+
+        $uplinkStatService = Get-VmcService -Name 'com.vmware.vmc.orgs.sddcs.networks.edges.statistics.interfaces.uplink'
+#        $stats = $uplinkStatService.get($orgId,$sddcId,$edgeId,[long]$startEpoch,[long]$finishEpoch)
+        $stats = $uplinkStatService.get($orgId,$sddcId,$edgeId)
+
+        $stats.data_dto | Get-Member -MemberType NoteProperty | where{$_.Name -ne 'Help'} | %{$_.Name} | %{
+            if($stats.data_dto."$_".Count -ne 0){
+                $stats.data_dto."$_" | %{
+                    [pscustomobject]@{
+                        vNIC = $_.vnic
+                        Timestamp = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($_.timestamp))
+                        In = $_.in
+                        Out = $_.out
+                        Unit = 'Kbps'
+                        Interval = $stats.meta_dto.interval
+                    }
+                }
+            }
+        }
+    }
+}
+Function New-VMCSDDCCluster {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/16/2019
+        Organization: 	VMware
+        Blog:          https://www.kmruddy.com
+        Twitter:       @kmruddy
+        ===========================================================================
+    
+        .SYNOPSIS
+            Creates a new cluster for the designated SDDC
+        .DESCRIPTION
+            Creates a new cluster
+        .EXAMPLE
+            New-VMCSDDCCluster -OrgName <Org Name> -SDDCName <SDDC Name> -HostCount 1 -CPUCoreCount 8
+    #>
+        [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
+        param(
+            [Parameter(Mandatory=$true)][String]$OrgName,
+            [Parameter(Mandatory=$true)][String]$SDDCName,
+            [Parameter(Mandatory=$true)][Int]$HostCount,
+            [Parameter(Mandatory=$true)][ValidateSet("8","16","32")]$CPUCoreCount
+        )
+
+        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+        $orgId = Get-VMCOrg -Name $OrgName | Select-Object -ExpandProperty Id
+        $sddcId = Get-VMCSDDC -Name $SDDCName -Org $OrgName | Select-Object -ExpandProperty Id
+
+        if(-not $orgId) {
+            Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+            break
+        }
+        if(-not $sddcId) {
+            Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+            break
+        }
+
+        $sddcClusterSvc = Get-VmcService -Name com.vmware.vmc.orgs.sddcs.clusters
+
+        $sddcClusterCreateSpec = $sddcClusterSvc.Help.create.cluster_config.Create()
+        $sddcClusterCreateSpec.host_cpu_cores_count = $CPUCoreCount
+        $sddcClusterCreateSpec.num_hosts = $HostCount
+
+        $sddcClusterTask = $sddcClusterSvc.Create($org.Id, $sddc.Id, $sddcClusterCreateSpec)
+        $sddcClusterTask | Select-Object Id,Task_Type,Status,Created | Format-Table
+}
+Function Get-VMCSDDCCluster {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/16/2019
+        Organization: 	VMware
+        Blog:          https://www.kmruddy.com
+        Twitter:       @kmruddy
+        ===========================================================================
+    
+        .SYNOPSIS
+            Retreives cluster information for the designated SDDC
+        .DESCRIPTION
+            Lists cluster information for an SDDC
+        .EXAMPLE
+            Get-VMCSDDCCluster -OrgName <Org Name> -SDDCName <SDDC Name> -HostCount 1 -CPUCoreCount 8
+    #>
+        [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='Low')]
+        param(
+            [Parameter(Mandatory=$true)][String]$OrgName,
+            [Parameter(Mandatory=$true)][String]$SddcName
+        )
+
+        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+        $orgId = Get-VMCOrg -Name $OrgName | Select-Object -ExpandProperty Id
+        $sddcId = Get-VMCSDDC -Name $SDDCName -Org $OrgName | Select-Object -ExpandProperty Id
+
+        if(-not $orgId) {
+            Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+            break
+        }
+        if(-not $sddcId) {
+            Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+            break
+        }
+
+        $clusterOutput = @()
+        $sddcClusters = Get-VMCSDDC -Org $OrgName -Name $SDDCName | Select-Object -ExpandProperty resource_config | Select-Object -ExpandProperty clusters
+        foreach ($c in $sddcClusters) {
+            $tempCluster = "" | Select-Object Id, Name, State
+            $tempCluster.Id = $c.cluster_id
+            $tempCluster.Name = $c.cluster_name
+            $tempCluster.State = $c.cluster_state
+            $clusterOutput += $tempCluster
+        }
+        return $clusterOutput
+}
+Function New-VMCSDDCCluster {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/16/2019
+        Organization: 	VMware
+        Blog:          https://www.kmruddy.com
+        Twitter:       @kmruddy
+        ===========================================================================
+    
+        .SYNOPSIS
+            Creates a new cluster for the designated SDDC
+        .DESCRIPTION
+            Creates a new cluster
+        .EXAMPLE
+            New-VMCSDDCCluster -OrgName <Org Name> -SDDCName <SDDC Name> -HostCount 1 -CPUCoreCount 8
+    #>
+        [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
+        param(
+            [Parameter(Mandatory=$true)][String]$OrgName,
+            [Parameter(Mandatory=$true)][String]$SddcName,
+            [Parameter(Mandatory=$true)][Int]$HostCount,
+            [Parameter(Mandatory=$false)][ValidateSet("8","16","36","48")]$CPUCoreCount
+        )
+
+        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+        $orgId = Get-VMCOrg -Name $OrgName | Select-Object -ExpandProperty Id
+        $sddcId = Get-VMCSDDC -Name $SDDCName -Org $OrgName | Select-Object -ExpandProperty Id
+
+        if(-not $orgId) {
+            Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+            break
+        }
+        if(-not $sddcId) {
+            Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+            break
+        }
+
+        $sddcClusterSvc = Get-VmcService -Name com.vmware.vmc.orgs.sddcs.clusters
+
+        $sddcClusterCreateSpec = $sddcClusterSvc.Help.create.cluster_config.Create()
+        $sddcClusterCreateSpec.host_cpu_cores_count = $CPUCoreCount
+        $sddcClusterCreateSpec.num_hosts = $HostCount
+
+        $sddcClusterTask = $sddcClusterSvc.Create($org.Id, $sddc.Id, $sddcClusterCreateSpec)
+        $sddcClusterTask | Select-Object Id,Task_Type,Status,Created | Format-Table
+}
+Function Remove-VMCSDDCCluster {
+    <#
+        .NOTES
+        ===========================================================================
+        Created by:     Kyle Ruddy
+        Date:          03/16/2019
+        Organization: 	VMware
+        Blog:          https://www.kmruddy.com
+        Twitter:       @kmruddy
+        ===========================================================================
+    
+        .SYNOPSIS
+            Removes a specified cluster from the designated SDDC
+        .DESCRIPTION
+            Deletes a cluster from an SDDC
+        .EXAMPLE
+            Remove-VMCSDDCCluster -OrgName <Org Name> -SDDCName <SDDC Name> -Cluster <Cluster Name>
+    #>
+        [cmdletbinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
+        param(
+            [Parameter(Mandatory=$true)][String]$OrgName,
+            [Parameter(Mandatory=$true)][String]$SDDCName,
+            [Parameter(Mandatory=$true)][String]$ClusterName
+        )
+
+        if (-not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect"; break }
+
+        $orgId = Get-VMCOrg -Name $OrgName | Select-Object -ExpandProperty Id
+        $sddcId = Get-VMCSDDC -Name $SDDCName -Org $OrgName | Select-Object -ExpandProperty Id
+        $clusterId = Get-VMCSDDCCluster -SddcName $SDDCName -OrgName $OrgName | Where-Object {$_.Name -eq $ClusterName} | Select-Object -ExpandProperty Id
+
+        if(-not $orgId) {
+            Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
+            break
+        }
+        if(-not $sddcId) {
+            Write-Host -ForegroundColor red "Unable to find SDDC $SDDCName, please verify input"
+            break
+        }
+        if(-not $clusterId) {
+            Write-Host -ForegroundColor red "Unable to find cluster $ClusterName, please verify input"
+            break
+        }
+
+        $sddcClusterTask = $sddcClusterSvc.Delete($orgId, $sddcId, $clusterId)
+        $sddcClusterTask | Select-Object Id,Task_Type,Status,Created | Format-Table
+}
+
+Export-ModuleMember -Function 'Get-VMCCommand', 'Connect-VMCVIServer', 'Get-VMCOrg', 'Get-VMCSDDC',
+    'Get-VMCTask', 'Get-VMCSDDCDefaultCredential', 'Get-VMCSDDCPublicIP', 'Get-VMCVMHost',
+    'Get-VMCSDDCVersion', 'Get-VMCFirewallRule', 'Export-VMCFirewallRule', 'Import-VMCFirewallRule',
+    'Remove-VMCFirewallRule', 'Get-VMCLogicalNetwork', 'Remove-VMCLogicalNetwork', 'New-VMCLogicalNetwork',
+    'Get-VMCSDDCSummary', 'Get-VMCPublicIP', 'New-VMCPublicIP', 'Remove-VMCPublicIP', 'Set-VMCSDDC',
+    'Get-VMCEdge', 'Get-VMCEdgeNic', 'Get-VMCEdgeStatus', 'Get-VMCEdgeNicStat', 'Get-VMCEdgeUplinkStat',
+    'Get-VMCSDDCCluster', 'New-VMCSDDCCluster', 'Remove-VMCSDDCCluster'
