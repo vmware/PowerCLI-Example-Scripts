@@ -7010,7 +7010,8 @@ function Start-HVPool {
             $updates = @()
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
-            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
+            if ($startTime) { $spec.Settings.startTime = $startTime }
+	    if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Update($services,$item,$updates)
             }
             Write-Host "Performed recompose task on Pool: " $PoolList.$item
