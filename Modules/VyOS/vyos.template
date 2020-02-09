@@ -1,3 +1,5 @@
+configure
+
 set service ssh port 22
 
 set interfaces ethernet eth0 address '[MANAGEMENT_ADDRESS]'
@@ -61,4 +63,4 @@ set nat source rule 40 translation address masquerade
 
 commit
 save
-
+exit

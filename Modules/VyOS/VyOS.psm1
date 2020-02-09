@@ -136,6 +136,62 @@ Function Set-VMKeystrokes {
     $results = $vm.PutUsbScanCodes($spec)
 }
 
+Function New-VyOSInstallation {
+<#
+    .NOTES
+    ===========================================================================
+        Created by:    William Lam
+        Organization:  VMware
+        Blog:          www.virtuallyghetto.com
+        Twitter:       @lamw
+    ===========================================================================
+    .DESCRIPTION
+        This function automates the installation and configuration of VyOS from ISO
+    .PARAMETER VMName
+        The name of the VyOS VM
+    .PARAMETER ManagementPassword
+        The password to configure for the vyos user
+    .EXAMPLE
+        New-VyOSInstallation -VMName VyOS-Router -ManagementPassword VMware1!
+#>
+    param(
+        [Parameter(Mandatory=$true)][String]$VMName,
+        [Parameter(Mandatory=$true)][String]$ManagementPassword
+    )
+
+    # Login to console and install VyOS before starting configuration
+    Set-VMKeystrokes -VMName $VMName -StringInput "vyos" -ReturnCarriage $true
+    Set-VMKeystrokes -VMName $VMName -StringInput "vyos" -ReturnCarriage $true
+    Set-VMKeystrokes -VMName $VMName -StringInput "install image" -ReturnCarriage $true
+    Set-VMKeystrokes -VMName $VMName -StringInput "yes" -ReturnCarriage $true
+    Start-Sleep -Seconds 5
+    Set-VMKeystrokes -VMName $VMName -StringInput "Auto" -ReturnCarriage $true
+    Start-Sleep -Seconds 1
+    Set-VMKeystrokes -VMName $VMName -StringInput "sda" -ReturnCarriage $true
+    Start-Sleep -Seconds 5
+    Set-VMKeystrokes -VMName $VMName -StringInput "yes" -ReturnCarriage $true
+    Start-Sleep -Seconds 5
+    Set-VMKeystrokes -VMName $VMName -StringInput " " -ReturnCarriage $true
+    Start-Sleep -Seconds 10
+    Set-VMKeystrokes -VMName $VMName -StringInput "vyos-router" -ReturnCarriage $true
+    Start-Sleep -Seconds 5
+    Set-VMKeystrokes -VMName $VMName -StringInput " " -ReturnCarriage $true
+    Start-Sleep -Seconds 10
+    Set-VMKeystrokes -VMName $VMName -StringInput "$ManagementPassword" -ReturnCarriage $true
+    Start-Sleep -Seconds 5
+    Set-VMKeystrokes -VMName $VMName -StringInput "$ManagementPassword" -ReturnCarriage $true
+    Start-Sleep -Seconds 5
+    Set-VMKeystrokes -VMName $VMName -StringInput "sda" -ReturnCarriage $true
+    Start-Sleep -Seconds 5
+    Set-VMKeystrokes -VMName $VMName -StringInput "reboot" -ReturnCarriage $true
+    Start-Sleep -Seconds 5
+    Set-VMKeystrokes -VMName $VMName -StringInput "y" -ReturnCarriage $true
+    Start-Sleep -Seconds 5
+    Get-VM $VMName | Get-CDDrive | Set-CDDrive -Connected $false -Confirm:$false -ErrorAction Ignore -WarningAction Ignore | Out-Null
+
+    Write-Host -ForegroundColor Green "VyOS has been installed, VM will reboot for changes to go into effect"
+}
+
 Function New-VyOSConfiguration {
 <#
     .NOTES
@@ -154,9 +210,9 @@ Function New-VyOSConfiguration {
     .PARAMETER ConfigFile
         The path to VyOS configuration file
     .PARAMETER ManagementAddress
-        The IP Address of the WAN Interface (eth0)
+        The IP Address of the OUTSIDE Interface (eth0)
     .PARAMETER ManagementGateway
-        The Gateway Addrss of the WAN Interface (eth0)
+        The Gateway Addrss of the OUTSIDE Interface (eth0)
     .PARAMETER ManagementDNSDomain
         The DNS Domain on the WAN network
     .PARAMETER ManagementDNSServer
@@ -164,7 +220,7 @@ Function New-VyOSConfiguration {
     .PARAMETER ManagementJumpHostIP
         The IP Address of Windows Jumphost that can be used to RDP into various VLANs
     .EXAMPLE
-        New-VyOSConfiguration -VMName VyOS-Router -ConfigFile vyos.template -ManagementAddress 192.168.30.155/24 -ManagementGateway 192.168.30.1 -ManagementDNSDomain primp-industries.com -ManagementDNSServer 192.168.30.2 -ManagementJumpHostIP 192.168.30.199 -ManagementPassword VMware1!
+        New-VyOSConfiguration -VMName VyOS-Router -ConfigFile vyos.template -ManagementAddress 192.168.30.156/24 -ManagementGateway 192.168.30.1 -ManagementDNSDomain primp-industries.com -ManagementDNSServer 192.168.30.2 -ManagementJumpHostIP 192.168.30.199 -ManagementPassword VMware1!
 #>
     param(
         [Parameter(Mandatory=$true)][String]$VMName,
@@ -174,38 +230,12 @@ Function New-VyOSConfiguration {
         [Parameter(Mandatory=$true)][String]$ManagementDNSDomain,
         [Parameter(Mandatory=$true)][String]$ManagementDNSServer,
         [Parameter(Mandatory=$true)][String]$ManagementJumpHostIP,
-        [Parameter(Mandatory=$true)][String]$ManagementPassword,
-        [Switch]$Troubleshoot
+        [Parameter(Mandatory=$true)][String]$ManagementPassword
     )
 
     # Login to console and install VyOS before starting configuration
-    if(-Not $Troubleshoot) {
-        Set-VMKeystrokes -VMName $VMName -StringInput "vyos" -ReturnCarriage $true
-        Set-VMKeystrokes -VMName $VMName -StringInput "vyos" -ReturnCarriage $true
-        Set-VMKeystrokes -VMName $VMName -StringInput "install image" -ReturnCarriage $true
-        Set-VMKeystrokes -VMName $VMName -StringInput "yes" -ReturnCarriage $true
-        Start-Sleep -Seconds 5
-        Set-VMKeystrokes -VMName $VMName -StringInput "Auto" -ReturnCarriage $true
-        Start-Sleep -Seconds 1
-        Set-VMKeystrokes -VMName $VMName -StringInput "sda" -ReturnCarriage $true
-        Start-Sleep -Seconds 5
-        Set-VMKeystrokes -VMName $VMName -StringInput "yes" -ReturnCarriage $true
-        Start-Sleep -Seconds 5
-        Set-VMKeystrokes -VMName $VMName -StringInput " " -ReturnCarriage $true
-        Start-Sleep -Seconds 10
-        Set-VMKeystrokes -VMName $VMName -StringInput "vyos-router" -ReturnCarriage $true
-        Start-Sleep -Seconds 5
-        Set-VMKeystrokes -VMName $VMName -StringInput " " -ReturnCarriage $true
-        Start-Sleep -Seconds 10
-        Set-VMKeystrokes -VMName $VMName -StringInput "$ManagementPassword" -ReturnCarriage $true
-        Start-Sleep -Seconds 5
-        Set-VMKeystrokes -VMName $VMName -StringInput "$ManagementPassword" -ReturnCarriage $true
-        Start-Sleep -Seconds 5
-        Set-VMKeystrokes -VMName $VMName -StringInput "sda" -ReturnCarriage $true
-        Start-Sleep -Seconds 5
-        Set-VMKeystrokes -VMName $VMName -StringInput "configure" -ReturnCarriage $true
-        Start-Sleep -Seconds 1
-    }
+    Set-VMKeystrokes -VMName $VMName -StringInput "vyos" -ReturnCarriage $true
+    Set-VMKeystrokes -VMName $VMName -StringInput "$ManagementPassword" -ReturnCarriage $true
 
     foreach ($cmd in Get-Content -Path $ConfigFile | Where-Object { $_.Trim() -ne '' }) {
         if($cmd.Contains('[MANAGEMENT_ADDRESS]')) {
@@ -268,4 +298,33 @@ Function New-VyOSConfiguration {
         }
     }
 
+    <#
+    # Configure and Enable VyOS REST API
+    # REST API not very functional, no GET operatoin and a bit kludgey on setup
+
+    $httpApiConf = "http-api.conf"
+
+    $config = @"
+{
+    "listen_address": "$($ManagementAddress.substring(0,$ManagementAddress.IndexOf('/')))",
+    "port": 8080,
+    "debug": true,
+    "api_keys": [
+        {"id": "powercli", "key": "${ManagementPassword}"}
+    ]
+}
+"@
+
+    $config | Set-Content "$httpApiConf"
+
+    Get-Item "$httpApiConf" | Copy-VMGuestFile -LocalToGuest -Destination "/home/vyos/${httpApiConf}" -VM (Get-VM $VMName) -GuestUser "vyos" -GuestPassword "$ManagementPassword" -Force
+
+    Write-Host "Creating VyOS REST API Configuration /etc/vyos/${httpApiConf} ..."
+    $scriptText = "echo `"${ManagementPassword}`" | sudo -S cp /home/vyos/${httpApiConf} /etc/vyos/${httpApiConf}"
+    Invoke-VMScript -ScriptText $scriptText -vm (Get-VM $VMName) -GuestUser "vyos" -GuestPassword $ManagementPassword
+
+    Write-Host "Starting VyOS REST API ..."
+    $scriptText = "echo `"${ManagementPassword}`" | sudo -S systemctl start vyos-http-api"
+    Invoke-VMScript -ScriptText $scriptText -vm (Get-VM $VMName) -GuestUser "vyos" -GuestPassword $ManagementPassword
+    #>
 }
