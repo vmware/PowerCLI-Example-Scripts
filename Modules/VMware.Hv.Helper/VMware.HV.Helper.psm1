@@ -12683,6 +12683,9 @@ param (
 
   [Parameter(Mandatory = $False)]
   [String]$GlobalApplicationEntitlement = $null
+  
+  [Parameter(Mandatory = $false)]
+  [switch]$clearGlobalEntitlement
 )
   begin {
     $services = Get-ViewAPIService -HvServer $HvServer
@@ -12761,6 +12764,12 @@ param (
     }
     if ($PSBoundParameters.ContainsKey("AutoUpdateOtherFileTypes")) {
     	$updates += Get-MapEntry -key 'executionData.autoUpdateOtherFileTypes' -value $AutoUpdateOtherFileTypes
+    }
+    
+    if ($clearGlobalEntitlement) {
+    	$update = New-Object VMware.Hv.MapEntry
+    	$update.key = 'data.globalApplicationEntitlement'
+    	$updates += $update
     }
 
     $AppService = New-Object VMware.Hv.ApplicationService
