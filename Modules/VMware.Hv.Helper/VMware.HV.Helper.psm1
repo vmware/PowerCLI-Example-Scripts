@@ -12682,7 +12682,7 @@ param (
   [Boolean]$AutoUpdateOtherFileTypes = $True,
 
   [Parameter(Mandatory = $False)]
-  [String]$GlobalApplicationEntitlement = $null
+  [String]$GlobalApplicationEntitlement = $null,
   
   [Parameter(Mandatory = $false)]
   [switch]$clearGlobalEntitlement
