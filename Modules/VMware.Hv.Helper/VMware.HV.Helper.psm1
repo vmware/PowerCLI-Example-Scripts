@@ -1,5 +1,5 @@
 #Script Module : VMware.Hv.Helper
-#Version       : 1.3
+#Version       : 1.3.1
 
 #Copyright © 2016 VMware, Inc. All Rights Reserved.
 
@@ -647,8 +647,8 @@ function Connect-HVEvent {
    Connecting to the database with customised user name and password.
 
 .EXAMPLE
-   C:\PS>$password = Read-Host 'Database Password' -AsSecureString
-   C:\PS>$hvDbServer = Connect-HVEvent -HvServer $hvServer -DbUserName 'system' -DbPassword $password
+   $password = Read-Host 'Database Password' -AsSecureString
+   $hvDbServer = Connect-HVEvent -HvServer $hvServer -DbUserName 'system' -DbPassword $password
    Connecting to the database with customised user name and password, with password being a SecureString.
 
 .OUTPUTS
@@ -854,13 +854,13 @@ function Get-HVEvent {
    String that can applied in filtering on 'Message' column.
 
 .EXAMPLE
-   C:\PS>$e = Get-HVEvent -hvDbServer $hvDbServer
-   C:\PS>$e.Events
+   $e = Get-HVEvent -hvDbServer $hvDbServer
+   $e.Events
    Querying all the database events on database $hvDbServer.
 
 .EXAMPLE
-   C:\PS>$e = Get-HVEvent -HvDbServer $hvDbServer -TimePeriod 'all' -FilterType 'startsWith' -UserFilter 'aduser' -SeverityFilter 'err' -TimeFilter 'HH:MM:SS.fff' -ModuleFilter 'broker' -MessageFilter 'aduser'
-   C:\PS>$e.Events | Export-Csv -Path 'myEvents.csv' -NoTypeInformation
+   $e = Get-HVEvent -HvDbServer $hvDbServer -TimePeriod 'all' -FilterType 'startsWith' -UserFilter 'aduser' -SeverityFilter 'err' -TimeFilter 'HH:MM:SS.fff' -ModuleFilter 'broker' -MessageFilter 'aduser'
+   $e.Events | Export-Csv -Path 'myEvents.csv' -NoTypeInformation
    Querying all the database events where user name startswith 'aduser', severity is of 'err' type, having module name as 'broker', message starting with 'aduser' and time starting with 'HH:MM:SS.fff'.
    The resulting events will be exported to a csv file 'myEvents.csv'.
 
@@ -1729,20 +1729,21 @@ function Get-HVQueryFilter {
     Creates queryFilterStartsWith with given parameters memberName and memberValue
 
 .EXAMPLE
-    C:\PS>$filter = Get-HVQueryFilter data.name -Startswith vmware
-    C:\PS>Get-HVQueryFilter -Not $filter
+    $filter = Get-HVQueryFilter data.name -Startswith vmware
+    Get-HVQueryFilter -Not $filter
     Creates queryFilterNot with given parameter filter
 
 .EXAMPLE
-    C:\PS>$filter1 = Get-HVQueryFilter data.name -Startswith vmware
-    C:\PS>$filter2 = Get-HVQueryFilter data.name -Contains pool
-    C:\PS>Get-HVQueryFilter -And @($filter1, $filter2)
+    $filter1 = Get-HVQueryFilter data.name -Startswith vmware
+    $filter2 = Get-HVQueryFilter data.name -Contains pool
+    Get-HVQueryFilter -And @($filter1, $filter2)
+
     Creates queryFilterAnd with given parameter filters array
 
 .EXAMPLE
-    C:\PS>$filter1 = Get-HVQueryFilter data.name -Startswith vmware
-    C:\PS>$filter2 = Get-HVQueryFilter data.name -Contains pool
-    C:\PS>Get-HVQueryFilter -Or @($filter1, $filter2)
+    $filter1 = Get-HVQueryFilter data.name -Startswith vmware
+    $filter2 = Get-HVQueryFilter data.name -Contains pool
+    Get-HVQueryFilter -Or @($filter1, $filter2)
     Creates queryFilterOr with given parameter filters array
 
 .OUTPUTS
@@ -1881,8 +1882,8 @@ function Get-HVQueryResult {
     Returns query results of entityType DesktopSummaryView with given filter
 
 .EXAMPLE
-    C:\PS>$myFilter = Get-HVQueryFilter data.name -Contains vmware
-    C:\PS>Get-HVQueryResult -EntityType DesktopSummaryView -Filter $myFilter -SortBy desktopSummaryData.displayName -SortDescending $false
+    $myFilter = Get-HVQueryFilter data.name -Contains vmware
+    Get-HVQueryResult -EntityType DesktopSummaryView -Filter $myFilter -SortBy desktopSummaryData.displayName -SortDescending $false
     Returns query results of entityType DesktopSummaryView with given filter and also sorted based on dispalyName
 
 .EXAMPLE
@@ -3587,17 +3588,17 @@ function New-HVPool {
     first element from global:DefaultHVServers would be considered in-place of hvServer.
 
 .EXAMPLE
-   C:\PS>New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
-   Create new automated linked clone pool with naming method pattern
+    New-HVPool -LinkedClone -PoolName 'vmwarepool' -UserAssignment FLOATING -ParentVM 'Agent_vmware' -SnapshotVM 'kb-hotfix' -VmFolder 'vmware' -HostOrCluster 'CS-1' -ResourcePool 'CS-1' -Datastores 'datastore1' -NamingMethod PATTERN -PoolDisplayName 'vmware linkedclone pool' -Description  'created linkedclone pool from ps' -EnableProvisioning $true -StopProvisioningOnError $false -NamingPattern  "vmware2" -MinReady 0 -MaximumCount 1 -SpareCount 1 -ProvisioningTime UP_FRONT -SysPrepName vmwarecust -CustType SYS_PREP -NetBiosName adviewdev -DomainAdmin root
+    Create new automated linked clone pool with naming method pattern
 
 .EXAMPLE
-   New-HVPool -Spec C:\VMWare\Specs\LinkedClone.json -Confirm:$false
-   Create new automated linked clone pool by using JSON spec file
+    New-HVPool -Spec C:\VMWare\Specs\LinkedClone.json -Confirm:$false
+    Create new automated linked clone pool by using JSON spec file
 
 .EXAMPLE
-   C:\PS>Get-HVPool -PoolName 'vmwarepool' | New-HVPool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
+   Get-HVPool -PoolName 'vmwarepool' | New-HVPool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
    (OR)
-   C:\PS>$vmwarepool = Get-HVPool -PoolName 'vmwarepool';  New-HVPool -ClonePool $vmwarepool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
+   $vmwarepool = Get-HVPool -PoolName 'vmwarepool';  New-HVPool -ClonePool $vmwarepool -PoolName 'clonedPool' -NamingPattern 'clonelnk1';
    Clones new pool by using existing pool configuration
 
 .EXAMPLE
@@ -3746,6 +3747,7 @@ function New-HVPool {
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToResetMachines
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [boolean]$allowUsersToResetMachines = $false,
 
     #desktopSpec.desktopSettings.logoffSettings.allowMultipleSessionsPerUser
@@ -3777,23 +3779,27 @@ function New-HVPool {
     #desktopSpec.desktopSettings.logoffSettings.supportedDisplayProtocols
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string[]]$supportedDisplayProtocols = @('RDP', 'PCOIP', 'BLAST'),
 
     #desktopSpec.desktopSettings.logoffSettings.defaultDisplayProtocol
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
-    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('RDP', 'PCOIP', 'BLAST')]
     [string]$defaultDisplayProtocol = 'PCOIP',
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToChooseProtocol
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [int]$allowUsersToChooseProtocol = $true,
 
     #desktopSpec.desktopSettings.logoffSettings.enableHTMLAccess
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [boolean]$enableHTMLAccess = $false,
 
     # DesktopPCoIPDisplaySettings
@@ -5655,8 +5661,8 @@ function Remove-HVFarm {
    Deletes a given Farm object(s). For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
 
 .EXAMPLE
-   C:\PS>$farm1 = Get-HVFarm -FarmName 'Farm-01'
-   C:\PS>Remove-HVFarm -Farm $farm1
+   $farm1 = Get-HVFarm -FarmName 'Farm-01'
+   Remove-HVFarm -Farm $farm1
    Deletes a given Farm object. For an automated farm, all the RDS Server VMs are deleted from disk whereas for a manual farm only the RDS Server associations are removed.
 
 .OUTPUTS
@@ -6208,6 +6214,9 @@ function Set-HVPool {
     $ResourcePool,
 
     [Parameter(Mandatory = $false)]
+    [switch]$clearGlobalEntitlement,
+
+    [Parameter(Mandatory = $false)]
     [boolean]$allowUsersToChooseProtocol,
 
     [Parameter(Mandatory = $false)]
@@ -6317,6 +6326,12 @@ function Set-HVPool {
           $ResourcePoolID = Get-HVResourcePoolID $ResourcePool_service_helper.ResourcePool_GetResourcePoolTree($services, $pool.AutomatedDesktopData.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster)
           $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.resourcePool' -value $ResourcePoolID
       }
+    }
+
+    if ($clearGlobalEntitlement) {
+    	$update = New-Object VMware.Hv.MapEntry
+    	$update.key = 'globalEntitlementData.globalEntitlement'
+    	$updates += $update
     }
 
     $info = $services.PodFederation.PodFederation_get()
@@ -6430,8 +6445,8 @@ function Start-HVFarm {
     Requests a recompose of RDS Servers in the specified automated farm
 
 .EXAMPLE
-    C:\PS>$myTime = Get-Date '10/03/2016 12:30:00'
-    C:\PS>Start-HVFarm -Farm 'Farm-01' -Recompose -LogoffSetting 'FORCE_LOGOFF' -ParentVM 'ParentVM' -SnapshotVM 'SnapshotVM' -StartTime $myTime
+    $myTime = Get-Date '10/03/2016 12:30:00'
+    Start-HVFarm -Farm 'Farm-01' -Recompose -LogoffSetting 'FORCE_LOGOFF' -ParentVM 'ParentVM' -SnapshotVM 'SnapshotVM' -StartTime $myTime
     Requests a recompose task for automated farm in specified time
 
 .EXAMPLE
@@ -6814,8 +6829,8 @@ function Start-HVPool {
     Requests a refresh of machines in the specified pool
 
 .EXAMPLE
-    C:\PS>$myTime = Get-Date '10/03/2016 12:30:00'
-    C:\PS>Start-HVPool -Rebalance -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -StartTime $myTime
+    $myTime = Get-Date '10/03/2016 12:30:00'
+    Start-HVPool -Rebalance -Pool 'LCPool3' -LogoffSetting FORCE_LOGOFF -StartTime $myTime
     Requests a rebalance of machines in a pool with specified time
 
 .EXAMPLE
@@ -6996,7 +7011,8 @@ function Start-HVPool {
             $updates = @()
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
-            if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
+            if ($startTime) { $spec.Settings.startTime = $startTime }
+	    if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Update($services,$item,$updates)
             }
             Write-Host "Performed recompose task on Pool: " $PoolList.$item
@@ -7767,7 +7783,7 @@ function Get-HVPoolSpec {
   if (! $DesktopInfoPsObj.GlobalEntitlementData.GlobalEntitlement) {
     $DesktopPsObj.GlobalEntitlementData = $null
   } else {
-    $entityId.Id = $DesktopInfoPsObj.GlobalEntitlementData.GlobalEntitlement.Id
+    $entityId = $DesktopInfoPsObj.GlobalEntitlementData.GlobalEntitlement
     $DesktopPsObj.GlobalEntitlementData = Get-HVInternalName -EntityId $entityId
   }
 
@@ -8025,7 +8041,13 @@ function Get-HVInternalName {
        }
        'GlobalApplicationEntitlement' {
          $info = $services.GlobalApplicationEntitlement.GlobalApplicationEntitlement_Get($EntityId)
-         return $info.Base.displayName
+         return $info.base.displayName
+       }
+       'GlobalEntitlement' {
+        $GlobalEntitlementID = New-Object VMware.Hv.GlobalEntitlementId
+        $GlobalEntitlementID.Id = $EntityID.Id
+        $info = $services.GlobalEntitlement.GlobalEntitlement_Get($GlobalEntitlementID)
+        return $info.base.displayname
        }
        default {
          $base64String  = $tokens[$tokens.Length-1]
@@ -10679,7 +10701,7 @@ function Get-HVHealth {
   [System.gc]::collect()
 }
 
-function new-hvpodfederation {
+function New-HVPodFederation {
 	<#
 	.Synopsis
 	   Initiates a Horizon View Pod Federation (Cloud Pod Architecture)
@@ -10730,7 +10752,7 @@ function new-hvpodfederation {
   [System.gc]::collect()
 }
 
-function remove-hvpodfederation {
+function Remove-HVPodFederation {
 	<#
 	.Synopsis
 	   Uninitiates a Horizon View Pod Federation (Cloud Pod Architecture)
@@ -10831,7 +10853,7 @@ function Get-HVPodFederation {
   [System.gc]::collect()
 }
 
-function register-hvpod {
+function Register-HVPod {
 	<#
 	.Synopsis
 	  Registers a pod in a Horizon View Pod Federation (Cloud Pod Architecture)
@@ -10854,8 +10876,8 @@ function register-hvpod {
 		first element from global:DefaultHVServers would be considered in-place of hvServer
 	
 	.EXAMPLE
-  	C:\PS>$adpassword = Read-Host 'Domain Password' -AsSecureString
-  	C:\PS>register-hvpod -remoteconnectionserver "servername" -username "user\domain" -password $adpassword
+  	$adpassword = Read-Host 'Domain Password' -AsSecureString
+  	register-hvpod -remoteconnectionserver "servername" -username "user\domain" -password $adpassword
 
 	.EXAMPLE
 		register-hvpod -remoteconnectionserver "servername" -username "user\domain"
@@ -10918,7 +10940,7 @@ function register-hvpod {
   [System.gc]::collect()
 }
 
-function unregister-hvpod {
+function Unregister-HVPod {
 	<#
 	.Synopsis
 	   Removes a pod from a podfederation
@@ -11008,7 +11030,7 @@ function unregister-hvpod {
   [System.gc]::collect()
 }
 
-function set-hvpodfederation {
+function Set-HVPodFederation {
 	<#
 	.Synopsis
 		Used to change the name of a Horizon View Pod Federation (Cloud Pod Architecture)
@@ -11067,7 +11089,7 @@ function set-hvpodfederation {
   [System.gc]::collect()
 }
 
-function get-hvsite {
+function Get-HVSite {
 	<#
 	.Synopsis
 	   Returns information about the sites within a Horizon View Pod Federation (Cloud Pod Architecture)
@@ -11117,7 +11139,7 @@ function get-hvsite {
   [System.gc]::collect()
 }
 
-function new-hvsite {
+function New-HVSite {
 	<#
 	.Synopsis
 	   Creates a new site within a Horizon View Pod Federation (Cloud Pod Architecture)
@@ -11182,7 +11204,7 @@ function new-hvsite {
   [System.gc]::collect()
 }
 
-function set-hvsite {
+function Set-HVSite {
 	<#
 	.Synopsis
 	   renames a new site within a Horizon View Pod Federation (Cloud Pod Architecture)
@@ -11256,7 +11278,7 @@ function set-hvsite {
     [System.gc]::collect()
 }
 
-function remove-hvsite {
+function Remove-HVSite {
 	<#
 	.Synopsis
 	   renames a new site within a Horizon View Pod Federation (Cloud Pod Architecture)
@@ -11782,7 +11804,7 @@ function Set-HVlicense {
 		first element from global:DefaultHVServers would be considered in-place of hvServer
 	
 	.EXAMPLE
-	   set-hvlicense -license "LICENSE-KEY"
+	   Set-HVlicense -license "LICENSE-KEY"
 	   Returns information about the sites within a Horizon View Pod Federation.
 
 	.NOTES
@@ -12660,7 +12682,10 @@ param (
   [Boolean]$AutoUpdateOtherFileTypes = $True,
 
   [Parameter(Mandatory = $False)]
-  [String]$GlobalApplicationEntitlement = $null
+  [String]$GlobalApplicationEntitlement = $null,
+  
+  [Parameter(Mandatory = $false)]
+  [switch]$clearGlobalEntitlement
 )
   begin {
     $services = Get-ViewAPIService -HvServer $HvServer
@@ -12739,6 +12764,12 @@ param (
     }
     if ($PSBoundParameters.ContainsKey("AutoUpdateOtherFileTypes")) {
     	$updates += Get-MapEntry -key 'executionData.autoUpdateOtherFileTypes' -value $AutoUpdateOtherFileTypes
+    }
+    
+    if ($clearGlobalEntitlement) {
+    	$update = New-Object VMware.Hv.MapEntry
+    	$update.key = 'data.globalApplicationEntitlement'
+    	$updates += $update
     }
 
     $AppService = New-Object VMware.Hv.ApplicationService

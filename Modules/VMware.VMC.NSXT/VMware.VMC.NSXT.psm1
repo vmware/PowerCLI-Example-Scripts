@@ -120,10 +120,12 @@ Function Get-NSXTSegment {
                 $network = $subnets.network
                 $gateway = $subnets.gateway_address
                 $dhcpRange = $subnets.dhcp_ranges
+                $type = $segment.type
 
                 $tmp = [pscustomobject] @{
                     Name = $segment.display_name;
                     ID = $segment.Id;
+                    TYPE = $type;
                     Network = $network;
                     Gateway = $gateway;
                     DHCPRange = $dhcpRange;
@@ -156,6 +158,8 @@ Function New-NSXTSegment {
         New-NSXTSegment -Name "sddc-cgw-network-4" -Gateway "192.168.4.1/24" -DHCP -DHCPRange "192.168.4.2-192.168.4.254" -DomainName 'vmc.local'
     .EXAMPLE
         New-NSXTSegment -Name "sddc-cgw-network-5" -Gateway "192.168.5.1/24"
+    .EXAMPLE
+        New-NSXTSegment -Name "sddc-cgw-network-5" -Gateway "192.168.5.1/24" -Disconnected
 #>
     Param (
         [Parameter(Mandatory=$True)]$Name,
@@ -163,6 +167,7 @@ Function New-NSXTSegment {
         [Parameter(Mandatory=$False)]$DHCPRange,
         [Parameter(Mandatory=$False)]$DomainName,
         [Switch]$DHCP,
+        [Switch]$Disconnected,
         [Switch]$Troubleshoot
     )
 
@@ -178,9 +183,21 @@ Function New-NSXTSegment {
             }
         }
 
-        $payload = @{
-            display_name = $Name;
-            subnets = @($subnets)
+        if($Disconnected) {
+            $payload = @{
+                display_name = $Name;
+                subnets = @($subnets)
+                advanced_config = @{
+                    local_egress = "False"
+                    connectivity = "OFF";
+                }
+                type = "DISCONNECTED";
+            }
+        } else {
+            $payload = @{
+                display_name = $Name;
+                subnets = @($subnets)
+            }
         }
 
         if($DomainName) {
@@ -216,6 +233,98 @@ Function New-NSXTSegment {
 
         if($requests.StatusCode -eq 200) {
             Write-Host "Successfully created new NSX-T Segment $Name"
+            ($requests.Content | ConvertFrom-Json) | select display_name, id
+        }
+    }
+}
+
+Function Set-NSXTSegment {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    William Lam
+    Date:          03/04/2018
+    Organization:  VMware
+    Blog:          http://www.virtuallyghetto.com
+    Twitter:       @lamw
+    ===========================================================================
+
+    .SYNOPSIS
+        Set a NSX-T Segment (Logical Networks) to either connected or disconnected
+    .DESCRIPTION
+        This cmdlet set an NSX-T Segment (Logical Networks) to either connected or disconnected
+    .EXAMPLE
+        New-NSXTSegment -Name "sddc-cgw-network-4" -Disconnected
+    .EXAMPLE
+        New-NSXTSegment -Name "sddc-cgw-network-4" -Connected
+
+#>
+    Param (
+        [Parameter(Mandatory=$True)]$Name,
+        [Switch]$Disconnected,
+        [Switch]$Connected,
+        [Switch]$Troubleshoot
+    )
+
+    If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
+        $SegmentId = (Get-NSXTSegment -Name $Name).Id
+
+        if($Disconnected) {
+            $type = "DISCONNECTED"
+            $connectivity = "OFF"
+            $localEgress = "False"
+            $gateway = (Get-NSXTSegment -Name $Name).Gateway
+        }
+
+        If($Connected) {
+            $type = "ROUTED"
+            $connectivity = "ON"
+            $localEgress = "True"
+            $gateway = (Get-NSXTSegment -Name $Name).Gateway
+        }
+
+        $subnets = @{
+            gateway_address = $gateway;
+        }
+
+        $payload = @{
+            advanced_config = @{
+                local_egress = $localEgress;
+                connectivity = $connectivity;
+            }
+            type = $type;
+            subnets = @($subnets)
+        }
+
+        $body = $payload | ConvertTo-Json -depth 4
+
+        $method = "PATCH"
+        $aegmentsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-1s/cgw/segments/$SegmentId"
+
+        if($Troubleshoot) {
+            Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$newSegmentsURL`n"
+            Write-Host -ForegroundColor cyan "[DEBUG]`n$body`n"
+        }
+
+        try {
+            if($PSVersionTable.PSEdition -eq "Core") {
+                $requests = Invoke-WebRequest -Uri $aegmentsURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+            } else {
+                $requests = Invoke-WebRequest -Uri $aegmentsURL -Body $body -Method $method -Headers $global:nsxtProxyConnection.headers
+            }
+        } catch {
+            if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                break
+            } else {
+                Write-Error "Error in updating NSX-T Segment connectivity"
+                Write-Error "`n($_.Exception.Message)`n"
+                break
+            }
+        }
+
+        if($requests.StatusCode -eq 200) {
+            Write-Host "Successfully updated NSX-T Segment $Name"
             ($requests.Content | ConvertFrom-Json) | select display_name, id
         }
     }

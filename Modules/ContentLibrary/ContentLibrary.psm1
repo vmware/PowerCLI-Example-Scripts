@@ -199,7 +199,7 @@ Function Get-ContentLibraryItemFiles {
 
                 foreach($file in $files) {
                     if($contentLibraryItemStorageService.get($itemId, $($file.name)).storage_backing.type -eq "DATASTORE"){
-                        $filepath = $contentLibraryItemStorageService.get($itemId, $($file.name)).storage_uris.AbsolutePath.split("/")[5..7] -join "/"
+                        $filepath = $contentLibraryItemStorageService.get($itemId, $($file.name)).storage_uris.segments -notmatch '(^/$|^vmfs$*|^volumes$*|vsan:.*)' -join ''
                         $fullfilepath = "[$($datastore.name)] $filepath"
                     }
                     else{
