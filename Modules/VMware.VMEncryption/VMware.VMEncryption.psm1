@@ -224,11 +224,19 @@ Function Set-VMHostCryptoKey {
           Write-Error "Change Crypto Key on VMHost: $VMHost failed.$_!`n"
           return
        }
+       # Remove the old host key only when connected to vSphere 6.5 to ensure any coredumps are recrypted with the new host key;
+       # For vSphere 6.7 and above, the ConfigureCryptoKey() will automatically remove the old host key when successfully changed
+       # the host key.
+       # Adding below condition to avoid misunderstanding when running against vSphere 6.7 and above.
 
-       # Remove the old host key
-       Write-Verbose "Removing the old hostKey: $($OldKey.KeyId) on $VMHost...`n"
-       $VMHostCM = Get-View $VMHostView.ConfigManager.CryptoManager
-       $VMHostCM.RemoveKeys($OldKey, $true)
+       $VCVersion = ($global:DefaultVIServer).Version
+       $MajorVersion = $VCVersion.split('.')[0]
+       $MinorVersion = $VCVersion.split('.')[1]
+       if ($MajorVersion -eq 6 -And $MinorVersion -eq 5) {
+          Write-Verbose "Removing the old hostKey: $($OldKey.KeyId) on $VMHost...`n"
+          $VMHostCM = Get-View $VMHostView.ConfigManager.CryptoManager
+          $VMHostCM.RemoveKeys($OldKey, $false)
+       }
     }
 }
 

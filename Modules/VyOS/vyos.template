@@ -1,0 +1,66 @@
+configure
+
+set service ssh port 22
+
+set interfaces ethernet eth0 address '[MANAGEMENT_ADDRESS]'
+set interfaces ethernet eth0 description 'Outside'
+set interfaces ethernet eth1 address '192.168.0.1/24'
+set interfaces ethernet eth1 description 'Inside'
+set nat source rule 100 outbound-interface 'eth0'
+set nat source rule 100 translation address '[MANAGEMENT_IP]'
+set nat source rule 100 translation address 'masquerade'
+set protocols static route 0.0.0.0/0 next-hop [MANAGEMENT_GATEWAY]
+
+set interfaces ethernet eth1 mtu '1700'
+set interfaces ethernet eth1 vif 10 address '172.30.10.1/24'
+set interfaces ethernet eth1 vif 10 description 'VLAN 10 for MGMT'
+set interfaces ethernet eth1 vif 20 address '172.30.20.1/24'
+set interfaces ethernet eth1 vif 20 description 'VLAN 20 for HOST VTEP'
+set interfaces ethernet eth1 vif 20 mtu '1700'
+set interfaces ethernet eth1 vif 30 address '172.30.30.1/24'
+set interfaces ethernet eth1 vif 30 description 'VLAN 30 for EDGE VTEP'
+set interfaces ethernet eth1 vif 30 mtu '1700'
+set interfaces ethernet eth1 vif 40 address '172.30.40.1/24'
+set interfaces ethernet eth1 vif 40 description 'VLAN 40 for EDGE UPLINK'
+set interfaces ethernet eth1 vif 40 mtu '1700'
+
+set nat destination rule 100 description 'RDP to [JUMPHOST_VM_IP]:3389'
+set nat destination rule 100 destination port '3389'
+set nat destination rule 100 inbound-interface 'eth0'
+set nat destination rule 100 protocol 'tcp'
+set nat destination rule 100 translation address '192.168.0.10'
+set nat destination rule 100 translation port '3389'
+
+set service dns forwarding domain [MANAGEMENT_DNS_DOMAIN] server [MANAGEMENT_DNS_SERVER]
+set service dns forwarding domain 10.30.172.in-addr.arpa. server [MANAGEMENT_DNS_SERVER]
+set service dns forwarding domain 20.30.172.in-addr.arpa. server [MANAGEMENT_DNS_SERVER]
+set service dns forwarding domain 30.30.172.in-addr.arpa. server [MANAGEMENT_DNS_SERVER]
+set service dns forwarding domain 40.30.172.in-addr.arpa. server [MANAGEMENT_DNS_SERVER]
+set service dns forwarding allow-from 0.0.0.0/0
+set service dns forwarding listen-address 192.168.0.1
+set service dns forwarding listen-address 172.30.10.1
+set service dns forwarding listen-address 172.30.20.1
+set service dns forwarding listen-address 172.30.30.1
+set service dns forwarding listen-address 172.30.40.1
+set service dns forwarding name-server 8.8.8.8
+set service dns forwarding name-server 8.8.8.4
+
+set nat source rule 10 outbound-interface eth0
+set nat source rule 10 source address 172.30.10.0/24
+set nat source rule 10 translation address masquerade
+
+set nat source rule 20 outbound-interface eth0
+set nat source rule 20 source address 172.30.20.0/24
+set nat source rule 20 translation address masquerade
+
+set nat source rule 30 outbound-interface eth0
+set nat source rule 30 source address 172.30.30.0/24
+set nat source rule 30 translation address masquerade
+
+set nat source rule 40 outbound-interface eth0
+set nat source rule 40 source address 172.30.40.0/24
+set nat source rule 40 translation address masquerade
+
+commit
+save
+exit
