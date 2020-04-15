@@ -12,7 +12,7 @@
 RootModule = 'VMware.WorkspaceOneAccess.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.0.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -37,7 +37,7 @@ PowerShellVersion = '6.0'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 
-FunctionsToExport = 'Connect-WorkspaceOneAccess','Get-WSDirectory','Get-WSIdentityProvider','Get-WSOrgNetwork','New-WS3rdPartyIdentityProvider','New-WSJitDirectory','Remove-WS3rdPartyIdentityProvider','Remove-WSDirectory'
+FunctionsToExport = 'Connect-WorkspaceOneAccess','Get-WSDirectory','Get-WSIdentityProvider','Get-WSOrgNetwork','New-WS3rdPartyIdentityProvider','New-WSJitDirectory','Remove-WS3rdPartyIdentityProvider','Remove-WSDirectory', "Get-UEMConfig", "Remove-UEMConfig"
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
