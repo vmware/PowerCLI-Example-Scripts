@@ -570,3 +570,118 @@ Function Remove-WS3rdPartyIdentityProvider {
         Write-Host "`nUnable to find Identity Provider $Name"
     }
 }
+
+Function Get-UEMConfig {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    Alan Renouf
+    Date:          04/15/2020
+    Organization:  VMware
+    Blog:          http://virtu-al.net
+    Twitter:       @alanrenouf
+    ===========================================================================
+
+    .SYNOPSIS
+        Retrieves UEM Configuration from Workspace One Access
+    .DESCRIPTION
+        This cmdlet retrieves the UEM Configuration from Workspace One Access
+    .EXAMPLE
+        Get-UEMConfig
+    .EXAMPLE
+        Get-UEMConfig
+#>
+    Param (
+        [Switch]$Troubleshoot
+    )
+
+    $directoryHeaders = @{
+        "Authorization"=$global:workspaceOneAccessConnection.headers.Authorization;
+    }
+
+    $directoryUrl = $global:workspaceOneAccessConnection.Server + "/SAAS/jersey/manager/api/tenants/tenant/airwatchoptin/config"
+    $method = "GET"
+
+    if($Troubleshoot) {
+        Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$directoryUrl`n"
+    }
+
+    try {
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $results = Invoke-Webrequest -Uri $directoryUrl -Method $method -UseBasicParsing -Headers $directoryHeaders -SkipCertificateCheck
+        } else {
+            $results = Invoke-Webrequest -Uri $directoryUrl -Method $method -UseBasicParsing -Headers $directoryHeaders
+        }
+    } catch {
+        if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+            Write-Host -ForegroundColor Red "`nThe Workspace One session is no longer valid, please re-run the Connect-WorkspaceOne cmdlet to retrieve a new token`n"
+            break
+        } else {
+            Write-Error "Error in retrieving UEM Configuration"
+            Write-Error "`n($_.Exception.Message)`n"
+            break
+        }
+    }
+
+    if($results.StatusCode -eq 200) {
+        $config = ([System.Text.Encoding]::ASCII.GetString($results.Content) | ConvertFrom-Json)
+        $config
+    } 
+}
+    
+Function Remove-UEMConfig {
+<#
+    .NOTES
+    ===========================================================================
+    Created by:    Alan Renouf
+    Date:          04/15/2020
+    Organization:  VMware
+    Blog:          http://virtu-al.net
+    Twitter:       @alanrenouf
+    ===========================================================================
+
+    .SYNOPSIS
+        Removes the UEM Configuration from Workspace One Access
+    .DESCRIPTION
+        This cmdlet removes the UEM Configuration from Workspace One Access, there can only be one configuration.
+    .EXAMPLE
+        Remove-UEMConfig
+    .EXAMPLE
+        Remove-UEMConfig
+#>
+    Param (
+        [Switch]$Troubleshoot
+    )
+
+    $directoryHeaders = @{
+        "Authorization"=$global:workspaceOneAccessConnection.headers.Authorization;
+    }
+
+    $directoryUrl = $global:workspaceOneAccessConnection.Server + "/SAAS/jersey/manager/api/tenants/tenant/airwatchoptin/config"
+    $method = "DELETE"
+
+    if($Troubleshoot) {
+        Write-Host -ForegroundColor cyan "`n[DEBUG] - $method`n$directoryUrl`n"
+    }
+
+    try {
+        if($PSVersionTable.PSEdition -eq "Core") {
+            $results = Invoke-Webrequest -Uri $directoryUrl -Method $method -UseBasicParsing -Headers $directoryHeaders -SkipCertificateCheck
+        } else {
+            $results = Invoke-Webrequest -Uri $directoryUrl -Method $method -UseBasicParsing -Headers $directoryHeaders
+        }
+    } catch {
+        if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+            Write-Host -ForegroundColor Red "`nThe Workspace One session is no longer valid, please re-run the Connect-WorkspaceOne cmdlet to retrieve a new token`n"
+            break
+        } else {
+            Write-Error "Error in deleting UEM Configuration"
+            Write-Error "`n($_.Exception.Message)`n"
+            break
+        }
+    }
+
+    if($results.StatusCode -eq 200) {
+        Write-Host "`nSuccessfully deleted UEM Configuration"
+    }
+}
