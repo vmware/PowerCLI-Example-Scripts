@@ -878,7 +878,7 @@ Function New-NSXTGroup {
         [Parameter(Mandatory=$true, ParameterSetName='IPAddress')][String[]]$IPAddress,
         [Parameter(Mandatory=$true, ParameterSetName='Tag')][String]$Tag,
         [Parameter(Mandatory=$true, ParameterSetName='VmName')][String]$VmName,
-        [Parameter(Mandatory=$true, ParameterSetName='VmName')][ValidateSet('CONTAINS','STARTSWITH')][String]$Operator,
+        [Parameter(Mandatory=$true, ParameterSetName='VmName')][ValidateSet('CONTAINS','STARTSWITH','EQUALS')][String]$Operator,
         [Switch]$Troubleshoot
     )
 
