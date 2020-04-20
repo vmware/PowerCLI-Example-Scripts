@@ -90,6 +90,7 @@ Function Get-NSXTSegment {
         }
 
         try {
+            Write-Host "Retrieving NSX-T Segments ..."
             if($PSVersionTable.PSEdition -eq "Core") {
                 $requests = Invoke-WebRequest -Uri $segmentsURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
             } else {
