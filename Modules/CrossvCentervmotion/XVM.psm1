@@ -152,10 +152,12 @@ Function New-XVCMRequest {
         The name of the source vSphere Datacenter
     .PARAMETER DstDatacenter
         The name of the destination vSphere Datacenter
-    .PARAMETER SrcCluster
-         <Not needed for v2.0,removed from code>
     .PARAMETER DstCluster
         The name of the destination vSphere Cluster, set to null if DstHost is defined
+    .PARAMETER DstPool
+        The name of the destination vSphere Resource Pool
+    .PARAMETER DstFolder
+        The name of the destination vSphere Folder
     .PARAMETER DstDatastore
         The name of the destination Datastore
 	.PARAMETER DstHost
@@ -171,6 +173,15 @@ Function New-XVCMRequest {
             -DstDatastore vsanDatastore `
             -srcVMs @("PhotonOS-01","PhotonOS-02","PhotonOS-03","PhotonOS-04") `
             -NetworkMapping @{"DVPG-VM Network 1"="DVPG-Internal Network";"DVPG-VM Network 2"="DVPG-External Network"}
+    .EXAMPLE
+        New-XVCMRequest -opType Clone -SrcSite OREGON -DstSite CALIF `
+            -SrcDatacenter SDDC-Datacenter -srcVMs @(“DUDE-ubuntu”) `
+            -DstDatacenter SDDC-Datacenter `
+            -DstCluster "Cluster-1" -DstHost $null `
+            -DstPool Compute-ResourcePool `
+            -DstFolder Workloads `
+            -DstDatastore WorkloadDatastore `
+            -NetworkMapping @{"OREGON-VMs-sddc"="CALIF-sddc-VMs"}
 #>
     param(
 		[Parameter(Mandatory=$true)][String]$opType, #Added by CPM for 2.0
@@ -178,8 +189,9 @@ Function New-XVCMRequest {
         [Parameter(Mandatory=$true)][String]$DstSite,
         [Parameter(Mandatory=$true)][String]$SrcDatacenter,
         [Parameter(Mandatory=$true)][String]$DstDatacenter,
-        #[Parameter(Mandatory=$true)][String]$SrcCluster, #Removed by CPM for 2.0
         [Parameter(Mandatory=$true)][AllowNull()] $DstCluster, #Added [AllowNull()], removed [String] by CPM for 2.0
+        [Parameter(Mandatory=$true)][String]$DstPool,
+        [Parameter(Mandatory=$true)][String]$DstFolder,
         [Parameter(Mandatory=$true)][String]$DstDatastore,
 		[Parameter(Mandatory=$true)][AllowNull()] $DstHost, #Added by CPM for 2.0
         [Parameter(Mandatory=$true)][String[]]$srcVMs,
@@ -193,7 +205,8 @@ Function New-XVCMRequest {
         "targetSite"=$DstSite;
         "sourceDatacenter"=$SrcDatacenter;
         "targetDatacenter"=$dstDatacenter;
-        #"sourceCluster"=$SrcCluster; #Removed by CPM for 2.0
+        "targetPool"=$DstPool;
+        "targetFolder"=$DstFolder;
         "targetCluster"=$DstCluster;
         "targetDatastore"=$DstDatastore;
 		"targetHost"=$DstHost; #Added by CPM for 2.0

@@ -1,11 +1,11 @@
 <#
     .NOTES
     ===========================================================================
-	 Created by:   	Alan Renouf
-     Organization: 	VMware
-     Blog:          http://virtu-al.net
-     Twitter:       @alanrenouf
-	===========================================================================
+    Created by:   Alan Renouf
+    Organization: VMware
+    Blog:         http://virtu-al.net
+    Twitter:      @alanrenouf
+    ===========================================================================
 #>
 
 Foreach ($vmhost in Get-VMHost) {
