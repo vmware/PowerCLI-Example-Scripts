@@ -1,0 +1,147 @@
+function Get-UplinkDetails {
+<#	
+    .NOTES
+    ===========================================================================
+    Created by: Markus Kraus
+    ===========================================================================
+    Changelog:  
+    2017.03 ver 1.0 Base Release  
+    2020.03 ver 1.1 Add LLDP Support
+    ===========================================================================
+    External Code Sources: 
+    Get-CDP Version from @LucD22
+    https://communities.vmware.com/thread/319553
+	
+	LLDP PowerCLI Tweak
+	https://tech.zsoldier.com/2018/05/vmware-get-cdplldp-info-from.html
+    ===========================================================================
+    Tested Against Environment:
+    vSphere Version: vSphere 6.7 U3
+    PowerCLI Version: PowerCLI 11.5
+    PowerShell Version: 5.1
+    OS Version: Server 2016
+    Keyword: ESXi, Network, CDP, LLDP, VDS, vSwitch, VMNIC 
+    ===========================================================================
+
+    .DESCRIPTION
+    This Function collects detailed informations about your ESXi Host connections to pSwitch and VDS / vSwitch. 
+    LLDP Informations might only be available when uplinks are connected to a VDS.
+
+    .Example
+    Get-VMHost -Name MyHost | Get-UplinkDetails -Type LLDP | Where-Object {$_.VDS -ne "-No Backing-"}  | Format-Table -AutoSize
+
+    .Example
+    Get-VMHost -Name MyHost | Get-UplinkDetails -Type CDP | Where-Object {$_.VDS -ne "-No Backing-"}  | Format-Table -AutoSize
+
+    .Example
+    Get-Cluster -Name MyCluster | Get-VMHost | Get-UplinkDetails -Type LLDP | Format-Table -AutoSize
+
+    .Example
+    Get-Cluster -Name MyCluster | Get-VMHost | Get-UplinkDetails -Type CDP | Format-Table -AutoSize
+
+    .PARAMETER myHosts
+    Hosts to process
+
+
+#Requires PS -Version 5.0
+#Requires -Modules VMware.VimAutomation.Core, @{ModuleName="VMware.VimAutomation.Core";ModuleVersion="6.3.0.0"}
+#>
+
+[CmdletBinding()]
+param( 
+    [Parameter(Mandatory=$True, ValueFromPipeline=$True, Position=0, HelpMessage = "Hosts to process")]
+        [ValidateNotNullorEmpty()]
+        [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]] $myHosts,
+    [Parameter(Mandatory=$True, ValueFromPipeline=$False, Position=1, HelpMessage = "Type of infos to collect (CDP / LLDP)")]
+        [ValidateSet("CDP","LLDP")]
+        [String] $Type
+        
+)
+
+Begin {
+
+
+    function Get-Info ($VMhost){
+        $VMhostProxySwitch = $VMhost.NetworkInfo.ExtensionData.ProxySwitch 
+        $VMhostSwitch = $VMhost.NetworkInfo.VirtualSwitch
+
+        $objReport = @()
+        $VMhost| %{Get-View $_.ID} | 
+        %{ Get-View $_.ConfigManager.NetworkSystem} | 
+        %{ foreach($physnic in $_.NetworkInfo.Pnic){ 
+            
+            if($Type -eq "CDP"){
+                $obj = "" | Select-Object ClusterName,HostName,vmnic,PCI,MAC,VDS,vSwitch,CDP_Port,CDP_Device,CDP_Address
+            }
+            elseif($Type -eq "LLDP"){
+                $obj = "" | Select-Object ClusterName,HostName,vmnic,PCI,MAC,VDS,vSwitch,LLDP_Port,LLDP_Chassis,LLDP_SystemName
+                }
+                else{
+                    Throw "Invalide Type"
+                    }
+     
+            $pnicInfo = $_.QueryNetworkHint($physnic.Device) 
+            foreach($hint in $pnicInfo){ 
+                $obj.ClusterName = $VMhost.parent.name
+                $obj.HostName = $VMhost.name 
+                $obj.vmnic = $physnic.Device
+                $obj.PCI = $physnic.PCI
+                $obj.MAC = $physnic.Mac
+                if ($backing = ($VMhostProxySwitch | where {$_.Spec.Backing.PnicSpec.PnicDevice -eq $physnic.Device})) {
+                    $obj.VDS = $backing.DvsName
+                    } else {
+                        $obj.VDS = "-No Backing-"
+                        }
+                if ($backing = ($VMhostSwitch | where {$_.Nic -eq $physnic.Device})) {
+                    $obj.vSwitch = $backing.name
+                    } else {
+                        $obj.vSwitch = "-No Backing-"
+                        }
+                if($Type -eq "CDP"){
+                    if( $hint.ConnectedSwitchPort ) { 
+                        $obj.CDP_Port = $hint.ConnectedSwitchPort.PortId
+                        $obj.CDP_Device = $hint.ConnectedSwitchPort.DevId
+                        $obj.CDP_Address = $hint.ConnectedSwitchPort.Address  
+                        } else { 
+                            $obj.CDP_Port = "-No Info-" 
+                            $obj.CDP_Device = "-No Info-" 
+                            $obj.CDP_Address = "-No Info-" 
+                            }
+                        }
+                if($Type -eq "LLDP"){ 
+                    if( $hint.LldpInfo ) { 
+                        $obj.LLDP_Port = $hint.LldpInfo.PortId
+                        $obj.LLDP_Chassis = $hint.LldpInfo.ChassisId
+                        $obj.LLDP_SystemName = ($hint.LldpInfo.Parameter | where key -eq "System Name").Value
+                        } else { 
+                            $obj.LLDP_Port = "-No Info-" 
+                            $obj.LLDP_Chassis = "-No Info-" 
+                            $obj.LLDP_SystemName = "-No Info-" 
+                            }
+                        } 
+                
+
+            } 
+            $objReport += $obj 
+            } 
+        } 
+        $objReport 
+    } 
+  
+}
+
+Process {
+
+    $MyView = @()
+
+    foreach ($myHost in $myHosts) {
+
+        $Info = Get-Info $myHost
+        $MyView += $Info        
+
+	}
+           
+    $MyView | Sort-Object ClusterName, HostName, vmnic
+
+    }
+}
