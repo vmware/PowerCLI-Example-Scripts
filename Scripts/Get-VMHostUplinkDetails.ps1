@@ -1,4 +1,4 @@
-function Get-UplinkDetails {
+function Get-VMHostUplinkDetails {
 <#	
     .NOTES
     ===========================================================================
@@ -28,16 +28,16 @@ function Get-UplinkDetails {
     LLDP Informations might only be available when uplinks are connected to a VDS.
 
     .Example
-    Get-VMHost -Name MyHost | Get-UplinkDetails -Type LLDP | Where-Object {$_.VDS -ne "-No Backing-"}  | Format-Table -AutoSize
+    Get-VMHost -Name MyHost | Get-VMHostUplinkDetails -Type LLDP | Where-Object {$_.VDS -ne "-No Backing-"}  | Format-Table -AutoSize
 
     .Example
-    Get-VMHost -Name MyHost | Get-UplinkDetails -Type CDP | Where-Object {$_.VDS -ne "-No Backing-"}  | Format-Table -AutoSize
+    Get-VMHost -Name MyHost | Get-VMHostUplinkDetails -Type CDP | Where-Object {$_.VDS -ne "-No Backing-"}  | Format-Table -AutoSize
 
     .Example
-    Get-Cluster -Name MyCluster | Get-VMHost | Get-UplinkDetails -Type LLDP | Format-Table -AutoSize
+    Get-Cluster -Name MyCluster | Get-VMHost | Get-VMHostUplinkDetails -Type LLDP | Format-Table -AutoSize
 
     .Example
-    Get-Cluster -Name MyCluster | Get-VMHost | Get-UplinkDetails -Type CDP | Format-Table -AutoSize
+    Get-Cluster -Name MyCluster | Get-VMHost | Get-VMHostUplinkDetails -Type CDP | Format-Table -AutoSize
 
     .PARAMETER myHosts
     Hosts to process
