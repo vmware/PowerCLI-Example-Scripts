@@ -62,12 +62,12 @@ param(
 Begin {
 
 
-    function Get-Info ($VMhost){
-        $VMhostProxySwitch = $VMhost.NetworkInfo.ExtensionData.ProxySwitch 
-        $VMhostSwitch = $VMhost.NetworkInfo.VirtualSwitch
+    function Get-Info ($VMhostToProcess){
+        $VMhostProxySwitch = $VMhostToProcess.NetworkInfo.ExtensionData.ProxySwitch 
+        $VMhostSwitch = $VMhostToProcess.NetworkInfo.VirtualSwitch
 
         $objReport = @()
-        $VMhost| %{Get-View $_.ID} | 
+        $VMhostToProcess| %{Get-View $_.ID} | 
         %{ Get-View $_.ConfigManager.NetworkSystem} | 
         %{ foreach($physnic in $_.NetworkInfo.Pnic){ 
             
@@ -83,8 +83,8 @@ Begin {
      
             $pnicInfo = $_.QueryNetworkHint($physnic.Device) 
             foreach($hint in $pnicInfo){ 
-                $obj.ClusterName = $VMhost.parent.name
-                $obj.HostName = $VMhost.name 
+                $obj.ClusterName = $VMhostToProcess.parent.name
+                $obj.HostName = $VMhostToProcess.name 
                 $obj.vmnic = $physnic.Device
                 $obj.PCI = $physnic.PCI
                 $obj.MAC = $physnic.Mac
@@ -135,7 +135,7 @@ Process {
 
     $MyView = @()
 
-    foreach ($myHost in $myHosts) {
+    foreach ($myHost in $VMhost) {
 
         $Info = Get-Info $myHost
         $MyView += $Info        
