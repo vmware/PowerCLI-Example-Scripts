@@ -31,7 +31,7 @@ function Get-VMHostUplinkDetails {
     Get-VMHost -Name MyHost | Get-VMHostUplinkDetails -Type LLDP | Where-Object {$_.VDS -ne "-No Backing-"}  | Format-Table -AutoSize
 
     .Example
-    Get-VMHost -Name MyHost | Get-VMHostUplinkDetails -Type CDP | Where-Object {$_.VDS -ne "-No Backing-"}  | Format-Table -AutoSize
+    Get-VMHost -Name MyHost | Get-VMHostUplinkDetails -Type CDP | Where-Object {$_.VDS -ne "-No Backing-"}  | Sort-Object ClusterName, HostName, vmnic | Format-Table -AutoSize
 
     .Example
     Get-Cluster -Name MyCluster | Get-VMHost | Get-VMHostUplinkDetails -Type LLDP | Format-Table -AutoSize
@@ -137,16 +137,8 @@ Begin {
 
 Process {
 
-    $MyView = @()
+    $VMHost | Foreach-Object { Write-Output (Get-Info $_) }
 
-    foreach ($myHost in $VMhost) {
+}
 
-        $Info = Get-Info $myHost
-        $MyView += $Info        
-
-	}
-           
-    $MyView | Sort-Object ClusterName, HostName, vmnic
-
-    }
 }
