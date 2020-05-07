@@ -88,13 +88,13 @@ Begin {
                 $obj.vmnic = $physnic.Device
                 $obj.PCI = $physnic.PCI
                 $obj.MAC = $physnic.Mac
-                if ($backing = ($VMhostProxySwitch | where {$_.Spec.Backing.PnicSpec.PnicDevice -eq $physnic.Device})) {
+                if ($backing = ($VMhostProxySwitch | Where-Object {$_.Spec.Backing.PnicSpec.PnicDevice -eq $physnic.Device})) {
                     $obj.VDS = $backing.DvsName
                     } 
                     else {
                         $obj.VDS = "-No Backing-"
                         }
-                if ($backing = ($VMhostSwitch | where {$_.Nic -eq $physnic.Device})) {
+                if ($backing = ($VMhostSwitch | Where-Object {$_.Nic -eq $physnic.Device})) {
                     $obj.vSwitch = $backing.name
                     } 
                     else {
@@ -116,7 +116,7 @@ Begin {
                     if( $hint.LldpInfo ) { 
                         $obj.LLDP_Port = $hint.LldpInfo.PortId
                         $obj.LLDP_Chassis = $hint.LldpInfo.ChassisId
-                        $obj.LLDP_SystemName = ($hint.LldpInfo.Parameter | where key -eq "System Name").Value
+                        $obj.LLDP_SystemName = ($hint.LldpInfo.Parameter | Where-Object key -eq "System Name").Value
                         } 
                         else { 
                             $obj.LLDP_Port = "-No Info-" 
