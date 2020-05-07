@@ -77,7 +77,7 @@ Begin {
             elseif($Type -eq "LLDP"){
                 $obj = "" | Select-Object ClusterName,HostName,vmnic,PCI,MAC,VDS,vSwitch,LLDP_Port,LLDP_Chassis,LLDP_SystemName
                 }
-                else{
+                else {
                     Throw "Invalide Type"
                     }
      
@@ -90,12 +90,14 @@ Begin {
                 $obj.MAC = $physnic.Mac
                 if ($backing = ($VMhostProxySwitch | where {$_.Spec.Backing.PnicSpec.PnicDevice -eq $physnic.Device})) {
                     $obj.VDS = $backing.DvsName
-                    } else {
+                    } 
+                    else {
                         $obj.VDS = "-No Backing-"
                         }
                 if ($backing = ($VMhostSwitch | where {$_.Nic -eq $physnic.Device})) {
                     $obj.vSwitch = $backing.name
-                    } else {
+                    } 
+                    else {
                         $obj.vSwitch = "-No Backing-"
                         }
                 if($Type -eq "CDP"){
@@ -103,7 +105,8 @@ Begin {
                         $obj.CDP_Port = $hint.ConnectedSwitchPort.PortId
                         $obj.CDP_Device = $hint.ConnectedSwitchPort.DevId
                         $obj.CDP_Address = $hint.ConnectedSwitchPort.Address  
-                        } else { 
+                        } 
+                        else { 
                             $obj.CDP_Port = "-No Info-" 
                             $obj.CDP_Device = "-No Info-" 
                             $obj.CDP_Address = "-No Info-" 
@@ -114,7 +117,8 @@ Begin {
                         $obj.LLDP_Port = $hint.LldpInfo.PortId
                         $obj.LLDP_Chassis = $hint.LldpInfo.ChassisId
                         $obj.LLDP_SystemName = ($hint.LldpInfo.Parameter | where key -eq "System Name").Value
-                        } else { 
+                        } 
+                        else { 
                             $obj.LLDP_Port = "-No Info-" 
                             $obj.LLDP_Chassis = "-No Info-" 
                             $obj.LLDP_SystemName = "-No Info-" 
