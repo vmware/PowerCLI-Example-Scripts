@@ -49,10 +49,11 @@ function Get-VMHostUplinkDetails {
 
 [CmdletBinding()]
 param( 
-    [Parameter(Mandatory=$True, ValueFromPipeline=$True, Position=0, HelpMessage = "Hosts to process")]
+    [Parameter(Mandatory=$True, ValueFromPipeline=$True, Position=0, HelpMessage = "Specifies the hosts for which you want to retrieve the uplink details.")]
         [ValidateNotNullorEmpty()]
-        [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]] $myHosts,
-    [Parameter(Mandatory=$True, ValueFromPipeline=$False, Position=1, HelpMessage = "Type of infos to collect (CDP / LLDP)")]
+        [Alias("myHosts")]
+        [VMware.VimAutomation.Types.VMHost[]] $VMHost,
+    [Parameter(Mandatory=$True, ValueFromPipeline=$False, Position=1, HelpMessage = "Type of infos you want to collect (CDP / LLDP)")]
         [ValidateSet("CDP","LLDP")]
         [String] $Type
         
