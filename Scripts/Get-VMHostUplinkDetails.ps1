@@ -67,9 +67,9 @@ Begin {
         $VMhostSwitch = $VMhostToProcess.NetworkInfo.VirtualSwitch
 
         $objReport = @()
-        $VMhostToProcess| %{Get-View $_.ID} | 
-        %{ Get-View $_.ConfigManager.NetworkSystem} | 
-        %{ foreach($physnic in $_.NetworkInfo.Pnic){ 
+        $VMhostToProcess| ForEach-Object{Get-View $_.ID} | 
+        ForEach-Object{ Get-View $_.ConfigManager.NetworkSystem} | 
+        ForEach-Object{ foreach($physnic in $_.NetworkInfo.Pnic){ 
             
             if($Type -eq "CDP"){
                 $obj = "" | Select-Object ClusterName,HostName,vmnic,PCI,MAC,VDS,vSwitch,CDP_Port,CDP_Device,CDP_Address
