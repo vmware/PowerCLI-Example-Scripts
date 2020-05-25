@@ -82,6 +82,11 @@ function Set-VMHostSecureNTP {
     
     process {
         
+        if ($Type -eq "SetSecure") {
+            "Executing Set and Secure operation..."
+            $VMHost | Foreach-Object { Write-Output (SetSecure $_) }
+        }
+        
     }
     
     end {
