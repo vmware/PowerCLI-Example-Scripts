@@ -121,7 +121,7 @@ function Set-VMHostSecureNTP {
                     }
             }
             ## Set NTP Client Firewall Rule AllowedIP
-            ## BUG: If AllowedIP was enabled and is disabled now, a duplicate Ip Cannot be added
+            ### BUG: If AllowedIP was enabled and is disabled now, a duplicate Ip Cannot be added --> Workarund done
             "Set NTP Client Firewall Rule AllowedIP ..."
             foreach ($myNTP in $NTP) {
                 $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.add.CreateArgs()
@@ -131,7 +131,44 @@ function Set-VMHostSecureNTP {
                     $esxcli.network.firewall.ruleset.allowedip.add.Invoke($esxcliargs)
                 }
                 catch [System.Exception]  {
-                    Write-Warning "Error during Rule AllowedIP Update. See latest errors..."
+                    $ErrorMessage = $_.Exception.Message
+                    if ($ErrorMessage -eq "Ip address already exist.") {
+                     
+                        $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.list.CreateArgs()
+                        $esxcliargs.rulesetid = "ntpClient"
+                        try {
+                            $FirewallRuleAllowedIPList = $esxcli.network.firewall.ruleset.allowedip.list.Invoke($esxcliargs)
+                            }
+                            catch [System.Exception]  {
+                                Write-Warning "Error during Rule List. See latest errors..."
+                            }
+                            if ($FirewallRuleAllowedIPList.AllowedIPAddresses -ne "All") {
+                                foreach ($IP in $FirewallRuleAllowedIPList.AllowedIPAddresses) {
+                                    $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.remove.CreateArgs()
+                                    $esxcliargs.rulesetid = "ntpClient"
+                                    $esxcliargs.ipaddress = $IP
+                                    try {
+                                        $esxcli.network.firewall.ruleset.allowedip.remove.Invoke($esxcliargs)
+                                        }
+                                        catch [System.Exception]  {
+                                            Write-Warning "Error during AllowedIP remove. See latest errors..."
+                                        }
+                                    
+                                }
+                                
+                            }
+                            $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.add.CreateArgs()
+                            $esxcliargs.ipaddress = $myNTP
+                            $esxcliargs.rulesetid = "ntpClient"
+                            try {
+                                $esxcli.network.firewall.ruleset.allowedip.add.Invoke($esxcliargs)
+                            }
+                            catch [System.Exception]  {
+                                Write-Warning "Error during Rule AllowedIP Update. '$ErrorMessage' See latest errors..."
+
+                            }
+            
+                    }
                 }             
             }
         }
