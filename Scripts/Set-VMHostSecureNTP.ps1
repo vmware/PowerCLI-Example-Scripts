@@ -19,7 +19,7 @@ function Set-VMHostSecureNTP {
     ===========================================================================
 
     .DESCRIPTION
-    This function sets new NTP Servers on given ESXi Hosts and configures the host firewall to only accept NTP connections from this servers.
+    This function sets new NTP Servers on given ESXi Hosts and configures the host firewall to only accept NTP connections from these servers.
 
     .Example
     Get-VMHost | Set-VMHostSecureNTP -Secure
@@ -74,8 +74,8 @@ function Set-VMHostSecureNTP {
             if($NTPService.Policy -ne "on"){
                 Set-VMHostService -HostService $NTPService -Policy "on" -confirm:$False | Out-Null
             }
-            ## Remove all existiing NTP Servers
-            "Remove all existiing NTP Servers ..."
+            ## Remove all existing NTP Servers
+            "Remove all existing NTP Servers ..."
             try {
                 foreach ($OldNtpServer in ($MyHost | Get-VMHostNtpServer)) {
                     $MyHost | Remove-VMHostNtpServer -NtpServer $OldNtpServer -Confirm:$false
