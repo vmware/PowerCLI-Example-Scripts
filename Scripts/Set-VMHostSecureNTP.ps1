@@ -197,7 +197,7 @@ function Set-VMHostSecureNTP {
 
         }
 
-        function Secure ($myhost) {
+        function Secure ($MyHost) {
             ## Get NTP Servers
             "Get NTP Servers ..."
             [Array]$CurrentNTPServers = $MyHost | Get-VMHostNtpServer
