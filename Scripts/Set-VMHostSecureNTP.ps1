@@ -1,4 +1,48 @@
 function Set-VMHostSecureNTP {
+<#	
+    .NOTES
+    ===========================================================================
+    Created by: Markus Kraus
+    ===========================================================================
+    Changelog:  
+    2020.05 ver 1.0 Base Release  
+    ===========================================================================
+    External Code Sources: 
+    -
+    ===========================================================================
+    Tested Against Environment:
+    vSphere Version: vSphere 6.7 U3
+    PowerCLI Version: PowerCLI 11.5
+    PowerShell Version: 5.1
+    OS Version: Windows 10
+    Keyword: ESXi, NTP, Hardening, Security, Firewall 
+    ===========================================================================
+
+    .DESCRIPTION
+    This function sets new NTP Servers on given ESXi Hosts and configures the host firewall to only accept NTP connections from this servers.
+
+    .Example
+    Get-VMHost | Set-VMHostSecureNTP -Secure
+
+    .Example
+    Get-VMHost | Set-VMHostSecureNTP -Type SetSecure -NTP 10.100.1.1, 192.168.2.1
+
+    .PARAMETER VMHost
+    Specifies the hosts to configure
+
+    .PARAMETER SetSecure
+    Execute Set and Secure operation for new NTP Servers
+
+    .PARAMETER NTP
+    Specifies a Array of NTP Servers
+
+    .PARAMETER Secure
+    Execute Secure operation for exitsting NTP Servers
+
+#Requires PS -Version 5.1
+#Requires -Modules VMware.VimAutomation.Core, @{ModuleName="VMware.VimAutomation.Core";ModuleVersion="11.5.0.0"}
+#>
+
     [CmdletBinding()]
     param( 
         [Parameter(Mandatory=$True, ValueFromPipeline=$True, HelpMessage = "Specifies the hosts to configure.")]
@@ -6,7 +50,7 @@ function Set-VMHostSecureNTP {
             [VMware.VimAutomation.Types.VMHost[]] $VMHost,
         [Parameter(Mandatory=$False, ValueFromPipeline=$False, ParameterSetName="SetSecure", HelpMessage = "Execute Set and Secure operation for new NTP Servers")]
             [Switch] $SetSecure,
-        [Parameter(Mandatory=$True, ValueFromPipeline=$False,  ParameterSetName="SetSecure", HelpMessage = "Array of NTP Serbers")]
+        [Parameter(Mandatory=$True, ValueFromPipeline=$False,  ParameterSetName="SetSecure", HelpMessage = "Specifies a Array of NTP Servers")]
             [ValidateNotNullorEmpty()] 
             [Array] $NTP,
         [Parameter(Mandatory=$False, ValueFromPipeline=$False, ParameterSetName="Secure", HelpMessage = "Execute Secure operation for exitsting NTP Servers")]
@@ -268,8 +312,5 @@ function Set-VMHostSecureNTP {
         }
         
     }
-    
-    end {
-        
-    }
+
 }
