@@ -1,15 +1,17 @@
 function Set-VMHostSecureNTP {
     [CmdletBinding()]
     param( 
-        [Parameter(Mandatory=$True, ValueFromPipeline=$True, Position=0, HelpMessage = "Specifies the hosts to configure.")]
+        [Parameter(Mandatory=$True, ValueFromPipeline=$True, HelpMessage = "Specifies the hosts to configure.")]
             [ValidateNotNullorEmpty()]
             [VMware.VimAutomation.Types.VMHost[]] $VMHost,
-        [Parameter(Mandatory=$False, ValueFromPipeline=$False, Position=1, HelpMessage = "Type of confugration")]
-            [ValidateSet("SetSecure","Secure")]
-            [String] $Type = "SetSecure",
-        [Parameter(Mandatory=$True, ValueFromPipeline=$False, Position=2, HelpMessage = "Array of NTP Serbers")]
+        [Parameter(Mandatory=$False, ValueFromPipeline=$False, ParameterSetName="SetSecure", HelpMessage = "Execute Set and Secure operation for new NTP Servers")]
+            [Switch] $SetSecure,
+        [Parameter(Mandatory=$True, ValueFromPipeline=$False,  ParameterSetName="SetSecure", HelpMessage = "Array of NTP Serbers")]
             [ValidateNotNullorEmpty()] 
-            [Array] $NTP   
+            [Array] $NTP,
+        [Parameter(Mandatory=$False, ValueFromPipeline=$False, ParameterSetName="SetSecure", HelpMessage = "Execute Secure operation for exitsting NTP Servers")]
+            [Switch] $Secure
+
     )
     
     begin {
@@ -74,6 +76,23 @@ function Set-VMHostSecureNTP {
                     Write-Warning "Error during Rule List. See latest errors..."
                 }
             "`tEnabled: $($FirewallRuleList.Enabled)"
+            ## Set NTP Client Firewall Rule
+            "Set NTP Client Firewall Rule ..."
+            $esxcliargs = $esxcli.network.firewall.ruleset.set.CreateArgs()
+            $esxcliargs.enabled = "true" 
+            $esxcliargs.allowedall = "false"
+            $esxcliargs.rulesetid = "ntpClient"
+            try {
+                $esxcli.network.firewall.ruleset.set.Invoke($esxcliargs)
+                }
+                catch [System.Exception]  {
+                    $ErrorMessage = $_.Exception.Message
+                    if ($ErrorMessage -ne "Already use allowed ip list") {
+                        Write-Warning "Error during Rule Set. See latest errors..."
+
+                    }
+
+                }
             "Get NTP Client Firewall Rule AllowedIP ..."
             $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.list.CreateArgs()
             $esxcliargs.rulesetid = "ntpClient"
@@ -83,9 +102,8 @@ function Set-VMHostSecureNTP {
                 catch [System.Exception]  {
                     Write-Warning "Error during Rule List. See latest errors..."
                 }
-            "`tAllowed IP Addresses: $($FirewallRuleAllowedIPList.AllowedIPAddresses)"
+            "`tAllowed IP Addresses: $($FirewallRuleAllowedIPList.AllowedIPAddresses -join ", ")"    
             ## Remove Existing IP from firewall rule
-            ## BUG: If AllowedIP was enabled and is disabled now, old IPs will not be removed
             "Remove Existing IP from firewall rule ..."
             if ($FirewallRuleAllowedIPList.AllowedIPAddresses -ne "All") {
                 foreach ($IP in $FirewallRuleAllowedIPList.AllowedIPAddresses) {
@@ -98,30 +116,10 @@ function Set-VMHostSecureNTP {
                         catch [System.Exception]  {
                             Write-Warning "Error during AllowedIP remove. See latest errors..."
                         }
-                    
                 }
                 
             }
-            ## Set NTP Client Firewall Rule
-            "Set NTP Client Firewall Rule ..."
-            if ($FirewallRuleList.Enabled -ne $True -or $FirewallRuleAllowedIPList.AllowedIPAddresses -eq "All") {
-                $esxcliargs = $esxcli.network.firewall.ruleset.set.CreateArgs()
-                if ($FirewallRuleList.Enabled -ne $True) {
-                    $esxcliargs.enabled = "true" 
-                }
-                if ($FirewallRuleAllowedIPList.AllowedIPAddresses -eq "All") {
-                    $esxcliargs.allowedall = "false"
-                }
-                $esxcliargs.rulesetid = "ntpClient"
-                try {
-                    $esxcli.network.firewall.ruleset.set.Invoke($esxcliargs)
-                    }
-                    catch [System.Exception]  {
-                        Write-Warning "Error during Rule Set. See latest errors..."
-                    }
-            }
             ## Set NTP Client Firewall Rule AllowedIP
-            ### BUG: If AllowedIP was enabled and is disabled now, a duplicate Ip Cannot be added --> Workarund done
             "Set NTP Client Firewall Rule AllowedIP ..."
             foreach ($myNTP in $NTP) {
                 $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.add.CreateArgs()
@@ -132,54 +130,40 @@ function Set-VMHostSecureNTP {
                 }
                 catch [System.Exception]  {
                     $ErrorMessage = $_.Exception.Message
-                    if ($ErrorMessage -eq "Ip address already exist.") {
-                     
-                        $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.list.CreateArgs()
-                        $esxcliargs.rulesetid = "ntpClient"
-                        try {
-                            $FirewallRuleAllowedIPList = $esxcli.network.firewall.ruleset.allowedip.list.Invoke($esxcliargs)
-                            }
-                            catch [System.Exception]  {
-                                Write-Warning "Error during Rule List. See latest errors..."
-                            }
-                            if ($FirewallRuleAllowedIPList.AllowedIPAddresses -ne "All") {
-                                foreach ($IP in $FirewallRuleAllowedIPList.AllowedIPAddresses) {
-                                    $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.remove.CreateArgs()
-                                    $esxcliargs.rulesetid = "ntpClient"
-                                    $esxcliargs.ipaddress = $IP
-                                    try {
-                                        $esxcli.network.firewall.ruleset.allowedip.remove.Invoke($esxcliargs)
-                                        }
-                                        catch [System.Exception]  {
-                                            Write-Warning "Error during AllowedIP remove. See latest errors..."
-                                        }
-                                    
-                                }
-                                
-                            }
-                            $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.add.CreateArgs()
-                            $esxcliargs.ipaddress = $myNTP
-                            $esxcliargs.rulesetid = "ntpClient"
-                            try {
-                                $esxcli.network.firewall.ruleset.allowedip.add.Invoke($esxcliargs)
-                            }
-                            catch [System.Exception]  {
-                                Write-Warning "Error during Rule AllowedIP Update. '$ErrorMessage' See latest errors..."
-
-                            }
-            
+                    if ($ErrorMessage -ne "Ip address already exist.") {
+                        Write-Warning "Error during AllowedIP remove. See latest errors..."
                     }
                 }             
             }
+            ## Get New NTP Client Firewall Rule AllowedIP
+            "Get New NTP Client Firewall Rule AllowedIP ..."
+            $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.list.CreateArgs()
+            $esxcliargs.rulesetid = "ntpClient"
+            try {
+                $FirewallRuleAllowedIPList = $esxcli.network.firewall.ruleset.allowedip.list.Invoke($esxcliargs)
+                }
+                catch [System.Exception]  {
+                    Write-Warning "Error during Rule List. See latest errors..."
+                }
+            "`tNew Allowed IP Addresses: $($FirewallRuleAllowedIPList.AllowedIPAddresses -join ", ")"    
+            ## Get New NTP Servers
+            "Get New NTP Servers ..."
+            $NewNTPServers = $MyHost | Get-VMHostNtpServer
+            "`tNew NTP Servers: $($NewNTPServers -join ", ")"    
+
         }
         
     }
     
     process {
         
-        if ($Type -eq "SetSecure") {
-            "Executing Set and Secure operation..."
+        if ($SetSecure) {
+            "Execute Set and Secure operation for new NTP Servers ..."
             $VMHost | Foreach-Object { Write-Output (SetSecure $_) }
+        }
+        if ($Secure) {
+            "Execute Secure operation for exitsting NTP Servers ..."
+            $VMHost | Foreach-Object { Write-Output (Secure $_) }
         }
         
     }
