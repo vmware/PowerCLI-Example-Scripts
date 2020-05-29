@@ -45,7 +45,7 @@ function Set-VMHostSecureNTP {
 
     [CmdletBinding()]
     param( 
-        [Parameter(Mandatory=$True, ValueFromPipeline=$True, HelpMessage = "Specifies the hosts to configure.")]
+        [Parameter(Mandatory=$True, ValueFromPipeline=$True, Position=0, HelpMessage = "Specifies the hosts to configure.")]
             [ValidateNotNullorEmpty()]
             [VMware.VimAutomation.Types.VMHost[]] $VMHost,
         [Parameter(Mandatory=$False, ValueFromPipeline=$False, ParameterSetName="SetSecure", HelpMessage = "Execute Set and Secure operation for new NTP Servers")]
