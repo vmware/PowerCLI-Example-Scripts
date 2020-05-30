@@ -114,10 +114,10 @@ function Set-VMHostSecureNTP {
             "Get NTP Client Firewall ..."
             try {
                 $FirewallGet = $esxcli.network.firewall.get.Invoke()
-                }
-                catch [System.Exception]  {
-                    Write-Warning "Error during Rule List. See latest errors..."
-                }
+            }
+            catch [System.Exception]  {
+                Write-Warning "Error during Rule List. See latest errors..."
+            }
             "`tLoded: $($FirewallGet.Loaded)"
             "`tEnabled: $($FirewallGet.Enabled)"
             "`tDefaultAction: $($FirewallGet.DefaultAction)"
@@ -127,10 +127,10 @@ function Set-VMHostSecureNTP {
             $esxcliargs.rulesetid = "ntpClient"
             try {
                 $FirewallRuleList = $esxcli.network.firewall.ruleset.list.Invoke($esxcliargs)
-                }
-                catch [System.Exception]  {
-                    Write-Warning "Error during Rule List. See latest errors..."
-                }
+            }
+            catch [System.Exception]  {
+                Write-Warning "Error during Rule List. See latest errors..."
+            }
             "`tEnabled: $($FirewallRuleList.Enabled)"
             ## Set NTP Client Firewall Rule
             "Set NTP Client Firewall Rule ..."
@@ -140,24 +140,24 @@ function Set-VMHostSecureNTP {
             $esxcliargs.rulesetid = "ntpClient"
             try {
                 $esxcli.network.firewall.ruleset.set.Invoke($esxcliargs)
-                }
-                catch [System.Exception]  {
-                    $ErrorMessage = $_.Exception.Message
-                    if ($ErrorMessage -ne "Already use allowed ip list") {
-                        Write-Warning "Error during Rule Set. See latest errors..."
-
-                    }
+            }
+            catch [System.Exception]  {
+                $ErrorMessage = $_.Exception.Message
+                if ($ErrorMessage -ne "Already use allowed ip list") {
+                    Write-Warning "Error during Rule Set. See latest errors..."
 
                 }
+
+            }
             "Get NTP Client Firewall Rule AllowedIP ..."
             $esxcliargs = $esxcli.network.firewall.ruleset.allowedip.list.CreateArgs()
             $esxcliargs.rulesetid = "ntpClient"
             try {
                 $FirewallRuleAllowedIPList = $esxcli.network.firewall.ruleset.allowedip.list.Invoke($esxcliargs)
-                }
-                catch [System.Exception]  {
-                    Write-Warning "Error during Rule List. See latest errors..."
-                }
+            }
+            catch [System.Exception]  {
+                Write-Warning "Error during Rule List. See latest errors..."
+            }
             "`tAllowed IP Addresses: $($FirewallRuleAllowedIPList.AllowedIPAddresses -join ", ")"    
             ## Remove Existing IP from firewall rule
             "Remove Existing IP from firewall rule ..."
@@ -168,10 +168,10 @@ function Set-VMHostSecureNTP {
                     $esxcliargs.ipaddress = $IP
                     try {
                         $esxcli.network.firewall.ruleset.allowedip.remove.Invoke($esxcliargs)
-                        }
-                        catch [System.Exception]  {
-                            Write-Warning "Error during AllowedIP remove. See latest errors..."
-                        }
+                    }
+                    catch [System.Exception]  {
+                        Write-Warning "Error during AllowedIP remove. See latest errors..."
+                    }
                 }
                 
             }
@@ -197,10 +197,10 @@ function Set-VMHostSecureNTP {
             $esxcliargs.rulesetid = "ntpClient"
             try {
                 $FirewallRuleAllowedIPList = $esxcli.network.firewall.ruleset.allowedip.list.Invoke($esxcliargs)
-                }
-                catch [System.Exception]  {
-                    Write-Warning "Error during Rule List. See latest errors..."
-                }
+            }
+            catch [System.Exception]  {
+                Write-Warning "Error during Rule List. See latest errors..."
+            }
             "`tNew Allowed IP Addresses: $($FirewallRuleAllowedIPList.AllowedIPAddresses -join ", ")"    
             
             
