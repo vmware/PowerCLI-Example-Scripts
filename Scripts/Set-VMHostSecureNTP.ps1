@@ -77,8 +77,8 @@ function Set-VMHostSecureNTP {
             ## Remove all existing NTP Servers
             "Remove all existing NTP Servers ..."
             try {
-                foreach ($OldNtpServer in ($MyHost | Get-VMHostNtpServer)) {
-                    $MyHost | Remove-VMHostNtpServer -NtpServer $OldNtpServer -Confirm:$false
+                $MyHost | Get-VMHostNtpServer | Foreach-Object {
+                    Remove-VMHostNtpServer -VMHost $MyHost -NtpServer $_ -Confirm:$false
                 }
             }
             catch [System.Exception] {
