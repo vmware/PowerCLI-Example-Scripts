@@ -52,7 +52,7 @@ function Set-VMHostSecureNTP {
             [Switch] $SetSecure,
         [Parameter(Mandatory=$True, ValueFromPipeline=$False,  ParameterSetName="SetSecure", HelpMessage = "Specifies a Array of NTP Servers")]
             [ValidateNotNullorEmpty()] 
-            [Array] $NTP,
+            [ipaddress[]] $NTP,
         [Parameter(Mandatory=$False, ValueFromPipeline=$False, ParameterSetName="Secure", HelpMessage = "Execute Secure operation for exitsting NTP Servers")]
             [Switch] $Secure
 
