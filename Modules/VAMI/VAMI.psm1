@@ -1,4 +1,4 @@
-﻿Function Get-VAMISummary {
+Function Get-VAMISummary {
 <#
     .NOTES
     ===========================================================================
@@ -17,7 +17,7 @@
         Get-VAMISummary
 #>
     $systemVersionAPI = Get-CisService -Name 'com.vmware.appliance.system.version'
-    $results = $systemVersionAPI.get() | select product, type, version, build, install_time
+    $results = $systemVersionAPI.get() | select product, type, version, build, install_time, releasedate
 
     $systemUptimeAPI = Get-CisService -Name 'com.vmware.appliance.system.uptime'
     $ts = [timespan]::fromseconds($systemUptimeAPI.get().toString())
@@ -29,6 +29,7 @@
         Version = $results.version;
         Build = $results.build;
         InstallTime = $results.install_time;
+        ReleaseDate = $results.releasedate;
         Uptime = $uptime
     }
     $summaryResult
@@ -109,6 +110,7 @@ Function Get-VAMIAccess {
         Console = $consoleAccess;
         DCUI = $dcuiAccess;
         BashShell = $shellAccess.enabled;
+        BashTimeout = $shellAccess.timeout;
         SSH = $sshAccess
     }
     $accessResult
@@ -122,7 +124,10 @@ Function Get-VAMITime {
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
-	===========================================================================
+     Modifed by:    Michael Dunsdon
+     Twitter:      @MJDunsdon
+     Date:         September 16, 2020
+    ===========================================================================
     .SYNOPSIS
         This function retrieves the time and NTP info from VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
@@ -131,12 +136,18 @@ Function Get-VAMITime {
     .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMITime
+    .NOTES
+        Modified script to account for Newer VCSA. Script supports 6.5 and 6.7 VCSAs
 #>
     $systemTimeAPI = Get-CisService -Name 'com.vmware.appliance.system.time'
     $timeResults = $systemTimeAPI.get()
 
-    $timeSync = (Get-CisService -Name 'com.vmware.appliance.techpreview.timesync').get()
-    $timeSyncMode = $timeSync.mode
+    if ((Get-CisService | Where-Object {$_.name -like "*timesync*"}).name -like "*techpreview*") {
+        $timeSync = (Get-CisService -Name 'com.vmware.appliance.techpreview.timesync').get()
+        $timeSyncMode = $timeSync.mode
+    } else {
+        $timeSyncMode = (Get-CisService -Name 'com.vmware.appliance.timesync').get()
+    }
 
     $timeResult  = [pscustomobject] @{
         Timezone = $timeResults.timezone;
@@ -148,9 +159,13 @@ Function Get-VAMITime {
     }
 
     if($timeSyncMode -eq "NTP") {
-        $ntpServers = (Get-CisService -Name 'com.vmware.appliance.techpreview.ntp').get()
-        $timeResult.NTPServers = $ntpServers.servers
-        $timeResult.NTPStatus = $ntpServers.status
+        if ((Get-CisService | Where-Object {$_.name -like "*timesync*"}).name -like "*techpreview*") {
+            $ntpServers = (Get-CisService -Name 'com.vmware.appliance.techpreview.ntp').get()
+            $timeResult.NTPServers = $ntpServers.servers
+            $timeResult.NTPStatus = $ntpServers.status
+        } else {
+            $timeResult.NTPServers = (Get-CisService -Name 'com.vmware.appliance.ntp').get()
+        }
     }
     $timeResult
 }
@@ -163,6 +178,9 @@ Function Get-VAMINetwork {
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
+     Modifed by:    Michael Dunsdon
+     Twitter:      @MJDunsdon
+     Date:         September 16, 2020
 	===========================================================================
     .SYNOPSIS
         This function retrieves network information from VAMI interface (5480)
@@ -172,6 +190,8 @@ Function Get-VAMINetwork {
     .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMINetwork
+    .NOTES
+        Modified script to account for Newer VCSA. Script supports 6.5 and 6.7 VCSAs
 #>
     $netResults = @()
 
@@ -183,20 +203,33 @@ Function Get-VAMINetwork {
 
     $interfaces = (Get-CisService -Name 'com.vmware.appliance.networking.interfaces').list()
     foreach ($interface in $interfaces) {
-        $ipv4API = (Get-CisService -Name 'com.vmware.appliance.techpreview.networking.ipv4')
-        $spec = $ipv4API.Help.get.interfaces.CreateExample()
-        $spec+= $interface.name
-        $ipv4result = $ipv4API.get($spec)
+        if ((Get-CisService | Where-Object {$_.name -like "*ipv4*"}).name -like "*techpreview*") {
+            $ipv4API = (Get-CisService -Name 'com.vmware.appliance.techpreview.networking.ipv4')
+            $spec = $ipv4API.Help.get.interfaces.CreateExample()
+            $spec+= $interface.name
+            $ipv4result = $ipv4API.get($spec)
 
-        $interfaceResult = [pscustomobject] @{
-            Inteface =  $interface.name;
-            MAC = $interface.mac;
-            Status = $interface.status;
-            Mode = $ipv4result.mode;
-            IP = $ipv4result.address;
-            Prefix = $ipv4result.prefix;
-            Gateway = $ipv4result.default_gateway;
-            Updateable = $ipv4result.updateable
+            $interfaceResult = [pscustomobject] @{
+                Inteface =  $interface.name;
+                MAC = $interface.mac;
+                Status = $interface.status;
+                Mode = $ipv4result.mode;
+                IP = $ipv4result.address;
+                Prefix = $ipv4result.prefix;
+                Gateway = $ipv4result.default_gateway;
+                Updateable = $ipv4result.updateable
+            }
+        } else {
+            $interfaceResult = [pscustomobject] @{
+                Inteface =  $interface.name;
+                MAC = $interface.mac;
+                Status = $interface.status;
+                Mode = $interface.ipv4.mode;
+                IP = $interface.ipv4.address;
+                Prefix = $interface.ipv4.prefix;
+                Gateway = $interface.ipv4.default_gateway;
+                Updateable = $interface.ipv4.configurable
+            }
         }
         $netResults += $interfaceResult
     }
@@ -286,6 +319,9 @@ Function Get-VAMIStorageUsed {
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
+     Modifed by:    Michael Dunsdon
+     Twitter:      @MJDunsdon
+     Date:         September 16, 2020
 	===========================================================================
     .SYNOPSIS
         This function retrieves the individaul OS partition storage utilization
@@ -295,52 +331,34 @@ Function Get-VAMIStorageUsed {
     .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMIStorageUsed
+    .NOTES
+        Modified script to account for Newer VCSA. Script supports 6.5 and 6.7 VCSAs.
+        Also modifed the static list of filesystems to be more dynamic in nature to account for the differences in VCSA versions.
 #>
+
+
     $monitoringAPI = Get-CisService 'com.vmware.appliance.monitoring'
     $querySpec = $monitoringAPI.help.query.item.CreateExample()
 
     # List of IDs from Get-VAMIStatsList to query
-    $querySpec.Names = @(
-    "storage.used.filesystem.autodeploy",
-    "storage.used.filesystem.boot",
-    "storage.used.filesystem.coredump",
-    "storage.used.filesystem.imagebuilder",
-    "storage.used.filesystem.invsvc",
-    "storage.used.filesystem.log",
-    "storage.used.filesystem.netdump",
-    "storage.used.filesystem.root",
-    "storage.used.filesystem.updatemgr",
-    "storage.used.filesystem.vcdb_core_inventory",
-    "storage.used.filesystem.vcdb_seat",
-    "storage.used.filesystem.vcdb_transaction_log",
-    "storage.totalsize.filesystem.autodeploy",
-    "storage.totalsize.filesystem.boot",
-    "storage.totalsize.filesystem.coredump",
-    "storage.totalsize.filesystem.imagebuilder",
-    "storage.totalsize.filesystem.invsvc",
-    "storage.totalsize.filesystem.log",
-    "storage.totalsize.filesystem.netdump",
-    "storage.totalsize.filesystem.root",
-    "storage.totalsize.filesystem.updatemgr",
-    "storage.totalsize.filesystem.vcdb_core_inventory",
-    "storage.totalsize.filesystem.vcdb_seat",
-    "storage.totalsize.filesystem.vcdb_transaction_log"
-    )
+    $querySpec.Names = ($monitoringAPI.list() | Where-Object {($_.name -like "*storage.used.filesystem*") -or ($_.name -like "*storage.totalsize.filesystem*") } | Select id | Sort-Object -Property id).id.value
 
     # Tuple (Filesystem Name, Used, Total) to store results
     $storageStats = @{
+    "archive"=@{"name"="/storage/archive";"used"=0;"total"=0};
     "autodeploy"=@{"name"="/storage/autodeploy";"used"=0;"total"=0};
     "boot"=@{"name"="/boot";"used"=0;"total"=0};
-    "coredump"=@{"name"="/storage/core";"used"=0;"total"=0};
+    "core"=@{"name"="/storage/core";"used"=0;"total"=0};
     "imagebuilder"=@{"name"="/storage/imagebuilder";"used"=0;"total"=0};
     "invsvc"=@{"name"="/storage/invsvc";"used"=0;"total"=0};
     "log"=@{"name"="/storage/log";"used"=0;"total"=0};
     "netdump"=@{"name"="/storage/netdump";"used"=0;"total"=0};
     "root"=@{"name"="/";"used"=0;"total"=0};
     "updatemgr"=@{"name"="/storage/updatemgr";"used"=0;"total"=0};
-    "vcdb_core_inventory"=@{"name"="/storage/db";"used"=0;"total"=0};
-    "vcdb_seat"=@{"name"="/storage/seat";"used"=0;"total"=0};
-    "vcdb_transaction_log"=@{"name"="/storage/dblog";"used"=0;"total"=0}
+    "db"=@{"name"="/storage/db";"used"=0;"total"=0};
+    "seat"=@{"name"="/storage/seat";"used"=0;"total"=0};
+    "dblog"=@{"name"="/storage/dblog";"used"=0;"total"=0};
+    "swap"=@{"name"="swap";"used"=0;"total"=0}
     }
 
     $querySpec.interval = "DAY1"
@@ -351,14 +369,12 @@ Function Get-VAMIStorageUsed {
 
     foreach ($queryResult in $queryResults) {
         # Update hash if its used storage results
+        $key = ((($queryResult.name).toString()).split(".")[-1]) -replace "coredump","core" -replace "vcdb_","" -replace "core_inventory","db" -replace "transaction_log","dblog"
+        $value = [Math]::Round([int]($queryResult.data[1]).toString()/1MB,2)
         if($queryResult.name -match "used") {
-            $key = (($queryResult.name).toString()).split(".")[-1]
-            $value = [Math]::Round([int]($queryResult.data[1]).toString()/1MB,2)
             $storageStats[$key]["used"] = $value
         # Update hash if its total storage results
         } else {
-            $key = (($queryResult.name).toString()).split(".")[-1]
-            $value = [Math]::Round([int]($queryResult.data[1]).toString()/1MB,2)
             $storageStats[$key]["total"] = $value
         }
     }
@@ -556,15 +572,20 @@ Function Get-VAMIUser {
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
-	===========================================================================
-	.SYNOPSIS
-		This function retrieves VAMI local users using VAMI interface (5480)
+     Modifed by:    Michael Dunsdon
+     Twitter:      @MJDunsdon
+     Date:         September 16, 2020
+    ===========================================================================
+    .SYNOPSIS
+        This function retrieves VAMI local users using VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
-	.DESCRIPTION
-		Function to retrieve VAMI local users
-	.EXAMPLE
+    .DESCRIPTION
+        Function to retrieve VAMI local users
+    .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMIUser
+    .NOTES
+        Modified script to account for Newer VCSA. Script supports 6.5 and 6.7 VCSAs.
 #>
     param(
         [Parameter(
@@ -575,29 +596,24 @@ Function Get-VAMIUser {
         [String]$Name
     )
 
-    $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
+    if ((Get-CisService | Where-Object {$_.name -like "*accounts*"}).name -like "*techpreview*") {
+        $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
+    } else {
+        $userAPI = Get-CisService 'com.vmware.appliance.local_accounts'
+    }
 
     $userResults = @()
 
-    if($Name -ne "") {
+    if (($Name -ne "") -and ($null -ne $Name)) {
         try {
-            $user = $userAPI.get($name)
-
-            $userString = [pscustomobject] @{
-                User = $user.username
-                Name = $user.fullname
-                Email = $user.email
-                Status = $user.status
-                PasswordStatus = $user.passwordstatus
-                Role = $user.role
-            }
-            $userResults += $userString
+            $users = $userAPI.get($name)
         } catch {
             Write-Error $Error[0].exception.Message
         }
     } else {
         $users = $userAPI.list()
-
+    }
+    if ($users.status) {
         foreach ($user in $users) {
             $userString = [pscustomobject] @{
                 User = $user.username
@@ -605,7 +621,22 @@ Function Get-VAMIUser {
                 Email = $user.email
                 Status = $user.status
                 PasswordStatus = $user.passwordstatus
-                Role = $user.role
+                Roles = @($user.role)
+            }
+            $userResults += $userString
+        }
+    } else {
+        foreach ($user in $users) {
+            $userinfo = $userAPI.get($user)
+            $userString = [pscustomobject] @{
+                User = $user.value
+                Name = $userinfo.fullname
+                Email = $userinfo.email
+                Status = $userinfo.enabled
+                LastPasswordChange = $userinfo.last_password_change
+                PasswordExpiresAt = $userinfo.password_expires_at
+                PasswordStatus = if ($userinfo.has_password) { if ((!!$userinfo.password_expires_at) -and ([datetime]$userinfo.password_expires_at -lt (get-date))) {"good"} else {"expired"}} else { "notset"}
+                Roles = $userinfo.roles
             }
             $userResults += $userString
         }
@@ -621,53 +652,150 @@ Function New-VAMIUser {
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
-	===========================================================================
-	.SYNOPSIS
-		This function to create new VAMI local user using VAMI interface (5480)
+     Modifed by:    Michael Dunsdon
+     Twitter:      @MJDunsdon
+     Date:         September 16, 2020
+    ===========================================================================
+    .SYNOPSIS
+        This function to create new VAMI local user using VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
-	.DESCRIPTION
-		Function to create a new VAMI local user
-	.EXAMPLE
+    .DESCRIPTION
+        Function to create a new VAMI local user
+    .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
-        New-VAMIUser -name lamw -fullname "William Lam" -role "operator" -email "lamw@virtuallyghetto.com" -password "VMware1!"
+        New-VAMIUser -name lamw -fullname "William Lam" -role "operator" -email "lamw@virtuallyghetto.com" -password "VMware1!" -passwordexpires  -passwordexpiresat "1/1/1970" -maxpasswordage 90
+    .NOTES
+        Modified script to account for Newer VCSA. Script supports 6.5 and 6.7 VCSAs.
+        Also added new Parameters to script.
 #>
     param(
-        [Parameter(
-            Mandatory=$true)
-        ]
+        [Parameter(Mandatory=$true)]
         [String]$name,
-        [Parameter(
-            Mandatory=$true)
-        ]
+        [Parameter(Mandatory=$true)]
         [String]$fullname,
-        [Parameter(
-            Mandatory=$true)
-        ]
-        [ValidateSet("admin","operator","superAdmin")][String]$role,
-        [Parameter(
-            Mandatory=$false)
-        ]
+        [Parameter(Mandatory=$true)]
+        [ValidateSet("admin","operator","superAdmin")]
+        [String]$role,
+        [Parameter(Mandatory=$false)]
         [String]$email="",
-        [Parameter(
-            Mandatory=$true)
-        ]
-        [String]$password
+        [Parameter(Mandatory=$true)]
+        [String]$password,
+        [Parameter(Mandatory=$false)]
+        [switch]$passwordexpires,
+        [Parameter(Mandatory=$false)]
+        [String]$passwordexpiresat = $null,
+        [Parameter(Mandatory=$false)]
+        [String]$maxpasswordage = 90
     )
 
-    $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
-    $createSpec = $userAPI.Help.add.config.CreateExample()
+    if ((Get-CisService | Where-Object {$_.name -like "*accounts*"}).name -like "*techpreview*") {
+        $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
+        $createSpec = $userAPI.Help.add.config.CreateExample()
+    } else {
+        $userAPI = Get-CisService 'com.vmware.appliance.local_accounts'
+        $createSpec = $userAPI.Help.create.config.CreateExample()
+    }
 
-    $createSpec.username = $name
     $createSpec.fullname = $fullname
     $createSpec.role = $role
     $createSpec.email = $email
     $createSpec.password = [VMware.VimAutomation.Cis.Core.Types.V1.Secret]$password
+    
+    if ((Get-CisService | Where-Object {$_.name -like "*accounts*"}).name -like "*techpreview*") {
+        $createSpec.username = $name
+        try {
+            Write-Host "Creating new user $name ..."
+            $userAPI.add($createSpec)
+        } catch {
+            Write-Error $Error[0].exception.Message
+        }
+    } else {
+        $createSpec.password_expires = $passwordexpires
+        $createSpec.password_expires_at = $passwordexpiresat
+        $createSpec.max_days_between_password_change = $maxpasswordage
+        try {
+            Write-Host "Creating new user $name ..."
+            $userAPI.create($name, $createSpec)
+        } catch {
+            Write-Error $Error[0].exception.Message
+        }
+    }
+}
 
-    try {
-        Write-Host "Creating new user $name ..."
-        $userAPI.add($createSpec)
-    } catch {
-        Write-Error $Error[0].exception.Message
+Function Update-VAMIUser {
+<#
+    .NOTES
+    ===========================================================================
+     Inspired by:    William Lam
+     Organization:  VMware
+     Blog:          www.virtuallyghetto.com
+     Twitter:       @lamw
+     Created by:    Michael Dunsdon
+     Twitter:      @MJDunsdon
+     Date:         September 16, 2020
+    ===========================================================================
+    .SYNOPSIS
+        This function to update fields of a VAMI local user using VAMI interface (5480)
+        for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
+    .DESCRIPTION
+        Function to update fields of a VAMI local user
+    .EXAMPLE
+        Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
+        Update-VAMIUser -name lamw -fullname "William Lam" -role "operator" -email "lamw@virtuallyghetto.com" -password "VMware1!" -passwordexpires  -passwordexpiresat "1/1/1970" -maxpasswordage 90
+    .NOTES
+        Created script to allow updating of an exisiting user account. Script supports 6.5 and 6.7 VCSAs.
+#>
+    param(
+        [Parameter(Mandatory=$true)]
+        [String]$name,
+        [Parameter(Mandatory=$false)]
+        [String]$fullname,
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("admin","operator","superAdmin")]
+        [String]$role,
+        [Parameter(Mandatory=$false)]
+        [String]$email="",
+        [Parameter(Mandatory=$false)]
+        [String]$password = $null,
+        [Parameter(Mandatory=$false)]
+        [switch]$passwordexpires,
+        [Parameter(Mandatory=$false)]
+        [String]$passwordexpiresat = $null,
+        [Parameter(Mandatory=$false)]
+        [String]$maxpasswordage = 90
+    )
+
+    if ((Get-CisService | Where-Object {$_.name -like "*accounts*"}).name -like "*techpreview*") {
+        $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
+        $updateSpec = $userAPI.Help.set.config.CreateExample()
+    } else {
+        $userAPI = Get-CisService 'com.vmware.appliance.local_accounts'
+        $updateSpec = $userAPI.Help.update.config.CreateExample()
+    }
+
+    $updateSpec.fullname = $fullname
+    $updateSpec.role = $role
+    $updateSpec.email = $email
+    $updateSpec.password = [VMware.VimAutomation.Cis.Core.Types.V1.Secret]$password
+
+    if ((Get-CisService | Where-Object {$_.name -like "*accounts*"}).name -like "*techpreview*") {
+        $updateSpec.username = $name
+        try {
+            Write-Host "Creating new user $name ..."
+            $userAPI.set($updateSpec)
+        } catch {
+            Write-Error $Error[0].exception.Message
+        }
+    } else {
+        $updateSpec.password_expires = $passwordexpires
+        $updateSpec.password_expires_at = $passwordexpiresat
+        $updateSpec.max_days_between_password_change = $maxpasswordage
+        try {
+            Write-Host "Creating new user $name ..."
+            $userAPI.update($name, $updateSpec)
+        } catch {
+            Write-Error $Error[0].exception.Message
+        }
     }
 }
 
@@ -679,32 +807,36 @@ Function Remove-VAMIUser {
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
-	===========================================================================
-	.SYNOPSIS
-		This function to remove VAMI local user using VAMI interface (5480)
+     Modifed by:    Michael Dunsdon
+     Twitter:      @MJDunsdon
+     Date:         September 16, 2020
+    ===========================================================================
+    .SYNOPSIS
+        This function to remove VAMI local user using VAMI interface (5480)
         for a VCSA node which can be an Embedded VCSA, External PSC or External VCSA.
-	.DESCRIPTION
-		Function to remove VAMI local user
-	.EXAMPLE
+    .DESCRIPTION
+        Function to remove VAMI local user
+    .EXAMPLE
         Connect-CisServer -Server 192.168.1.51 -User administrator@vsphere.local -Password VMware1!
         Get-VAMIAccess
+    .NOTES
+        Modified script to account for Newer VCSA. Script supports 6.5 and 6.7 VCSAs.
 #>
     param(
-        [Parameter(
-            Mandatory=$true)
-        ]
+        [Parameter(Mandatory=$true)]
         [String]$name,
-        [Parameter(
-            Mandatory=$false)
-        ]
+        [Parameter(Mandatory=$false)]
         [boolean]$confirm=$false
     )
 
     if(!$confirm) {
         $answer = Read-Host -Prompt "Do you want to delete user $name (Y or N)"
         if($answer -eq "Y" -or $answer -eq "y") {
-            $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
-
+            if ((Get-CisService | Where-Object {$_.name -like "*accounts*"}).name -like "*techpreview*") {
+                $userAPI = Get-CisService 'com.vmware.appliance.techpreview.localaccounts.user'
+            } else {
+                $userAPI = Get-CisService 'com.vmware.appliance.local_accounts'
+            }
             try {
                 Write-Host "Deleting user $name ..."
                 $userAPI.delete($name)
