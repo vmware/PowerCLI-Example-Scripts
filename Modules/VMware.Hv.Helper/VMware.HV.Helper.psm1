@@ -3729,12 +3729,14 @@ function New-HVPool {
 
     #desktopSpec.desktopSettings.logoffSettings.powerPolicy
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('TAKE_NO_POWER_ACTION', 'ALWAYS_POWERED_ON', 'SUSPEND', 'POWER_OFF')]
     [string]$PowerPolicy = 'TAKE_NO_POWER_ACTION',
 
     #desktopSpec.desktopSettings.logoffSettings.powerPolicy
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('IMMEDIATELY', 'NEVER', 'AFTER')]
     [string]$AutomaticLogoffPolicy = 'NEVER',
 
@@ -3753,6 +3755,7 @@ function New-HVPool {
     #desktopSpec.desktopSettings.logoffSettings.allowMultipleSessionsPerUser
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [boolean]$allowMultipleSessionsPerUser = $false,
 
     #desktopSpec.desktopSettings.logoffSettings.deleteOrRefreshMachineAfterLogoff
@@ -3806,11 +3809,13 @@ function New-HVPool {
     #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.renderer3D
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('MANAGE_BY_VSPHERE_CLIENT', 'AUTOMATIC', 'SOFTWARE', 'HARDWARE', 'DISABLED')]
     [string]$renderer3D = 'DISABLED',
 
     #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.enableGRIDvGPUs
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [boolean]$enableGRIDvGPUs = $false,
 
     #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.vRamSizeMB
