@@ -83,7 +83,7 @@ Function Get-NSXTSegment {
 
     If (-Not $global:nsxtProxyConnection) { Write-error "No NSX-T Proxy Connection found, please use Connect-NSXTProxy" } Else {
         $method = "GET"
-        $segmentsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-1s/cgw/segments"
+        $segmentsURL = $global:nsxtProxyConnection.Server + "/policy/api/v1/infra/tier-1s/cgw/segments?page_size=100"
 
         if($Troubleshoot) {
             Write-Host -ForegroundColor cyan "`n[DEBUG] - $METHOD`n$segmentsURL`n"
@@ -108,14 +108,53 @@ Function Get-NSXTSegment {
         }
 
         if($requests.StatusCode -eq 200) {
-            $segments = ($requests.Content | ConvertFrom-Json).results
+            $baseSegmentsURL = $segmentsURL
+            $totalSegmentCount = ($requests.Content | ConvertFrom-Json).result_count
+
+            if($Troubleshoot) {
+                Write-Host -ForegroundColor cyan "`n[DEBUG] totalSegmentCount = $totalSegmentCount"
+            }
+            $totalSegments = ($requests.Content | ConvertFrom-Json).results
+            $seenSegments = $totalSegments.count
+
+            if($Troubleshoot) {
+                Write-Host -ForegroundColor cyan "`n[DEBUG] $segmentsURL (currentCount = $seenSegments)"
+            }
+
+            while ( $seenSegments -lt $totalSegmentCount) {
+                $segmentsURL = $baseSegmentsURL + "&cursor=$(($requests.Content | ConvertFrom-Json).cursor)"
+
+                try {
+                    if($PSVersionTable.PSEdition -eq "Core") {
+                        $requests = Invoke-WebRequest -Uri $segmentsURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
+                    } else {
+                        $requests = Invoke-WebRequest -Uri $segmentsURL -Method $method -Headers $global:nsxtProxyConnection.headers
+                    }
+                } catch {
+                    if($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                        Write-Host -ForegroundColor Red "`nThe NSX-T Proxy session is no longer valid, please re-run the Connect-NSXTProxy cmdlet to retrieve a new token`n"
+                        break
+                    } else {
+                        Write-Error "Error in retrieving NSX-T Segments"
+                        Write-Error "`n($_.Exception.Message)`n"
+                        break
+                    }
+                }
+                $segments = ($requests.Content | ConvertFrom-Json).results
+                $totalSegments += $segments
+                $seenSegments += $segments.count
+
+                if($Troubleshoot) {
+                    Write-Host -ForegroundColor cyan "`n[DEBUG] $segmentsURL (currentCount = $seenSegments)"
+                }
+            }
 
             if ($PSBoundParameters.ContainsKey("Name")){
-                $segments = $segments | where {$_.display_name -eq $Name}
+                $totalSegments = $totalSegments | where {$_.display_name -eq $Name}
             }
 
             $results = @()
-            foreach ($segment in $segments) {
+            foreach ($segment in $totalSegments) {
 
                 $subnets = $segment.subnets
                 $network = $subnets.network
