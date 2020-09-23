@@ -90,7 +90,7 @@ Function Get-NSXTSegment {
         }
 
         try {
-            Write-Host "Retrievig NSX-T Segments ..."
+            Write-Host "Retrieving NSX-T Segments ..."
             if($PSVersionTable.PSEdition -eq "Core") {
                 $requests = Invoke-WebRequest -Uri $segmentsURL -Method $method -Headers $global:nsxtProxyConnection.headers -SkipCertificateCheck
             } else {
@@ -917,7 +917,7 @@ Function New-NSXTGroup {
         [Parameter(Mandatory=$true, ParameterSetName='IPAddress')][String[]]$IPAddress,
         [Parameter(Mandatory=$true, ParameterSetName='Tag')][String]$Tag,
         [Parameter(Mandatory=$true, ParameterSetName='VmName')][String]$VmName,
-        [Parameter(Mandatory=$true, ParameterSetName='VmName')][ValidateSet('CONTAINS','STARTSWITH')][String]$Operator,
+        [Parameter(Mandatory=$true, ParameterSetName='VmName')][ValidateSet('CONTAINS','STARTSWITH','EQUALS')][String]$Operator,
         [Switch]$Troubleshoot
     )
 
