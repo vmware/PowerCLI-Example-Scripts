@@ -23,7 +23,7 @@ Import-Module $modulePath
 $script:lsClient = $null
 
 Describe "Lookup Service Client Integration Tests" {
-   Context "Retrieval of SsoAdmin API Url" {
+   Context "Retrieval of Service API Url" {
       BeforeAll {
             ## Create LsClient
             $skipCertificateCheckValidator = New-Object `
@@ -42,6 +42,15 @@ Describe "Lookup Service Client Integration Tests" {
          # Assert
          $actual | Should Not Be $null
          $actual.ToString().StartsWith("https://$VCAddress/sso-adminserver/sdk/") | Should Be $true
-      }   
+      }
+      
+      It 'Gets STS API Url' {
+         # Act
+         $actual = $script:lsClient.GetStsEndpointUri()
+
+         # Assert
+         $actual | Should Not Be $null
+         $actual.ToString().StartsWith("https://$VCAddress/sts/STSService") | Should Be $true
+      }
    }
 }

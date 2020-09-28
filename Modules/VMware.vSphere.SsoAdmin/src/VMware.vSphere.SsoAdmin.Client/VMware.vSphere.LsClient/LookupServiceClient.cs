@@ -1,5 +1,5 @@
 ﻿// **************************************************************************
-//  Copyright 2019 VMware, Inc.  All rights reserved. -- VMware Confidential.
+//  Copyright (c) VMware, Inc.  All rights reserved. -- VMware Confidential.
 // **************************************************************************
 using System;
 using System.Collections;
@@ -93,6 +93,13 @@ namespace VMware.vSphere.LsClient
          var product = "com.vmware.cis";
          var endpointType = "com.vmware.cis.cs.identity.admin";
          var type = "sso:admin";
+         return FindServiceEndpoint(product, type, endpointType);
+      }
+
+      public Uri GetStsEndpointUri() {
+         var product = "com.vmware.cis";
+         var type = "cs.identity";
+         var endpointType = "com.vmware.cis.cs.identity.sso";
          return FindServiceEndpoint(product, type, endpointType);
       }
 
