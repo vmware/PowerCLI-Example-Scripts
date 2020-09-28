@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>VMware.vSphere.SsoAdmin.Utils</RootNamespace>
+    <AssemblyName>VMware.vSphere.SsoAdmin.Utils</AssemblyName>
+    <Description>vSphere Lookup SsoAdmin utility types.</Description>
+    <TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="System.IdentityModel" />
+  </ItemGroup>
+  
+  <ItemGroup>    
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.4.0" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.4.0" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.4.0" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.0" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.4.0" />
+  </ItemGroup>
+
+</Project>

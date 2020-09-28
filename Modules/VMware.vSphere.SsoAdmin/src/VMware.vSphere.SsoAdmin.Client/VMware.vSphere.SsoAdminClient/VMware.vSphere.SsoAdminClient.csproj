@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>VMware.vSphere.SsoAdminClient</RootNamespace>
+    <AssemblyName>VMware.vSphere.SsoAdminClient</AssemblyName>
+    <Description>SSO Admin API client.</Description>
+    <TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
+  </PropertyGroup>
+
+</Project>
