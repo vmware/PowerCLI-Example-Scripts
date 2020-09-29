@@ -45,9 +45,14 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
       }
 
       public string Name { get; }
-      public Uri ServiceUri => _client.ServiceUri;
-      public string User => _client.User;
+      public Uri ServiceUri => _client?.ServiceUri;
+      public string User => _client?.User;
       public string Id { get; set; }
+      public bool IsConnected => _client != null;
+
+      public void Disconnect() {
+         _client = null;
+      }
 
       public override string ToString() {
          return Name;

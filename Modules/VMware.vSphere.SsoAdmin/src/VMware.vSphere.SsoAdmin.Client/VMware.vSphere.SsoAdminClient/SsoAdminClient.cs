@@ -35,6 +35,8 @@ namespace VMware.vSphere.SsoAdminClient
          // Create STS Client
          var stsUri = lsClient.GetStsEndpointUri();
          _securityContext = new UserPassSecurityContext(user, password, stsUri, serverCertificateValidator);
+         // Initialize security context with Saml token by username and password
+         _securityContext.GetToken();
 
          // Create SSO Admin Binding Client
          var ssoAdminUri = lsClient.GetSsoAdminEndpointUri();

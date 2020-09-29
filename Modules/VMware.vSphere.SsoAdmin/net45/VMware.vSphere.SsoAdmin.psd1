@@ -46,7 +46,7 @@ ProcessorArchitecture = ''
 # Assemblies that must be loaded prior to importing this module
 RequiredAssemblies = @(
 'VMware.vSphere.SsoAdmin.Utils.dll',
-'VMware.vSphere.SsoAdmin.Client.dll',
+'VMware.vSphere.SsoAdminClient.dll',
 'VMware.vSphere.LsClient.dll'
 )
 
