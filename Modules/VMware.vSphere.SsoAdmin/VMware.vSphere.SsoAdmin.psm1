@@ -406,6 +406,129 @@ function Get-PersonUser {
    }
 }
 
+function Set-PersonUser {
+<#
+   .NOTES
+   ===========================================================================
+   Created on:   	9/29/2020
+   Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+   ===========================================================================
+   .DESCRIPTION
+   Updates person user account.
+
+   Nota Bene! Have in mind PersonUser objects don't carry information about the connection.
+   If you specify PersonUser and on the server there is user with same Id it will be deleted.
+
+   .PARAMETER User
+   Specifies the PersonUser instance to update.
+
+   Nota Bene! Have in mind PersonUser objects don't carry information about the connection.
+   If you specify PersonUser and on the server there is user with same Id it will be deleted.
+
+   .PARAMETER Group
+   Specifies the Group you want to add or remove PwersonUser from.
+
+   Nota Bene! Have in mind Group objects don't carry information about the connection.
+   If you specify Group and on the server there is user with same Id it will be deleted.
+
+   .PARAMETER Add
+   Specifies user will be added to the spcified group.
+
+   .PARAMETER Remove
+   Specifies user will be removed from the spcified group.
+
+   .PARAMETER Server
+   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
+   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+
+   .EXAMPLE
+   Set-PersonUser -User $myPersonUser -Group $myExampleGroup -Add -Server $ssoAdminConnection
+
+   Adds $myPersonUser to $myExampleGroup
+
+   .EXAMPLE
+   Set-PersonUser -User $myPersonUser -Group $myExampleGroup -Remove -Server $ssoAdminConnection
+
+   Removec $myPersonUser from $myExampleGroup
+#>
+[CmdletBinding(ConfirmImpact='Medium')]
+ param(
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$true,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Person User instance you want to update')]
+   [VMware.vSphere.SsoAdminClient.DataTypes.PersonUser]
+   $User,
+
+   [Parameter(
+      ParameterSetName = 'AddToGroup',
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Group instance you want user to be added to or removed from')]
+   [Parameter(
+      ParameterSetName = 'RemoveFromGroup',
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Group instance you want user to be added to or removed from')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+   $Group,
+
+   [Parameter(
+      ParameterSetName = 'AddToGroup',
+      Mandatory=$true)]
+   [switch]
+   $Add,
+
+   [Parameter(
+      ParameterSetName = 'RemoveFromGroup',
+      Mandatory=$true)]
+   [switch]
+   $Remove,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Connected SsoAdminServer object')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+   $Server)
+
+   Process {
+      $serversToProcess = $global:DefaultSsoAdminServers
+      if ($Server -ne $null) {
+         $serversToProcess = $Server
+      }
+
+      foreach ($connection in $serversToProcess) {
+         if (-not $connection.IsConnected) {
+            Write-Error "Server $connection is disconnected"
+            continue
+         }
+
+         if ($Add) {
+            $result = $connection.Client.AddPersonUserToGroup($User, $Group)
+            if ($result) {
+               Write-Output $User
+            }
+         }
+
+         if ($Remove) {
+            $result = $connection.Client.RemovePersonUserFromGroup($User, $Group)
+            if ($result) {
+               Write-Output $User
+            }
+         }
+      }
+   }
+}
+
 function Remove-PersonUser {
 <#
    .NOTES

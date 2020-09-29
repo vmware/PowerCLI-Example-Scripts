@@ -262,6 +262,80 @@ Describe "PersonUser Tests" {
       }
    }
 
+   Context "Set-PersonUser Add/Remove Group" {
+      It 'Adds person user to group' {
+         # Arrange
+         $userName = "TestAddGroupPersonUserName"
+         $userPassword = '$tr0NG_TestPa$$w0rd'
+         $connection = Connect-SsoAdminServer `
+            -Server $VcAddress `
+            -User $User `
+            -Password $Password `
+            -SkipCertificateCheck
+
+         $personUserToUpdate = New-PersonUser `
+            -UserName $userName `
+            -Password $userPassword `
+            -Server $connection
+
+         $script:usersToCleanup += $personUserToUpdate
+
+         $groupUserToBeAddedTo = Get-Group `
+            -Name 'Administrators' `
+            -Domain $personUserToUpdate.Domain `
+            -Server $connection
+
+         # Act
+         $actual = Set-PersonUser `
+            -User $personUserToUpdate `
+            -Group $groupUserToBeAddedTo `
+            -Add `
+            -Server $connection
+
+         # Assert
+         $actual | Should Not Be $null
+      }
+
+      It 'Removes person user from group' {
+         # Arrange
+         $userName = "TestRemoveGroupPersonUserName"
+         $userPassword = '$tr0NG_TestPa$$w0rd'
+         $connection = Connect-SsoAdminServer `
+            -Server $VcAddress `
+            -User $User `
+            -Password $Password `
+            -SkipCertificateCheck
+
+         $personUserToUpdate = New-PersonUser `
+            -UserName $userName `
+            -Password $userPassword `
+            -Server $connection
+
+         $script:usersToCleanup += $personUserToUpdate
+
+         $groupToBeUsed = Get-Group `
+            -Name 'Administrators' `
+            -Domain $personUserToUpdate.Domain `
+            -Server $connection
+
+         Set-PersonUser `
+            -User $personUserToUpdate `
+            -Group $groupToBeUsed `
+            -Add `
+            -Server $connection | Out-Null
+
+         # Act
+         $actual = Set-PersonUser `
+            -User $personUserToUpdate `
+            -Group $groupToBeUsed `
+            -Remove `
+            -Server $connection
+
+         # Assert
+         $actual | Should Not Be $null
+      }
+   }
+
    Context "Remove-PersonUser" {
       It 'Removes person user' {
          # Arrange

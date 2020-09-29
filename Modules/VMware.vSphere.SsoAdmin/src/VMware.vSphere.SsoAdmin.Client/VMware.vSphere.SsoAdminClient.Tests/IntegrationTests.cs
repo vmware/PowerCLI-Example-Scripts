@@ -93,5 +93,31 @@ namespace VMware.vSphere.SsoAdminClient.Tests
          Assert.Greater(actual.Length, 1);
          Assert.AreEqual("localos", actual[0].Domain);
       }
+
+      [Test]
+      public void AddRemoveUserFromGroup() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+                  
+         var expectedUserName = "test-user5";
+         var expectedPassword = "te$tPa$sW0rd";         
+         var newUser = ssoAdminClient.CreateLocalUser(
+            expectedUserName,
+            expectedPassword);
+
+         var group = ssoAdminClient.GetGroups("administrators", newUser.Domain).FirstOrDefault<Group>();
+
+         // Act
+         var addActual = ssoAdminClient.AddPersonUserToGroup(newUser, group);
+         var removeActual = ssoAdminClient.RemovePersonUserFromGroup(newUser, group);
+
+         // Assert
+         Assert.IsTrue(addActual);
+         Assert.IsTrue(removeActual);
+
+         // Cleanup
+         ssoAdminClient.DeleteLocalUser(
+            newUser);
+      }
    }
 }
