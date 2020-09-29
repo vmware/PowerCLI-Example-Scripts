@@ -439,6 +439,12 @@ function Set-PersonUser {
    .PARAMETER Remove
    Specifies user will be removed from the spcified group.
 
+   .PARAMETER Unlock
+   Specifies user will be unloacked.
+
+   .PARAMETER NewPassword
+   Specifies new password for the specified user.
+
    .PARAMETER Server
    Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
    If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
@@ -451,7 +457,17 @@ function Set-PersonUser {
    .EXAMPLE
    Set-PersonUser -User $myPersonUser -Group $myExampleGroup -Remove -Server $ssoAdminConnection
 
-   Removec $myPersonUser from $myExampleGroup
+   Removes $myPersonUser from $myExampleGroup
+
+   .EXAMPLE
+   Set-PersonUser -User $myPersonUser -Unlock -Server $ssoAdminConnection
+
+   Unlocks $myPersonUser
+
+   .EXAMPLE
+   Set-PersonUser -User $myPersonUser -NewPassword 'MyBrandNewPa$$W0RD' -Server $ssoAdminConnection
+
+   Resets $myPersonUser password
 #>
 [CmdletBinding(ConfirmImpact='Medium')]
  param(
@@ -492,6 +508,21 @@ function Set-PersonUser {
    $Remove,
 
    [Parameter(
+      ParameterSetName = 'ResetPassword',
+      Mandatory=$true,
+      HelpMessage='New password for the specified user.')]
+   [ValidateNotNull()]
+   [string]
+   $NewPassword,
+
+   [Parameter(
+      ParameterSetName = 'UnlockUser',
+      Mandatory=$true,
+      HelpMessage='Specifies to unlock user account.')]
+   [switch]
+   $Unlock,
+
+   [Parameter(
       Mandatory=$false,
       ValueFromPipeline=$false,
       ValueFromPipelineByPropertyName=$false,
@@ -524,6 +555,18 @@ function Set-PersonUser {
             if ($result) {
                Write-Output $User
             }
+         }
+
+         if ($Unlock) {
+            $result = $connection.Client.UnlockPersonUser($User)
+            if ($result) {
+               Write-Output $User
+            }
+         }
+
+         if ($NewPassword) {
+            $connection.Client.ResetPersonUserPassword($User, $NewPassword)
+            Write-Output $User
          }
       }
    }

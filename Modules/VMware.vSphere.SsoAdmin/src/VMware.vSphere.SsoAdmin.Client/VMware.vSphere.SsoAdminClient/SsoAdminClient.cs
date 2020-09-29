@@ -302,6 +302,42 @@ namespace VMware.vSphere.SsoAdminClient
                   },
                   group.Name)).Result;
       }
+
+      public void ResetPersonUserPassword(PersonUser user, string newPassword) {
+         // Create Authorization Invocation Context
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         // Invoke SSO Admin ResetLocalPersonUserPasswordAsync operation
+         authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.ResetLocalPersonUserPasswordAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminPrincipalManagementService",
+                     Value = "principalManagementService"
+                  },
+                  user.Name,
+                  newPassword)).Wait();
+      }
+
+      public bool UnlockPersonUser(PersonUser user) {
+         // Create Authorization Invocation Context
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         // Invoke SSO Admin UnlockUserAccountAsync operation
+         return authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.UnlockUserAccountAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminPrincipalManagementService",
+                     Value = "principalManagementService"
+                  },
+                  new SsoPrincipalId {
+                     name = user.Name,
+                     domain = user.Domain
+                  })).Result;
+      }
       #endregion
    }
 }

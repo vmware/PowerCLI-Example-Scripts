@@ -119,5 +119,29 @@ namespace VMware.vSphere.SsoAdminClient.Tests
          ssoAdminClient.DeleteLocalUser(
             newUser);
       }
+
+      [Test]
+      public void ResetUserPassword() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+
+         var expectedUserName = "test-user6";
+         var expectedPassword = "te$tPa$sW0rd";
+         var updatePassword = "TE$tPa$sW0rd";
+         var newUser = ssoAdminClient.CreateLocalUser(
+            expectedUserName,
+            expectedPassword);
+
+         // Act
+         // Assert
+         Assert.DoesNotThrow(() => { 
+            ssoAdminClient.ResetPersonUserPassword(newUser, updatePassword); 
+         });         
+
+
+         // Cleanup
+         ssoAdminClient.DeleteLocalUser(
+            newUser);
+      }
    }
 }

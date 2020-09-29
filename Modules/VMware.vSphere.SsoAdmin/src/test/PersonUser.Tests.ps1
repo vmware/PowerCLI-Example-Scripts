@@ -262,7 +262,7 @@ Describe "PersonUser Tests" {
       }
    }
 
-   Context "Set-PersonUser Add/Remove Group" {
+   Context "Set-PersonUser" {
       It 'Adds person user to group' {
          # Arrange
          $userName = "TestAddGroupPersonUserName"
@@ -333,6 +333,61 @@ Describe "PersonUser Tests" {
 
          # Assert
          $actual | Should Not Be $null
+      }
+
+      It 'Resets person user password' {
+         # Arrange
+         $userName = "TestResetPassPersonUserName"
+         $userPassword = '$tr0NG_TestPa$$w0rd'
+         $newPassword = 'Update_TestPa$$w0rd'
+         $connection = Connect-SsoAdminServer `
+            -Server $VcAddress `
+            -User $User `
+            -Password $Password `
+            -SkipCertificateCheck
+
+         $personUserToUpdate = New-PersonUser `
+            -UserName $userName `
+            -Password $userPassword `
+            -Server $connection
+
+         $script:usersToCleanup += $personUserToUpdate
+
+         # Act
+         $actual = Set-PersonUser `
+            -User $personUserToUpdate `
+            -NewPassword $newPassword `
+            -Server $connection
+
+         # Assert
+         $actual | Should Not Be $null
+      }
+
+      It 'Unlocks not locked person user' {
+         # Arrange
+         $userName = "TestResetPassPersonUserName"
+         $userPassword = '$tr0NG_TestPa$$w0rd'
+         $connection = Connect-SsoAdminServer `
+            -Server $VcAddress `
+            -User $User `
+            -Password $Password `
+            -SkipCertificateCheck
+
+         $personUserToUpdate = New-PersonUser `
+            -UserName $userName `
+            -Password $userPassword `
+            -Server $connection
+
+         $script:usersToCleanup += $personUserToUpdate
+
+         # Act
+         $actual = Set-PersonUser `
+            -User $personUserToUpdate `
+            -Unlock `
+            -Server $connection
+
+         # Assert
+         $actual | Should Be $null
       }
    }
 
