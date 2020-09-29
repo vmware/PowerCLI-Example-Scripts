@@ -41,6 +41,7 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          $actual | Should Not Be $null
          $actual.GetType().FullName | Should Be 'VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer'
          $actual.IsConnected | Should Be $true
+         $actual.Name | Should Be $VcAddress
          $global:DefaultSsoAdminServers | Should Contain $actual
       }
 

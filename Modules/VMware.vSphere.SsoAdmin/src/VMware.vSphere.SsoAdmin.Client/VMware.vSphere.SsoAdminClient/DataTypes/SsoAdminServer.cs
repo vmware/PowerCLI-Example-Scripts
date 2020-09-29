@@ -49,6 +49,7 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
       public string User => _client?.User;
       public string Id { get; set; }
       public bool IsConnected => _client != null;
+      public SsoAdminClient Client => _client;
 
       public void Disconnect() {
          _client = null;

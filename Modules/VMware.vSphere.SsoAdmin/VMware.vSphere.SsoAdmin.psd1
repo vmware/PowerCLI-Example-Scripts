@@ -34,7 +34,7 @@ RequiredModules = @(
 )
 
 # Functions to export from this module
-FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer')
+FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer', 'New-PersonUser', 'Get-PersonUser', 'Remove-PersonUser')
 
 # Cmdlets to export from this module
 CmdletsToExport = @()

@@ -10,6 +10,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Security;
 using System.Text;
+using System.Text.RegularExpressions;
 using VMware.Binding.WsTrust;
 using VMware.Binding.WsTrust.SecurityContext;
 using VMware.vSphere.LsClient;
@@ -201,7 +202,7 @@ namespace VMware.vSphere.SsoAdminClient
                   int.MaxValue)).Result.returnval;
 
          if (personUsers != null) {
-            foreach (var personUser in personUsers) {
+            foreach (var personUser in personUsers) {               
                yield return new PersonUser {
                   Name = personUser.id.name,
                   Domain = personUser.id.domain,
