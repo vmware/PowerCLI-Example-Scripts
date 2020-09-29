@@ -19,6 +19,7 @@ namespace VMware.vSphere.SsoAdminClient
       private string _user;
       private SecureString _password;
       private VmwareSecruityTokenService _stsClient;
+      private SamlSecurityToken _validToken;
       public UserPassSecurityContext(
          string user, 
          SecureString password, 
@@ -39,10 +40,18 @@ namespace VMware.vSphere.SsoAdminClient
          _stsClient = new VmwareSecruityTokenService(stsUri, false, certHandler);
       }
 
+      private void RenewIfNeeded() {
+         if (_validToken == null ||
+             _validToken.Expires < (DateTime.Now - new TimeSpan(0, 0, 30))) {
+            _validToken = _stsClient.IssueBearerTokenByUserCredential(
+              _user,
+              _password);
+         }
+      }
+
       public XmlElement GetToken() {
-         return _stsClient.IssueBearerTokenByUserCredential(
-           _user,
-           _password).RawToken;
+         RenewIfNeeded();
+         return _validToken.RawToken;
       }
    }
 }

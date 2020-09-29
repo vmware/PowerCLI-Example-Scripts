@@ -22,7 +22,6 @@ namespace VMware.vSphere.SsoAdminClient
    {
       private const int WEB_OPERATION_TIMEOUT_SECONDS = 30;
 
-      private string _server;      
       private SsoPortTypeClient _ssoAdminBindingClient;
       private UserPassSecurityContext _securityContext;
 
@@ -31,7 +30,6 @@ namespace VMware.vSphere.SsoAdminClient
          if (user == null) throw new ArgumentNullException(nameof(user));
          if (password == null) throw new ArgumentNullException(nameof(password));
 
-         _server = hostname;
          var lsClient = new LookupServiceClient(hostname, serverCertificateValidator);
          
          // Create STS Client
@@ -40,6 +38,8 @@ namespace VMware.vSphere.SsoAdminClient
 
          // Create SSO Admin Binding Client
          var ssoAdminUri = lsClient.GetSsoAdminEndpointUri();
+         ServiceUri = ssoAdminUri;
+         User = user;
          _ssoAdminBindingClient = new SsoPortTypeClient(GetBinding(), new EndpointAddress(ssoAdminUri));
          _ssoAdminBindingClient.ChannelFactory.Endpoint.EndpointBehaviors.Add(new WsTrustBehavior());
 
@@ -121,7 +121,10 @@ namespace VMware.vSphere.SsoAdminClient
 
       #region Public interface
 
-      public Principal CreateLocalUser(         
+      public Uri ServiceUri { get; }
+      public string User { get; }
+
+      public PersonUser CreateLocalUser(         
          string userName,
          string password,
          string description = null,
@@ -153,7 +156,7 @@ namespace VMware.vSphere.SsoAdminClient
          return GetLocalUsers(ssoPrincipalId.name, ssoPrincipalId.domain, authorizedInvocationContext);
       }
 
-      private Principal GetLocalUsers(string userName, string domain, WsSecurityContext wsSecurityContext) {
+      private PersonUser GetLocalUsers(string userName, string domain, WsSecurityContext wsSecurityContext) {
          // Invoke SSO Admin FindPersonUserAsync operation
          var personUser = wsSecurityContext.
             InvokeOperation(() =>
@@ -166,7 +169,7 @@ namespace VMware.vSphere.SsoAdminClient
                      name = userName,
                      domain = domain
                   })).Result;
-         return new Principal {
+         return new PersonUser {
             Name = personUser.id.name,
             Domain = personUser.id.domain,
             Description = personUser.details.description,
@@ -176,7 +179,7 @@ namespace VMware.vSphere.SsoAdminClient
          };
       }
 
-      public IEnumerable<Principal> GetAllLocalUsers() {
+      public IEnumerable<PersonUser> GetLocalUsers(string searchString, string domain) {
          // Create Authorization Invocation Context
          var authorizedInvocationContext =
             CreateAuthorizedInvocationContext();
@@ -188,24 +191,30 @@ namespace VMware.vSphere.SsoAdminClient
                   new ManagedObjectReference {
                      type = "SsoAdminPrincipalDiscoveryService",
                      Value = "principalDiscoveryService"
-                  },                  
-                  new SsoAdminPrincipalDiscoveryServiceSearchCriteria (),
+                  },
+                  new SsoAdminPrincipalDiscoveryServiceSearchCriteria {
+                     searchString = searchString,
+                     domain = domain
+                  },
                   int.MaxValue)).Result.returnval;
 
-         foreach (var personUser in personUsers) {
-            yield return new Principal {
-               Name = personUser.id.name,
-               Domain = personUser.id.domain,
-               Description = personUser.details.description,
-               FirstName = personUser.details.firstName,
-               LastName = personUser.details.lastName,
-               EmailAddress = personUser.details.emailAddress
-            };
+         if (personUsers != null) {
+            foreach (var personUser in personUsers) {
+               yield return new PersonUser {
+                  Name = personUser.id.name,
+                  Domain = personUser.id.domain,
+                  Description = personUser.details.description,
+                  FirstName = personUser.details.firstName,
+                  LastName = personUser.details.lastName,
+                  EmailAddress = personUser.details.emailAddress
+               };
+            }
          }
+         
       }
 
       public void DeleteLocalUser(
-         Principal principal) {
+         PersonUser principal) {
 
          // Create Authorization Invocation Context
          var authorizedInvocationContext =

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace VMware.vSphere.SsoAdminClient.DataTypes
 {
-   public class Principal
+   public class PersonUser
    {
       public string Name { get; set; }
       public string Domain { get; set; }

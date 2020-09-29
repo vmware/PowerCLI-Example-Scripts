@@ -1,14 +1,16 @@
 using NUnit.Framework;
+using System.Linq;
 using System.Security;
 using VMware.vSphere.SsoAdmin.Utils;
+using VMware.vSphere.SsoAdminClient.DataTypes;
 
 namespace VMware.vSphere.SsoAdminClient.Tests
 {
    public class Tests
    {
-      private string _vc = "<place VC address here>";
-      private string _user = "<place VC user here>";
-      private string _rawPassword = "<place password here>";
+      private string _vc = "<vc>";
+      private string _user = "<user>";
+      private string _rawPassword = "<password>";
       private SecureString _password;
       [SetUp]
       public void Setup() {
@@ -48,6 +50,34 @@ namespace VMware.vSphere.SsoAdminClient.Tests
          // Act Delete User
          ssoAdminClient.DeleteLocalUser(
             actual);
+      }
+
+      [Test]
+      public void GetAllLocalOsUsers() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+
+         // Act
+         var actual = ssoAdminClient.GetLocalUsers("", "localos").ToArray();
+
+         // Assert
+         Assert.NotNull(actual);
+         Assert.Greater(actual.Length, 0);
+      }
+
+      [Test]
+      public void GetRootLocalOsUsers() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+
+         // Act
+         var actual = ssoAdminClient.GetLocalUsers("root", "localos").ToArray();
+
+         // Assert
+         Assert.NotNull(actual);
+         Assert.AreEqual(1, actual.Length);
+         Assert.AreEqual("root", actual[0].Name);
+         Assert.AreEqual("localos", actual[0].Domain);
       }
    }
 }
