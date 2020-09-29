@@ -9,11 +9,11 @@ param(
 
     [Parameter(Mandatory = $true)]
     [string]
-    $VcUser,
+    $User,
 
     [Parameter(Mandatory = $true)]
     [string]
-    $VcUserPassword
+    $Password
 )
 
 function Test-PesterIsAvailable() {
@@ -32,7 +32,7 @@ Invoke-Pester `
        Path = $PSScriptRoot
        Parameters = @{
          VcAddress = $VcAddress
-         VcUser = $VcUser
-         VcUserPassword = $VcUserPassword
+         User = $User
+         Password = $Password
       }
    }

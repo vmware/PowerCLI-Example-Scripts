@@ -234,6 +234,34 @@ namespace VMware.vSphere.SsoAdminClient
                   principal.Name));
       }
 
+      public IEnumerable<DataTypes.Group> GetGroups(string searchString, string domain) {
+         // Create Authorization Invocation Context
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         // Invoke SSO Admin FindGroupsAsync operation
+         var ssoAdminGroups = authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.FindGroupsAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminPrincipalDiscoveryService",
+                     Value = "principalDiscoveryService"
+                  },
+                  new SsoAdminPrincipalDiscoveryServiceSearchCriteria {
+                     searchString = searchString,
+                     domain = domain
+                  },
+                  int.MaxValue)).Result.returnval;
+
+         if (ssoAdminGroups != null) {
+            foreach (var group in ssoAdminGroups) {
+               yield return new DataTypes.Group {                  
+                  Name = group.id.name,
+                  Domain = group.id.domain
+               };
+            }
+         }
+      }
       #endregion
    }
 }

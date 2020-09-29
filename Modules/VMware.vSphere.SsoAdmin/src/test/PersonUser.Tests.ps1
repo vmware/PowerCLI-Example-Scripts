@@ -9,24 +9,24 @@ param(
 
     [Parameter(Mandatory = $true)]
     [string]
-    $VcUser,
+    $User,
 
     [Parameter(Mandatory = $true)]
     [string]
-    $VcUserPassword
+    $Password
 )
 
 # Import Vmware.vSphere.SsoAdmin Module
 $modulePath = Join-Path (Split-Path $PSScriptRoot | Split-Path) "VMware.vSphere.SsoAdmin.psd1"
 Import-Module $modulePath
 
-Describe "New-PersonUser, Remove-PersonUser Tests" {
+Describe "PersonUser Tests" {
    BeforeEach {
       $script:usersToCleanup = @()
    }
    AfterEach {
-      foreach ($user in $script:usersToCleanup) {
-         Remove-PersonUser -User $user
+      foreach ($personUser in $script:usersToCleanup) {
+         Remove-PersonUser -User $personUser
       }
 
       $connectionsToCleanup = $global:DefaultSsoAdminServers.ToArray()
@@ -46,8 +46,8 @@ Describe "New-PersonUser, Remove-PersonUser Tests" {
          $expectedLastName = "User"
          $connection = Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword `
+            -User $User `
+            -Password $Password `
             -SkipCertificateCheck
 
          # Act
@@ -79,8 +79,8 @@ Describe "New-PersonUser, Remove-PersonUser Tests" {
          $expectedPassword = '$tr0NG_TestPa$$w0rd'
          $connection = Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword `
+            -User $User `
+            -Password $Password `
             -SkipCertificateCheck
 
          # Act
@@ -101,9 +101,6 @@ Describe "New-PersonUser, Remove-PersonUser Tests" {
          $actual.LastName | Should Be $null
          $actual.EmailAddress | Should Be $null
       }
-
-      It 'Try create person against disconnected server' {
-      }
    }
 
    Context "Get-PersonUser" {
@@ -111,8 +108,8 @@ Describe "New-PersonUser, Remove-PersonUser Tests" {
          # Arrange
          $connection = Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword `
+            -User $User `
+            -Password $Password `
             -SkipCertificateCheck
 
          # Act
@@ -129,8 +126,8 @@ Describe "New-PersonUser, Remove-PersonUser Tests" {
          # Arrange
          $connection = Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword `
+            -User $User `
+            -Password $Password `
             -SkipCertificateCheck
 
          $expectedUserName = "TestPersonUser3"
@@ -166,8 +163,8 @@ Describe "New-PersonUser, Remove-PersonUser Tests" {
          # Arrange
          $connection = Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword `
+            -User $User `
+            -Password $Password `
             -SkipCertificateCheck
 
          $expectedUserName = "TestPersonUser3"
@@ -203,8 +200,8 @@ Describe "New-PersonUser, Remove-PersonUser Tests" {
          # Arrange
          $connection = Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword `
+            -User $User `
+            -Password $Password `
             -SkipCertificateCheck
 
          $expectedUserName = "TestPersonUser3"
@@ -240,8 +237,8 @@ Describe "New-PersonUser, Remove-PersonUser Tests" {
          # Arrange
          $connection = Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword `
+            -User $User `
+            -Password $Password `
             -SkipCertificateCheck
 
          $expectedUserName = "TestPersonUser3"
@@ -269,17 +266,17 @@ Describe "New-PersonUser, Remove-PersonUser Tests" {
       It 'Removes person user' {
          # Arrange
          $userName = "TestPersonUser4"
-         $password = '$tr0NG_TestPa$$w0rd'
+         $userPassword = '$tr0NG_TestPa$$w0rd'
          $connection = Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword `
+            -User $User `
+            -Password $Password `
             -SkipCertificateCheck
 
 
          $personUserToRemove = New-PersonUser `
             -UserName $userName `
-            -Password $password `
+            -Password $userPassword `
             -Server $connection
 
          # Act

@@ -9,11 +9,11 @@ param(
 
     [Parameter(Mandatory = $true)]
     [string]
-    $VcUser,
+    $User,
 
     [Parameter(Mandatory = $true)]
     [string]
-    $VcUserPassword
+    $Password
 )
 
 # Import Vmware.vSphere.SsoAdmin Module
@@ -27,14 +27,14 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          Disconnect-SsoAdminServer -Server $connection
       }
    }
-   
+
    Context "Connect-SsoAdminServer" {
       It 'Connect-SsoAdminServer returns SsoAdminServer object and updates DefaultSsoAdminServers variable' {
          # Act
          $actual = Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword `
+            -User $User `
+            -Password $Password `
             -SkipCertificateCheck
 
          # Assert
@@ -50,8 +50,8 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          # Assert
          { Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password ($VcUserPassword + "invalid") `
+            -User $User `
+            -Password ($Password + "invalid") `
             -SkipCertificateCheck } | `
          Should Throw "Invalid credentials"
       }
@@ -61,43 +61,43 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          # Assert
          { Connect-SsoAdminServer `
             -Server $VcAddress `
-            -User $VcUser `
-            -Password $VcUserPassword} | `
+            -User $User `
+            -Password $Password} | `
          Should Throw "The SSL connection could not be established, see inner exception."
       }
    }
-   
+
    Context "Disconnect-SsoAdminServer" {
       It 'Diconnect-SsoAdminServer removes server from DefaultSsoAdminServers and makes the object not connected' {
          # Arrange
          $expected = Connect-SsoAdminServer `
                -Server $VcAddress `
-               -User $VcUser `
-               -Password $VcUserPassword `
+               -User $User `
+               -Password $Password `
                -SkipCertificateCheck
-         
+
          # Act
          $expected | Disconnect-SsoAdminServer
-         
+
          # Assert
          $global:DefaultSsoAdminServers | Should Not Contain $expected
          $expected.IsConnected | Should Be $false
       }
-      
+
       It 'Disconnects disconnected object' {
          # Arrange
          $expected = Connect-SsoAdminServer `
                -Server $VcAddress `
-               -User $VcUser `
-               -Password $VcUserPassword `
+               -User $User `
+               -Password $Password `
                -SkipCertificateCheck
-               
+
          $expected | Disconnect-SsoAdminServer
-         
+
          # Act
          { Disconnect-SsoAdminServer -Server $expected } | `
          Should Not Throw
-         
+
          # Assert
          $global:DefaultSsoAdminServers | Should Not Contain $expected
          $expected.IsConnected | Should Be $false

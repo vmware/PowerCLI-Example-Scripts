@@ -114,12 +114,12 @@ function Test {
    if (-not [string]::IsNullOrEmpty($TestVc) -and `
        -not [string]::IsNullOrEmpty($TestVcUser) -and `
        -not [string]::IsNullOrEmpty($TestVcPassword)) {
-   
+
       # Run Tests in external process because it will load build output binaries
       LogInfo "Run VC integration tests"
       $usePowerShell = (Get-Process -Id $pid).ProcessName
       $testLauncherScript = Join-Path (Join-Path $PSScriptRoot 'test') 'RunTests.ps1'
-      $arguments = "-Command $testLauncherScript -VcAddress $TestVc -VcUser $TestVcUser -VcUserPassword $TestVcPassword"
+      $arguments = "-Command $testLauncherScript -VcAddress $TestVc -User $TestVcUser -Password $TestVcPassword"
 
       Start-Process `
          -FilePath $usePowerShell `

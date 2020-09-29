@@ -79,5 +79,19 @@ namespace VMware.vSphere.SsoAdminClient.Tests
          Assert.AreEqual("root", actual[0].Name);
          Assert.AreEqual("localos", actual[0].Domain);
       }
+
+      [Test]
+      public void GetRootLocalOsGroups() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+
+         // Act
+         var actual = ssoAdminClient.GetGroups("", "localos").ToArray();
+
+         // Assert
+         Assert.NotNull(actual);
+         Assert.Greater(actual.Length, 1);
+         Assert.AreEqual("localos", actual[0].Domain);
+      }
    }
 }

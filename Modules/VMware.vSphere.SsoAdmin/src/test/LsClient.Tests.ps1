@@ -9,11 +9,11 @@ param(
 
     [Parameter(Mandatory = $true)]
     [string]
-    $VcUser,
+    $User,
 
     [Parameter(Mandatory = $true)]
     [string]
-    $VcUserPassword
+    $Password
 )
 
 # Import Vmware.vSphere.SsoAdmin Module
@@ -28,13 +28,13 @@ Describe "Lookup Service Client Integration Tests" {
             ## Create LsClient
             $skipCertificateCheckValidator = New-Object `
             'VMware.vSphere.SsoAdmin.Utils.AcceptAllX509CertificateValidator'
-            
+
             $script:lsClient = New-Object `
             'VMware.vSphere.LsClient.LookupServiceClient' `
             -ArgumentList @($VCAddress, $skipCertificateCheckValidator)
-            
+
       }
-      
+
       It 'Gets SsoAdmin API Url' {
          # Act
          $actual = $script:lsClient.GetSsoAdminEndpointUri()
@@ -43,7 +43,7 @@ Describe "Lookup Service Client Integration Tests" {
          $actual | Should Not Be $null
          $actual.ToString().StartsWith("https://$VCAddress/sso-adminserver/sdk/") | Should Be $true
       }
-      
+
       It 'Gets STS API Url' {
          # Act
          $actual = $script:lsClient.GetStsEndpointUri()
