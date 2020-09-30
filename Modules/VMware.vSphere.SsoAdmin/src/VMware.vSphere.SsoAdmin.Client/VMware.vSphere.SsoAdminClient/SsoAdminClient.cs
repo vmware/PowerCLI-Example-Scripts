@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Selectors;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
@@ -616,6 +617,44 @@ namespace VMware.vSphere.SsoAdminClient
 
 
          return GetTokenLifetime();
+      }
+
+      public void AddActiveDirectoryExternalDomain(
+         string domainName,
+         string domainAlias,
+         string friendlyName,
+         string primaryUrl,
+         string baseDNUsers,
+         string baseDNGroups,
+         string authenticationUserName,
+         string authenticationPassword) {
+
+         string serverType = "ActiveDirectory";
+         string authenticationType = "password";
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         authorizedInvocationContext.
+         InvokeOperation(() =>
+            _ssoAdminBindingClient.AddExternalDomainAsync(
+               new ManagedObjectReference {
+                  type = "SsoAdminConfigurationManagementService",
+                  Value = "configurationManagementService"
+               },
+               serverType,
+               domainName,
+               domainAlias,
+               new SsoAdminExternalDomainDetails {
+                  friendlyName = friendlyName,
+                  primaryUrl = primaryUrl,
+                  userBaseDn = baseDNUsers,
+                  groupBaseDn = baseDNGroups
+               },
+               authenticationType,
+               new SsoAdminDomainManagementServiceAuthenticationCredentails {
+                  username = authenticationUserName,
+                  password = authenticationPassword
+               })).Wait();
       }
       #endregion
    }

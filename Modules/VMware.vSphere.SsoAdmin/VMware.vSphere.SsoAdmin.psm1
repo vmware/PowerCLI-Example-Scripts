@@ -289,7 +289,7 @@ function New-PersonUser {
    $Server)
 
    Process {
-      $serversToProcess = $global:DefaultSsoAdminServers
+      $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
       if ($Server -ne $null) {
          $serversToProcess = $Server
       }
@@ -369,7 +369,7 @@ function Get-PersonUser {
    $Server)
 
    Process {
-      $serversToProcess = $global:DefaultSsoAdminServers
+      $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
       if ($Server -ne $null) {
          $serversToProcess = $Server
       }
@@ -654,7 +654,7 @@ function Get-Group {
    $Server)
 
    Process {
-      $serversToProcess = $global:DefaultSsoAdminServers
+      $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
       if ($Server -ne $null) {
          $serversToProcess = $Server
       }
@@ -726,7 +726,7 @@ function Get-PasswordPolicy {
    $Server)
 
    Process {
-      $serversToProcess = $global:DefaultSsoAdminServers
+      $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
       if ($Server -ne $null) {
          $serversToProcess = $Server
       }
@@ -976,7 +976,7 @@ function Get-LockoutPolicy {
    $Server)
 
    Process {
-      $serversToProcess = $global:DefaultSsoAdminServers
+      $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
       if ($Server -ne $null) {
          $serversToProcess = $Server
       }
@@ -1128,7 +1128,7 @@ function Get-TokenLifetime {
    $Server)
 
    Process {
-      $serversToProcess = $global:DefaultSsoAdminServers
+      $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
       if ($Server -ne $null) {
          $serversToProcess = $Server
       }
@@ -1206,6 +1206,162 @@ function Set-TokenLifetime {
             $MaxBearerTokenLifetime
          );
       }
+   }
+}
+#endregion
+
+#region IdentitySource
+function Add-ActiveDirectoryIdentitySource {
+<#
+   .NOTES
+   ===========================================================================
+   Created on:   	9/30/2020
+   Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+   ===========================================================================
+   .DESCRIPTION
+   This function adds Identity Source of ActiveDirectory type.
+
+   .PARAMETER Name
+   Name of the identity source
+
+   .PARAMETER DomainName
+   Domain name
+
+   .PARAMETER DomainAlias
+   Domain alias
+
+   .PARAMETER PrimaryUrl
+   Primary Server URL
+
+   .PARAMETER BaseDNUsers
+   Base distinguished name for users
+
+   .PARAMETER BaseDNGroups
+   Base distinguished name for groups
+
+   .PARAMETER Username
+   Domain authentication user name
+
+   .PARAMETER Passowrd
+   Domain authentication password
+
+   .PARAMETER Server
+   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
+   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+
+   .EXAMPLE
+   Add-ActiveDirectoryIdentitySource `
+      -Name 'sof-powercli' `
+      -DomainName 'sof-powercli.vmware.com' `
+      -DomainAlias 'sof-powercli' `
+      -PrimaryUrl 'ldap://sof-powercli.vmware.com:389' `
+      -BaseDNUsers 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
+      -BaseDNGroups 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
+      -Username 'sofPowercliAdmin' `
+      -Password '$up3R$Tr0Pa$$w0rD'
+
+   Adds ActiveDirectory identity source
+#>
+[CmdletBinding()]
+ param(
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Friendly name of the identity source')]
+   [ValidateNotNull()]
+   [string]
+   $Name,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [ValidateNotNull()]
+   [string]
+   $DomainName,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [string]
+   $DomainAlias,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [ValidateNotNull()]
+   [string]
+   $PrimaryUrl,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Base distinguished name for users')]
+   [ValidateNotNull()]
+   [string]
+   $BaseDNUsers,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Base distinguished name for groups')]
+   [ValidateNotNull()]
+   [string]
+   $BaseDNGroups,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Domain authentication user name')]
+   [ValidateNotNull()]
+   [string]
+   $Username,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Domain authentication password')]
+   [ValidateNotNull()]
+   [string]
+   $Password,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Connected SsoAdminServer object')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+   $Server)
+
+   $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
+   if ($Server -ne $null) {
+      $serversToProcess = $Server
+   }
+   foreach ($connection in $serversToProcess) {
+      if (-not $connection.IsConnected) {
+         Write-Error "Server $connection is disconnected"
+         continue
+      }
+
+      $connection.Client.AddActiveDirectoryExternalDomain(
+         $DomainName,
+         $DomainAlias,
+         $Name,
+         $PrimaryUrl,
+         $BaseDNUsers,
+         $BaseDNGroups,
+         $Username,
+         $Password);
    }
 }
 #endregion
