@@ -483,6 +483,79 @@ namespace VMware.vSphere.SsoAdminClient
 
          return GetPasswordPolicy();         
       }
+
+      public LockoutPolicy GetLockoutPolicy() {
+         LockoutPolicy result = null;
+         // Create Authorization Invocation Context
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         // Invoke SSO Admin GetLockoutPolicyAsync operation
+         var ssoAdminLockoutPolicy = authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.GetLockoutPolicyAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminLockoutPolicyService",
+                     Value = "lockoutPolicyService"
+                  })).Result;
+
+         if (ssoAdminLockoutPolicy != null) {
+            result = new LockoutPolicy(this) {               
+               Description = ssoAdminLockoutPolicy.description,
+               AutoUnlockIntervalSec = ssoAdminLockoutPolicy.autoUnlockIntervalSec,
+               FailedAttemptIntervalSec = ssoAdminLockoutPolicy.failedAttemptIntervalSec,
+               MaxFailedAttempts = ssoAdminLockoutPolicy.maxFailedAttempts
+            };
+         }
+
+         return result;
+      }
+
+      public LockoutPolicy SetLockoutPolicy(
+         string description,
+         long? autoUnlockIntervalSec,
+         long? failedAttemptIntervalSec,
+         int? maxFailedAttempts) {
+
+         if (description != null ||
+            autoUnlockIntervalSec != null ||
+            failedAttemptIntervalSec != null ||
+            maxFailedAttempts != null) {
+
+            var ssoAdminLockoutPolicy = new SsoAdminLockoutPolicy();
+
+            ssoAdminLockoutPolicy.description = description;
+
+            if (autoUnlockIntervalSec != null) {
+               ssoAdminLockoutPolicy.autoUnlockIntervalSec = autoUnlockIntervalSec.Value;
+            }
+
+            if (failedAttemptIntervalSec != null) {
+               ssoAdminLockoutPolicy.failedAttemptIntervalSec = failedAttemptIntervalSec.Value;
+            }
+
+            if (maxFailedAttempts != null) {
+               ssoAdminLockoutPolicy.maxFailedAttempts = maxFailedAttempts.Value;
+            }
+
+            // Create Authorization Invocation Context
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            // Invoke SSO Admin GetLockoutPolicyAsync operation
+            authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.UpdateLockoutPolicyAsync(
+                     new ManagedObjectReference {
+                        type = "SsoAdminLockoutPolicyService",
+                        Value = "lockoutPolicyService"
+                     },
+                     ssoAdminLockoutPolicy)).Wait();
+
+         }         
+
+         return GetLockoutPolicy();
+      }
       #endregion
    }
 }

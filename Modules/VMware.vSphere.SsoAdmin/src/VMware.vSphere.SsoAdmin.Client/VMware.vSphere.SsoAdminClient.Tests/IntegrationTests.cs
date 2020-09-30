@@ -10,7 +10,7 @@ namespace VMware.vSphere.SsoAdminClient.Tests
    {
       private string _vc = "<vc>";
       private string _user = "<user>";
-      private string _rawPassword = "<password>";
+      private string _rawPassword = "<password";
       private SecureString _password;
       [SetUp]
       public void Setup() {
@@ -215,6 +215,51 @@ namespace VMware.vSphere.SsoAdminClient.Tests
             minUppercaseCount: originalPasswordPolicy.MinUppercaseCount,
             minLowercaseCount: originalPasswordPolicy.MinLowercaseCount,
             passwordLifetimeDays: originalPasswordPolicy.PasswordLifetimeDays);
+      }
+
+      [Test]
+      public void GetLockoutPolicy() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+
+         // Act
+         var actual = ssoAdminClient.GetLockoutPolicy();
+
+         // Assert
+         Assert.NotNull(actual);
+      }
+
+      [Test]
+      public void SetLockoutPolicy() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+         var originalLockoutPolicy = ssoAdminClient.GetLockoutPolicy();
+         var expectedDescription = "TestDescription";
+         var expectedAutoUnlockIntervalSec = 20;
+         var expectedFailedAttemptIntervalSec = 30;
+         var expectedMaxFailedAttempts = 5;
+
+         // Act
+         var actual = ssoAdminClient.SetLockoutPolicy(
+            expectedDescription,
+            expectedAutoUnlockIntervalSec,
+            expectedFailedAttemptIntervalSec,
+            expectedMaxFailedAttempts);
+
+         // Assert
+         Assert.NotNull(actual);
+         Assert.AreEqual(expectedDescription, actual.Description);
+         Assert.AreEqual(expectedAutoUnlockIntervalSec, actual.AutoUnlockIntervalSec);
+         Assert.AreEqual(expectedFailedAttemptIntervalSec, actual.FailedAttemptIntervalSec);
+         Assert.AreEqual(expectedMaxFailedAttempts, actual.MaxFailedAttempts);
+
+         // Cleanup
+         ssoAdminClient.SetLockoutPolicy(
+            originalLockoutPolicy.Description,
+            originalLockoutPolicy.AutoUnlockIntervalSec,
+            originalLockoutPolicy.FailedAttemptIntervalSec,
+            originalLockoutPolicy.MaxFailedAttempts       
+            );
       }
    }
 }
