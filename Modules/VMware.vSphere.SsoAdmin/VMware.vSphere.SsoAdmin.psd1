@@ -34,7 +34,7 @@ RequiredModules = @(
 )
 
 # Functions to export from this module
-FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer', 'New-PersonUser', 'Get-PersonUser', 'Set-PersonUser', 'Remove-PersonUser', 'Get-Group', 'Get-PasswordPolicy', 'Set-PasswordPolicy', 'Get-LockoutPolicy', 'Set-LockoutPolicy')
+FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer', 'New-PersonUser', 'Get-PersonUser', 'Set-PersonUser', 'Remove-PersonUser', 'Get-Group', 'Get-PasswordPolicy', 'Set-PasswordPolicy', 'Get-LockoutPolicy', 'Set-LockoutPolicy', 'Get-TokenLifetime', 'Set-TokenLifetime')
 
 # Cmdlets to export from this module
 CmdletsToExport = @()

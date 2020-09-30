@@ -556,6 +556,67 @@ namespace VMware.vSphere.SsoAdminClient
 
          return GetLockoutPolicy();
       }
+
+      public TokenLifetime GetTokenLifetime() {
+
+         // Create Authorization Invocation Context
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         var maxHoKTokenLifetime = authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.GetMaximumHoKTokenLifetimeAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminConfigurationManagementService",
+                     Value = "configurationManagementService"
+                  })).Result;
+
+         var maxBearerTokenLifetime = authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.GetMaximumBearerTokenLifetimeAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminConfigurationManagementService",
+                     Value = "configurationManagementService"
+                  })).Result;
+
+         return new TokenLifetime(this) {
+            MaxHoKTokenLifetime = maxHoKTokenLifetime,
+            MaxBearerTokenLifetime = maxBearerTokenLifetime
+         };
+      }
+
+      public TokenLifetime SetTokenLifetime(
+         long? maxHoKTokenLifetime,
+         long? maxBearerTokenLifetime) {
+         
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         if (maxHoKTokenLifetime != null) {
+            authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.SetMaximumHoKTokenLifetimeAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminConfigurationManagementService",
+                     Value = "configurationManagementService"
+                  },
+                  maxHoKTokenLifetime.Value)).Wait();
+         }
+
+         if (maxBearerTokenLifetime != null) {
+            authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.SetMaximumBearerTokenLifetimeAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminConfigurationManagementService",
+                     Value = "configurationManagementService"
+                  },
+                  maxBearerTokenLifetime.Value)).Wait();
+         }
+
+
+         return GetTokenLifetime();
+      }
       #endregion
    }
 }
