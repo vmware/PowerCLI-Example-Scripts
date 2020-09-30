@@ -289,8 +289,7 @@ Describe "PersonUser Tests" {
          $actual = Set-PersonUser `
             -User $personUserToUpdate `
             -Group $groupUserToBeAddedTo `
-            -Add `
-            -Server $connection
+            -Add
 
          # Assert
          $actual | Should Not Be $null
@@ -321,15 +320,13 @@ Describe "PersonUser Tests" {
          Set-PersonUser `
             -User $personUserToUpdate `
             -Group $groupToBeUsed `
-            -Add `
-            -Server $connection | Out-Null
+            -Add
 
          # Act
          $actual = Set-PersonUser `
             -User $personUserToUpdate `
             -Group $groupToBeUsed `
-            -Remove `
-            -Server $connection
+            -Remove
 
          # Assert
          $actual | Should Not Be $null
@@ -356,8 +353,7 @@ Describe "PersonUser Tests" {
          # Act
          $actual = Set-PersonUser `
             -User $personUserToUpdate `
-            -NewPassword $newPassword `
-            -Server $connection
+            -NewPassword $newPassword
 
          # Assert
          $actual | Should Not Be $null
@@ -383,8 +379,7 @@ Describe "PersonUser Tests" {
          # Act
          $actual = Set-PersonUser `
             -User $personUserToUpdate `
-            -Unlock `
-            -Server $connection
+            -Unlock
 
          # Assert
          $actual | Should Be $null
@@ -409,7 +404,7 @@ Describe "PersonUser Tests" {
             -Server $connection
 
          # Act
-         Remove-PersonUser -User $personUserToRemove -Server $connection
+         Remove-PersonUser -User $personUserToRemove
 
          # Assert
          $personUserToRemove | Should Not Be $null

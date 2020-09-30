@@ -42,7 +42,7 @@ namespace VMware.vSphere.SsoAdminClient
 
       private void RenewIfNeeded() {
          if (_validToken == null ||
-             _validToken.Expires < (DateTime.Now - new TimeSpan(0, 0, 30))) {
+             _validToken.Expires < (DateTime.Now + new TimeSpan(0, 0, 30))) {
             _validToken = _stsClient.IssueBearerTokenByUserCredential(
               _user,
               _password);

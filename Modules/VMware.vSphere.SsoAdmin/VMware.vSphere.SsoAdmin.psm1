@@ -418,20 +418,11 @@ function Set-PersonUser {
    .DESCRIPTION
    Updates person user account.
 
-   Nota Bene! Have in mind PersonUser objects don't carry information about the connection.
-   If you specify PersonUser and on the server there is user with same Id it will be deleted.
-
    .PARAMETER User
    Specifies the PersonUser instance to update.
 
-   Nota Bene! Have in mind PersonUser objects don't carry information about the connection.
-   If you specify PersonUser and on the server there is user with same Id it will be deleted.
-
    .PARAMETER Group
    Specifies the Group you want to add or remove PwersonUser from.
-
-   Nota Bene! Have in mind Group objects don't carry information about the connection.
-   If you specify Group and on the server there is user with same Id it will be deleted.
 
    .PARAMETER Add
    Specifies user will be added to the spcified group.
@@ -444,10 +435,6 @@ function Set-PersonUser {
 
    .PARAMETER NewPassword
    Specifies new password for the specified user.
-
-   .PARAMETER Server
-   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
-   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
 
    .EXAMPLE
    Set-PersonUser -User $myPersonUser -Group $myExampleGroup -Add -Server $ssoAdminConnection
@@ -520,53 +507,40 @@ function Set-PersonUser {
       Mandatory=$true,
       HelpMessage='Specifies to unlock user account.')]
    [switch]
-   $Unlock,
-
-   [Parameter(
-      Mandatory=$false,
-      ValueFromPipeline=$false,
-      ValueFromPipelineByPropertyName=$false,
-      HelpMessage='Connected SsoAdminServer object')]
-   [ValidateNotNull()]
-   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
-   $Server)
+   $Unlock)
 
    Process {
-      $serversToProcess = $global:DefaultSsoAdminServers
-      if ($Server -ne $null) {
-         $serversToProcess = $Server
-      }
-
-      foreach ($connection in $serversToProcess) {
-         if (-not $connection.IsConnected) {
-            Write-Error "Server $connection is disconnected"
+      foreach ($u in $User) {
+         $ssoAdminClient = $u.GetClient()
+         if ((-not $ssoAdminClient)) {
+            Write-Error "Object '$u' is from disconnected server"
             continue
          }
 
          if ($Add) {
-            $result = $connection.Client.AddPersonUserToGroup($User, $Group)
+            $result = $ssoAdminClient.AddPersonUserToGroup($u, $Group)
             if ($result) {
-               Write-Output $User
+               Write-Output $u
             }
          }
 
          if ($Remove) {
-            $result = $connection.Client.RemovePersonUserFromGroup($User, $Group)
+            $result = $ssoAdminClient.RemovePersonUserFromGroup($u, $Group)
             if ($result) {
-               Write-Output $User
+               Write-Output $u
             }
          }
 
          if ($Unlock) {
-            $result = $connection.Client.UnlockPersonUser($User)
+            $result = $ssoAdminClient.UnlockPersonUser($u)
             if ($result) {
-               Write-Output $User
+               Write-Output $u
             }
          }
 
          if ($NewPassword) {
-            $connection.Client.ResetPersonUserPassword($User, $NewPassword)
-            Write-Output $User
+            $ssoAdminClient.ResetPersonUserPassword($u, $NewPassword)
+            Write-Output $u
          }
       }
    }
@@ -584,23 +558,13 @@ function Remove-PersonUser {
    .DESCRIPTION
    This function removes existing person user account.
 
-   Nota Bene! Have in mind PersonUser objects don't carry information about the connection.
-   If you specify PersonUser and on the server there is user with same Id it will be deleted.
-
    .PARAMETER User
    Specifies the PersonUser instance to remove.
-
-   Nota Bene! Have in mind PersonUser objects don't carry information about the connection.
-   If you specify PersonUser and on the server there is user with same Id it will be deleted.
-
-   .PARAMETER Server
-   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
-   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
 
    .EXAMPLE
    $ssoAdminConnection = Connect-SsoAdminServer -Server my.vc.server -User ssoAdmin@vsphere.local -Password 'ssoAdminStrongPa$$w0rd'
    $myNewPersonUser = New-PersonUser -Server $ssoAdminConnection -User myAdmin -Password 'MyStrongPa$$w0rd'
-   Remove-PersonUser -User $myNewPersonUser -Server $ssoAdminConnection
+   Remove-PersonUser -User $myNewPersonUser
 
    Remove person user account with user name 'myAdmin' and password 'MyStrongPa$$w0rd'
 
@@ -617,30 +581,17 @@ function Remove-PersonUser {
       ValueFromPipelineByPropertyName=$false,
       HelpMessage='Person User instance you want to remove from specified servers')]
    [VMware.vSphere.SsoAdminClient.DataTypes.PersonUser]
-   $User,
-
-   [Parameter(
-      Mandatory=$false,
-      ValueFromPipeline=$false,
-      ValueFromPipelineByPropertyName=$false,
-      HelpMessage='Connected SsoAdminServer object')]
-   [ValidateNotNull()]
-   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
-   $Server)
+   $User)
 
    Process {
-      $serversToProcess = $global:DefaultSsoAdminServers
-      if ($Server -ne $null) {
-         $serversToProcess = $Server
-      }
-
-      foreach ($connection in $serversToProcess) {
-         if (-not $connection.IsConnected) {
-            Write-Error "Server $connection is disconnected"
+      foreach ($u in $User) {
+         $ssoAdminClient = $u.GetClient()
+         if ((-not $ssoAdminClient)) {
+            Write-Error "Object '$u' is from disconnected server"
             continue
          }
 
-         $connection.Client.DeleteLocalUser($User)
+         $ssoAdminClient.DeleteLocalUser($u)
       }
    }
 }
@@ -736,6 +687,256 @@ function Get-Group {
                }
             }
          }
+      }
+   }
+}
+#endregion
+
+#region PasswordPolicy cmdlets
+function Get-PasswordPolicy {
+<#
+   .NOTES
+   ===========================================================================
+   Created on:   	9/30/2020
+   Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+   ===========================================================================
+   .DESCRIPTION
+   This function gets password policy.
+
+   .PARAMETER Server
+   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
+   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+
+   .EXAMPLE
+   Get-PasswordPolicy
+
+   Gets password policy for the server connections available in $global:defaultSsoAdminServers
+#>
+[CmdletBinding()]
+ param(
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Connected SsoAdminServer object')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+   $Server)
+
+   Process {
+      $serversToProcess = $global:DefaultSsoAdminServers
+      if ($Server -ne $null) {
+         $serversToProcess = $Server
+      }
+      foreach ($connection in $serversToProcess) {
+         if (-not $connection.IsConnected) {
+            Write-Error "Server $connection is disconnected"
+            continue
+         }
+
+         $connection.Client.GetPasswordPolicy();
+      }
+   }
+}
+
+function Set-PasswordPolicy {
+<#
+   .NOTES
+   ===========================================================================
+   Created on:   	9/30/2020
+   Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+   ===========================================================================
+   .DESCRIPTION
+   This function updates password policy settings.
+
+   .PARAMETER PasswordPolicy
+   Specifies the PasswordPolicy instance which will be used as original policy. If some properties are not specified they will be updated with the properties from this object.
+
+   .PARAMETER Description
+
+   .PARAMETER ProhibitedPreviousPasswordsCount
+
+   .PARAMETER MinLength
+
+   .PARAMETER MaxLength
+
+   .PARAMETER MaxIdenticalAdjacentCharacters
+
+   .PARAMETER MinNumericCount
+
+   .PARAMETER MinSpecialCharCount
+
+   .PARAMETER MinAlphabeticCount
+
+   .PARAMETER MinUppercaseCount
+
+   .PARAMETER MinLowercaseCount
+
+   .PARAMETER PasswordLifetimeDays
+
+   .EXAMPLE
+   Get-PasswordPolicy | Set-PasswordPolicy -MinLength 10 -PasswordLifetimeDays 45
+
+   Updates password policy setting minimum password length to 10 symbols and password lifetime to 45 days
+#>
+[CmdletBinding()]
+ param(
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$true,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='PasswordPolicy instance you want to update')]
+   [VMware.vSphere.SsoAdminClient.DataTypes.PasswordPolicy]
+   $PasswordPolicy,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='PasswordPolicy description')]
+   [string]
+   $Description,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $ProhibitedPreviousPasswordsCount,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $MinLength,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $MaxLength,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $MaxIdenticalAdjacentCharacters,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $MinNumericCount,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $MinSpecialCharCount,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $MinAlphabeticCount,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $MinUppercaseCount,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $MinLowercaseCount,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [Nullable[System.Int32]]
+   $PasswordLifetimeDays)
+
+   Process {
+
+      foreach ($pp in $PasswordPolicy) {
+
+         $ssoAdminClient = $pp.GetClient()
+         if ((-not $ssoAdminClient)) {
+            Write-Error "Object '$pp' is from disconnected server"
+            continue
+         }
+
+         if ([string]::IsNullOrEmpty($Description)) {
+            $Description = $pp.Description
+         }
+
+         if ($ProhibitedPreviousPasswordsCount -eq $null) {
+            $ProhibitedPreviousPasswordsCount = $pp.ProhibitedPreviousPasswordsCount
+         }
+
+         if ($MinLength -eq $null) {
+            $MinLength = $pp.MinLength
+         }
+
+         if ($MaxLength -eq $null) {
+            $MaxLength = $pp.MaxLength
+         }
+
+         if ($MaxIdenticalAdjacentCharacters -eq $null) {
+            $MaxIdenticalAdjacentCharacters = $pp.MaxIdenticalAdjacentCharacters
+         }
+
+         if ($MinNumericCount -eq $null) {
+            $MinNumericCount = $pp.MinNumericCount
+         }
+
+         if ($MinSpecialCharCount -eq $null) {
+            $MinSpecialCharCount = $pp.MinSpecialCharCount
+         }
+
+         if ($MinAlphabeticCount -eq $null) {
+            $MinAlphabeticCount = $pp.MinAlphabeticCount
+         }
+
+         if ($MinUppercaseCount -eq $null) {
+            $MinUppercaseCount = $pp.MinUppercaseCount
+         }
+
+         if ($MinLowercaseCount -eq $null) {
+            $MinLowercaseCount = $pp.MinLowercaseCount
+         }
+
+         if ($PasswordLifetimeDays -eq $null) {
+            $PasswordLifetimeDays = $pp.PasswordLifetimeDays
+         }
+
+         $ssoAdminClient.SetPasswordPolicy(
+           $Description,
+           $ProhibitedPreviousPasswordsCount,
+           $MinLength,
+           $MaxLength,
+           $MaxIdenticalAdjacentCharacters,
+           $MinNumericCount,
+           $MinSpecialCharCount,
+           $MinAlphabeticCount,
+           $MinUppercaseCount,
+           $MinLowercaseCount,
+           $PasswordLifetimeDays);
       }
    }
 }

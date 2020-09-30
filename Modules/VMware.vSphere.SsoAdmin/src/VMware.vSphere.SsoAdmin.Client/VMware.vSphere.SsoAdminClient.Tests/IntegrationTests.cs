@@ -143,5 +143,78 @@ namespace VMware.vSphere.SsoAdminClient.Tests
          ssoAdminClient.DeleteLocalUser(
             newUser);
       }
+
+      [Test]
+      public void GetPasswordPolicy() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+
+         // Act
+         var actual = ssoAdminClient.GetPasswordPolicy();
+
+         // Assert
+         Assert.NotNull(actual);
+      }
+
+      [Test]
+      public void SetPasswordPolicy() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+
+         var originalPasswordPolicy = ssoAdminClient.GetPasswordPolicy();
+
+         var expectedDescription = "TestDescription";
+         var expectedProhibitedPreviousPasswordsCount = originalPasswordPolicy.ProhibitedPreviousPasswordsCount + 1;
+         var expectedMinLength = originalPasswordPolicy.MinLength + 1;
+         var expectedMaxLength = originalPasswordPolicy.MaxLength + 1;
+         var exptectedMaxIdenticalAdjacentCharacters = originalPasswordPolicy.MaxIdenticalAdjacentCharacters + 1;
+         var expectedMinNumericCount = originalPasswordPolicy.MinNumericCount + 1;
+         var expectedMinSpecialCharCount = originalPasswordPolicy.MinSpecialCharCount + 1;
+         var expectedMinAlphabeticCount = originalPasswordPolicy.MinAlphabeticCount + 2;
+         var expectedMinUppercaseCount = 0;
+         var expectedMinLowercaseCount = originalPasswordPolicy.MinLowercaseCount + 2;
+         var expectedPasswordLifetimeDays = originalPasswordPolicy.PasswordLifetimeDays - 2;
+
+         // Act
+         var actual = ssoAdminClient.SetPasswordPolicy(
+            description: expectedDescription,
+            prohibitedPreviousPasswordsCount: expectedProhibitedPreviousPasswordsCount,
+            minLength: expectedMinLength,
+            maxLength: expectedMaxLength,
+            maxIdenticalAdjacentCharacters: exptectedMaxIdenticalAdjacentCharacters,
+            minNumericCount: expectedMinNumericCount,
+            minSpecialCharCount: expectedMinSpecialCharCount,
+            minAlphabeticCount: expectedMinAlphabeticCount,
+            minUppercaseCount: expectedMinUppercaseCount,
+            minLowercaseCount: expectedMinLowercaseCount,
+            passwordLifetimeDays: expectedPasswordLifetimeDays);
+
+         // Assert
+         Assert.NotNull(actual);
+         Assert.AreEqual(expectedDescription, actual.Description);
+         Assert.AreEqual(expectedProhibitedPreviousPasswordsCount, actual.ProhibitedPreviousPasswordsCount);
+         Assert.AreEqual(expectedMinLength, actual.MinLength);
+         Assert.AreEqual(expectedMaxLength, actual.MaxLength);
+         Assert.AreEqual(exptectedMaxIdenticalAdjacentCharacters, actual.MaxIdenticalAdjacentCharacters);
+         Assert.AreEqual(expectedMinNumericCount, actual.MinNumericCount);
+         Assert.AreEqual(expectedMinAlphabeticCount, actual.MinAlphabeticCount);
+         Assert.AreEqual(expectedMinUppercaseCount, actual.MinUppercaseCount);
+         Assert.AreEqual(expectedMinLowercaseCount, actual.MinLowercaseCount);
+         Assert.AreEqual(expectedPasswordLifetimeDays, actual.PasswordLifetimeDays);
+
+         // Cleanup
+         ssoAdminClient.SetPasswordPolicy(
+            description: originalPasswordPolicy.Description,
+            prohibitedPreviousPasswordsCount: originalPasswordPolicy.ProhibitedPreviousPasswordsCount,
+            minLength: originalPasswordPolicy.MinLength,
+            maxLength: originalPasswordPolicy.MaxLength,
+            maxIdenticalAdjacentCharacters: originalPasswordPolicy.MaxIdenticalAdjacentCharacters,
+            minNumericCount: originalPasswordPolicy.MinNumericCount,
+            minSpecialCharCount: originalPasswordPolicy.MinSpecialCharCount,
+            minAlphabeticCount: originalPasswordPolicy.MinAlphabeticCount,
+            minUppercaseCount: originalPasswordPolicy.MinUppercaseCount,
+            minLowercaseCount: originalPasswordPolicy.MinLowercaseCount,
+            passwordLifetimeDays: originalPasswordPolicy.PasswordLifetimeDays);
+      }
    }
 }
