@@ -40,7 +40,7 @@ FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer', 'Ne
 CmdletsToExport = @()
 
 # Variables to export from this module
-VariablesToExport = '$global:DefaultSsoAdminServers'
+VariablesToExport = ''
 
 # Aliases to export from this module
 AliasesToExport = '*'

@@ -51,7 +51,7 @@ param(
 }
 
 # Global variables
-$global:DefaultSsoAdminServers = New-Object System.Collections.ArrayList
+$global:DefaultSsoAdminServers = New-Object System.Collections.Generic.List[VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
 
 # Module Advanced Functions Implementation
 
@@ -173,7 +173,7 @@ function Disconnect-SsoAdminServer {
 
    Process {
       if ($global:DefaultSsoAdminServers.Contains($Server)) {
-         $global:DefaultSsoAdminServers.Remove($Server)
+         $global:DefaultSsoAdminServers.Remove($Server) | Out-Null
       }
 
       if ($Server.IsConnected) {
