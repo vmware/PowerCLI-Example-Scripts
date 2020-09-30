@@ -172,7 +172,7 @@ namespace VMware.vSphere.SsoAdminClient
                      name = userName,
                      domain = domain
                   })).Result;
-         return new PersonUser {
+         return new PersonUser(this) {
             Name = personUser.id.name,
             Domain = personUser.id.domain,
             Description = personUser.details.description,
@@ -203,7 +203,7 @@ namespace VMware.vSphere.SsoAdminClient
 
          if (personUsers != null) {
             foreach (var personUser in personUsers) {               
-               yield return new PersonUser {
+               yield return new PersonUser(this) {
                   Name = personUser.id.name,
                   Domain = personUser.id.domain,
                   Description = personUser.details.description,
@@ -337,6 +337,151 @@ namespace VMware.vSphere.SsoAdminClient
                      name = user.Name,
                      domain = user.Domain
                   })).Result;
+      }
+
+      public PasswordPolicy GetPasswordPolicy() {
+         PasswordPolicy result = null;
+         // Create Authorization Invocation Context
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         // Invoke SSO Admin GetLocalPasswordPolicyAsync operation
+         var ssoAdminPasswordPolicy = authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.GetLocalPasswordPolicyAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminPasswordPolicyService",
+                     Value = "passwordPolicyService"
+                  })).Result;
+
+         if (ssoAdminPasswordPolicy != null) {
+            result = new PasswordPolicy(this) {
+               Description = ssoAdminPasswordPolicy.description,
+               ProhibitedPreviousPasswordsCount = ssoAdminPasswordPolicy.prohibitedPreviousPasswordsCount,
+               MinLength = ssoAdminPasswordPolicy.passwordFormat.lengthRestriction.minLength,
+               MaxLength = ssoAdminPasswordPolicy.passwordFormat.lengthRestriction.maxLength,
+               MaxIdenticalAdjacentCharacters = ssoAdminPasswordPolicy.passwordFormat.maxIdenticalAdjacentCharacters,
+               MinNumericCount = ssoAdminPasswordPolicy.passwordFormat.minNumericCount,
+               MinSpecialCharCount = ssoAdminPasswordPolicy.passwordFormat.minSpecialCharCount,
+               MinAlphabeticCount = ssoAdminPasswordPolicy.passwordFormat.alphabeticRestriction.minAlphabeticCount,
+               MinUppercaseCount = ssoAdminPasswordPolicy.passwordFormat.alphabeticRestriction.minUppercaseCount,
+               MinLowercaseCount = ssoAdminPasswordPolicy.passwordFormat.alphabeticRestriction.minLowercaseCount,
+               PasswordLifetimeDays = ssoAdminPasswordPolicy.passwordLifetimeDays
+            };
+         }
+
+         return result;
+      }
+
+      public PasswordPolicy SetPasswordPolicy(
+           string description = null,
+           int? prohibitedPreviousPasswordsCount = null,
+           int? minLength = null,
+           int? maxLength = null,
+           int? maxIdenticalAdjacentCharacters = null,
+           int? minNumericCount = null,
+           int? minSpecialCharCount = null,
+           int? minAlphabeticCount = null,
+           int? minUppercaseCount = null,
+           int? minLowercaseCount = null,
+           int? passwordLifetimeDays = null) {
+
+         if (description != null ||
+             prohibitedPreviousPasswordsCount != null ||
+             minLength != null ||
+             maxLength != null ||
+             maxIdenticalAdjacentCharacters != null ||
+             minNumericCount != null ||
+             minSpecialCharCount != null ||
+             minAlphabeticCount != null ||
+             minUppercaseCount != null ||
+             minLowercaseCount != null ||
+             passwordLifetimeDays != null) {
+
+            var ssoAdminPasswordPolicy = new SsoAdminPasswordPolicy();
+            ssoAdminPasswordPolicy.description = description;
+
+            if (passwordLifetimeDays != null) {
+               ssoAdminPasswordPolicy.passwordLifetimeDays = passwordLifetimeDays.Value;
+               ssoAdminPasswordPolicy.passwordLifetimeDaysSpecified = true;
+            }
+
+            if (prohibitedPreviousPasswordsCount != null) {
+               ssoAdminPasswordPolicy.prohibitedPreviousPasswordsCount = prohibitedPreviousPasswordsCount.Value;
+            }
+
+            // Update SsoAdminPasswordFormat if needed
+            if (minLength != null ||
+                maxLength != null ||
+                maxIdenticalAdjacentCharacters != null ||
+                minNumericCount != null ||
+                minSpecialCharCount != null ||
+                minAlphabeticCount != null ||
+                minUppercaseCount != null ||
+                minLowercaseCount != null) {
+
+               ssoAdminPasswordPolicy.passwordFormat = new SsoAdminPasswordFormat();
+
+               if (maxIdenticalAdjacentCharacters != null) {
+                  ssoAdminPasswordPolicy.passwordFormat.maxIdenticalAdjacentCharacters = maxIdenticalAdjacentCharacters.Value;
+               }
+
+               if (minNumericCount != null) {
+                  ssoAdminPasswordPolicy.passwordFormat.minNumericCount = minNumericCount.Value;
+               }
+
+               if (minSpecialCharCount != null) {
+                  ssoAdminPasswordPolicy.passwordFormat.minSpecialCharCount = minSpecialCharCount.Value;
+               }
+
+               // Update LengthRestriction if needed
+               if (minLength != null ||
+                   maxLength != null) {
+                  ssoAdminPasswordPolicy.passwordFormat.lengthRestriction = new SsoAdminPasswordFormatLengthRestriction();
+                  if (maxLength != null) {
+                     ssoAdminPasswordPolicy.passwordFormat.lengthRestriction.maxLength = maxLength.Value;
+                  }
+                  if (minLength != null) {
+                     ssoAdminPasswordPolicy.passwordFormat.lengthRestriction.minLength = minLength.Value;
+                  }
+               }
+
+               // Update AlphabeticRestriction if needed
+               if (minAlphabeticCount != null ||
+                   minUppercaseCount != null ||
+                   minLowercaseCount != null) {
+                  ssoAdminPasswordPolicy.passwordFormat.alphabeticRestriction = new SsoAdminPasswordFormatAlphabeticRestriction();
+
+                  if (minAlphabeticCount != null) {
+                     ssoAdminPasswordPolicy.passwordFormat.alphabeticRestriction.minAlphabeticCount = minAlphabeticCount.Value;
+                  }
+
+                  if (minUppercaseCount != null) {
+                     ssoAdminPasswordPolicy.passwordFormat.alphabeticRestriction.minUppercaseCount = minUppercaseCount.Value;
+                  }
+
+                  if (minLowercaseCount != null) {
+                     ssoAdminPasswordPolicy.passwordFormat.alphabeticRestriction.minLowercaseCount = minLowercaseCount.Value;
+                  }
+               }
+            }
+            
+            // Create Authorization Invocation Context
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            // Invoke SSO Admin UpdateLocalPasswordPolicyAsync operation
+            authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.UpdateLocalPasswordPolicyAsync(
+                     new ManagedObjectReference {
+                        type = "SsoAdminPasswordPolicyService",
+                        Value = "passwordPolicyService"
+                     },
+                     ssoAdminPasswordPolicy)).Wait();
+         }
+
+         return GetPasswordPolicy();         
       }
       #endregion
    }
