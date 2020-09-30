@@ -58,7 +58,7 @@ param($OutputFolder)
          "VMware.vSphere.LsClient",
          "bin",
          $Configuration,
-         "netcoreapp2.0",
+         "net45",
          "VMware.vSphere.LsClient.dll")
 
       $netcoreSsoAdminSource = [IO.Path]::Combine(
