@@ -1,5 +1,5 @@
 ﻿// **************************************************************************
-//  Copyright (c) VMware, Inc.  All rights reserved. -- VMware Confidential.
+//  Copyright 2020 VMware, Inc.
 // **************************************************************************
 using System;
 using System.Collections;

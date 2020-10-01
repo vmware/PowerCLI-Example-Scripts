@@ -1,6 +1,6 @@
-#**************************************************************************
-# Copyright (c) VMware, Inc. All rights reserved.
-#**************************************************************************
+# **************************************************************************
+#  Copyright 2020 VMware, Inc.
+# **************************************************************************
 
 param(
     [Parameter(Mandatory = $true)]
@@ -24,8 +24,6 @@ function Test-PesterIsAvailable() {
 }
 
 Test-PesterIsAvailable
-
-$testFiles = Get-ChildItem -Path $PSScriptRoot -Filter "*.Tests.ps1"
 
 Invoke-Pester `
    -Script @{
