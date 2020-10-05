@@ -84,6 +84,62 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          $expected.IsConnected | Should Be $false
       }
 
+      It 'Diconnect-SsoAdminServer disconnects the currently connected SSO in case there is 1 SSO server' {
+         # Arrange
+         $expected = Connect-SsoAdminServer `
+               -Server $VcAddress `
+               -User $User `
+               -Password $Password `
+               -SkipCertificateCheck
+
+         # Act
+         Disconnect-SsoAdminServer -server $expected
+
+         # Assert
+         $global:DefaultSsoAdminServers | Should Not Contain $expected
+         $expected.IsConnected | Should Be $false
+      }
+
+      It 'Diconnect-SsoAdminServer does not disconnect if connected to more than 1 SSO server' {
+         # Arrange
+         $expected += @(Connect-SsoAdminServer `
+               -Server $VcAddress `
+               -User $User `
+               -Password $Password `
+               -SkipCertificateCheck)
+         $expected += @(Connect-SsoAdminServer `
+               -Server $VcAddress `
+               -User $User `
+               -Password $Password `
+               -SkipCertificateCheck)
+
+         # Act
+         {Disconnect-SsoAdminServer} | should -Throw
+         # Assert
+         (Compare-Object $global:DefaultSsoAdminServers $expected -IncludeEqual).Count | Should Be 2
+         $expected.IsConnected | Should -Contain $true
+      }
+
+      It 'Diconnect-SsoAdminServer does disconnect via pipeline if connected to more than 1 SSO server' {
+         # Arrange
+         $expected += @(Connect-SsoAdminServer `
+               -Server $VcAddress `
+               -User $User `
+               -Password $Password `
+               -SkipCertificateCheck)
+         $expected += @(Connect-SsoAdminServer `
+               -Server $VcAddress `
+               -User $User `
+               -Password $Password `
+               -SkipCertificateCheck)
+
+         # Act
+         $expected | Disconnect-SsoAdminServer
+         # Assert
+         $global:DefaultSsoAdminServers.count | Should Be 0
+         $expected.IsConnected | Should -not -Contain $true
+      }
+
       It 'Disconnects disconnected object' {
          # Arrange
          $expected = Connect-SsoAdminServer `
