@@ -112,7 +112,8 @@ function Connect-SsoAdminServer {
       ValueFromPipeline=$false,
       ValueFromPipelineByPropertyName=$false,
       HelpMessage='Password you want to use for authenticating with the server')]
-   [string]
+   [VMware.vSphere.SsoAdmin.Utils.StirngToSecureStringArgumentTransformationAttribute()]
+   [SecureString]
    $Password,
 
    [Parameter(
@@ -132,14 +133,16 @@ function Connect-SsoAdminServer {
          -ArgumentList @(
          $Server,
          $User,
-         (ConvertTo-SecureString -String $Password -AsPlainText -Force),
+         $Password,
          $certificateValidator)
 
-      # Update $global:DefaultSsoAdminServers varaible
-      $global:DefaultSsoAdminServers.Add($ssoAdminServer) | Out-Null
+      if ($ssoAdminServer -ne $null) {
+         # Update $global:DefaultSsoAdminServers varaible
+         $global:DefaultSsoAdminServers.Add($ssoAdminServer) | Out-Null
 
-      # Function Output
-      Write-Output $ssoAdminServer
+         # Function Output
+         Write-Output $ssoAdminServer
+      }
    }
 }
 
@@ -327,7 +330,7 @@ function Get-PersonUser {
     Github:        https://github.com/dmilov
    ===========================================================================
    .DESCRIPTION
-   This function gets new person user account.
+   This function gets person user account.
 
    .PARAMETER Name
    Specifies Name to filter on when searching for person user accounts.
@@ -570,12 +573,7 @@ function Remove-PersonUser {
    $myNewPersonUser = New-PersonUser -Server $ssoAdminConnection -User myAdmin -Password 'MyStrongPa$$w0rd'
    Remove-PersonUser -User $myNewPersonUser
 
-   Remove person user account with user name 'myAdmin' and password 'MyStrongPa$$w0rd'
-
-   .EXAMPLE
-   New-PersonUser -User myAdmin -Password 'MyStrongPa$$w0rd' -EmailAddress 'myAdmin@mydomain.com' -FirstName 'My' -LastName 'Admin'
-
-   Creates person user account with user name 'myAdmin', password 'MyStrongPa$$w0rd', and details against connections available in 'DefaultSsoAdminServers'
+   Remove person user account with user name 'myAdmin'
 #>
 [CmdletBinding(ConfirmImpact='High')]
  param(

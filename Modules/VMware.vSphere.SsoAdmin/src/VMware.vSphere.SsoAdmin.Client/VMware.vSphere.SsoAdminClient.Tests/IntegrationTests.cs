@@ -13,7 +13,7 @@ namespace VMware.vSphere.SsoAdminClient.Tests
    {
       private string _vc = "<vc>";
       private string _user = "<user>";
-      private string _rawPassword = "<password";
+      private string _rawPassword = "<password>";
       private SecureString _password;
       [SetUp]
       public void Setup() {
