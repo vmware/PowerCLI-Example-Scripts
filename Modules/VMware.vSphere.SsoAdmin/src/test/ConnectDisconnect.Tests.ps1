@@ -114,8 +114,9 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
                -SkipCertificateCheck)
 
          # Act
-         {Disconnect-SsoAdminServer} | should -Throw
+         
          # Assert
+         {Disconnect-SsoAdminServer} | should -Throw
          (Compare-Object $global:DefaultSsoAdminServers $expected -IncludeEqual).Count | Should Be 2
          $expected.IsConnected | Should -Contain $true
       }
