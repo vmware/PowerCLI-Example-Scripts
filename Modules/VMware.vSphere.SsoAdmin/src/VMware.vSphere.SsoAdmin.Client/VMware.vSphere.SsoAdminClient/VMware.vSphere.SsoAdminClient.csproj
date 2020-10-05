@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>VMware.vSphere.SsoAdminClient</RootNamespace>
+    <AssemblyName>VMware.vSphere.SsoAdminClient</AssemblyName>
+    <Description>SSO Admin API client.</Description>
+    <TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
+    <DefineConstants>$(DefineConstants);NETCORE20</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="System.IdentityModel" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.4.0" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.4.0" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.4.0" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.0" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.4.0" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="VMware.System.Private.ServiceModel" Version="4.4.4" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="VMware.Binding.Sts" Version="12.0.0.15939652" />
+    <PackageReference Include="VMware.Binding.WsTrust" Version="12.0.0.15939652" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\VMware.vSphere.LsClient\VMware.vSphere.LsClient.csproj" />
+  </ItemGroup>
+
+</Project>
