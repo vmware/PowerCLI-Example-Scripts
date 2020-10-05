@@ -147,7 +147,7 @@ function Connect-SsoAdminServer {
 }
 
 function Disconnect-SsoAdminServer {
-<#
+   <#
    .NOTES
 	===========================================================================
 	Created on:   	9/29/2020
@@ -167,18 +167,45 @@ function Disconnect-SsoAdminServer {
 
    Disconnect a SSO Admin connection stored in 'mySsoAdminConnection' varaible
 #>
-[CmdletBinding()]
- param(
-   [Parameter(
-      Mandatory=$true,
-      ValueFromPipeline=$true,
-      ValueFromPipelineByPropertyName=$false,
-      HelpMessage='SsoAdminServer object')]
-   [ValidateNotNull()]
-   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
-   $Server)
+   [CmdletBinding()]
+   param(
+      [Parameter(
+         ValueFromPipeline = $true,
+         ValueFromPipelineByPropertyName = $false,
+         HelpMessage = 'SsoAdminServer object')]
+      [ValidateNotNull()]
+      [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+      $Server
+   )
 
    Process {
+      if (-not $PSBoundParameters['Server']) {
+         switch (@($global:DefaultSsoAdminServers).count) {
+            { $_ -eq 1 } { $server = ($global:DefaultSsoAdminServers).ToArray()[0] ; break }
+            { $_ -gt 1 } { 
+               $PSCmdlet.ThrowTerminatingError(
+                  [System.Management.Automation.ErrorRecord]::new(
+                     ([System.ApplicationException]"Connected to more than 1 SSO server, please specify a SSO server via -Server parameter"),
+                     'Disconnect-SsoAdminServer.ConnectedToMoreThanOneSSO',
+                     [System.Management.Automation.ErrorCategory]::InvalidOperation,
+                     $global:DefaultSsoAdminServers
+                  )
+               )
+               break 
+            }
+            Default { 
+               $PSCmdlet.ThrowTerminatingError(
+                  [System.Management.Automation.ErrorRecord]::new(
+                     ([System.ApplicationException]"Not connected to SSO server."),
+                     'Disconnect-SsoAdminServer.NotConnectedToSSO',
+                     [System.Management.Automation.ErrorCategory]::ConnectionError,
+                     $global:DefaultSsoAdminServers
+                  )
+               )
+             }
+         } 
+      }
+
       if ($global:DefaultSsoAdminServers.Contains($Server)) {
          $global:DefaultSsoAdminServers.Remove($Server) | Out-Null
       }
