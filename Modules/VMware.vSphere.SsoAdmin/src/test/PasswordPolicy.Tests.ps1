@@ -36,25 +36,25 @@ Describe "PasswordPolicy Tests" {
       }
    }
 
-   Context "Get-PasswordPolicy" {
+   Context "Get-SsoPasswordPolicy" {
       It 'Gets password policy' {
          # Act
-         $actual = Get-PasswordPolicy
+         $actual = Get-SsoPasswordPolicy
 
          # Assert
          $actual | Should Not Be $null
       }
    }
 
-   Context "Set-PasswordPolicy" {
+   Context "Set-SsoPasswordPolicy" {
       It 'Updates password policy MaxLength and PasswordLifetimeDays' {
          # Arrange
-         $passwordPolicyToUpdate = Get-PasswordPolicy
+         $passwordPolicyToUpdate = Get-SsoPasswordPolicy
          $expectedMaxLength = 17
          $expectedPasswordLifetimeDays = 77
 
          # Act
-         $actual = Set-PasswordPolicy `
+         $actual = Set-SsoPasswordPolicy `
             -PasswordPolicy $passwordPolicyToUpdate `
             -MaxLength $expectedMaxLength `
             -PasswordLifetimeDays $expectedPasswordLifetimeDays
@@ -74,17 +74,17 @@ Describe "PasswordPolicy Tests" {
          $actual.MinLowercaseCount | Should Be $passwordPolicyToUpdate.MinLowercaseCount
 
          # Cleanup
-         $passwordPolicyToUpdate | Set-PasswordPolicy
+         $passwordPolicyToUpdate | Set-SsoPasswordPolicy
       }
 
       It 'Updates password policy Description and MinUppercaseCount' {
          # Arrange
-         $passwordPolicyToUpdate = Get-PasswordPolicy
+         $passwordPolicyToUpdate = Get-SsoPasswordPolicy
          $expectedMinUppercaseCount = 0
          $expectedDescription = "Test Description"
 
          # Act
-         $actual = $passwordPolicyToUpdate | Set-PasswordPolicy `
+         $actual = $passwordPolicyToUpdate | Set-SsoPasswordPolicy `
             -Description $expectedDescription `
             -MinUppercaseCount $expectedMinUppercaseCount
 
@@ -103,7 +103,7 @@ Describe "PasswordPolicy Tests" {
          $actual.MinLowercaseCount | Should Be $passwordPolicyToUpdate.MinLowercaseCount
 
          # Cleanup
-         $passwordPolicyToUpdate | Set-PasswordPolicy
+         $passwordPolicyToUpdate | Set-SsoPasswordPolicy
       }
    }
 }

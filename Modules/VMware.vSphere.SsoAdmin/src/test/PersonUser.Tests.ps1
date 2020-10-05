@@ -26,7 +26,7 @@ Describe "PersonUser Tests" {
    }
    AfterEach {
       foreach ($personUser in $script:usersToCleanup) {
-         Remove-PersonUser -User $personUser
+         Remove-SsoPersonUser -User $personUser
       }
 
       $connectionsToCleanup = $global:DefaultSsoAdminServers.ToArray()
@@ -35,7 +35,7 @@ Describe "PersonUser Tests" {
       }
    }
 
-   Context "New-PersonUser" {
+   Context "New-SsoPersonUser" {
       It 'Creates person user with details' {
          # Arrange
          $expectedUserName = "TestPersonUser1"
@@ -51,7 +51,7 @@ Describe "PersonUser Tests" {
             -SkipCertificateCheck
 
          # Act
-         $actual = New-PersonUser `
+         $actual = New-SsoPersonUser `
             -Server $connection `
             -UserName $expectedUserName `
             -Password $expectedPassword `
@@ -84,7 +84,7 @@ Describe "PersonUser Tests" {
             -SkipCertificateCheck
 
          # Act
-         $actual = New-PersonUser `
+         $actual = New-SsoPersonUser `
             -Server $connection `
             -UserName $expectedUserName `
             -Password $expectedPassword
@@ -103,7 +103,7 @@ Describe "PersonUser Tests" {
       }
    }
 
-   Context "Get-PersonUser" {
+   Context "Get-SsoPersonUser" {
       It 'Gets person users without filters' {
          # Arrange
          $connection = Connect-SsoAdminServer `
@@ -113,7 +113,7 @@ Describe "PersonUser Tests" {
             -SkipCertificateCheck
 
          # Act
-         $actual = Get-PersonUser
+         $actual = Get-SsoPersonUser
 
          # Assert
          $actual | Should Not Be $null
@@ -134,20 +134,20 @@ Describe "PersonUser Tests" {
          $secondUserName = "TestPersonUser4"
          $password = '$tr0NG_TestPa$$w0rd'
 
-         $personUserToSearch = New-PersonUser `
+         $personUserToSearch = New-SsoPersonUser `
             -UserName $expectedUserName `
             -Password $password `
             -Server $connection
          $script:usersToCleanup += $personUserToSearch
 
-         $secondPersonUserToSearch = New-PersonUser `
+         $secondPersonUserToSearch = New-SsoPersonUser `
             -UserName $secondUserName `
             -Password $password `
             -Server $connection
          $script:usersToCleanup += $secondPersonUserToSearch
 
          # Act
-         $actual = Get-PersonUser `
+         $actual = Get-SsoPersonUser `
             -Name $expectedUserName `
             -Domain $personUserToSearch.Domain `
             -Server $connection
@@ -171,20 +171,20 @@ Describe "PersonUser Tests" {
          $secondUserName = "TestPersonUser4"
          $password = '$tr0NG_TestPa$$w0rd'
 
-         $personUserToSearch = New-PersonUser `
+         $personUserToSearch = New-SsoPersonUser `
             -UserName $expectedUserName `
             -Password $password `
             -Server $connection
          $script:usersToCleanup += $personUserToSearch
 
-         $secondPersonUserToSearch = New-PersonUser `
+         $secondPersonUserToSearch = New-SsoPersonUser `
             -UserName $secondUserName `
             -Password $password `
             -Server $connection
          $script:usersToCleanup += $secondPersonUserToSearch
 
          # Act
-         $actual = Get-PersonUser `
+         $actual = Get-SsoPersonUser `
             -Name "Test*" `
             -Domain $personUserToSearch.Domain `
             -Server $connection
@@ -208,20 +208,20 @@ Describe "PersonUser Tests" {
          $secondUserName = "TestPersonUser4"
          $password = '$tr0NG_TestPa$$w0rd'
 
-         $personUserToSearch = New-PersonUser `
+         $personUserToSearch = New-SsoPersonUser `
             -UserName $expectedUserName `
             -Password $password `
             -Server $connection
          $script:usersToCleanup += $personUserToSearch
 
-         $secondPersonUserToSearch = New-PersonUser `
+         $secondPersonUserToSearch = New-SsoPersonUser `
             -UserName $secondUserName `
             -Password $password `
             -Server $connection
          $script:usersToCleanup += $secondPersonUserToSearch
 
          # Act
-         $actual = Get-PersonUser `
+         $actual = Get-SsoPersonUser `
             -Name "TestPersonUser?" `
             -Domain $personUserToSearch.Domain `
             -Server $connection
@@ -244,7 +244,7 @@ Describe "PersonUser Tests" {
          $expectedUserName = "TestPersonUser3"
          $password = '$tr0NG_TestPa$$w0rd'
 
-         $personUserToSearch = New-PersonUser `
+         $personUserToSearch = New-SsoPersonUser `
             -UserName $expectedUserName `
             -Password $password `
             -Server $connection
@@ -252,7 +252,7 @@ Describe "PersonUser Tests" {
 
 
          # Act
-         $actual = Get-PersonUser `
+         $actual = Get-SsoPersonUser `
             -Name "TestPersonUser" `
             -Domain $personUserToSearch.Domain `
             -Server $connection
@@ -262,7 +262,7 @@ Describe "PersonUser Tests" {
       }
    }
 
-   Context "Set-PersonUser" {
+   Context "Set-SsoPersonUser" {
       It 'Adds person user to group' {
          # Arrange
          $userName = "TestAddGroupPersonUserName"
@@ -273,20 +273,20 @@ Describe "PersonUser Tests" {
             -Password $Password `
             -SkipCertificateCheck
 
-         $personUserToUpdate = New-PersonUser `
+         $personUserToUpdate = New-SsoPersonUser `
             -UserName $userName `
             -Password $userPassword `
             -Server $connection
 
          $script:usersToCleanup += $personUserToUpdate
 
-         $groupUserToBeAddedTo = Get-Group `
+         $groupUserToBeAddedTo = Get-SsoGroup `
             -Name 'Administrators' `
             -Domain $personUserToUpdate.Domain `
             -Server $connection
 
          # Act
-         $actual = Set-PersonUser `
+         $actual = Set-SsoPersonUser `
             -User $personUserToUpdate `
             -Group $groupUserToBeAddedTo `
             -Add
@@ -305,25 +305,25 @@ Describe "PersonUser Tests" {
             -Password $Password `
             -SkipCertificateCheck
 
-         $personUserToUpdate = New-PersonUser `
+         $personUserToUpdate = New-SsoPersonUser `
             -UserName $userName `
             -Password $userPassword `
             -Server $connection
 
          $script:usersToCleanup += $personUserToUpdate
 
-         $groupToBeUsed = Get-Group `
+         $groupToBeUsed = Get-SsoGroup `
             -Name 'Administrators' `
             -Domain $personUserToUpdate.Domain `
             -Server $connection
 
-         Set-PersonUser `
+         Set-SsoPersonUser `
             -User $personUserToUpdate `
             -Group $groupToBeUsed `
             -Add
 
          # Act
-         $actual = Set-PersonUser `
+         $actual = Set-SsoPersonUser `
             -User $personUserToUpdate `
             -Group $groupToBeUsed `
             -Remove
@@ -343,7 +343,7 @@ Describe "PersonUser Tests" {
             -Password $Password `
             -SkipCertificateCheck
 
-         $personUserToUpdate = New-PersonUser `
+         $personUserToUpdate = New-SsoPersonUser `
             -UserName $userName `
             -Password $userPassword `
             -Server $connection
@@ -351,7 +351,7 @@ Describe "PersonUser Tests" {
          $script:usersToCleanup += $personUserToUpdate
 
          # Act
-         $actual = Set-PersonUser `
+         $actual = Set-SsoPersonUser `
             -User $personUserToUpdate `
             -NewPassword $newPassword
 
@@ -369,7 +369,7 @@ Describe "PersonUser Tests" {
             -Password $Password `
             -SkipCertificateCheck
 
-         $personUserToUpdate = New-PersonUser `
+         $personUserToUpdate = New-SsoPersonUser `
             -UserName $userName `
             -Password $userPassword `
             -Server $connection
@@ -377,7 +377,7 @@ Describe "PersonUser Tests" {
          $script:usersToCleanup += $personUserToUpdate
 
          # Act
-         $actual = Set-PersonUser `
+         $actual = Set-SsoPersonUser `
             -User $personUserToUpdate `
             -Unlock
 
@@ -386,7 +386,7 @@ Describe "PersonUser Tests" {
       }
    }
 
-   Context "Remove-PersonUser" {
+   Context "Remove-SsoPersonUser" {
       It 'Removes person user' {
          # Arrange
          $userName = "TestPersonUser4"
@@ -398,17 +398,17 @@ Describe "PersonUser Tests" {
             -SkipCertificateCheck
 
 
-         $personUserToRemove = New-PersonUser `
+         $personUserToRemove = New-SsoPersonUser `
             -UserName $userName `
             -Password $userPassword `
             -Server $connection
 
          # Act
-         Remove-PersonUser -User $personUserToRemove
+         Remove-SsoPersonUser -User $personUserToRemove
 
          # Assert
          $personUserToRemove | Should Not Be $null
-         $userFromServer = Get-PersonUser `
+         $userFromServer = Get-SsoPersonUser `
             -Name $personUserToRemove.Name `
             -Domain $personUserToRemove.Domain `
             -Server $connection

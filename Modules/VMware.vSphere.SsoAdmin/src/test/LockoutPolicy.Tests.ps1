@@ -36,25 +36,25 @@ Describe "LockoutPolicy Tests" {
       }
    }
 
-   Context "Get-LockoutPolicy" {
+   Context "Get-SsoLockoutPolicy" {
       It 'Gets lockout policy' {
          # Act
-         $actual = Get-LockoutPolicy
+         $actual = Get-SsoLockoutPolicy
 
          # Assert
          $actual | Should Not Be $null
       }
    }
 
-   Context "Set-LockoutPolicy" {
+   Context "Set-SsoLockoutPolicy" {
       It 'Updates lockout policy AutoUnlockIntervalSec and MaxFailedAttempts' {
          # Arrange
-         $lockoutPolicyToUpdate = Get-LockoutPolicy
+         $lockoutPolicyToUpdate = Get-SsoLockoutPolicy
          $expectedAutoUnlockIntervalSec = 33
          $expectedMaxFailedAttempts = 7
 
          # Act
-         $actual = Set-LockoutPolicy `
+         $actual = Set-SsoLockoutPolicy `
             -LockoutPolicy $lockoutPolicyToUpdate `
             -AutoUnlockIntervalSec $expectedAutoUnlockIntervalSec `
             -MaxFailedAttempts $expectedMaxFailedAttempts
@@ -67,7 +67,7 @@ Describe "LockoutPolicy Tests" {
          $actual.Description | Should Be $lockoutPolicyToUpdate.Description
 
          # Cleanup
-         $lockoutPolicyToUpdate | Set-LockoutPolicy
+         $lockoutPolicyToUpdate | Set-SsoLockoutPolicy
       }
    }
 }

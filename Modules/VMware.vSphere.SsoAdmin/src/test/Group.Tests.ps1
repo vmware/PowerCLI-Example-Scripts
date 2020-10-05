@@ -20,7 +20,7 @@ param(
 $modulePath = Join-Path (Split-Path $PSScriptRoot | Split-Path) "VMware.vSphere.SsoAdmin.psd1"
 Import-Module $modulePath
 
-Describe "Get-Group Tests" {
+Describe "Get-SsoGroup Tests" {
    BeforeEach {
       Connect-SsoAdminServer `
          -Server $VcAddress `
@@ -36,10 +36,10 @@ Describe "Get-Group Tests" {
       }
    }
 
-   Context "Get-Group" {
+   Context "Get-SsoGroup" {
       It 'Gets groups without filters' {
          # Act
-         $actual = Get-Group
+         $actual = Get-SsoGroup
 
          # Assert
          $actual | Should Not Be $null
@@ -55,12 +55,12 @@ Describe "Get-Group Tests" {
 
          ## Create Person User to determine default domain name
          ## Person Users are created in the default domain
-         $newPersonUser = New-PersonUser `
+         $newPersonUser = New-SsoPersonUser `
             -UserName $newUserName `
             -Password $password
 
          # Act
-         $actual = Get-Group `
+         $actual = Get-SsoGroup `
             -Domain $newPersonUser.Domain
 
          # Assert
@@ -70,7 +70,7 @@ Describe "Get-Group Tests" {
          $actual[0].Domain | Should Be $newPersonUser.Domain
 
          # Cleanup
-         Remove-PersonUser -User $newPersonUser
+         Remove-SsoPersonUser -User $newPersonUser
       }
    }
 }

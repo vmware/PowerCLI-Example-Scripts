@@ -191,7 +191,7 @@ function Disconnect-SsoAdminServer {
 #endregion
 
 #region Person User Management
-function New-PersonUser {
+function New-SsoPersonUser {
 <#
    .NOTES
    ===========================================================================
@@ -227,12 +227,12 @@ function New-PersonUser {
 
    .EXAMPLE
    $ssoAdminConnection = Connect-SsoAdminServer -Server my.vc.server -User ssoAdmin@vsphere.local -Password 'ssoAdminStrongPa$$w0rd'
-   New-PersonUser -Server $ssoAdminConnection -User myAdmin -Password 'MyStrongPa$$w0rd'
+   New-SsoPersonUser -Server $ssoAdminConnection -User myAdmin -Password 'MyStrongPa$$w0rd'
 
    Creates person user account with user name 'myAdmin' and password 'MyStrongPa$$w0rd'
 
    .EXAMPLE
-   New-PersonUser -User myAdmin -Password 'MyStrongPa$$w0rd' -EmailAddress 'myAdmin@mydomain.com' -FirstName 'My' -LastName 'Admin'
+   New-SsoPersonUser -User myAdmin -Password 'MyStrongPa$$w0rd' -EmailAddress 'myAdmin@mydomain.com' -FirstName 'My' -LastName 'Admin'
 
    Creates person user account with user name 'myAdmin', password 'MyStrongPa$$w0rd', and details against connections available in 'DefaultSsoAdminServers'
 #>
@@ -320,7 +320,7 @@ function New-PersonUser {
    }
 }
 
-function Get-PersonUser {
+function Get-SsoPersonUser {
 <#
    .NOTES
    ===========================================================================
@@ -344,7 +344,7 @@ function Get-PersonUser {
    If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
 
    .EXAMPLE
-   Get-PersonUser -Name admin -Domain vsphere.local
+   Get-SsoPersonUser -Name admin -Domain vsphere.local
 
    Gets person user accounts which contain name 'admin' in 'vsphere.local' domain
 #>
@@ -413,7 +413,7 @@ function Get-PersonUser {
    }
 }
 
-function Set-PersonUser {
+function Set-SsoPersonUser {
 <#
    .NOTES
    ===========================================================================
@@ -444,22 +444,22 @@ function Set-PersonUser {
    Specifies new password for the specified user.
 
    .EXAMPLE
-   Set-PersonUser -User $myPersonUser -Group $myExampleGroup -Add -Server $ssoAdminConnection
+   Set-SsoPersonUser -User $myPersonUser -Group $myExampleGroup -Add -Server $ssoAdminConnection
 
    Adds $myPersonUser to $myExampleGroup
 
    .EXAMPLE
-   Set-PersonUser -User $myPersonUser -Group $myExampleGroup -Remove -Server $ssoAdminConnection
+   Set-SsoPersonUser -User $myPersonUser -Group $myExampleGroup -Remove -Server $ssoAdminConnection
 
    Removes $myPersonUser from $myExampleGroup
 
    .EXAMPLE
-   Set-PersonUser -User $myPersonUser -Unlock -Server $ssoAdminConnection
+   Set-SsoPersonUser -User $myPersonUser -Unlock -Server $ssoAdminConnection
 
    Unlocks $myPersonUser
 
    .EXAMPLE
-   Set-PersonUser -User $myPersonUser -NewPassword 'MyBrandNewPa$$W0RD' -Server $ssoAdminConnection
+   Set-SsoPersonUser -User $myPersonUser -NewPassword 'MyBrandNewPa$$W0RD' -Server $ssoAdminConnection
 
    Resets $myPersonUser password
 #>
@@ -553,7 +553,7 @@ function Set-PersonUser {
    }
 }
 
-function Remove-PersonUser {
+function Remove-SsoPersonUser {
 <#
    .NOTES
    ===========================================================================
@@ -570,8 +570,8 @@ function Remove-PersonUser {
 
    .EXAMPLE
    $ssoAdminConnection = Connect-SsoAdminServer -Server my.vc.server -User ssoAdmin@vsphere.local -Password 'ssoAdminStrongPa$$w0rd'
-   $myNewPersonUser = New-PersonUser -Server $ssoAdminConnection -User myAdmin -Password 'MyStrongPa$$w0rd'
-   Remove-PersonUser -User $myNewPersonUser
+   $myNewPersonUser = New-SsoPersonUser -Server $ssoAdminConnection -User myAdmin -Password 'MyStrongPa$$w0rd'
+   Remove-SsoPersonUser -User $myNewPersonUser
 
    Remove person user account with user name 'myAdmin'
 #>
@@ -600,7 +600,7 @@ function Remove-PersonUser {
 #endregion
 
 #region Group cmdlets
-function Get-Group {
+function Get-SsoGroup {
 <#
    .NOTES
    ===========================================================================
@@ -624,7 +624,7 @@ function Get-Group {
    If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
 
    .EXAMPLE
-   Get-Group -Name administrators -Domain vsphere.local
+   Get-SsoGroup -Name administrators -Domain vsphere.local
 
    Gets 'adminsitrators' group in 'vsphere.local' domain
 #>
@@ -695,7 +695,7 @@ function Get-Group {
 #endregion
 
 #region PasswordPolicy cmdlets
-function Get-PasswordPolicy {
+function Get-SsoPasswordPolicy {
 <#
    .NOTES
    ===========================================================================
@@ -712,7 +712,7 @@ function Get-PasswordPolicy {
    If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
 
    .EXAMPLE
-   Get-PasswordPolicy
+   Get-SsoPasswordPolicy
 
    Gets password policy for the server connections available in $global:defaultSsoAdminServers
 #>
@@ -743,7 +743,7 @@ function Get-PasswordPolicy {
    }
 }
 
-function Set-PasswordPolicy {
+function Set-SsoPasswordPolicy {
 <#
    .NOTES
    ===========================================================================
@@ -781,7 +781,7 @@ function Set-PasswordPolicy {
    .PARAMETER PasswordLifetimeDays
 
    .EXAMPLE
-   Get-PasswordPolicy | Set-PasswordPolicy -MinLength 10 -PasswordLifetimeDays 45
+   Get-SsoPasswordPolicy | Set-SsoPasswordPolicy -MinLength 10 -PasswordLifetimeDays 45
 
    Updates password policy setting minimum password length to 10 symbols and password lifetime to 45 days
 #>
@@ -945,7 +945,7 @@ function Set-PasswordPolicy {
 #endregion
 
 #region LockoutPolicy cmdlets
-function Get-LockoutPolicy {
+function Get-SsoLockoutPolicy {
 <#
    .NOTES
    ===========================================================================
@@ -962,7 +962,7 @@ function Get-LockoutPolicy {
    If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
 
    .EXAMPLE
-   Get-LockoutPolicy
+   Get-SsoLockoutPolicy
 
    Gets lockout policy for the server connections available in $global:defaultSsoAdminServers
 #>
@@ -993,7 +993,7 @@ function Get-LockoutPolicy {
    }
 }
 
-function Set-LockoutPolicy {
+function Set-SsoLockoutPolicy {
 <#
    .NOTES
    ===========================================================================
@@ -1017,7 +1017,7 @@ function Set-LockoutPolicy {
    .PARAMETER MaxFailedAttempts
 
    .EXAMPLE
-   Get-LockoutPolicy | Set-LockoutPolicy -AutoUnlockIntervalSec 15 -MaxFailedAttempts 4
+   Get-SsoLockoutPolicy | Set-SsoLockoutPolicy -AutoUnlockIntervalSec 15 -MaxFailedAttempts 4
 
    Updates lockout policy auto unlock interval seconds and maximum failed attempts
 #>
@@ -1097,7 +1097,7 @@ function Set-LockoutPolicy {
 #endregion
 
 #region TokenLifetime cmdlets
-function Get-TokenLifetime {
+function Get-SsoTokenLifetime {
 <#
    .NOTES
    ===========================================================================
@@ -1114,7 +1114,7 @@ function Get-TokenLifetime {
    If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
 
    .EXAMPLE
-   Get-TokenLifetime
+   Get-SsoTokenLifetime
 
    Gets HoK and Bearer Token lifetime settings for the server connections available in $global:defaultSsoAdminServers
 #>
@@ -1145,7 +1145,7 @@ function Get-TokenLifetime {
    }
 }
 
-function Set-TokenLifetime {
+function Set-SsoTokenLifetime {
 <#
    .NOTES
    ===========================================================================
@@ -1165,7 +1165,7 @@ function Set-TokenLifetime {
    .PARAMETER MaxBearerTokenLifetime
 
    .EXAMPLE
-   Get-TokenLifetime | Set-TokenLifetime -MaxHoKTokenLifetime 60
+   Get-SsoTokenLifetime | Set-SsoTokenLifetime -MaxHoKTokenLifetime 60
 
    Updates HoK token lifetime setting
 #>

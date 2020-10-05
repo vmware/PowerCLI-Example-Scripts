@@ -36,10 +36,10 @@ Describe "TokenLifetime Tests" {
       }
    }
 
-   Context "Get-TokenLifetime" {
+   Context "Get-SsoTokenLifetime" {
       It 'Gets token lifetime settings' {
          # Act
-         $actual = Get-TokenLifetime
+         $actual = Get-SsoTokenLifetime
 
          # Assert
          $actual | Should Not Be $null
@@ -48,15 +48,15 @@ Describe "TokenLifetime Tests" {
       }
    }
 
-   Context "Set-TokenLifetime" {
+   Context "Set-SsoTokenLifetime" {
       It 'Updates MaxHoKTokenLifetime and MaxBearerTokenLifetime' {
          # Arrange
-         $tokenLifetimeToUpdate = Get-TokenLifetime
+         $tokenLifetimeToUpdate = Get-SsoTokenLifetime
          $expectedMaxHoKTokenLifetime = 60
          $expectedMaxBearerTokenLifetime = 30
 
          # Act
-         $actual = Set-TokenLifetime `
+         $actual = Set-SsoTokenLifetime `
             -TokenLifetime $tokenLifetimeToUpdate `
             -MaxHoKTokenLifetime $expectedMaxHoKTokenLifetime `
             -MaxBearerTokenLifetime $expectedMaxBearerTokenLifetime
@@ -67,7 +67,7 @@ Describe "TokenLifetime Tests" {
          $actual.MaxBearerTokenLifetime | Should Be $expectedMaxBearerTokenLifetime
 
          # Cleanup
-         $tokenLifetimeToUpdate | Set-TokenLifetime `
+         $tokenLifetimeToUpdate | Set-SsoTokenLifetime `
             -MaxHoKTokenLifetime $tokenLifetimeToUpdate.MaxHoKTokenLifetime `
             -MaxBearerTokenLifetime $tokenLifetimeToUpdate.MaxBearerTokenLifetime
       }
