@@ -174,7 +174,8 @@ function Disconnect-SsoAdminServer {
          ValueFromPipelineByPropertyName = $false,
          HelpMessage = 'SsoAdminServer object')]
       [ValidateNotNull()]
-      [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+      [VMware.vSphere.SsoAdmin.Utils.StirngToSsoAdminServerArgumentTransformationAttribute()]
+      [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer[]]
       $Server
    )
 
@@ -192,12 +193,14 @@ function Disconnect-SsoAdminServer {
          } 
       }
 
-      if ($global:DefaultSsoAdminServers.Contains($Server)) {
-         $global:DefaultSsoAdminServers.Remove($Server) | Out-Null
-      }
-
-      if ($Server.IsConnected) {
-         $Server.Disconnect()
+      foreach ($requestedServer in $Server) {
+         if ($global:DefaultSsoAdminServers.Contains($requestedServer)) {
+            $global:DefaultSsoAdminServers.Remove($requestedServer) | Out-Null
+         }
+         
+         if ($requestedServer.IsConnected) {
+            $requestedServer.Disconnect()
+         }
       }
    }
 }

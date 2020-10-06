@@ -114,7 +114,7 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
                -SkipCertificateCheck)
 
          # Act
-         
+
          # Assert
          {Disconnect-SsoAdminServer} | should -Throw 'Connected to more than 1 SSO server, please specify a SSO server via -Server parameter'
          (Compare-Object $global:DefaultSsoAdminServers $expected -IncludeEqual).Count | Should Be 2
@@ -158,6 +158,61 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          # Assert
          $global:DefaultSsoAdminServers | Should Not Contain $expected
          $expected.IsConnected | Should Be $false
+      }
+
+      It 'Disconnects DefaultSsoAdminServers when * is specified on -Server parameter' {
+         # Arrange
+         $expected = Connect-SsoAdminServer `
+               -Server $VcAddress `
+               -User $User `
+               -Password $Password `
+               -SkipCertificateCheck
+
+         # Act
+         Disconnect-SsoAdminServer -Server "*"
+
+
+         # Assert
+         $global:DefaultSsoAdminServers.Count | Should Be 0
+         $expected.IsConnected | Should Be $false
+      }
+
+      It 'Disconnects server specified as string that is equal to VC Address' {
+         # Arrange
+         $expected = Connect-SsoAdminServer `
+               -Server $VcAddress `
+               -User $User `
+               -Password $Password `
+               -SkipCertificateCheck
+
+         # Act
+         Disconnect-SsoAdminServer -Server $VcAddress
+
+
+         # Assert
+         $global:DefaultSsoAdminServers.Count | Should Be 0
+         $expected.IsConnected | Should Be $false
+      }
+
+      It 'Disconnect-SsoAdminServer fails when string that does not match any servers is specified' {
+         # Arrange
+         $expected = Connect-SsoAdminServer `
+               -Server $VcAddress `
+               -User $User `
+               -Password $Password `
+               -SkipCertificateCheck
+
+         # Act
+         { Disconnect-SsoAdminServer -Server "testserver" } | Should Throw
+
+
+         # Assert
+         $global:DefaultSsoAdminServers.Count | Should Be 1
+         $global:DefaultSsoAdminServers[0] | Should Be $expected
+         $expected.IsConnected | Should Be $true
+
+         # Cleanup
+         Disconnect-SsoAdminServer -Server $expected
       }
    }
 }
