@@ -43,7 +43,7 @@ namespace VMware.vSphere.SsoAdmin.Utils
                result = obnMatchingServers.ToArray();
             } else {
                // Non-terminating error for not matching value
-               engineIntrinsics.Host.UI.WriteErrorLine($"'{obnValue}' doesn't match any objects in $global:DefaultSsoAdminServer variable");
+               engineIntrinsics.Host.UI.WriteErrorLine($"'{obnValue}' doesn't match any objects in $global:DefaultSsoAdminServers variable");
             }
             
          }
