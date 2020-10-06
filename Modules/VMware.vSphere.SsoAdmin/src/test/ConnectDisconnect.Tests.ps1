@@ -116,7 +116,7 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          # Act
          
          # Assert
-         {Disconnect-SsoAdminServer} | should -Throw
+         {Disconnect-SsoAdminServer} | should -Throw 'Connected to more than 1 SSO server, please specify a SSO server via -Server parameter'
          (Compare-Object $global:DefaultSsoAdminServers $expected -IncludeEqual).Count | Should Be 2
          $expected.IsConnected | Should -Contain $true
       }
