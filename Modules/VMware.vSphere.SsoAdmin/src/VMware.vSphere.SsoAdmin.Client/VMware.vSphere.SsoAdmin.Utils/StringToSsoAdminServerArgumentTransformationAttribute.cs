@@ -15,7 +15,7 @@ using VMware.vSphere.SsoAdminClient.DataTypes;
 
 namespace VMware.vSphere.SsoAdmin.Utils
 {
-   public class StirngToSsoAdminServerArgumentTransformationAttribute : ArgumentTransformationAttribute
+   public class StringToSsoAdminServerArgumentTransformationAttribute : ArgumentTransformationAttribute
    {
       public override object Transform(EngineIntrinsics engineIntrinsics, object inputData) {
          object result = inputData;

@@ -112,7 +112,7 @@ function Connect-SsoAdminServer {
       ValueFromPipeline=$false,
       ValueFromPipelineByPropertyName=$false,
       HelpMessage='Password you want to use for authenticating with the server')]
-   [VMware.vSphere.SsoAdmin.Utils.StirngToSecureStringArgumentTransformationAttribute()]
+   [VMware.vSphere.SsoAdmin.Utils.StringToSecureStringArgumentTransformationAttribute()]
    [SecureString]
    $Password,
 
@@ -174,7 +174,7 @@ function Disconnect-SsoAdminServer {
          ValueFromPipelineByPropertyName = $false,
          HelpMessage = 'SsoAdminServer object')]
       [ValidateNotNull()]
-      [VMware.vSphere.SsoAdmin.Utils.StirngToSsoAdminServerArgumentTransformationAttribute()]
+      [VMware.vSphere.SsoAdmin.Utils.StringToSsoAdminServerArgumentTransformationAttribute()]
       [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer[]]
       $Server
    )
@@ -183,21 +183,21 @@ function Disconnect-SsoAdminServer {
       if (-not $PSBoundParameters['Server']) {
          switch (@($global:DefaultSsoAdminServers).count) {
             { $_ -eq 1 } { $server = ($global:DefaultSsoAdminServers).ToArray()[0] ; break }
-            { $_ -gt 1 } { 
+            { $_ -gt 1 } {
                Throw 'Connected to more than 1 SSO server, please specify a SSO server via -Server parameter'
-               break 
+               break
             }
-            Default { 
+            Default {
                Throw 'Not connected to SSO server.'
              }
-         } 
+         }
       }
 
       foreach ($requestedServer in $Server) {
          if ($global:DefaultSsoAdminServers.Contains($requestedServer)) {
             $global:DefaultSsoAdminServers.Remove($requestedServer) | Out-Null
          }
-         
+
          if ($requestedServer.IsConnected) {
             $requestedServer.Disconnect()
          }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace VMware.vSphere.SsoAdmin.Utils
 {
-   public class StirngToSecureStringArgumentTransformationAttribute : ArgumentTransformationAttribute
+   public class StringToSecureStringArgumentTransformationAttribute : ArgumentTransformationAttribute
    {
       private static class SecureStringConverter
       {
