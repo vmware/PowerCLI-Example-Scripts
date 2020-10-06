@@ -21,5 +21,9 @@
     <PackageReference Include="Microsoft.WSMan.Runtime" Version="6.1.0" />
     <PackageReference Include="VMware.System.Private.ServiceModel" Version="4.4.4" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\VMware.vSphere.SsoAdminClient\VMware.vSphere.SsoAdminClient.csproj" />
+  </ItemGroup>
 
 </Project>
