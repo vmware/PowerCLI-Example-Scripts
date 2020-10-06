@@ -183,25 +183,11 @@ function Disconnect-SsoAdminServer {
          switch (@($global:DefaultSsoAdminServers).count) {
             { $_ -eq 1 } { $server = ($global:DefaultSsoAdminServers).ToArray()[0] ; break }
             { $_ -gt 1 } { 
-               $PSCmdlet.ThrowTerminatingError(
-                  [System.Management.Automation.ErrorRecord]::new(
-                     ([System.ApplicationException]"Connected to more than 1 SSO server, please specify a SSO server via -Server parameter"),
-                     'Disconnect-SsoAdminServer.ConnectedToMoreThanOneSSO',
-                     [System.Management.Automation.ErrorCategory]::InvalidOperation,
-                     $global:DefaultSsoAdminServers
-                  )
-               )
+               Throw 'Connected to more than 1 SSO server, please specify a SSO server via -Server parameter'
                break 
             }
             Default { 
-               $PSCmdlet.ThrowTerminatingError(
-                  [System.Management.Automation.ErrorRecord]::new(
-                     ([System.ApplicationException]"Not connected to SSO server."),
-                     'Disconnect-SsoAdminServer.NotConnectedToSSO',
-                     [System.Management.Automation.ErrorCategory]::ConnectionError,
-                     $global:DefaultSsoAdminServers
-                  )
-               )
+               Throw 'Not connected to SSO server.'
              }
          } 
       }
