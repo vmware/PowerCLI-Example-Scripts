@@ -12214,7 +12214,7 @@ Function New-HVManualApplication {
 .NOTES
     Author                      : Samiullasha S
     Author email                : ssami@vmware.com
-    Version                     : 1.0
+    Version                     : 1.0.1
 
     ===Tested Against Environment====
     Horizon View Server Version : 7.8.0
@@ -12267,7 +12267,7 @@ Function New-HVManualApplication {
     [String]$MultiSessionMode = 'DISABLED',
 
     [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
-    [ValidateScript({if(($MultiSessionMode -eq 'ENABLED_DEFAULT_OFF') -or ($MultiSessionMode -eq 'ENABLED_DEFAULT_ON') -or ($MultiSessionMode -eq 'ENABLED_ENFORCED')){$_ -eq 1}})]
+    [ValidateScript({if(($MultiSessionMode -eq 'ENABLED_DEFAULT_OFF') -or ($MultiSessionMode -eq 'ENABLED_DEFAULT_ON') -or ($MultiSessionMode -eq 'ENABLED_ENFORCED')){$_ -gt 0}})]
     [Int]$MaxMultiSessions,
 
     #Below parameters are for ExecutionData, moved ExecutablePath, Version and Publisher to above from this.
@@ -12314,7 +12314,7 @@ Function New-HVManualApplication {
         Write-Host "Application already exists with the name : $Name"
         return
     }
-    $AppData = New-Object VMware.Hv.ApplicationData -Property @{ 'name' = $Name; 'displayName' = $DisplayName; 'description' = $Description; 'enabled' = $Enabled; 'enableAntiAffinityRules' = $EnableAntiAffinityRules; 'antiAffinityPatterns' = $AntiAffinityPatterns; 'antiAffinityCount' = $AntiAffinityCount; 'enablePreLaunch' = $EnablePreLaunch; 'connectionServerRestrictions' = $ConnectionServerRestrictions; 'categoryFolderName' = $CategoryFolderName; 'clientRestrictions' = $ClientRestrictions; 'shortcutLocations' = $ShortcutLocations; 'globalApplicationEntitlement' = $GlobalApplicationEntitlementId }
+    $AppData = New-Object VMware.Hv.ApplicationData -Property @{ 'name' = $Name; 'displayName' = $DisplayName; 'description' = $Description; 'enabled' = $Enabled; 'enableAntiAffinityRules' = $EnableAntiAffinityRules; 'antiAffinityPatterns' = $AntiAffinityPatterns; 'antiAffinityCount' = $AntiAffinityCount; 'enablePreLaunch' = $EnablePreLaunch; 'connectionServerRestrictions' = $ConnectionServerRestrictions; 'categoryFolderName' = $CategoryFolderName; 'clientRestrictions' = $ClientRestrictions; 'shortcutLocations' = $ShortcutLocations; 'globalApplicationEntitlement' = $GlobalApplicationEntitlementId; 'multiSessionMode' = $MultiSessionMode; 'maxMultiSessions' = $MaxMultiSessions }
     $ExecutionData = New-Object VMware.Hv.ApplicationExecutionData -Property @{ 'executablePath' = $ExecutablePath; 'version' = $Version; 'publisher' = $Publisher; 'startFolder' = $StartFolder; 'args' = $Args; 'farm' = $FarmInfo.id; 'autoUpdateFileTypes' = $AutoUpdateFileTypes; 'autoUpdateOtherFileTypes' = $AutoUpdateOtherFileTypes}
     $AppSpec = New-Object VMware.Hv.ApplicationSpec -Property @{ 'data' = $AppData; 'executionData' = $ExecutionData}
     $AppService = New-Object VMware.Hv.ApplicationService
