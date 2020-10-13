@@ -30,50 +30,37 @@ $TrustAuthorityClusterSettingsFile =
 Function Add-TrustAuthorityVMHost {
    <#
     .SYNOPSIS
-
        This cmdlet adds a new host into the specific Trust Authority cluster.
        There are some preconditions need to be met:
        1. The newly added host is cleared of any previous Trust Authority configurations
        2. The Trust Authority Cluster settings are all healthy
        3. The connection user has the needed privileges. Please, check vSphere documentation.
        4. The trust between Key Servers and TrustAuthorityKeyProvider uses the signed client certificate, user should provide its privateKey part
-
    .DESCRIPTION
        This cmdlet adds a new host into the specific Trust Authority cluster.
-
    .PARAMETER TrustAuthorityCluster
        Specifies the Trust Authority cluster you want to add the new host.
-
    .PARAMETER VMHostAddress
        Specifies the ip address of the new host you want to add to the specific Trust Authority cluster.
-
    .PARAMETER Credential
        Specifies the credential of the new host.
-
    .PARAMETER DestDir
        Specifies the location where you want to save the settings
-
    .PARAMETER PrivateKey
        Specifies the private key part of the ClientCertificate of the TrustAuthorityKeyProvider. It's a hashtable type with: the keyprovider.Name as the Key, and the File having the PrivateKey string for the ClientCertificate of the keyprovider as its Value.
-
    .PARAMETER BaseImageFolder
        Specifies the folder having all the baseImage files to re-create the TrustAuthorityVMHostBaseImage.
-
    .EXAMPLE
        PS C:\> $ts = Get-TrustAuthorityCluster "mycluster"
        PS C:\> $pass = Read-Host "Please enter the host's password" -AsSecureString
        PS C:\> $credential = New-Object System.Management.Automation.PSCredential -ArgumentList root,$pass
        PS C:\> $privateKeyHash = @{"provider1"="c:\myprivatekey.txt";}
        PS C:\> Add-TrustAuthorityVMHost -TrustAuthorityCluster $ts -VMHostAddress 1.1.1.1 -Credential $credential -DestDir c:\destDir\ -PrivateKey $privateKeyHash -BaseImageFolder "c:\baseImages\"
-
        Add the host 1.1.1.1 with the $credential to Trust Authority cluster "mycluster", also saves the setting file of the trustedcluster "mycluster" to folder c:\destDir\.
-
    .EXAMPLE
        PS C:\> $ts = Get-TrustAuthorityCluster "mycluster"
        PS C:\> Add-TrustAuthorityVMHost -TrustAuthorityCluster $ts -VMHostAddress 1.1.1.1 -Credential root -DestDir c:\destDir\ -BaseImageFolder "c:\baseImages\"
-
        Add the host 1.1.1.1 with the credential root (a window wizard will be prompted to let you input the password for the user root) to Trust Authority cluster "mycluster", also saves the setting file of the trustedcluster "mycluster" to folder c:\destDir\.
-
    .NOTES
        Author                                    : Carrie Yang
        Author email                              : yangm@vmware.com
@@ -123,7 +110,7 @@ Function Add-TrustAuthorityVMHost {
    Process {
       Save-TrustAuthorityClusterSettings -TrustAuthorityCluster $TrustAuthorityCluster -DestinationFile $DestinationFile -ErrorAction Stop
 
-      Join-VMHost -ClusterName $TrustAuthorityCluster.Name -VMHostAddress $VMHostAddress -Credential $Credential -ErrorAction Stop
+      Join-VMHost -ClusterName $TrustAuthorityCluster.Name -VMHostAddress $VMHostAddress -Credential $Credential -Server $server -ErrorAction Stop
       Apply-TrustAuthorityClusterSettings -TrustAuthorityCluster $TrustAuthorityCluster -SettingsFile $DestinationFile -BaseImageFolder $baseImageFolder -PrivateKey $privateKey -ErrorAction Stop
    }
 }
@@ -131,42 +118,32 @@ Function Add-TrustAuthorityVMHost {
 Function Add-TrustedVMHost {
    <#
    .SYNOPSIS
-
-       This cmdlet adds a new host into the specific Trusted cluster.
+       This cmdlet adds a new host into the specific trusted cluster.
        There are some preconditions need to be met:
        1. No active workloads in the workload host as the cmdlet will interrup the workloads
        2. The newly added host is cleared of any previous Trust Authority Configurations
        3. Sufficient license
-
+       For vCenter Server 7.0.1 and above, use 'Set-TrustedCluster -Remediate' to remediate the trusted cluster after adding a new host directly.
    .DESCRIPTION
        This cmdlet adds a new host into the specific Trusted cluster.
-
    .PARAMETER TrustedCluster
        Specifies the Trusted cluster you want to add the new host.
-
    .PARAMETER VMHostAddress
        Specifies the ip address of the new host you want to add to the specific Trusted cluster.
-
    .PARAMETER Credential
        Specifies the credential of the new host.
-
    .PARAMETER DestDir
        Specifies the location where you want to save the settings
-
    .EXAMPLE
        PS C:\> $ts = Get-TrustedCluster "mycluster"
        PS C:\> $pass = Read-Host "Please enter the host's password" -AsSecureString
        PS C:\> $credential = New-Object System.Management.Automation.PSCredential -ArgumentList root,$pass
        PS C:\> Add-TrustedVMHost -TrustedCluster $ts -VMHostAddress 1.1.1.1 -Credential $credential -DestDir c:\destDir\
-
        Add the host 1.1.1.1 with the $credential to Trusted Cluster "mycluster", also saves the setting file of the trustedcluster "mycluster" to folder c:\destDir\.
-
    .EXAMPLE
        PS C:\> $ts = Get-TrustedCluster "mycluster"
        PS C:\> Add-TrustedVMHost -TrustedCluster $ts -VMHostAddress 1.1.1.1 -Credential root -DestDir c:\destDir\
-
        Add the host 1.1.1.1 with the credential root (a window wizard will be prompted to let you input the password for the user root) to Trusted Cluster "mycluster", also saves the setting file of the trustedcluster "mycluster" to folder c:\destDir\.
-
    .NOTES
        Author                                    : Carrie Yang
        Author email                              : yangm@vmware.com
@@ -202,7 +179,11 @@ Function Add-TrustedVMHost {
       Write-Verbose "The server got is: $server"
       ConfirmIsVCenter $server
 
-      Check-VMHostVersionAndLicense -VMHostName $VMHostAddress -Credential $Credential -CheckLicense:$true
+      if (Is70AboveServer -VIServer $server) {
+         Throw "Use 'Set-TrustedCluster -Remediate' cmdlet from VMware.VimAutomation.Security module."
+      }
+
+      Check-VMHostVersionAndLicense -VMHostName $VMHostAddress -Credential $Credential -CheckLicense:$true -Allow70Above $false
       $DestinationFile =  Join-Path $DestDir $TrustedClusterSettingsFile
       Write-Verbose "The file to save settings is $DestinationFile"
    }
@@ -211,7 +192,7 @@ Function Add-TrustedVMHost {
       Check-TrustedClusterSettings -TrustedCluster $TrustedCluster -ErrorAction Stop
       Save-TrustedClusterSettings -TrustedCluster $TrustedCluster -DestinationFile $DestinationFile -ErrorAction Stop
       Remove-TrustedClusterSettings -TrustedCluster $TrustedCluster -ErrorAction Stop
-      Join-VMHost -ClusterName $TrustedCluster.Name -VMHostAddress $VMHostAddress -Credential $Credential -ErrorAction Stop
+      Join-VMHost -ClusterName $TrustedCluster.Name -VMHostAddress $VMHostAddress -Credential $Credential -Server $server -ErrorAction Stop
       Apply-TrustedClusterSettings -TrustedCluster $TrustedCluster -SettingsFile $DestinationFile -ErrorAction Stop
    }
 }
@@ -220,21 +201,16 @@ Function Save-TrustedClusterSettings {
    <#
    .SYNOPSIS
        This cmdlet saves the settings of the specific Trusted Cluster to the file $DestinationFile.
-
    .DESCRIPTION
        This cmdlet saves the settings of the specific Trusted Cluster to the file $DestinationFile.
-
    .PARAMETER TrustedCluster
        Specifies the Trusted Cluster you want to save the settings.
-
    .PARAMETER DestinationFile
        Specifies the file you want to save the settings to.
-
    .EXAMPLE
        PS C:\> $ts = Get-TrustedCluster "mycluster"
        PS C:\> Save-TrustedClusterSettings -TrustedCluster $ts -DestinationFile "c:\myfile.json"
        Saves the settings of Trusted Cluster "mycluster" to file c:\myfile.json.
-
    .NOTES
        Author                                    : Carrie Yang
        Author email                              : yangm@vmware.com
@@ -284,22 +260,16 @@ Function Save-TrustAuthorityClusterSettings {
    <#
    .SYNOPSIS
        This cmdlet saves the settings of the specific Trust Authority Cluster to the file $DestinationFile.
-
    .DESCRIPTION
        This cmdlet saves the settings of the specific Trust Authority Cluster to the file $DestinationFile.
-
    .PARAMETER TrustedCluster
        Specifies the Trust Authority Cluster you want to save the settings.
-
    .PARAMETER DestinationFile
        Specifies the file you want to save the settings to.
-
    .EXAMPLE
-
        PS C:\> $ts = Get-TrustAuthorityCluster "mycluster"
        PS C:\> Save-TrustAuthorityClusterSettings -TrustAuthorityCluster $ts -DestinationFile "c:\myfile.json"
        Saves the settings of Trust Authority Cluster "mycluster" to file c:\myfile.json.
-
    .NOTES
        Author                                    : Carrie Yang
        Author email                              : yangm@vmware.com
@@ -343,13 +313,13 @@ Function Save-TrustAuthorityClusterSettings {
       $i = 0
 
       if ($kp -ne $null) {
-         $jsonObj.TrustAuthorityCluster.TrustAuthorityKeyProvider = $kp | Select-Object -Property Name, MasterKeyId, Description, ProxyAddress, ProxyPort, ConnectionTimeoutSeconds, KmipServerUsername
+         $jsonObj.TrustAuthorityCluster.TrustAuthorityKeyProvider = $kp | Select-Object -Property Name, PrimaryKeyId, Description, ProxyAddress, ProxyPort, ConnectionTimeoutSeconds, KmipServerUsername
          $clientCert = @{}
          $serverCert = @{}
          $clientCSR = @{}
       }
 
-      foreach ($_ in $kp) {
+      $kp | Foreach-Object {
          $kps = Get-TrustAuthorityKeyProviderServer -KeyProvider $_  -Server $bluevc| Select-Object -Property Address, Port, Name
          $clientCertTemp = Get-TrustAuthorityKeyProviderClientCertificate -KeyProvider $_ -Server $bluevc
          $clientCertStr = [System.Convert]::ToBase64String($($clientCertTemp.GetRawCertData()))
@@ -390,7 +360,7 @@ Function Save-TrustAuthorityClusterSettings {
       $jsonObj.TrustAuthorityCluster.TrustAuthorityTpm2CACertificate = $tpm2CA | Select-Object -Property Name
 
       $i = 0
-      foreach ($_ in $tpm2CA) {
+      $tpm2CA | Foreach-Object {
          $certStr = ConvertFrom-X509Chain -CertChain $_.CertificateChain
          $jsonObj.TrustAuthorityCluster.TrustAuthorityTpm2CACertificate[$i] | Add-Member -Name "certRawData" -value $certStr -MemberType NoteProperty
 
@@ -411,28 +381,21 @@ Function Apply-TrustAuthorityClusterSettings {
        Here are some limitations when applying the TrustAuthorityKeyProvider Settings:
        - The CSR configuration will not be preserved, user needs to reset the CSR and get it signed by the Key Server, then retrieve the signed client certificate to set it back to TrustAuthorityKeyProvider
        - If self signed certificates are used for trust setup, they need to be redone on new host.
-
    .DESCRIPTION
        This cmdlet applies the settings in the specific $SettingsFile to a Trust Authority Cluster
-
    .PARAMETER TrustAuthorityCluster
        Specifies the Trust Authority Cluster you want to apply the settings
-
    .PARAMETER SettingsFile
        Specifies the file having the settings you want to apply
-
    .PARAMETER PrivateKey
       Specifies the private key part of the ClientCertificate of the TrustAuthorityKeyProvider. It is a hashtable type with: the Key is the TrustAuthorityKeyProvider.Name, and the Value is the filePath for the TrustAuthorityKeyProvider's ClientCertificate PrivateKey part.
-
    .PARAMETER BaseImageFolder
       Specifies the folder having all the baseImage files to re-create the TrustAuthorityVMHostBaseImage. All the .tgz files under this folder and its sub-folders will be used to re-create TrustAuthorityVMHostBaseImage objects.
-
    .EXAMPLE
       PS C:\> $privateKeyHash = @{"provider1"="c:\myprivatekey.txt";}
       PS C:\> $ts = Get-TrustAuthorityCluster "mycluster"
       PS C:\> Apply-TrustAuthorityClusterSettings -TrustAuthorityCluster $ts -SettingsFile "c:\myfile.json"  -PrivateKey $privateKeyHash -BaseImageFolder "c:\myimages\"
        Applies the settings in file c:\myfile.json to Trust Authority Cluster "mycluster" with all the baseimage files under c:\myimages\ recursively, and cmdlet will prompt for inputting the password for each TrustAuthorityKeyProvider, also the PrivateKey info saved in c:\myprivatekey.txt will be used for the TrustAuthorityKeyProvider provider1.
-
    .NOTES
        Author                                    : Carrie Yang
        Author email                              : yangm@vmware.com
@@ -473,44 +436,45 @@ Function Apply-TrustAuthorityClusterSettings {
       $baseImages =  $jsonObj."TrustAuthorityCluster".TrustAuthorityVMHostBaseImage
 
       if ($kp -ne $null) {
-         foreach ($_ in $kp) {
-            $kps =  $_.KmipServers
+         $kp | Foreach-Object {
+            $provider = $_
+            $kps =  $provider.KmipServers
             $cmd = "New-TrustAuthorityKeyProvider"
             $allArgs = @{
                'TrustAuthorityCluster' = $TrustAuthorityCluster;
-               'Name' = $($_.Name);
-               'MasterKeyId' = $_.MasterKeyId;
+               'Name' = $provider.Name;
+               'PrimaryKeyId' = $provider.PrimaryKeyId;
                'KmipServerName' = $kps[0].Name;
                'KmipServerAddress' = $kps[0].Address;
                'KmipServerPort' = $kps[0].Port;
                'Server' = $blueserver;
             }
 
-            if (![String]::IsNullOrWhiteSpace($_.Description)) {
-               $allArgs += @{'Description' = $_.Description;}
+            if (![String]::IsNullOrWhiteSpace($provider.Description)) {
+               $allArgs += @{'Description' = $provider.Description;}
             }
 
-            if (![String]::IsNullOrWhiteSpace($_.ProxyAddress)) {
-               $allArgs += @{'ProxyAddress' = $_.ProxyAddress;}
+            if (![String]::IsNullOrWhiteSpace($provider.ProxyAddress)) {
+               $allArgs += @{'ProxyAddress' = $provider.ProxyAddress;}
             }
 
-            if (![String]::IsNullOrWhiteSpace($_.ProxyPort)) {
-               $allArgs += @{'ProxyPort' = $_.ProxyPort;}
+            if (![String]::IsNullOrWhiteSpace($provider.ProxyPort)) {
+               $allArgs += @{'ProxyPort' = $provider.ProxyPort;}
             }
 
-            if (![String]::IsNullOrWhiteSpace($_.ConnectionTimeOutSeconds)) {
-               $allArgs += @{'ConnectionTimeOutSeconds' = $_.ConnectionTimeOutSeconds;}
+            if (![String]::IsNullOrWhiteSpace($provider.ConnectionTimeOutSeconds)) {
+               $allArgs += @{'ConnectionTimeOutSeconds' = $provider.ConnectionTimeOutSeconds;}
             }
 
-            if (![String]::IsNullOrWhiteSpace($_.KmipServerUsername)) {
-               $allArgs += @{'KmipServerUsername' = $_.KmipServerUsername;}
+            if (![String]::IsNullOrWhiteSpace($provider.KmipServerUsername)) {
+               $allArgs += @{'KmipServerUsername' = $provider.KmipServerUsername;}
             }
 
-            $silent = & $cmd @allArgs
+            & $cmd @allArgs
 
             if (($kps | Measure-Object).Count -gt 1) {
                for ($i = 1; $i -gt ($kps | Measure-Object).Count; $i++) {
-                  Add-TrustAuthorityKeyProviderServer -KeyProvider $_.Name -TrustAuthorityCluster $TrustAuthorityCluster -Address $kps[$i].Address -Name $kps[$i].Name -Port $kps[$i].Port -Server $blueserver
+                  LogAndRunCmdlet {Add-TrustAuthorityKeyProviderServer -KeyProvider $provider.Name -TrustAuthorityCluster $TrustAuthorityCluster -Address $kps[$i].Address -Name $kps[$i].Name -Port $kps[$i].Port -Server $blueserver -ErrorAction:Continue}
                }
             }
 
@@ -518,73 +482,92 @@ Function Apply-TrustAuthorityClusterSettings {
                Write-Warning "CSR configuration won't be preserved, please manually establish the trust between kmip servers and trust authority keyprovider: $($_.Name)"
             }
 
-            if ($_.ClientCertificate -ne $null) {
-               if ($privateKey -ne $null -and $privateKey.ContainsKey($($_.Name))) {
+            if ($provider.ClientCertificate -ne $null) {
+               if ($privateKey -ne $null -and $privateKey.ContainsKey($($provider.Name))) {
                   $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-                  $cert.Import([System.Text.Encoding]::Default.GetBytes($_.ClientCertificate))
+                  $cert.Import([System.Text.Encoding]::Default.GetBytes($provider.ClientCertificate))
                   try {
-                     $pkStr = [System.IO.File]::ReadAllText($privateKey.$($_.Name))
+                     $pkStr = [System.IO.File]::ReadAllText($privateKey.$($provider.Name))
                   } catch {
                      Throw "Failed to read privateKey file: $($privateKey.$($_.Name))"
                   }
-                  Set-TrustAuthorityKeyProviderClientCertificate -KeyProvider $_.Name -TrustAuthorityCluster $TrustAuthorityCluster -Certificate $cert -PrivateKey $pkStr -Server $blueserver
+
+                  $cmd = {Set-TrustAuthorityKeyProviderClientCertificate -KeyProvider $provider.Name -TrustAuthorityCluster $TrustAuthorityCluster -Certificate $cert -PrivateKey $privateKey.$($provider.Name) -Server $blueserver -ErrorAction:Continue}
+                  LogAndRunCmdlet $cmd
                } else {
-                  New-TrustAuthorityKeyProviderClientCertificate -KeyProvider $_.Name -TrustAuthorityCluster $TrustAuthorityCluster -Server $blueserver
+                  LogAndRunCmdlet {New-TrustAuthorityKeyProviderClientCertificate -KeyProvider $provider.Name -TrustAuthorityCluster $TrustAuthorityCluster -Server $blueserver -ErrorAction:Continue}
                }
             }
 
             if ($_.ServerCertificate -ne $null) {
                $trustedcerts = [System.Collections.ArrayList]@()
-               foreach ($certStr in $_.ServerCertificate) {
+               $provider.ServerCertificate | Foreach-Object {
+                  $certStr = $_
                   $tempStr = $certStr.CertificateRawData
                   if ($certStr.Trusted) {
                      $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
                      $cert.Import([System.Text.Encoding]::Default.GetBytes($tempStr))
-                     $silent = $trustedcerts.Add($cert)
+                     $trustedcerts.Add($cert) | Out-Null
                   }
                }
-               Set-TrustAuthorityKeyProviderServerCertificate -KeyProvider $_.Name -TrustAuthorityCluster $TrustAuthorityCluster -Certificate $trustedcerts -Server $blueserver
+
+               $cmd = {Set-TrustAuthorityKeyProviderServerCertificate -KeyProvider $provider.Name -TrustAuthorityCluster $TrustAuthorityCluster -Certificate $trustedcerts -Server $blueserver -ErrorAction:Continue}
+               LogAndRunCmdlet $cmd
             }
 
             $kmipPwd = Read-Host "Enter the password of Trust Authority Key Provider $($_.Name) (Return if none)" -AsSecureString
 
             if ($kmipPwd.Length -gt 0) {
-               Set-TrustAuthorityKeyProvider -KeyProvider $_.Name -TrustAuthorityCluster $TrustAuthorityCluster -KmipServerPassword $kmipPwd -Server $blueserver
+               LogAndRunCmdlet {Set-TrustAuthorityKeyProvider -KeyProvider $provider.Name -TrustAuthorityCluster $TrustAuthorityCluster -KmipServerPassword $kmipPwd -Server $blueserver -ErrorAction:Continue}
             }
-         }
-      }
-
-      if ($principals -ne $null) {
-         foreach ($_ in $principals) {
-            $chainList = [System.Collections.ArrayList]@()
-            foreach ($str in $_.certRawData) {
-               $chain = ConvertTo-X509Chain -certString $str
-               $silent = $chainList.Add($chain)
-            }
-
-            New-TrustAuthorityPrincipal -TrustAuthorityCluster $TrustAuthorityCluster -Name $_.Name -Domain $_.Domain -Issuer $_.Issuer -CertificateChain $chainList -Type $_.Type -Server $blueserver -Confirm:$false
          }
       }
 
       if ($tpm2Setting -ne $null) {
-         Set-TrustAuthorityTpm2AttestationSettings -RequireCertificateValidation:$tpm2Setting.RequireCertificateValidation -RequireEndorsementKey:$tpm2Setting.RequireEndorsementKey -TrustAuthorityCluster $TrustAuthorityCluster -Confirm:$false
+         $cmd = {Set-TrustAuthorityTpm2AttestationSettings -RequireCertificateValidation:$tpm2Setting.RequireCertificateValidation -RequireEndorsementKey:$tpm2Setting.RequireEndorsementKey -TrustAuthorityCluster $TrustAuthorityCluster -Server $blueserver -Confirm:$false -ErrorAction:Continue}
+         LogAndRunCmdlet $cmd
       }
 
       if ($tpm2CA -ne $null) {
-         foreach ($_ in $tpm2CA) {
-            $chain = ConvertTo-X509Chain $_.certRawData
-            New-TrustAuthorityTpm2CACertificate -TrustAuthorityCluster $TrustAuthorityCluster -CertificateChain $chain -Name $_.Name -Server $blueserver -Confirm:$false
+         $tpm2CA | Foreach-Object {
+            $ca = $_
+            $chain = ConvertTo-X509Chain $ca.certRawData
+            $cmd = {New-TrustAuthorityTpm2CACertificate -TrustAuthorityCluster $TrustAuthorityCluster -CertificateChain $chain -Name $ca.Name -Server $blueserver -Confirm:$false -ErrorAction:Continue}
+            LogAndRunCmdlet $cmd
          }
       }
 
       if ($tpm2Ek -ne $null) {
-         foreach ($_ in $tpm2Ek) {
-            New-TrustAuthorityTpm2EndorsementKey -TrustAuthorityCluster $TrustAuthorityCluster -Name $_.Name -PublicKey $_.PublicKey -Server $blueserver -Confirm:$false
+         $tpm2Ek | Foreach-Object {
+            $ek = $_
+            $publicKey = $ek.PublicKey
+            $cmd = {New-TrustAuthorityTpm2EndorsementKey -TrustAuthorityCluster $TrustAuthorityCluster -Name $ek.Name -PublicKey $publicKey -Server $blueserver -Confirm:$false -ErrorAction:Continue}
+            LogAndRunCmdlet $cmd
          }
       }
 
       if ($baseImages -ne $null) {
-         New-TrustAuthorityVMHostBaseImage -TrustAuthorityCluster $TrustAuthorityCluster -FilePath $baseImageFolder -Server $blueserver -Confirm:$false
+         $cmd = {New-TrustAuthorityVMHostBaseImage -TrustAuthorityCluster $TrustAuthorityCluster -FilePath $baseImageFolder -Server $blueserver -Confirm:$false -ErrorAction:Continue}
+         LogAndRunCmdlet $cmd
+      }
+
+      if ($principals -ne $null) {
+         $errorBeforeExecution = $Global:error.Clone()
+         $Global:error.Clear()
+         $principals | Foreach-Object {
+            $p = $_
+            $chainList = [System.Collections.ArrayList]@()
+            $p.certRawData | Foreach-Object {
+               $str = $_
+               $chain = ConvertTo-X509Chain -certString $str
+               $chainList.Add($chain) | Out-Null
+            }
+
+            $cmd = {New-TrustAuthorityPrincipal -TrustAuthorityCluster $TrustAuthorityCluster -Name $p.Name -Domain $p.Domain -Issuer $p.Issuer -CertificateChain $chainList -Type $p.Type -Server $blueserver -Confirm:$false -ErrorAction:Continue}
+            $newPrincipal = LogAndRunCmdlet $cmd
+            CheckNewTrustAuthorityPrincipalResult -TAPrincipal $newPrincipal
+         }
+         $Global:error.AddRange($errorBeforeExecution)
       }
    }
 }
@@ -594,21 +577,16 @@ Function Apply-TrustedClusterSettings {
    <#
    .SYNOPSIS
        This cmdlet applies the settings in the specific $SettingsFile to a Trusted Cluster.
-
    .DESCRIPTION
        This cmdlet applies the settings in the specific $SettingsFile to a Trusted Cluster
-
    .PARAMETER TrustedCluster
        Specifies the Trusted Cluster you want to apply the settings.
-
    .PARAMETER SettingsFile
        Specifies the file having the settings you want to apply.
-
    .EXAMPLE
        PS C:\> $ts = Get-TrustedCluster "mycluster"
        PS C:\> Apply-TrustedClusterSettings -TrustedCluster $ts -SettingsFile "c:\myfile.json"
        Applies the settings in file c:\myfile.json to Trusted Cluster "mycluster".
-
    .NOTES
        Author                                    : Carrie Yang
        Author email                              : yangm@vmware.com
@@ -637,18 +615,59 @@ Function Apply-TrustedClusterSettings {
       }
 
       if ($jsonObj.TrustedCluster.AttestationServiceInfo -ne $null) {
-         $attests = Get-AttestationServiceInfo | where {$($_.Name) -in $($jsonObj.TrustedCluster.AttestationServiceInfo)}
-         Add-TrustedClusterAttestationServiceInfo -TrustedCluster $TrustedCluster -AttestationServiceInfo $attests -Confirm:$false -Server $greenvc
+         $attests = Get-AttestationServiceInfo -Server $greenvc | Where-Object {$($_.Name) -in $($jsonObj.TrustedCluster.AttestationServiceInfo)}
+         $cmd = {Add-TrustedClusterAttestationServiceInfo -TrustedCluster $TrustedCluster -AttestationServiceInfo $attests -Confirm:$false -Server $greenvc -ErrorAction:Continue}
+         LogAndRunCmdlet $cmd
       }
 
       if ($jsonObj.TrustedCluster.KeyProviderServiceInfo -ne $null) {
-         $kms = Get-KeyProviderServiceInfo | where {$($_.Name) -in $($jsonObj.TrustedCluster.KeyProviderServiceInfo)}
-         Add-TrustedClusterKeyProviderServiceInfo -TrustedCluster $TrustedCluster -KeyProviderServiceInfo $kms -Confirm:$false -Server $greenvc
+         $kms = Get-KeyProviderServiceInfo -Server $greenvc | Where-Object {$($_.Name) -in $($jsonObj.TrustedCluster.KeyProviderServiceInfo)}
+         $cmd = {Add-TrustedClusterKeyProviderServiceInfo -TrustedCluster $TrustedCluster -KeyProviderServiceInfo $kms -Confirm:$false -Server $greenvc -ErrorAction:Continue}
+         LogAndRunCmdlet $cmd
       }
    }
 }
 
+Function LogAndRunCmdlet {
+   [CmdLetBinding()]
 
+   Param (
+      [Parameter(Mandatory=$True)]
+      [ScriptBlock] $CmdBlock
+   )
+
+   Process {
+      Write-Host "Running cmdlet: $CmdBlock"
+      & $CmdBlock
+   }
+}
+
+Function CheckNewTrustAuthorityPrincipalResult {
+
+   [CmdLetBinding()]
+
+   Param (
+      [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)][AllowNull()]
+      [VMware.VimAutomation.Security.Types.V1.TrustedInfrastructure.TrustAuthorityPrincipal] $TAPrincipal
+   )
+
+   Begin {
+      $expectedCmdName = "NewTrustAuthorityPrincipal"
+      $expectedError = "com.vmware.esx.authentication.trust.security_token_issuers.issuer_already_exists"
+   }
+
+   Process {
+      $err = $Global:Error[0]
+
+      if (($TAPrincipal -eq $null) -and ($($err.Exception.TargetSite.Name) -eq $expectedCmdName)) {
+         if ($($err.Exception.InnerException) -match $expectedError) {
+            Write-Error "Operation didn't complete successfully. This is a known issue. Refer to https://kb.vmware.com/s/article/77146 to recover the host, then rerun New-TrustAuthorityPrincipal cmdlet to create the TrustAuthorityPrincipal for the new host please."
+         }
+      } elseif ($TAPrincipal) {
+         $TAPrincipal
+      }
+   }
+}
 
 Function Join-VMHost {
    Param (
@@ -660,12 +679,16 @@ Function Join-VMHost {
 
       [Parameter(Mandatory=$True)]
       [System.Management.Automation.Credential()]
-      $Credential
+      $Credential,
+
+      [Parameter(Mandatory=$True)]
+      [ValidateNotNullOrEmpty()]
+      [String] $Server
    )
 
    Process {
       Write-Host "Adding new host $VMHostAddress to cluster $ClusterName..."
-      Add-VMHost -Name $VMHostAddress -Credential $Credential -Location $ClusterName -Force
+      Add-VMHost -Name $VMHostAddress -Credential $Credential -Location $ClusterName -Server $Server -Force
    }
 }
 
@@ -680,6 +703,7 @@ Function Remove-TrustedClusterSettings {
    Begin {
       $greenvc = GetViServer -clusterUid $TrustedCluster.Uid
       Write-Host "Removing the settings of TrustedCluster $($TrustedCluster.Name)..."
+      $TrustedCluster = Get-TrustedCluster $TrustedCluster.Name -Server $greenvc
    }
 
    Process {
@@ -687,7 +711,7 @@ Function Remove-TrustedClusterSettings {
          Set-TrustedCluster -TrustedCluster $TrustedCluster -State Disabled -Server $greenvc -Confirm:$false
       } else {
          if ($TrustedCluster.KeyProviderServiceInfo -ne $null) {
-            Remove-TrustedClusterKeyProviderServiceInfo -TrustedCluster $TrustedCluster -KeyProviderServiceInfo $TrustedCluster.KeyProviderServiceInfo -Server $greenvc
+            Remove-TrustedClusterKeyProviderServiceInfo -TrustedCluster $TrustedCluster -KeyProviderServiceInfo $TrustedCluster.KeyProviderServiceInfo -Server $greenvc -Confirm:$false
          }
       }
    }
@@ -714,22 +738,49 @@ Function IsSelfSignedClientCertificate {
       $privateKeyNotSet = $False
       $kpNames = [System.Collections.ArrayList]@()
       if ($kp -ne $null) {
-         foreach ($k in $kp) {
+         $kp | Foreach-Object {
+            $k = $_
             $clientCert = Get-TrustAuthorityKeyProviderClientCertificate -KeyProvider $k -TrustAuthorityCluster $TrustAuthorityCluster -Server $bluevc
             if ($clientCert -ne $null -and !($privateKey -ne $null -and $privateKey.ContainsKey($($k.Name)))) {
                $privateKeyNotSet = $True
-               $silent = $kpNames.Add($k.Name)
+               $kpNames.Add($k.Name) | Out-Null
             }
          }
       }
 
       if ($privateKeyNotSet) {
          $kpnameStr = [System.String]::join(",", $($kpNames))
-         Write-Warning "For self-signed client certificate, the cmdlet could not be able to establish the trust between the kmip servers and the keyprovider: ($kpnameStr).
-                        Please manually use these followed cmdlets to establish the trust: New-TrustAuthorityKeyProviderClientCertificate, and Get-TrustAuthorityKeyProviderClientCertificate, then make the certificate be signed in kmip servers." -WarningAction Inquire
+         Write-Warning "For self-signed client certificate, the cmdlet might not be able to establish the trust between the kmip servers and the keyprovider: ($kpnameStr). `nManually try to use followed cmdlets to establish the trust: `n 1. New-TrustAuthorityKeyProviderClientCertificate;`n 2. Get-TrustAuthorityKeyProviderClientCertificate; `n then make the certificate be signed in kmip servers." -WarningAction Inquire
       }
    }
 }
+
+Function Is70AboveServer {
+   Param (
+      [Parameter(Mandatory=$True)]
+      [ValidateNotNullOrEmpty()]
+      [String] $VIServer
+   )
+
+   Process {
+      if ([String]::IsNullOrWhiteSpace($VIServer)) {
+         Throw "Please provide a valid vCenter Server!"
+      }
+
+      $SI = Get-View Serviceinstance -Server $VIServer
+      $apiVersion = [System.Version]$($SI.Content.About.Version)
+      $MajorVersion = $apiVersion.Major
+      $MinorVersion = $apiVersion.Minor
+      $buildNum = $apiVersion.Build
+
+      if (($MajorVersion -lt 7) -or ($MajorVersion -eq 7 -And $MinorVersion -eq 0 -And $buildNum -eq 0)) {
+         return $false
+      }
+
+      return $true
+   }
+}
+
 
 Function Check-VMHostVersionAndLicense {
     [CmdLetBinding()]
@@ -743,7 +794,9 @@ Function Check-VMHostVersionAndLicense {
        $Credential,
 
        [Parameter(Mandatory=$True)]
-       [bool]$CheckLicense
+       [bool]$CheckLicense,
+
+       [bool]$Allow70Above=$true
     )
 
     Begin {
@@ -759,9 +812,17 @@ Function Check-VMHostVersionAndLicense {
        $MajorVersion = $apiVersion.Major
        $MinorVersion = $apiVersion.Minor
        $buildNum = $apiVersion.Build
-       if ($MajorVersion -lt 7 -And $MinorVersion -ne 0 -And $buildNum -ne 0) {
-          Disconnect-VIServer -Server $server -confirm:$false
-          Throw "VMHost of $apiVersion is not supported, only 7.0.0 is supported...`n"
+
+       if (!$Allow70Above) {
+          if ($MajorVersion -ne 7 -or $MinorVersion -ne 0 -or $buildNum -ne 0) {
+             Disconnect-VIServer -Server $server -confirm:$false
+             Throw "VMHost of $apiVersion is not supported, only 7.0.0 is supported...`n"
+          }
+       } else {
+          if ($MajorVersion -lt 7) {
+             Disconnect-VIServer -Server $server -confirm:$false
+             Throw "VMHost of $apiVersion is not supported, only 7.0.0 and above are supported...`n"
+          }
        }
 
        # Check license
@@ -814,21 +875,22 @@ Function Check-TrustAuthorityClusterHealth {
        # Check TrustAuthorityPrincipal's healthy
        $principals = Get-TrustAuthorityPrincipal -TrustAuthorityCluster $TrustAuthorityCluster -Server $bluevc
 
-       foreach ($p in $principals) {
-          if ($p.Health -ne 'Ok') {
+       $principals | Foreach-Object {
+          if ($_.Health -ne 'Ok') {
              Throw "The TrustAuthorityPrincipal $($p.Name) is not healthy, please fix it first!"
           }
        }
 
        # Check TrustAuthorityKeyProvider's healthy
        $kp = Get-TrustAuthorityKeyProvider -TrustAuthorityCluster $TrustAuthorityCluster -Server $bluevc
-       foreach ($k in $kp) {
+       $kp | Foreach-Object {
+          $k = $_
           if ($k.Status.Health -ne 'Ok') {
              Throw "TrustAuthorityKeyProvider $($k.Name) is not healthy, please fix it first!"
           }
 
-          foreach ($status in $k.Status.ServerStatus) {
-             if ($status.Health -ne 'Ok') {
+          $k.Status.ServerStatus | Foreach-Object {
+             if ($_.Health -ne 'Ok') {
                 Throw "The ServerStatus $($status.Name) in TrustAuthorityKeyProvider $($k.Name) is not healthy, please fix it first!"
              }
           }
@@ -843,8 +905,8 @@ Function Check-TrustAuthorityClusterHealth {
        # Check tpm2Ek healthy
        $tpm2Eks = Get-TrustAuthorityTpm2EndorsementKey -TrustAuthorityCluster $TrustAuthorityCluster -Server $bluevc
        if ($tpm2Eks -ne $null) {
-          foreach ($ek in $tpm2Eks) {
-             if ($ek.Health -ne 'Ok') {
+          $tpm2Eks | Foreach-Object {
+             if ($_.Health -ne 'Ok') {
                 Throw "TrustAuthorityTpm2EndorsementKey $($ek.Name) is not healthy, please fix it first!"
              }
           }
@@ -853,8 +915,8 @@ Function Check-TrustAuthorityClusterHealth {
        # Check tpm2CA healthy
        $tpm2cas = Get-TrustAuthorityTpm2CACertificate -TrustAuthorityCluster $TrustAuthorityCluster -Server $bluevc
        if ($tpm2cas -ne $null) {
-          foreach ($ca in $tpm2cas) {
-             if ($ca.Health -ne 'Ok') {
+          $tpm2cas | Foreach-Object {
+             if ($_.Health -ne 'Ok') {
                 Throw "TrustAuthorityTpm2CACertificate $($ca.Name) is not healthy, please fix it first!"
              }
           }
@@ -863,8 +925,8 @@ Function Check-TrustAuthorityClusterHealth {
        # Check BaseImage healthy
        $baseImages = Get-TrustAuthorityVMHostBaseImage -TrustAuthorityCluster $TrustAuthorityCluster -Server $bluevc
        if ($baseImages -ne $null) {
-          foreach ($img in $baseImages) {
-             if ($img.Health -ne 'Ok') {
+          $baseImages | Foreach-Object {
+             if ($_.Health -ne 'Ok') {
                 Throw "TrustAuthorityVMHostBaseImage $($img.Name) is not healthy, please fix it first!"
              }
           }
@@ -907,7 +969,7 @@ Function GetViServer {
    }
 }
 
-Function ConfirmIsVCenter{
+Function ConfirmIsVCenter {
    <#
     .SYNOPSIS
        This function confirms the connected VI server is vCenter Server.
@@ -945,12 +1007,12 @@ Function ConvertFrom-X509Chain {
    )
 
    Process {
-      $certStr = $null   
-      foreach ($c in $($CertChain.ChainElements)) {
+      $certStr = $null
+      $($CertChain.ChainElements) | Foreach-Object {
          if ($certStr -eq $null) {
-            $certStr = [System.Convert]::ToBase64String($($c.Certificate.GetRawCertData()))
+            $certStr = [System.Convert]::ToBase64String($($_.Certificate.GetRawCertData()))
          } else {
-            $certStr = $certStr, [System.Convert]::ToBase64String($($c.Certificate.GetRawCertData()))
+            $certStr = $certStr, [System.Convert]::ToBase64String($($_.Certificate.GetRawCertData()))
          }
       }
 
@@ -965,18 +1027,18 @@ Function ConvertTo-X509Chain {
    )
 
    Process {
-      $chain = new-object System.Security.Cryptography.X509Certificates.X509Chain
+      $chain = New-Object System.Security.Cryptography.X509Certificates.X509Chain
       if ($certString.Length -gt 0) {
          for ($i = 0; $i -lt $certString.Length - 1; $i++ ) {
             $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
             $cert.Import([System.Text.Encoding]::Default.GetBytes($certString[$i].replace("\n", [Environment]::NewLine)))
-            $silent = $chain.ChainPolicy.ExtraStore.Add($cert)
+            $chain.ChainPolicy.ExtraStore.Add($cert) | Out-Null
          }
       }
 
       $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
       $cert.Import([System.Text.Encoding]::Default.GetBytes($certString[-1].replace("\n", [Environment]::NewLine)))
-      $silent = $chain.Build($cert)
+      $chain.Build($cert) | Out-Null
 
       return $chain
    }
@@ -984,12 +1046,11 @@ Function ConvertTo-X509Chain {
 
 
 Export-ModuleMember Add-TrustAuthorityVMHost, Add-TrustedVMHost
-
 # SIG # Begin signature block
 # MIIi9AYJKoZIhvcNAQcCoIIi5TCCIuECAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
-# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCCwMEx3Ndpn/K5N
-# T9PigHlgbfEAXX20xwVouOnKKMD48KCCD8swggTMMIIDtKADAgECAhBdqtQcwalQ
+# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCDicYU2iA+clsiG
+# VfuCJGR5GCDk63j+8YRckQvxLcD5yKCCD8swggTMMIIDtKADAgECAhBdqtQcwalQ
 # C13tonk09GI7MA0GCSqGSIb3DQEBCwUAMH8xCzAJBgNVBAYTAlVTMR0wGwYDVQQK
 # ExRTeW1hbnRlYyBDb3Jwb3JhdGlvbjEfMB0GA1UECxMWU3ltYW50ZWMgVHJ1c3Qg
 # TmV0d29yazEwMC4GA1UEAxMnU3ltYW50ZWMgQ2xhc3MgMyBTSEEyNTYgQ29kZSBT
@@ -1079,18 +1140,18 @@ Export-ModuleMember Add-TrustAuthorityVMHost, Add-TrustedVMHost
 # YW50ZWMgQ2xhc3MgMyBTSEEyNTYgQ29kZSBTaWduaW5nIENBAhBdqtQcwalQC13t
 # onk09GI7MA0GCWCGSAFlAwQCAQUAoIGWMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3
 # AgEEMBwGCisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCoGCisGAQQBgjcCAQwx
-# HDAaoRiAFmh0dHA6Ly93d3cudm13YXJlLmNvbS8wLwYJKoZIhvcNAQkEMSIEIL6r
-# SvvCSJpAoQz4YvtfQH11/WevM1ULBbGfNUE3j37RMA0GCSqGSIb3DQEBAQUABIIB
-# AKUHXKwZcvP2g8/l7dqWyaG7h4q/yJDxaWpk9r1mnUSw1MBR+0AOCm1mquTlpFVH
-# ZD1KMQWtu1rJDz5A7XAm8/n6LpyqCCHcgMm+hiEjA8r02oTA8vMFch3OR6Z1/aad
-# tOBkeln18M9kVkQ//uociG89A2LkfE35UKAhnDVcOBNlU0g43n9vSgakNdOOc0ZI
-# VC2FD/tn9QPJXtcZ0LAFrCPuiIya+gvQ1aQCALUYi+aLuARNN01KBMRFG9za/JwX
-# L6rwInitQt/BRNDINiuuTI96xBEMq3JjzW9AE8jF1rVqr1ISBgf8ZZUHdnNHiE91
-# HxLh4zvDq7SEh2ne6UhOJg6hghAjMIIQHwYKKwYBBAGCNwMDATGCEA8wghALBgkq
+# HDAaoRiAFmh0dHA6Ly93d3cudm13YXJlLmNvbS8wLwYJKoZIhvcNAQkEMSIEIEIQ
+# y4E7C63SmxSxEC+1DBchnh7DW24QhvnHyMjCEuJ+MA0GCSqGSIb3DQEBAQUABIIB
+# ADwK/sQPu5Vv+Jink4WM/Bf3CvrNgyfZD13TPDsMlt+tSEjghyHQ5/Xz4asgQuKB
+# CSUgh0bJDaDaz9FF1oY9VUHHsonuB4sVhMKevKbXsYVuvUU65tBZ0RN+74RP/3iS
+# rQAADQdIGuKBX1pmOmyE65A6pLWmJ+j05XCagPFboiXdiEcVxfCqRctK8MSyvtzd
+# HOa2miNTIPEPUTVvqo/9nZCUwFhNN8TwaaOwrkMZv0NOFGk9AaGyQJuHb/IP1y2r
+# cgFGtWA+WgPKftWq1s9Evk7W3WXV/nlKu55zg8K/no2Ug6+7KE0jNGUJJHg/yp6b
+# gO/kfYj4sIwd5RJvOkk45QChghAjMIIQHwYKKwYBBAGCNwMDATGCEA8wghALBgkq
 # hkiG9w0BBwKggg/8MIIP+AIBAzEPMA0GCWCGSAFlAwQCAQUAMIHmBgsqhkiG9w0B
-# CRABBKCB1gSB0zCB0AIBAQYJKwYBBAGgMgIDMDEwDQYJYIZIAWUDBAIBBQAEIII1
-# T46qC5Scv1JNpvu1aNNVzRq4lB1M9EZlbgeSsNYJAg4BbKiJKXgAAAAAAKUUzBgT
-# MjAyMDA0MDIxMDI5MTguNjc5WjADAgEBoGOkYTBfMQswCQYDVQQGEwJKUDEcMBoG
+# CRABBKCB1gSB0zCB0AIBAQYJKwYBBAGgMgIDMDEwDQYJYIZIAWUDBAIBBQAEIMSa
+# 32tGkSO0MHzDIAL+rOzowJzdf7nOyZAYmKBTXDbnAg4BbKiJKXgAAAAAAjyk+xgT
+# MjAyMDEwMTIxMDE3MTEuOTY0WjADAgEBoGOkYTBfMQswCQYDVQQGEwJKUDEcMBoG
 # A1UEChMTR01PIEdsb2JhbFNpZ24gSy5LLjEyMDAGA1UEAxMpR2xvYmFsU2lnbiBU
 # U0EgZm9yIEFkdmFuY2VkIC0gRzMgLSAwMDMtMDGgggxqMIIE6jCCA9KgAwIBAgIM
 # M5Agd2HEJt2UUAMNMA0GCSqGSIb3DQEBCwUAMFsxCzAJBgNVBAYTAkJFMRkwFwYD
@@ -1162,15 +1223,15 @@ Export-ModuleMember Add-TrustAuthorityVMHost, Add-TrustedVMHost
 # ggKFAgEBMGswWzELMAkGA1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYt
 # c2ExMTAvBgNVBAMTKEdsb2JhbFNpZ24gVGltZXN0YW1waW5nIENBIC0gU0hBMjU2
 # IC0gRzICDDOQIHdhxCbdlFADDTANBglghkgBZQMEAgEFAKCB8DAaBgkqhkiG9w0B
-# CQMxDQYLKoZIhvcNAQkQAQQwLwYJKoZIhvcNAQkEMSIEIA4jXM836yg3wGdHIpch
-# UiliyMiFAI2ifPJZqDcXgJ1ZMIGgBgsqhkiG9w0BCRACDDGBkDCBjTCBijCBhwQU
+# CQMxDQYLKoZIhvcNAQkQAQQwLwYJKoZIhvcNAQkEMSIEIJ1Mp8MoZoM8GN+RvFGW
+# kxLQOL4htvdgNS1G5j3jevwAMIGgBgsqhkiG9w0BCRACDDGBkDCBjTCBijCBhwQU
 # rmsC2QsljAmRsRYSid62aVY5HW8wbzBfpF0wWzELMAkGA1UEBhMCQkUxGTAXBgNV
 # BAoTEEdsb2JhbFNpZ24gbnYtc2ExMTAvBgNVBAMTKEdsb2JhbFNpZ24gVGltZXN0
 # YW1waW5nIENBIC0gU0hBMjU2IC0gRzICDDOQIHdhxCbdlFADDTANBgkqhkiG9w0B
-# AQEFAASCAQB89B/P9T38HdPsMvwHePaxCuxvcVOb0tWYORy4h/6961Hr8+uJi3g8
-# oPQl5tMvsUObcO+hMG8YyXfRpQRr5YrHeWpUGdQzMMHb+gC540P+r3jm6iWoKtpR
-# 1WGSnQQUqKaB7a4wZtQoizzSm9a7hB4JEcDtb2Qh2jmSr4yhMx7XmFMLo7NVlEnW
-# lS6kTYR9kE4qTagRIOZW5iIUjcAaVn/uhNAOZUjatErU8c/a8vJ7TxtPj4YSaK0J
-# IeC+HeUYNRrjwtSgmnU+j/xg1Jo9zUoCGJHBIEJ9iwzgCeRLJuqHKUZiAGBZm09F
-# EzycbyZmxfS5ui4MX5wSMdO1ETnvkbRc
+# AQEFAASCAQCw0o79lMBljtr86gcDxeF2/v1wLaLJaxTvwLJ3bYLabHR5wZUv42aO
+# 3KEMzeIvLN9/mMSn7rq6vcWGZSAZVvWecDntZE9OYU7i4cQdRucXctFGpoTN6MKF
+# yeX3vMbe7YfBPGJkNB6HfYp4qWy6CkWWlWXgK1MOKo+HQFORkZtDqqpoUa3soqVl
+# IeCMCcJjJIrSd3LA8NFYtOUfPXRmdhcn10xke3vTBO4T7pTLdymcm3x909UN+0cE
+# xIe2wMG3D3XxSN+Rx5+iz9thPISgVdOgJLP4FxQ5fU1ci56k35wXQeDnHQFyQTO+
+# uF+EWBmAiBQ6cGTiYvDOZSG2Ody3NSPn
 # SIG # End signature block
