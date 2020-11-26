@@ -656,6 +656,45 @@ namespace VMware.vSphere.SsoAdminClient
                   password = authenticationPassword
                })).Wait();
       }
+      
+      public IEnumerable<IdentitySource> GetDomains() {         
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         var domains = authorizedInvocationContext.
+         InvokeOperation(() =>
+            _ssoAdminBindingClient.GetDomainsAsync(
+               new ManagedObjectReference {
+                  type = "SsoAdminDomainManagementService",
+                  Value = "domainManagementService"
+               })).Result;
+
+         if (domains != null) {
+            var localos = new LocalOSIdentitySource();
+            localos.Name = domains.localOSDomainName;
+            yield return localos;
+
+            var system = new SystemIdentitySource();
+            system.Name = domains.systemDomainName;
+            yield return system;
+
+            if (domains.externalDomains != null && domains.externalDomains.Length > 0) {
+               foreach (var externalDomain in domains.externalDomains) {
+                  var extIdentitySource = new ActiveDirectoryIdentitySource();
+                  extIdentitySource.Name = externalDomain.name;
+                  extIdentitySource.Alias = externalDomain.alias;
+                  extIdentitySource.Type = externalDomain.type;
+                  extIdentitySource.AuthenticationType = externalDomain.authenticationDetails?.authenticationType;
+                  extIdentitySource.AuthenticationUsername = externalDomain.authenticationDetails?.username;
+                  extIdentitySource.FriendlyName = externalDomain.details?.friendlyName;
+                  extIdentitySource.PrimaryUrl = externalDomain.details?.primaryUrl;
+                  extIdentitySource.GroupBaseDN = externalDomain.details?.groupBaseDn;
+                  extIdentitySource.UserBaseDN = externalDomain.details?.userBaseDn;
+                  yield return extIdentitySource;
+               }
+            }
+         }
+      }
       #endregion
    }
 }

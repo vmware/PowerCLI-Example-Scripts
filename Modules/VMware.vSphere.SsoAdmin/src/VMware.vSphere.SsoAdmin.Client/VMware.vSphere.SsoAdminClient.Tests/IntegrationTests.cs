@@ -101,9 +101,9 @@ namespace VMware.vSphere.SsoAdminClient.Tests
       public void AddRemoveUserFromGroup() {
          // Arrange
          var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
-                  
+
          var expectedUserName = "test-user5";
-         var expectedPassword = "te$tPa$sW0rd";         
+         var expectedPassword = "te$tPa$sW0rd";
          var newUser = ssoAdminClient.CreateLocalUser(
             expectedUserName,
             expectedPassword);
@@ -137,9 +137,9 @@ namespace VMware.vSphere.SsoAdminClient.Tests
 
          // Act
          // Assert
-         Assert.DoesNotThrow(() => { 
-            ssoAdminClient.ResetPersonUserPassword(newUser, updatePassword); 
-         });         
+         Assert.DoesNotThrow(() => {
+            ssoAdminClient.ResetPersonUserPassword(newUser, updatePassword);
+         });
 
 
          // Cleanup
@@ -261,8 +261,21 @@ namespace VMware.vSphere.SsoAdminClient.Tests
             originalLockoutPolicy.Description,
             originalLockoutPolicy.AutoUnlockIntervalSec,
             originalLockoutPolicy.FailedAttemptIntervalSec,
-            originalLockoutPolicy.MaxFailedAttempts       
+            originalLockoutPolicy.MaxFailedAttempts
             );
+      }
+
+      [Test]
+      public void GetDomains() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+
+         // Act
+         var actual = ssoAdminClient.GetDomains().ToArray<IdentitySource>();
+
+         // Assert
+         Assert.NotNull(actual);
+         Assert.IsTrue(actual.Length >= 2);
       }
    }
 }

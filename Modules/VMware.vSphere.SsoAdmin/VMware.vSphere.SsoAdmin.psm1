@@ -1382,4 +1382,104 @@ function Add-ActiveDirectoryIdentitySource {
          $Password);
    }
 }
+
+function Get-IdentitySource {
+<#
+   .NOTES
+   ===========================================================================
+   Created on:   11/26/2020
+   Created by:   Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+   ===========================================================================
+   .DESCRIPTION
+   This function gets Identity Source.
+
+   .PARAMETER Localos
+   Filter parameter to return only the localos domain identity source
+
+   .PARAMETER System
+   Filter parameter to return only the system domain identity source
+
+   .PARAMETER External
+   Filter parameter to return only the external domain identity sources
+
+   .PARAMETER Server
+   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
+   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+
+   .EXAMPLE
+   Get-IdentitySource -External
+
+   Gets all external domain identity source
+#>
+[CmdletBinding()]
+ param(
+
+  [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Returns only the localos domain identity source')]
+   [Switch]
+   $Localos,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Returns only the system domain identity source')]
+   [Switch]
+   $System,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Returns only the external domain identity sources')]
+   [Switch]
+   $External,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Connected SsoAdminServer object')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+   $Server)
+
+   $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
+   if ($Server -ne $null) {
+      $serversToProcess = $Server
+   }
+   foreach ($connection in $serversToProcess) {
+      if (-not $connection.IsConnected) {
+         Write-Error "Server $connection is disconnected"
+         continue
+      }
+
+      $resultIdentitySources = @()
+      $allIdentitySources = $connection.Client.GetDomains()
+
+      if (-not $Localos -and -not $System -and -not $External) {
+         $resultIdentitySources = $allIdentitySources
+      }
+
+      if ($Localos) {
+         $resultIdentitySources += $allIdentitySources | Where-Object { $_ -is [VMware.vSphere.SsoAdminClient.DataTypes.LocalOSIdentitySource] }
+      }
+
+      if ($System) {
+         $resultIdentitySources += $allIdentitySources | Where-Object { $_ -is [VMware.vSphere.SsoAdminClient.DataTypes.SystemIdentitySource] }
+      }
+
+      if ($External) {
+         $resultIdentitySources += $allIdentitySources | Where-Object { $_ -is [VMware.vSphere.SsoAdminClient.DataTypes.ActiveDirectoryIdentitySource] }
+      }
+
+      #Return result
+      $resultIdentitySources
+   }
+}
 #endregion
