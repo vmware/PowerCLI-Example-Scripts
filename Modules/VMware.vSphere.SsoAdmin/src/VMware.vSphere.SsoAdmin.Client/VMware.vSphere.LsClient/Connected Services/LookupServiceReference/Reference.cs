@@ -348,11 +348,6 @@ namespace LookupServiceReference
             }
         }
 
-       [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
-       public bool searchAllSsoDomains {
-          get;
-          set;
-       }
    }
     
     /// <remarks/>

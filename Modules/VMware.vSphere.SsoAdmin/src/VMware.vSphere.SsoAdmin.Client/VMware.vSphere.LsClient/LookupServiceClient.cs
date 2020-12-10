@@ -30,7 +30,7 @@ namespace VMware.vSphere.LsClient
          var lsUri = $"https://{hostname}/lookupservice/sdk";
 
          _lsClient = new LsPortTypeClient(GetBinding(), new EndpointAddress(new Uri(lsUri)));
-         
+
          var serverAuthentication = GetServerAuthentication(serverCertificateValidator);
 
          if (serverAuthentication != null)
@@ -40,7 +40,7 @@ namespace VMware.vSphere.LsClient
                .Credentials
                .ServiceCertificate
                .SslCertificateAuthentication = serverAuthentication;
-         }         
+         }
       }
 
       #region Private Helpers
@@ -76,7 +76,7 @@ namespace VMware.vSphere.LsClient
          return transport;
       }
 
-      private static Binding GetBinding() {         
+      private static Binding GetBinding() {
         var binding = new CustomBinding(GetWcfEncoding(), GetWcfTransport(true));
 
          var timeout = TimeSpan.FromSeconds(WEB_OPERATION_TIMEOUT_SECONDS);
@@ -88,7 +88,7 @@ namespace VMware.vSphere.LsClient
          return binding;
       }
       #endregion
-  
+
       public Uri GetSsoAdminEndpointUri() {
          var product = "com.vmware.cis";
          var endpointType = "com.vmware.cis.cs.identity.admin";
@@ -108,7 +108,6 @@ namespace VMware.vSphere.LsClient
 
          var svcContent = _lsClient.RetrieveServiceContentAsync(RootMoRef).Result;
          var filterCriteria = new LookupServiceRegistrationFilter() {
-            searchAllSsoDomains = true,
             serviceType = new LookupServiceRegistrationServiceType {
                product = product,
                type = type
@@ -129,7 +128,7 @@ namespace VMware.vSphere.LsClient
                result = new Uri(registrationEndpooint.url);
             }
          }
-         return result;         
+         return result;
       }
    }
 
