@@ -9,8 +9,8 @@
 
 namespace LookupServiceReference
 {
-    
-    
+
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(UnexpectedFault))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SystemError))]
@@ -33,7 +33,7 @@ namespace LookupServiceReference
     public partial class RuntimeFault : MethodFault
     {
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupFaultServiceFault))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupFaultUnsupportedSiteFault))]
@@ -60,11 +60,11 @@ namespace LookupServiceReference
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class MethodFault
     {
-        
+
         private LocalizedMethodFault faultCauseField;
-        
+
         private LocalizableMessage[] faultMessageField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public LocalizedMethodFault faultCause
@@ -78,7 +78,7 @@ namespace LookupServiceReference
                 this.faultCauseField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("faultMessage", Order=1)]
         public LocalizableMessage[] faultMessage
@@ -93,18 +93,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LocalizedMethodFault : DynamicData
     {
-        
+
         private MethodFault faultField;
-        
+
         private string localizedMessageField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public MethodFault fault
@@ -118,7 +118,7 @@ namespace LookupServiceReference
                 this.faultField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string localizedMessage
@@ -133,7 +133,7 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupServiceContent))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupHaBackupNodeConfiguration))]
@@ -156,16 +156,16 @@ namespace LookupServiceReference
     public partial class DynamicData
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class GetSiteIdRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -180,18 +180,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class ManagedObjectReference
     {
-        
+
         private string typeField;
-        
+
         private string valueField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string type
@@ -205,7 +205,7 @@ namespace LookupServiceReference
                 this.typeField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlTextAttribute()]
         public string Value
@@ -220,18 +220,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class ListRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         private LookupServiceRegistrationFilter filterCriteriaField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -245,7 +245,7 @@ namespace LookupServiceReference
                 this._thisField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public LookupServiceRegistrationFilter filterCriteria
@@ -260,24 +260,24 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupServiceRegistrationFilter : DynamicData
     {
-        
+
         private string siteIdField;
-        
+
         private string nodeIdField;
-        
+
         private LookupServiceRegistrationServiceType serviceTypeField;
-        
+
         private LookupServiceRegistrationEndpointType endpointTypeField;
-        
+
         private string endpointTrustAnchorField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string siteId
@@ -291,7 +291,7 @@ namespace LookupServiceReference
                 this.siteIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string nodeId
@@ -305,7 +305,7 @@ namespace LookupServiceReference
                 this.nodeIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=2)]
         public LookupServiceRegistrationServiceType serviceType
@@ -319,7 +319,7 @@ namespace LookupServiceReference
                 this.serviceTypeField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=3)]
         public LookupServiceRegistrationEndpointType endpointType
@@ -333,7 +333,7 @@ namespace LookupServiceReference
                 this.endpointTypeField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=4)]
         public string endpointTrustAnchor
@@ -347,25 +347,19 @@ namespace LookupServiceReference
                 this.endpointTrustAnchorField = value;
             }
         }
-
-       [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
-       public bool searchAllSsoDomains {
-          get;
-          set;
-       }
    }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupServiceRegistrationServiceType : DynamicData
     {
-        
+
         private string productField;
-        
+
         private string typeField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string product
@@ -379,7 +373,7 @@ namespace LookupServiceReference
                 this.productField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string type
@@ -394,18 +388,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupServiceRegistrationEndpointType : DynamicData
     {
-        
+
         private string protocolField;
-        
+
         private string typeField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string protocol
@@ -419,7 +413,7 @@ namespace LookupServiceReference
                 this.protocolField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string type
@@ -434,18 +428,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class GetRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         private string serviceIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -459,7 +453,7 @@ namespace LookupServiceReference
                 this._thisField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string serviceId
@@ -474,20 +468,20 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class SetTrustAnchorRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         private LookupServiceRegistrationFilter filterField;
-        
+
         private string[] trustAnchorsField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -501,7 +495,7 @@ namespace LookupServiceReference
                 this._thisField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public LookupServiceRegistrationFilter filter
@@ -515,7 +509,7 @@ namespace LookupServiceReference
                 this.filterField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("trustAnchors", Order=2)]
         public string[] trustAnchors
@@ -530,20 +524,20 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class SetRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         private string serviceIdField;
-        
+
         private LookupServiceRegistrationSetSpec serviceSpecField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -557,7 +551,7 @@ namespace LookupServiceReference
                 this._thisField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string serviceId
@@ -571,7 +565,7 @@ namespace LookupServiceReference
                 this.serviceIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=2)]
         public LookupServiceRegistrationSetSpec serviceSpec
@@ -586,7 +580,7 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -594,7 +588,7 @@ namespace LookupServiceReference
     public partial class LookupServiceRegistrationSetSpec : LookupServiceRegistrationMutableServiceInfo
     {
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupServiceRegistrationSetSpec))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupServiceRegistrationCommonServiceInfo))]
@@ -605,29 +599,29 @@ namespace LookupServiceReference
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupServiceRegistrationMutableServiceInfo : DynamicData
     {
-        
+
         private string serviceVersionField;
-        
+
         private string vendorNameResourceKeyField;
-        
+
         private string vendorNameDefaultField;
-        
+
         private string vendorProductInfoResourceKeyField;
-        
+
         private string vendorProductInfoDefaultField;
-        
+
         private LookupServiceRegistrationEndpoint[] serviceEndpointsField;
-        
+
         private LookupServiceRegistrationAttribute[] serviceAttributesField;
-        
+
         private string serviceNameResourceKeyField;
-        
+
         private string serviceNameDefaultField;
-        
+
         private string serviceDescriptionResourceKeyField;
-        
+
         private string serviceDescriptionDefaultField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string serviceVersion
@@ -641,7 +635,7 @@ namespace LookupServiceReference
                 this.serviceVersionField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string vendorNameResourceKey
@@ -655,7 +649,7 @@ namespace LookupServiceReference
                 this.vendorNameResourceKeyField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=2)]
         public string vendorNameDefault
@@ -669,7 +663,7 @@ namespace LookupServiceReference
                 this.vendorNameDefaultField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=3)]
         public string vendorProductInfoResourceKey
@@ -683,7 +677,7 @@ namespace LookupServiceReference
                 this.vendorProductInfoResourceKeyField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=4)]
         public string vendorProductInfoDefault
@@ -697,7 +691,7 @@ namespace LookupServiceReference
                 this.vendorProductInfoDefaultField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("serviceEndpoints", Order=5)]
         public LookupServiceRegistrationEndpoint[] serviceEndpoints
@@ -711,7 +705,7 @@ namespace LookupServiceReference
                 this.serviceEndpointsField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("serviceAttributes", Order=6)]
         public LookupServiceRegistrationAttribute[] serviceAttributes
@@ -725,7 +719,7 @@ namespace LookupServiceReference
                 this.serviceAttributesField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=7)]
         public string serviceNameResourceKey
@@ -739,7 +733,7 @@ namespace LookupServiceReference
                 this.serviceNameResourceKeyField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=8)]
         public string serviceNameDefault
@@ -753,7 +747,7 @@ namespace LookupServiceReference
                 this.serviceNameDefaultField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=9)]
         public string serviceDescriptionResourceKey
@@ -767,7 +761,7 @@ namespace LookupServiceReference
                 this.serviceDescriptionResourceKeyField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=10)]
         public string serviceDescriptionDefault
@@ -782,22 +776,22 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupServiceRegistrationEndpoint : DynamicData
     {
-        
+
         private string urlField;
-        
+
         private LookupServiceRegistrationEndpointType endpointTypeField;
-        
+
         private string[] sslTrustField;
-        
+
         private LookupServiceRegistrationAttribute[] endpointAttributesField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(DataType="anyURI", Order=0)]
         public string url
@@ -811,7 +805,7 @@ namespace LookupServiceReference
                 this.urlField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public LookupServiceRegistrationEndpointType endpointType
@@ -825,7 +819,7 @@ namespace LookupServiceReference
                 this.endpointTypeField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("sslTrust", Order=2)]
         public string[] sslTrust
@@ -839,7 +833,7 @@ namespace LookupServiceReference
                 this.sslTrustField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("endpointAttributes", Order=3)]
         public LookupServiceRegistrationAttribute[] endpointAttributes
@@ -854,18 +848,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupServiceRegistrationAttribute : DynamicData
     {
-        
+
         private string keyField;
-        
+
         private string valueField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string key
@@ -879,7 +873,7 @@ namespace LookupServiceReference
                 this.keyField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string value
@@ -894,7 +888,7 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupServiceRegistrationInfo))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupServiceRegistrationCreateSpec))]
@@ -903,13 +897,13 @@ namespace LookupServiceReference
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupServiceRegistrationCommonServiceInfo : LookupServiceRegistrationMutableServiceInfo
     {
-        
+
         private string ownerIdField;
-        
+
         private LookupServiceRegistrationServiceType serviceTypeField;
-        
+
         private string nodeIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string ownerId
@@ -923,7 +917,7 @@ namespace LookupServiceReference
                 this.ownerIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public LookupServiceRegistrationServiceType serviceType
@@ -937,7 +931,7 @@ namespace LookupServiceReference
                 this.serviceTypeField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=2)]
         public string nodeId
@@ -952,18 +946,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupServiceRegistrationInfo : LookupServiceRegistrationCommonServiceInfo
     {
-        
+
         private string serviceIdField;
-        
+
         private string siteIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string serviceId
@@ -977,7 +971,7 @@ namespace LookupServiceReference
                 this.serviceIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string siteId
@@ -992,7 +986,7 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1000,18 +994,18 @@ namespace LookupServiceReference
     public partial class LookupServiceRegistrationCreateSpec : LookupServiceRegistrationCommonServiceInfo
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class DeleteRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         private string serviceIdField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -1025,7 +1019,7 @@ namespace LookupServiceReference
                 this._thisField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string serviceId
@@ -1040,20 +1034,20 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class CreateRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         private string serviceIdField;
-        
+
         private LookupServiceRegistrationCreateSpec createSpecField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -1067,7 +1061,7 @@ namespace LookupServiceReference
                 this._thisField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string serviceId
@@ -1081,7 +1075,7 @@ namespace LookupServiceReference
                 this.serviceIdField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=2)]
         public LookupServiceRegistrationCreateSpec createSpec
@@ -1096,16 +1090,16 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class RetrieveServiceContentRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -1120,16 +1114,16 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class GetLocaleRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -1144,18 +1138,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class SetLocaleRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         private string localeField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -1169,7 +1163,7 @@ namespace LookupServiceReference
                 this._thisField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string locale
@@ -1184,16 +1178,16 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class RetrieveHaBackupConfigurationRequestType
     {
-        
+
         private ManagedObjectReference _thisField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference _this
@@ -1208,18 +1202,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class DynamicProperty
     {
-        
+
         private string nameField;
-        
+
         private object valField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string name
@@ -1233,7 +1227,7 @@ namespace LookupServiceReference
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public object val
@@ -1248,18 +1242,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class KeyAnyValue : DynamicData
     {
-        
+
         private string keyField;
-        
+
         private object valueField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string key
@@ -1273,7 +1267,7 @@ namespace LookupServiceReference
                 this.keyField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public object value
@@ -1288,20 +1282,20 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LocalizableMessage : DynamicData
     {
-        
+
         private string keyField;
-        
+
         private KeyAnyValue[] argField;
-        
+
         private string messageField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string key
@@ -1315,7 +1309,7 @@ namespace LookupServiceReference
                 this.keyField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("arg", Order=1)]
         public KeyAnyValue[] arg
@@ -1329,7 +1323,7 @@ namespace LookupServiceReference
                 this.argField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=2)]
         public string message
@@ -1344,22 +1338,22 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupServiceContent : DynamicData
     {
-        
+
         private ManagedObjectReference lookupServiceField;
-        
+
         private ManagedObjectReference serviceRegistrationField;
-        
+
         private ManagedObjectReference deploymentInformationServiceField;
-        
+
         private ManagedObjectReference l10nField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference lookupService
@@ -1373,7 +1367,7 @@ namespace LookupServiceReference
                 this.lookupServiceField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public ManagedObjectReference serviceRegistration
@@ -1387,7 +1381,7 @@ namespace LookupServiceReference
                 this.serviceRegistrationField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=2)]
         public ManagedObjectReference deploymentInformationService
@@ -1401,7 +1395,7 @@ namespace LookupServiceReference
                 this.deploymentInformationServiceField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=3)]
         public ManagedObjectReference l10n
@@ -1416,22 +1410,22 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupHaBackupNodeConfiguration : DynamicData
     {
-        
+
         private string dbTypeField;
-        
+
         private string dbJdbcUrlField;
-        
+
         private string dbUserField;
-        
+
         private string dbPassField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string dbType
@@ -1445,7 +1439,7 @@ namespace LookupServiceReference
                 this.dbTypeField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string dbJdbcUrl
@@ -1459,7 +1453,7 @@ namespace LookupServiceReference
                 this.dbJdbcUrlField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=2)]
         public string dbUser
@@ -1473,7 +1467,7 @@ namespace LookupServiceReference
                 this.dbUserField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=3)]
         public string dbPass
@@ -1488,7 +1482,7 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupFaultUnsupportedSiteFault))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LookupFaultEntryNotFoundFault))]
@@ -1498,9 +1492,9 @@ namespace LookupServiceReference
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupFaultServiceFault : MethodFault
     {
-        
+
         private string errorMessageField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string errorMessage
@@ -1515,18 +1509,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupFaultUnsupportedSiteFault : LookupFaultServiceFault
     {
-        
+
         private string operatingSiteField;
-        
+
         private string requestedSiteField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string operatingSite
@@ -1540,7 +1534,7 @@ namespace LookupServiceReference
                 this.operatingSiteField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string requestedSite
@@ -1555,16 +1549,16 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupFaultEntryNotFoundFault : LookupFaultServiceFault
     {
-        
+
         private string nameField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string name
@@ -1579,16 +1573,16 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class LookupFaultEntryExistsFault : LookupFaultServiceFault
     {
-        
+
         private string nameField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string name
@@ -1603,18 +1597,18 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class UnexpectedFault : RuntimeFault
     {
-        
+
         private string faultNameField;
-        
+
         private LocalizedMethodFault faultField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string faultName
@@ -1628,7 +1622,7 @@ namespace LookupServiceReference
                 this.faultNameField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public LocalizedMethodFault fault
@@ -1643,16 +1637,16 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class SystemError : RuntimeFault
     {
-        
+
         private string reasonField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string reason
@@ -1667,7 +1661,7 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1675,7 +1669,7 @@ namespace LookupServiceReference
     public partial class SecurityError : RuntimeFault
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1683,7 +1677,7 @@ namespace LookupServiceReference
     public partial class RequestCanceled : RuntimeFault
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1691,7 +1685,7 @@ namespace LookupServiceReference
     public partial class NotSupported : RuntimeFault
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1699,7 +1693,7 @@ namespace LookupServiceReference
     public partial class NotImplemented : RuntimeFault
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1707,16 +1701,16 @@ namespace LookupServiceReference
     public partial class NotEnoughLicenses : RuntimeFault
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class ManagedObjectNotFound : RuntimeFault
     {
-        
+
         private ManagedObjectReference objField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference obj
@@ -1731,7 +1725,7 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(MethodNotFound))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(InvalidType))]
@@ -1741,18 +1735,18 @@ namespace LookupServiceReference
     public partial class InvalidRequest : RuntimeFault
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class MethodNotFound : InvalidRequest
     {
-        
+
         private ManagedObjectReference receiverField;
-        
+
         private string methodField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public ManagedObjectReference receiver
@@ -1766,7 +1760,7 @@ namespace LookupServiceReference
                 this.receiverField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=1)]
         public string method
@@ -1781,16 +1775,16 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class InvalidType : InvalidRequest
     {
-        
+
         private string argumentField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string argument
@@ -1805,16 +1799,16 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:lookup")]
     public partial class InvalidArgument : RuntimeFault
     {
-        
+
         private string invalidPropertyField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order=0)]
         public string invalidProperty
@@ -1829,7 +1823,7 @@ namespace LookupServiceReference
             }
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(HostNotReachable))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(HostNotConnected))]
@@ -1839,7 +1833,7 @@ namespace LookupServiceReference
     public partial class HostCommunication : RuntimeFault
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1847,7 +1841,7 @@ namespace LookupServiceReference
     public partial class HostNotReachable : HostCommunication
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1855,12 +1849,12 @@ namespace LookupServiceReference
     public partial class HostNotConnected : HostCommunication
     {
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.ServiceModel.ServiceContractAttribute(Namespace="urn:lookup", ConfigurationName="LookupServiceReference.LsPortType")]
     public interface LsPortType
     {
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.RuntimeFault), Action="urn:lookup/3.0", Name="RuntimeFaultFault")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -1886,7 +1880,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
         System.Threading.Tasks.Task<LookupServiceReference.LookupHaBackupNodeConfiguration> RetrieveHaBackupConfigurationAsync(LookupServiceReference.ManagedObjectReference _this);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.RuntimeFault), Action="urn:lookup/3.0", Name="RuntimeFaultFault")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -1912,7 +1906,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
         System.Threading.Tasks.Task<string> SetLocaleAsync(LookupServiceReference.ManagedObjectReference _this, string locale);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.RuntimeFault), Action="urn:lookup/3.0", Name="RuntimeFaultFault")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -1938,7 +1932,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
         System.Threading.Tasks.Task<string> GetLocaleAsync(LookupServiceReference.ManagedObjectReference _this);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.RuntimeFault), Action="urn:lookup/3.0", Name="RuntimeFaultFault")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -1964,7 +1958,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
         System.Threading.Tasks.Task<LookupServiceReference.LookupServiceContent> RetrieveServiceContentAsync(LookupServiceReference.ManagedObjectReference _this);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.LookupFaultEntryExistsFault), Action="urn:lookup/3.0", Name="LookupFaultEntryExistsFaultFault")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.InvalidArgument), Action="urn:lookup/3.0", Name="InvalidArgumentFault")]
@@ -1992,7 +1986,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(string[]))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         System.Threading.Tasks.Task CreateAsync(LookupServiceReference.ManagedObjectReference _this, string serviceId, LookupServiceReference.LookupServiceRegistrationCreateSpec createSpec);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.LookupFaultEntryNotFoundFault), Action="urn:lookup/3.0", Name="LookupFaultEntryNotFoundFaultFault")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.SecurityError), Action="urn:lookup/3.0", Name="SecurityErrorFault")]
@@ -2019,7 +2013,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(string[]))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         System.Threading.Tasks.Task DeleteAsync(LookupServiceReference.ManagedObjectReference _this, string serviceId);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.LookupFaultEntryNotFoundFault), Action="urn:lookup/3.0", Name="LookupFaultEntryNotFoundFaultFault")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.InvalidArgument), Action="urn:lookup/3.0", Name="InvalidArgumentFault")]
@@ -2047,7 +2041,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(string[]))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         System.Threading.Tasks.Task SetAsync(LookupServiceReference.ManagedObjectReference _this, string serviceId, LookupServiceReference.LookupServiceRegistrationSetSpec serviceSpec);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.InvalidArgument), Action="urn:lookup/3.0", Name="InvalidArgumentFault")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.SecurityError), Action="urn:lookup/3.0", Name="SecurityErrorFault")]
@@ -2074,7 +2068,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(string[]))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         System.Threading.Tasks.Task<LookupServiceReference.SetTrustAnchorResponse> SetTrustAnchorAsync(LookupServiceReference.SetTrustAnchorRequest request);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.LookupFaultEntryNotFoundFault), Action="urn:lookup/3.0", Name="LookupFaultEntryNotFoundFaultFault")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.RuntimeFault), Action="urn:lookup/3.0", Name="RuntimeFaultFault")]
@@ -2101,7 +2095,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
         System.Threading.Tasks.Task<LookupServiceReference.LookupServiceRegistrationInfo> GetAsync(LookupServiceReference.ManagedObjectReference _this, string serviceId);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.RuntimeFault), Action="urn:lookup/3.0", Name="RuntimeFaultFault")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -2126,7 +2120,7 @@ namespace LookupServiceReference
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(string[]))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object[]))]
         System.Threading.Tasks.Task<LookupServiceReference.ListResponse> ListAsync(LookupServiceReference.ListRequest request);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="urn:lookup/3.0", ReplyAction="*")]
         [System.ServiceModel.FaultContractAttribute(typeof(LookupServiceReference.RuntimeFault), Action="urn:lookup/3.0", Name="RuntimeFaultFault")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -2153,28 +2147,28 @@ namespace LookupServiceReference
         [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
         System.Threading.Tasks.Task<string> GetSiteIdAsync(LookupServiceReference.ManagedObjectReference _this);
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(WrapperName="SetTrustAnchor", WrapperNamespace="urn:lookup", IsWrapped=true)]
     public partial class SetTrustAnchorRequest
     {
-        
+
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:lookup", Order=0)]
         public LookupServiceReference.ManagedObjectReference _this;
-        
+
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:lookup", Order=1)]
         public LookupServiceReference.LookupServiceRegistrationFilter filter;
-        
+
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:lookup", Order=2)]
         [System.Xml.Serialization.XmlElementAttribute("trustAnchors")]
         public string[] trustAnchors;
-        
+
         public SetTrustAnchorRequest()
         {
         }
-        
+
         public SetTrustAnchorRequest(LookupServiceReference.ManagedObjectReference _this, LookupServiceReference.LookupServiceRegistrationFilter filter, string[] trustAnchors)
         {
             this._this = _this;
@@ -2182,128 +2176,128 @@ namespace LookupServiceReference
             this.trustAnchors = trustAnchors;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(WrapperName="SetTrustAnchorResponse", WrapperNamespace="urn:lookup", IsWrapped=true)]
     public partial class SetTrustAnchorResponse
     {
-        
+
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:lookup", Order=0)]
         public int returnval;
-        
+
         public SetTrustAnchorResponse()
         {
         }
-        
+
         public SetTrustAnchorResponse(int returnval)
         {
             this.returnval = returnval;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(WrapperName="List", WrapperNamespace="urn:lookup", IsWrapped=true)]
     public partial class ListRequest
     {
-        
+
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:lookup", Order=0)]
         public LookupServiceReference.ManagedObjectReference _this;
-        
+
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:lookup", Order=1)]
         public LookupServiceReference.LookupServiceRegistrationFilter filterCriteria;
-        
+
         public ListRequest()
         {
         }
-        
+
         public ListRequest(LookupServiceReference.ManagedObjectReference _this, LookupServiceReference.LookupServiceRegistrationFilter filterCriteria)
         {
             this._this = _this;
             this.filterCriteria = filterCriteria;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(WrapperName="ListResponse", WrapperNamespace="urn:lookup", IsWrapped=true)]
     public partial class ListResponse
     {
-        
+
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:lookup", Order=0)]
         [System.Xml.Serialization.XmlElementAttribute("returnval")]
         public LookupServiceReference.LookupServiceRegistrationInfo[] returnval;
-        
+
         public ListResponse()
         {
         }
-        
+
         public ListResponse(LookupServiceReference.LookupServiceRegistrationInfo[] returnval)
         {
             this.returnval = returnval;
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     public interface LsPortTypeChannel : LookupServiceReference.LsPortType, System.ServiceModel.IClientChannel
     {
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     public partial class LsPortTypeClient : System.ServiceModel.ClientBase<LookupServiceReference.LsPortType>, LookupServiceReference.LsPortType
     {
-        
-        public LsPortTypeClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+
+        public LsPortTypeClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
                 base(binding, remoteAddress)
         {
         }
-        
+
         public System.Threading.Tasks.Task<LookupServiceReference.LookupHaBackupNodeConfiguration> RetrieveHaBackupConfigurationAsync(LookupServiceReference.ManagedObjectReference _this)
         {
             return base.Channel.RetrieveHaBackupConfigurationAsync(_this);
         }
-        
+
         public System.Threading.Tasks.Task<string> SetLocaleAsync(LookupServiceReference.ManagedObjectReference _this, string locale)
         {
             return base.Channel.SetLocaleAsync(_this, locale);
         }
-        
+
         public System.Threading.Tasks.Task<string> GetLocaleAsync(LookupServiceReference.ManagedObjectReference _this)
         {
             return base.Channel.GetLocaleAsync(_this);
         }
-        
+
         public System.Threading.Tasks.Task<LookupServiceReference.LookupServiceContent> RetrieveServiceContentAsync(LookupServiceReference.ManagedObjectReference _this)
         {
             return base.Channel.RetrieveServiceContentAsync(_this);
         }
-        
+
         public System.Threading.Tasks.Task CreateAsync(LookupServiceReference.ManagedObjectReference _this, string serviceId, LookupServiceReference.LookupServiceRegistrationCreateSpec createSpec)
         {
             return base.Channel.CreateAsync(_this, serviceId, createSpec);
         }
-        
+
         public System.Threading.Tasks.Task DeleteAsync(LookupServiceReference.ManagedObjectReference _this, string serviceId)
         {
             return base.Channel.DeleteAsync(_this, serviceId);
         }
-        
+
         public System.Threading.Tasks.Task SetAsync(LookupServiceReference.ManagedObjectReference _this, string serviceId, LookupServiceReference.LookupServiceRegistrationSetSpec serviceSpec)
         {
             return base.Channel.SetAsync(_this, serviceId, serviceSpec);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<LookupServiceReference.SetTrustAnchorResponse> LookupServiceReference.LsPortType.SetTrustAnchorAsync(LookupServiceReference.SetTrustAnchorRequest request)
         {
             return base.Channel.SetTrustAnchorAsync(request);
         }
-        
+
         public System.Threading.Tasks.Task<LookupServiceReference.SetTrustAnchorResponse> SetTrustAnchorAsync(LookupServiceReference.ManagedObjectReference _this, LookupServiceReference.LookupServiceRegistrationFilter filter, string[] trustAnchors)
         {
             LookupServiceReference.SetTrustAnchorRequest inValue = new LookupServiceReference.SetTrustAnchorRequest();
@@ -2312,18 +2306,18 @@ namespace LookupServiceReference
             inValue.trustAnchors = trustAnchors;
             return ((LookupServiceReference.LsPortType)(this)).SetTrustAnchorAsync(inValue);
         }
-        
+
         public System.Threading.Tasks.Task<LookupServiceReference.LookupServiceRegistrationInfo> GetAsync(LookupServiceReference.ManagedObjectReference _this, string serviceId)
         {
             return base.Channel.GetAsync(_this, serviceId);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<LookupServiceReference.ListResponse> LookupServiceReference.LsPortType.ListAsync(LookupServiceReference.ListRequest request)
         {
             return base.Channel.ListAsync(request);
         }
-        
+
         public System.Threading.Tasks.Task<LookupServiceReference.ListResponse> ListAsync(LookupServiceReference.ManagedObjectReference _this, LookupServiceReference.LookupServiceRegistrationFilter filterCriteria)
         {
             LookupServiceReference.ListRequest inValue = new LookupServiceReference.ListRequest();
@@ -2331,17 +2325,17 @@ namespace LookupServiceReference
             inValue.filterCriteria = filterCriteria;
             return ((LookupServiceReference.LsPortType)(this)).ListAsync(inValue);
         }
-        
+
         public System.Threading.Tasks.Task<string> GetSiteIdAsync(LookupServiceReference.ManagedObjectReference _this)
         {
             return base.Channel.GetSiteIdAsync(_this);
         }
-        
+
         public virtual System.Threading.Tasks.Task OpenAsync()
         {
             return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen));
         }
-        
+
         public virtual System.Threading.Tasks.Task CloseAsync()
         {
             return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose));
