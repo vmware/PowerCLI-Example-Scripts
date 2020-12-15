@@ -33,7 +33,7 @@ namespace VMware.vSphere.SsoAdminClient
          if (password == null) throw new ArgumentNullException(nameof(password));
 
          var lsClient = new LookupServiceClient(hostname, serverCertificateValidator);
-         
+
          // Create STS Client
          var stsUri = lsClient.GetStsEndpointUri();
          _securityContext = new UserPassSecurityContext(user, password, stsUri, serverCertificateValidator);
@@ -128,7 +128,7 @@ namespace VMware.vSphere.SsoAdminClient
       public Uri ServiceUri { get; }
       public string User { get; }
 
-      public PersonUser CreateLocalUser(         
+      public PersonUser CreateLocalUser(
          string userName,
          string password,
          string description = null,
@@ -203,7 +203,7 @@ namespace VMware.vSphere.SsoAdminClient
                   int.MaxValue)).Result.returnval;
 
          if (personUsers != null) {
-            foreach (var personUser in personUsers) {               
+            foreach (var personUser in personUsers) {
                yield return new PersonUser(this) {
                   Name = personUser.id.name,
                   Domain = personUser.id.domain,
@@ -214,7 +214,7 @@ namespace VMware.vSphere.SsoAdminClient
                };
             }
          }
-         
+
       }
 
       public void DeleteLocalUser(
@@ -256,7 +256,7 @@ namespace VMware.vSphere.SsoAdminClient
 
          if (ssoAdminGroups != null) {
             foreach (var group in ssoAdminGroups) {
-               yield return new DataTypes.Group {                  
+               yield return new DataTypes.Group {
                   Name = group.id.name,
                   Domain = group.id.domain
                };
@@ -466,7 +466,7 @@ namespace VMware.vSphere.SsoAdminClient
                   }
                }
             }
-            
+
             // Create Authorization Invocation Context
             var authorizedInvocationContext =
                CreateAuthorizedInvocationContext();
@@ -482,7 +482,7 @@ namespace VMware.vSphere.SsoAdminClient
                      ssoAdminPasswordPolicy)).Wait();
          }
 
-         return GetPasswordPolicy();         
+         return GetPasswordPolicy();
       }
 
       public LockoutPolicy GetLockoutPolicy() {
@@ -501,7 +501,7 @@ namespace VMware.vSphere.SsoAdminClient
                   })).Result;
 
          if (ssoAdminLockoutPolicy != null) {
-            result = new LockoutPolicy(this) {               
+            result = new LockoutPolicy(this) {
                Description = ssoAdminLockoutPolicy.description,
                AutoUnlockIntervalSec = ssoAdminLockoutPolicy.autoUnlockIntervalSec,
                FailedAttemptIntervalSec = ssoAdminLockoutPolicy.failedAttemptIntervalSec,
@@ -553,7 +553,7 @@ namespace VMware.vSphere.SsoAdminClient
                      },
                      ssoAdminLockoutPolicy)).Wait();
 
-         }         
+         }
 
          return GetLockoutPolicy();
       }
@@ -589,7 +589,7 @@ namespace VMware.vSphere.SsoAdminClient
       public TokenLifetime SetTokenLifetime(
          long? maxHoKTokenLifetime,
          long? maxBearerTokenLifetime) {
-         
+
          var authorizedInvocationContext =
             CreateAuthorizedInvocationContext();
 
@@ -638,8 +638,8 @@ namespace VMware.vSphere.SsoAdminClient
          InvokeOperation(() =>
             _ssoAdminBindingClient.AddExternalDomainAsync(
                new ManagedObjectReference {
-                  type = "SsoAdminConfigurationManagementService",
-                  Value = "configurationManagementService"
+                  type = "SsoAdminDomainManagementService",
+                  Value = "domainManagementService"
                },
                serverType,
                domainName,
@@ -656,8 +656,8 @@ namespace VMware.vSphere.SsoAdminClient
                   password = authenticationPassword
                })).Wait();
       }
-      
-      public IEnumerable<IdentitySource> GetDomains() {         
+
+      public IEnumerable<IdentitySource> GetDomains() {
          var authorizedInvocationContext =
             CreateAuthorizedInvocationContext();
 
