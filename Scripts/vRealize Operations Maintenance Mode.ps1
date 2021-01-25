@@ -10,7 +10,11 @@ function Enable-OMMaintenance {
         .Example
         Set All VMs with a name as backup as being in maintenance mode for 20 minutes:
 
-        Get-VM backup* | Enable-OMMaintenance -MaintenanceTime 20
+        Since Get-Inventory does not return Datastore Objects, we need to specify we're passing Datastore objects using switch "IsDatastore"
+	
+	Get-Datastore DS1 | Enable-OMMaintenance -MaintenanceTime 20 -IsDatastore True
+	
+	Get-VM backup* | Enable-OMMaintenance -MaintenanceTime 20
 
         Name                         Health  ResourceKind    Description                                           
         ----                         ------  ------------    -----------                                           
@@ -33,10 +37,28 @@ function Enable-OMMaintenance {
             [Parameter(Position=1, Mandatory=$true)]
             [ValidateNotNullOrEmpty()]
             [Int]
-            $MaintenanceTime
+            $MaintenanceTime,
+	    
+	    [Parameter(Position=2, Mandatory=$false)]
+	    [ValidateSet(“True”, “False”)]
+	    [System.String]
+            $IsDatastore= $false
+
       )
       process {
             Foreach ($Entry in $resource) {
+	       if ($IsDatastore -eq $true)
+                {
+                  $Item = Get-Datastore -Name $Entry | Get-OMResource
+                  if (-not $Item) {
+                        throw "$Entry not found"
+                  } Else {
+                        $Item.ExtensionData.MarkResourceAsBeingMaintained($MaintenanceTime)
+                        Get-Datastore -Name $Entry | Get-OMResource
+                  }
+                }
+                Else
+                {
                   $Item = Get-Inventory -Name $Entry | Get-OMResource
                   if (-not $Item) {
                         throw "$Entry not found"
@@ -44,6 +66,7 @@ function Enable-OMMaintenance {
                         $Item.ExtensionData.MarkResourceAsBeingMaintained($MaintenanceTime)
                         Get-Inventory -Name $Entry | Get-OMResource
                   }
+		}
             }
       }
 }
@@ -60,7 +83,11 @@ function Disable-OMMaintenance {
         .Example
         Disable maintenance mode for all VMs with a name of backup
 
-        Get-VM backup* | Disable-OMMaintenance
+        Since Get-Inventory does not return Datastore Objects, we need to specify we're passing Datastore objects using switch "IsDatastore"
+	
+	Get-Datastore DS1 | Disable-OMMaintenance -IsDatastore True
+	
+	Get-VM backup* | Disable-OMMaintenance
 
         Name                         Health  ResourceKind    Description                                           
         ----                         ------  ------------    -----------                                           
@@ -78,10 +105,27 @@ function Disable-OMMaintenance {
             [Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
             [ValidateNotNullOrEmpty()]
             [System.String]
-            $Resource
+            $Resource,
+	    
+	    [Parameter(Position=1, Mandatory=$false)]
+	    [ValidateSet(“True”, “False”)]
+	    [System.String]
+            $IsDatastore= $false
       )
       process {
             Foreach ($Entry in $resource) {
+	      If ($IsDatastore -eq $true)
+                {
+                  $Item = Get-Datastore -Name $Entry | Get-OMResource
+                  if (-not $Item) {
+                        throw "$Entry not found"
+                  } Else {
+                        $Item.ExtensionData.UnmarkResourceAsBeingMaintained()
+                        Get-Datastore -Name $Entry | Get-OMResource
+                  }
+                }
+                Else
+                {
                   $Item = Get-Inventory -Name $Entry | Get-OMResource
                   if (-not $Item) {
                         throw "$Entry not found"
@@ -89,6 +133,7 @@ function Disable-OMMaintenance {
                         $Item.ExtensionData.UnmarkResourceAsBeingMaintained()
                         Get-Inventory -Name $Entry | Get-OMResource
                   }
+		}
             }
       }
 }
