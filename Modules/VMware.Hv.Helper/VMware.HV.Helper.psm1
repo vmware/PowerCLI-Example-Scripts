@@ -2783,7 +2783,7 @@ function New-HVFarm {
 
         $farmSpecObj.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType = $maxSessionsType
         if ($maxSessionsType -eq "LIMITED") {
-            $farmSpecObj.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessionsType = $maxSessions
+            $farmSpecObj.AutomatedFarmSpec.RdsServerMaxSessionsData.MaxSessions = $maxSessions
         }
         $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.enableProvisioning = $enableProvisioning
         $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.stopProvisioningOnError = $stopProvisioningOnError
