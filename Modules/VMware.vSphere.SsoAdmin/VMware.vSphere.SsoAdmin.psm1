@@ -54,6 +54,22 @@ param(
    }
 }
 
+function FormatError {
+param(
+   [System.Exception]
+   $exception
+)
+   if ($exception -ne $null) {
+      if ($exception.InnerException -ne $null) {
+         $exception = $exception.InnerException
+      }
+
+      # result
+      $exception.Message
+   }
+
+}
+
 # Global variables
 $global:DefaultSsoAdminServers = New-Object System.Collections.Generic.List[VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
 
@@ -128,17 +144,28 @@ function Connect-SsoAdminServer {
          $certificateValidator = New-Object 'VMware.vSphere.SsoAdmin.Utils.AcceptAllX509CertificateValidator'
       }
 
-      $ssoAdminServer = New-Object `
-         'VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer' `
-         -ArgumentList @(
-         $Server,
-         $User,
-         $Password,
-         $certificateValidator)
+      $ssoAdminServer = $null
+      try {
+         $ssoAdminServer = New-Object `
+            'VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer' `
+            -ArgumentList @(
+            $Server,
+            $User,
+            $Password,
+            $certificateValidator)
+      } catch {
+         Write-Error (FormatError $_.Exception)
+      }
 
       if ($ssoAdminServer -ne $null) {
-         # Update $global:DefaultSsoAdminServers varaible
-         $global:DefaultSsoAdminServers.Add($ssoAdminServer) | Out-Null
+         $existingConnectionIndex = $global:DefaultSsoAdminServers.IndexOf($ssoAdminServer)
+         if ($existingConnectionIndex -ge 0) {
+            $global:DefaultSsoAdminServers[$existingConnectionIndex].RefCount++
+            $ssoAdminServer = $global:DefaultSsoAdminServers[$existingConnectionIndex]
+         } else {
+            # Update $global:DefaultSsoAdminServers varaible
+            $global:DefaultSsoAdminServers.Add($ssoAdminServer) | Out-Null
+         }
 
          # Function Output
          Write-Output $ssoAdminServer
@@ -194,12 +221,12 @@ function Disconnect-SsoAdminServer {
       }
 
       foreach ($requestedServer in $Server) {
-         if ($global:DefaultSsoAdminServers.Contains($requestedServer)) {
-            $global:DefaultSsoAdminServers.Remove($requestedServer) | Out-Null
-         }
-
          if ($requestedServer.IsConnected) {
             $requestedServer.Disconnect()
+         }
+
+         if ($global:DefaultSsoAdminServers.Contains($requestedServer) -and $requestedServer.RefCount -eq 0) {
+            $global:DefaultSsoAdminServers.Remove($requestedServer) | Out-Null
          }
       }
    }
@@ -324,14 +351,18 @@ function New-SsoPersonUser {
          }
 
          # Output is the result of 'CreateLocalUser'
-         $connection.Client.CreateLocalUser(
-            $UserName,
-            $Password,
-            $Description,
-            $EmailAddress,
-            $FirstName,
-            $LastName
-         )
+         try {
+            $connection.Client.CreateLocalUser(
+               $UserName,
+               $Password,
+               $Description,
+               $EmailAddress,
+               $FirstName,
+               $LastName
+            )
+         } catch {
+            Write-Error (FormatError $_.Exception)
+         }
       }
    }
 }
@@ -401,30 +432,34 @@ function Get-SsoPersonUser {
          $Name = [string]::Empty
       }
 
-      foreach ($connection in $serversToProcess) {
-         if (-not $connection.IsConnected) {
-            Write-Error "Server $connection is disconnected"
-            continue
-         }
+      try {
+         foreach ($connection in $serversToProcess) {
+            if (-not $connection.IsConnected) {
+               Write-Error "Server $connection is disconnected"
+               continue
+            }
 
-         foreach ($personUser in $connection.Client.GetLocalUsers(
-            (RemoveWildcardSymbols $Name),
-            $Domain)) {
+            foreach ($personUser in $connection.Client.GetLocalUsers(
+               (RemoveWildcardSymbols $Name),
+               $Domain)) {
 
 
-            if ([string]::IsNullOrEmpty($Name) ) {
-               Write-Output $personUser
-            } else {
-               # Apply Name filtering
-               if ((HasWildcardSymbols $Name) -and `
-                   $personUser.Name -like $Name) {
-                   Write-Output $personUser
-               } elseif ($personUser.Name -eq $Name) {
-                  # Exactly equal
+               if ([string]::IsNullOrEmpty($Name) ) {
                   Write-Output $personUser
+               } else {
+                  # Apply Name filtering
+                  if ((HasWildcardSymbols $Name) -and `
+                      $personUser.Name -like $Name) {
+                      Write-Output $personUser
+                  } elseif ($personUser.Name -eq $Name) {
+                     # Exactly equal
+                     Write-Output $personUser
+                  }
                }
             }
          }
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
@@ -533,38 +568,42 @@ function Set-SsoPersonUser {
    $Unlock)
 
    Process {
-      foreach ($u in $User) {
-         $ssoAdminClient = $u.GetClient()
-         if ((-not $ssoAdminClient)) {
-            Write-Error "Object '$u' is from disconnected server"
-            continue
-         }
+      try {
+         foreach ($u in $User) {
+            $ssoAdminClient = $u.GetClient()
+            if ((-not $ssoAdminClient)) {
+               Write-Error "Object '$u' is from disconnected server"
+               continue
+            }
 
-         if ($Add) {
-            $result = $ssoAdminClient.AddPersonUserToGroup($u, $Group)
-            if ($result) {
+            if ($Add) {
+               $result = $ssoAdminClient.AddPersonUserToGroup($u, $Group)
+               if ($result) {
+                  Write-Output $u
+               }
+            }
+
+            if ($Remove) {
+               $result = $ssoAdminClient.RemovePersonUserFromGroup($u, $Group)
+               if ($result) {
+                  Write-Output $u
+               }
+            }
+
+            if ($Unlock) {
+               $result = $ssoAdminClient.UnlockPersonUser($u)
+               if ($result) {
+                  Write-Output $u
+               }
+            }
+
+            if ($NewPassword) {
+               $ssoAdminClient.ResetPersonUserPassword($u, $NewPassword)
                Write-Output $u
             }
          }
-
-         if ($Remove) {
-            $result = $ssoAdminClient.RemovePersonUserFromGroup($u, $Group)
-            if ($result) {
-               Write-Output $u
-            }
-         }
-
-         if ($Unlock) {
-            $result = $ssoAdminClient.UnlockPersonUser($u)
-            if ($result) {
-               Write-Output $u
-            }
-         }
-
-         if ($NewPassword) {
-            $ssoAdminClient.ResetPersonUserPassword($u, $NewPassword)
-            Write-Output $u
-         }
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
@@ -602,14 +641,18 @@ function Remove-SsoPersonUser {
    $User)
 
    Process {
-      foreach ($u in $User) {
-         $ssoAdminClient = $u.GetClient()
-         if ((-not $ssoAdminClient)) {
-            Write-Error "Object '$u' is from disconnected server"
-            continue
-         }
+      try {
+         foreach ($u in $User) {
+            $ssoAdminClient = $u.GetClient()
+            if ((-not $ssoAdminClient)) {
+               Write-Error "Object '$u' is from disconnected server"
+               continue
+            }
 
-         $ssoAdminClient.DeleteLocalUser($u)
+            $ssoAdminClient.DeleteLocalUser($u)
+         }
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
@@ -681,30 +724,34 @@ function Get-SsoGroup {
          $Name = [string]::Empty
       }
 
-      foreach ($connection in $serversToProcess) {
-         if (-not $connection.IsConnected) {
-            Write-Error "Server $connection is disconnected"
-            continue
-         }
+      try {
+         foreach ($connection in $serversToProcess) {
+            if (-not $connection.IsConnected) {
+               Write-Error "Server $connection is disconnected"
+               continue
+            }
 
-         foreach ($group in $connection.Client.GetGroups(
-            (RemoveWildcardSymbols $Name),
-            $Domain)) {
+            foreach ($group in $connection.Client.GetGroups(
+               (RemoveWildcardSymbols $Name),
+               $Domain)) {
 
 
-            if ([string]::IsNullOrEmpty($Name) ) {
-               Write-Output $group
-            } else {
-               # Apply Name filtering
-               if ((HasWildcardSymbols $Name) -and `
-                   $group.Name -like $Name) {
-                   Write-Output $group
-               } elseif ($group.Name -eq $Name) {
-                  # Exactly equal
+               if ([string]::IsNullOrEmpty($Name) ) {
                   Write-Output $group
+               } else {
+                  # Apply Name filtering
+                  if ((HasWildcardSymbols $Name) -and `
+                      $group.Name -like $Name) {
+                      Write-Output $group
+                  } elseif ($group.Name -eq $Name) {
+                     # Exactly equal
+                     Write-Output $group
+                  }
                }
             }
          }
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
@@ -748,13 +795,17 @@ function Get-SsoPasswordPolicy {
       if ($Server -ne $null) {
          $serversToProcess = $Server
       }
-      foreach ($connection in $serversToProcess) {
-         if (-not $connection.IsConnected) {
-            Write-Error "Server $connection is disconnected"
-            continue
-         }
+      try {
+         foreach ($connection in $serversToProcess) {
+            if (-not $connection.IsConnected) {
+               Write-Error "Server $connection is disconnected"
+               continue
+            }
 
-         $connection.Client.GetPasswordPolicy();
+            $connection.Client.GetPasswordPolicy();
+         }
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
@@ -891,70 +942,74 @@ function Set-SsoPasswordPolicy {
 
    Process {
 
-      foreach ($pp in $PasswordPolicy) {
+      try {
+         foreach ($pp in $PasswordPolicy) {
 
-         $ssoAdminClient = $pp.GetClient()
-         if ((-not $ssoAdminClient)) {
-            Write-Error "Object '$pp' is from disconnected server"
-            continue
+            $ssoAdminClient = $pp.GetClient()
+            if ((-not $ssoAdminClient)) {
+               Write-Error "Object '$pp' is from disconnected server"
+               continue
+            }
+
+            if ([string]::IsNullOrEmpty($Description)) {
+               $Description = $pp.Description
+            }
+
+            if ($ProhibitedPreviousPasswordsCount -eq $null) {
+               $ProhibitedPreviousPasswordsCount = $pp.ProhibitedPreviousPasswordsCount
+            }
+
+            if ($MinLength -eq $null) {
+               $MinLength = $pp.MinLength
+            }
+
+            if ($MaxLength -eq $null) {
+               $MaxLength = $pp.MaxLength
+            }
+
+            if ($MaxIdenticalAdjacentCharacters -eq $null) {
+               $MaxIdenticalAdjacentCharacters = $pp.MaxIdenticalAdjacentCharacters
+            }
+
+            if ($MinNumericCount -eq $null) {
+               $MinNumericCount = $pp.MinNumericCount
+            }
+
+            if ($MinSpecialCharCount -eq $null) {
+               $MinSpecialCharCount = $pp.MinSpecialCharCount
+            }
+
+            if ($MinAlphabeticCount -eq $null) {
+               $MinAlphabeticCount = $pp.MinAlphabeticCount
+            }
+
+            if ($MinUppercaseCount -eq $null) {
+               $MinUppercaseCount = $pp.MinUppercaseCount
+            }
+
+            if ($MinLowercaseCount -eq $null) {
+               $MinLowercaseCount = $pp.MinLowercaseCount
+            }
+
+            if ($PasswordLifetimeDays -eq $null) {
+               $PasswordLifetimeDays = $pp.PasswordLifetimeDays
+            }
+
+            $ssoAdminClient.SetPasswordPolicy(
+              $Description,
+              $ProhibitedPreviousPasswordsCount,
+              $MinLength,
+              $MaxLength,
+              $MaxIdenticalAdjacentCharacters,
+              $MinNumericCount,
+              $MinSpecialCharCount,
+              $MinAlphabeticCount,
+              $MinUppercaseCount,
+              $MinLowercaseCount,
+              $PasswordLifetimeDays);
          }
-
-         if ([string]::IsNullOrEmpty($Description)) {
-            $Description = $pp.Description
-         }
-
-         if ($ProhibitedPreviousPasswordsCount -eq $null) {
-            $ProhibitedPreviousPasswordsCount = $pp.ProhibitedPreviousPasswordsCount
-         }
-
-         if ($MinLength -eq $null) {
-            $MinLength = $pp.MinLength
-         }
-
-         if ($MaxLength -eq $null) {
-            $MaxLength = $pp.MaxLength
-         }
-
-         if ($MaxIdenticalAdjacentCharacters -eq $null) {
-            $MaxIdenticalAdjacentCharacters = $pp.MaxIdenticalAdjacentCharacters
-         }
-
-         if ($MinNumericCount -eq $null) {
-            $MinNumericCount = $pp.MinNumericCount
-         }
-
-         if ($MinSpecialCharCount -eq $null) {
-            $MinSpecialCharCount = $pp.MinSpecialCharCount
-         }
-
-         if ($MinAlphabeticCount -eq $null) {
-            $MinAlphabeticCount = $pp.MinAlphabeticCount
-         }
-
-         if ($MinUppercaseCount -eq $null) {
-            $MinUppercaseCount = $pp.MinUppercaseCount
-         }
-
-         if ($MinLowercaseCount -eq $null) {
-            $MinLowercaseCount = $pp.MinLowercaseCount
-         }
-
-         if ($PasswordLifetimeDays -eq $null) {
-            $PasswordLifetimeDays = $pp.PasswordLifetimeDays
-         }
-
-         $ssoAdminClient.SetPasswordPolicy(
-           $Description,
-           $ProhibitedPreviousPasswordsCount,
-           $MinLength,
-           $MaxLength,
-           $MaxIdenticalAdjacentCharacters,
-           $MinNumericCount,
-           $MinSpecialCharCount,
-           $MinAlphabeticCount,
-           $MinUppercaseCount,
-           $MinLowercaseCount,
-           $PasswordLifetimeDays);
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
@@ -998,13 +1053,18 @@ function Get-SsoLockoutPolicy {
       if ($Server -ne $null) {
          $serversToProcess = $Server
       }
-      foreach ($connection in $serversToProcess) {
-         if (-not $connection.IsConnected) {
-            Write-Error "Server $connection is disconnected"
-            continue
-         }
 
-         $connection.Client.GetLockoutPolicy();
+      try {
+         foreach ($connection in $serversToProcess) {
+            if (-not $connection.IsConnected) {
+               Write-Error "Server $connection is disconnected"
+               continue
+            }
+
+            $connection.Client.GetLockoutPolicy();
+         }
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
@@ -1077,36 +1137,39 @@ function Set-SsoLockoutPolicy {
    $MaxFailedAttempts)
 
    Process {
+      try {
+         foreach ($lp in $LockoutPolicy) {
 
-      foreach ($lp in $LockoutPolicy) {
+            $ssoAdminClient = $lp.GetClient()
+            if ((-not $ssoAdminClient)) {
+               Write-Error "Object '$lp' is from disconnected server"
+               continue
+            }
 
-         $ssoAdminClient = $lp.GetClient()
-         if ((-not $ssoAdminClient)) {
-            Write-Error "Object '$lp' is from disconnected server"
-            continue
+            if ([string]::IsNullOrEmpty($Description)) {
+               $Description = $lp.Description
+            }
+
+            if ($AutoUnlockIntervalSec -eq $null) {
+               $AutoUnlockIntervalSec = $lp.AutoUnlockIntervalSec
+            }
+
+            if ($FailedAttemptIntervalSec -eq $null) {
+               $FailedAttemptIntervalSec = $lp.FailedAttemptIntervalSec
+            }
+
+            if ($MaxFailedAttempts -eq $null) {
+               $MaxFailedAttempts = $lp.MaxFailedAttempts
+            }
+
+            $ssoAdminClient.SetLockoutPolicy(
+              $Description,
+              $AutoUnlockIntervalSec,
+              $FailedAttemptIntervalSec,
+              $MaxFailedAttempts);
          }
-
-         if ([string]::IsNullOrEmpty($Description)) {
-            $Description = $lp.Description
-         }
-
-         if ($AutoUnlockIntervalSec -eq $null) {
-            $AutoUnlockIntervalSec = $lp.AutoUnlockIntervalSec
-         }
-
-         if ($FailedAttemptIntervalSec -eq $null) {
-            $FailedAttemptIntervalSec = $lp.FailedAttemptIntervalSec
-         }
-
-         if ($MaxFailedAttempts -eq $null) {
-            $MaxFailedAttempts = $lp.MaxFailedAttempts
-         }
-
-         $ssoAdminClient.SetLockoutPolicy(
-           $Description,
-           $AutoUnlockIntervalSec,
-           $FailedAttemptIntervalSec,
-           $MaxFailedAttempts);
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
@@ -1150,13 +1213,18 @@ function Get-SsoTokenLifetime {
       if ($Server -ne $null) {
          $serversToProcess = $Server
       }
-      foreach ($connection in $serversToProcess) {
-         if (-not $connection.IsConnected) {
-            Write-Error "Server $connection is disconnected"
-            continue
-         }
 
-         $connection.Client.GetTokenLifetime();
+      try {
+         foreach ($connection in $serversToProcess) {
+            if (-not $connection.IsConnected) {
+               Write-Error "Server $connection is disconnected"
+               continue
+            }
+
+            $connection.Client.GetTokenLifetime();
+         }
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
@@ -1211,35 +1279,39 @@ function Set-SsoTokenLifetime {
 
    Process {
 
-      foreach ($tl in $TokenLifetime) {
+      try {
+         foreach ($tl in $TokenLifetime) {
 
-         $ssoAdminClient = $tl.GetClient()
-         if ((-not $ssoAdminClient)) {
-            Write-Error "Object '$tl' is from disconnected server"
-            continue
+            $ssoAdminClient = $tl.GetClient()
+            if ((-not $ssoAdminClient)) {
+               Write-Error "Object '$tl' is from disconnected server"
+               continue
+            }
+
+            $ssoAdminClient.SetTokenLifetime(
+               $MaxHoKTokenLifetime,
+               $MaxBearerTokenLifetime
+            );
          }
-
-         $ssoAdminClient.SetTokenLifetime(
-            $MaxHoKTokenLifetime,
-            $MaxBearerTokenLifetime
-         );
+      } catch {
+         Write-Error (FormatError $_.Exception)
       }
    }
 }
 #endregion
 
 #region IdentitySource
-function Add-ActiveDirectoryIdentitySource {
+function Add-ExternalDomainIdentitySource {
 <#
    .NOTES
    ===========================================================================
-   Created on:   	9/30/2020
+   Created on:   	2/11/2021
    Created by:   	Dimitar Milov
     Twitter:       @dimitar_milov
     Github:        https://github.com/dmilov
    ===========================================================================
    .DESCRIPTION
-   This function adds Identity Source of ActiveDirectory type.
+   This function adds Identity Source of ActiveDirectory, OpenLDAP or NIS type.
 
    .PARAMETER Name
    Name of the identity source
@@ -1269,8 +1341,12 @@ function Add-ActiveDirectoryIdentitySource {
    Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
    If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
 
+   .PARAMETER Server
+   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
+   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+
    .EXAMPLE
-   Add-ActiveDirectoryIdentitySource `
+   Add-ExternalDomainIdentitySource `
       -Name 'sof-powercli' `
       -DomainName 'sof-powercli.vmware.com' `
       -DomainAlias 'sof-powercli' `
@@ -1280,9 +1356,22 @@ function Add-ActiveDirectoryIdentitySource {
       -Username 'sofPowercliAdmin' `
       -Password '$up3R$Tr0Pa$$w0rD'
 
-   Adds ActiveDirectory identity source
+    .EXAMPLE
+   Add-ExternalDomainIdentitySource `
+      -Name 'sof-powercli' `
+      -DomainName 'sof-powercli.vmware.com' `
+      -DomainAlias 'sof-powercli' `
+      -PrimaryUrl 'ldap://sof-powercli.vmware.com:389' `
+      -BaseDNUsers 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
+      -BaseDNGroups 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
+      -Username 'sofPowercliAdmin' `
+      -Password '$up3R$Tr0Pa$$w0rD' `
+      -ServerType 'OpenLDAP'
+
+   Adds External Identity Source
 #>
 [CmdletBinding()]
+[Alias("Add-ActiveDirectoryIdentitySource")]
  param(
    [Parameter(
       Mandatory=$true,
@@ -1356,6 +1445,15 @@ function Add-ActiveDirectoryIdentitySource {
       Mandatory=$false,
       ValueFromPipeline=$false,
       ValueFromPipelineByPropertyName=$false,
+      HelpMessage='External domain server type')]
+   [ValidateSet('ActiveDirectory','OpenLdap','NIS')]
+   [string]
+   $DomainServerType = 'ActiveDirectory',
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
       HelpMessage='Connected SsoAdminServer object')]
    [ValidateNotNull()]
    [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
@@ -1365,21 +1463,27 @@ function Add-ActiveDirectoryIdentitySource {
    if ($Server -ne $null) {
       $serversToProcess = $Server
    }
-   foreach ($connection in $serversToProcess) {
-      if (-not $connection.IsConnected) {
-         Write-Error "Server $connection is disconnected"
-         continue
-      }
 
-      $connection.Client.AddActiveDirectoryExternalDomain(
-         $DomainName,
-         $DomainAlias,
-         $Name,
-         $PrimaryUrl,
-         $BaseDNUsers,
-         $BaseDNGroups,
-         $Username,
-         $Password);
+   try {
+      foreach ($connection in $serversToProcess) {
+         if (-not $connection.IsConnected) {
+            Write-Error "Server $connection is disconnected"
+            continue
+         }
+
+         $connection.Client.AddActiveDirectoryExternalDomain(
+            $DomainName,
+            $DomainAlias,
+            $Name,
+            $PrimaryUrl,
+            $BaseDNUsers,
+            $BaseDNGroups,
+            $Username,
+            $Password,
+            $DomainServerType);
+      }
+   } catch {
+      Write-Error (FormatError $_.Exception)
    }
 }
 #endregion
