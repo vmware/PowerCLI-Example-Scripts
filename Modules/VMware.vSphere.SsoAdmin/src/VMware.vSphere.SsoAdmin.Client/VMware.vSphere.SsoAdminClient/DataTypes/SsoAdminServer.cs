@@ -30,6 +30,7 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
             password,
             serverCertificateValidator);
 
+         RefCount = 1;
          Id = $"/SsoAdminServer={NormalizeUserName()}@{Name}";
       }
 
@@ -50,9 +51,12 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
       public string Id { get; set; }
       public bool IsConnected => _client != null;
       public SsoAdminClient Client => _client;
+      public int RefCount { get; set; }
 
       public void Disconnect() {
-         _client = null;
+         if (--RefCount == 0) {
+            _client = null;
+         }            
       }
 
       public override string ToString() {

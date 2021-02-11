@@ -627,9 +627,9 @@ namespace VMware.vSphere.SsoAdminClient
          string baseDNUsers,
          string baseDNGroups,
          string authenticationUserName,
-         string authenticationPassword) {
-
-         string serverType = "ActiveDirectory";
+         string authenticationPassword,
+         string serverType) {
+         
          string authenticationType = "password";
          var authorizedInvocationContext =
             CreateAuthorizedInvocationContext();
