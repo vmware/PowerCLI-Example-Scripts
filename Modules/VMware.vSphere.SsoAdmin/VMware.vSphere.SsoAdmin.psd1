@@ -34,11 +34,7 @@ RequiredModules = @(
 )
 
 # Functions to export from this module
-<<<<<<< HEAD
-FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer', 'New-SsoPersonUser', 'Get-SsoPersonUser', 'Set-SsoPersonUser', 'Remove-SsoPersonUser', 'Get-SsoGroup', 'Get-SsoPasswordPolicy', 'Set-SsoPasswordPolicy', 'Get-SsoLockoutPolicy', 'Set-SsoLockoutPolicy', 'Get-SsoTokenLifetime', 'Set-SsoTokenLifetime', 'Add-ActiveDirectoryIdentitySource', 'Get-IdentitySource')
-=======
-FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer', 'New-SsoPersonUser', 'Get-SsoPersonUser', 'Set-SsoPersonUser', 'Remove-SsoPersonUser', 'Get-SsoGroup', 'Get-SsoPasswordPolicy', 'Set-SsoPasswordPolicy', 'Get-SsoLockoutPolicy', 'Set-SsoLockoutPolicy', 'Get-SsoTokenLifetime', 'Set-SsoTokenLifetime', 'Add-ExternalDomainIdentitySource')
->>>>>>> Update binaries
+FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer', 'New-SsoPersonUser', 'Get-SsoPersonUser', 'Set-SsoPersonUser', 'Remove-SsoPersonUser', 'Get-SsoGroup', 'Get-SsoPasswordPolicy', 'Set-SsoPasswordPolicy', 'Get-SsoLockoutPolicy', 'Set-SsoLockoutPolicy', 'Get-SsoTokenLifetime', 'Set-SsoTokenLifetime', 'Add-ExternalDomainIdentitySource', 'Get-IdentitySource')
 
 # Cmdlets to export from this module
 CmdletsToExport = @()
