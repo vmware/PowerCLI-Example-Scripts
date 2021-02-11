@@ -52,7 +52,8 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
             -Server $VcAddress `
             -User $User `
             -Password ($Password + "invalid") `
-            -SkipCertificateCheck } | `
+            -SkipCertificateCheck `
+            -ErrorAction Stop } | `
          Should Throw "Invalid credentials"
       }
 
@@ -62,7 +63,8 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          { Connect-SsoAdminServer `
             -Server $VcAddress `
             -User $User `
-            -Password $Password} | `
+            -Password $Password `
+            -ErrorAction Stop } | `
          Should Throw "The SSL connection could not be established, see inner exception."
       }
    }
@@ -102,43 +104,48 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
 
       It 'Diconnect-SsoAdminServer does not disconnect if connected to more than 1 SSO server' {
          # Arrange
-         $expected += @(Connect-SsoAdminServer `
+         $connection1 = Connect-SsoAdminServer `
                -Server $VcAddress `
                -User $User `
                -Password $Password `
-               -SkipCertificateCheck)
-         $expected += @(Connect-SsoAdminServer `
+               -SkipCertificateCheck
+         $connection2 = Connect-SsoAdminServer `
                -Server $VcAddress `
                -User $User `
                -Password $Password `
-               -SkipCertificateCheck)
+               -SkipCertificateCheck
 
          # Act
 
          # Assert
-         {Disconnect-SsoAdminServer} | should -Throw 'Connected to more than 1 SSO server, please specify a SSO server via -Server parameter'
-         (Compare-Object $global:DefaultSsoAdminServers $expected -IncludeEqual).Count | Should Be 2
-         $expected.IsConnected | Should -Contain $true
+         $connection2 | Should Be $connection1
+         $connection2.RefCount | Should Be 2
+
+         Disconnect-SsoAdminServer
+
+         $connection2.IsConnected | Should -Contain $true
+         $connection2.RefCount | Should Be 1
       }
 
       It 'Diconnect-SsoAdminServer does disconnect via pipeline if connected to more than 1 SSO server' {
          # Arrange
-         $expected += @(Connect-SsoAdminServer `
+         $connection1 = Connect-SsoAdminServer `
                -Server $VcAddress `
                -User $User `
                -Password $Password `
-               -SkipCertificateCheck)
-         $expected += @(Connect-SsoAdminServer `
+               -SkipCertificateCheck
+         $connection2 = Connect-SsoAdminServer `
                -Server $VcAddress `
                -User $User `
                -Password $Password `
-               -SkipCertificateCheck)
+               -SkipCertificateCheck
 
          # Act
-         $expected | Disconnect-SsoAdminServer
+         $connection1, $connection2 | Disconnect-SsoAdminServer
          # Assert
-         $global:DefaultSsoAdminServers.count | Should Be 0
-         $expected.IsConnected | Should -not -Contain $true
+         $global:DefaultSsoAdminServers.Count | Should Be 0
+         $connection1.IsConnected | Should Be $false
+         $connection2.IsConnected | Should Be $false
       }
 
       It 'Disconnects disconnected object' {
