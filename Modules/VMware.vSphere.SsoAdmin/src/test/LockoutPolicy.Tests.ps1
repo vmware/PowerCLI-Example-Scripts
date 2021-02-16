@@ -42,7 +42,7 @@ Describe "LockoutPolicy Tests" {
          $actual = Get-SsoLockoutPolicy
 
          # Assert
-         $actual | Should Not Be $null
+         $actual | Should -Not -Be $null
       }
    }
 
@@ -60,11 +60,11 @@ Describe "LockoutPolicy Tests" {
             -MaxFailedAttempts $expectedMaxFailedAttempts
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.AutoUnlockIntervalSec | Should Be $expectedAutoUnlockIntervalSec
-         $actual.MaxFailedAttempts | Should Be $expectedMaxFailedAttempts
-         $actual.FailedAttemptIntervalSec | Should Be $lockoutPolicyToUpdate.FailedAttemptIntervalSec
-         $actual.Description | Should Be $lockoutPolicyToUpdate.Description
+         $actual | Should -Not -Be $null
+         $actual.AutoUnlockIntervalSec | Should -Be $expectedAutoUnlockIntervalSec
+         $actual.MaxFailedAttempts | Should -Be $expectedMaxFailedAttempts
+         $actual.FailedAttemptIntervalSec | Should -Be $lockoutPolicyToUpdate.FailedAttemptIntervalSec
+         $actual.Description | Should -Be $lockoutPolicyToUpdate.Description
 
          # Cleanup
          $lockoutPolicyToUpdate | Set-SsoLockoutPolicy

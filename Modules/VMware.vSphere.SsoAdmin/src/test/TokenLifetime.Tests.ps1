@@ -42,9 +42,9 @@ Describe "TokenLifetime Tests" {
          $actual = Get-SsoTokenLifetime
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.MaxHoKTokenLifetime | Should BeGreaterThan 0
-         $actual.MaxBearerTokenLifetime | Should BeGreaterThan 0
+         $actual | Should -Not -Be $null
+         $actual.MaxHoKTokenLifetime | Should -BeGreaterThan 0
+         $actual.MaxBearerTokenLifetime | Should -BeGreaterThan 0
       }
    }
 
@@ -62,9 +62,9 @@ Describe "TokenLifetime Tests" {
             -MaxBearerTokenLifetime $expectedMaxBearerTokenLifetime
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.MaxHoKTokenLifetime | Should Be $expectedMaxHoKTokenLifetime
-         $actual.MaxBearerTokenLifetime | Should Be $expectedMaxBearerTokenLifetime
+         $actual | Should -Not -Be $null
+         $actual.MaxHoKTokenLifetime | Should -Be $expectedMaxHoKTokenLifetime
+         $actual.MaxBearerTokenLifetime | Should -Be $expectedMaxBearerTokenLifetime
 
          # Cleanup
          $tokenLifetimeToUpdate | Set-SsoTokenLifetime `

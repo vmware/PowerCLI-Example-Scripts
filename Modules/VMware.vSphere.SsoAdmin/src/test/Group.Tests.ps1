@@ -42,10 +42,10 @@ Describe "Get-SsoGroup Tests" {
          $actual = Get-SsoGroup
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.Count | Should BeGreaterThan 0
-         $actual[0].Name | Should Not Be $null
-         $actual[0].Domain | Should Be 'localos'
+         $actual | Should -Not -Be $null
+         $actual.Count | Should -BeGreaterThan 0
+         $actual[0].Name | Should -Not -Be $null
+         $actual[0].Domain | Should -Be 'localos'
       }
 
       It 'Gets groups for default domain' {
@@ -64,10 +64,10 @@ Describe "Get-SsoGroup Tests" {
             -Domain $newPersonUser.Domain
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.Count | Should BeGreaterThan 0
-         $actual[0].Name | Should Not Be $null
-         $actual[0].Domain | Should Be $newPersonUser.Domain
+         $actual | Should -Not -Be $null
+         $actual.Count | Should -BeGreaterThan 0
+         $actual[0].Name | Should -Not -Be $null
+         $actual[0].Domain | Should -Be $newPersonUser.Domain
 
          # Cleanup
          Remove-SsoPersonUser -User $newPersonUser

@@ -98,7 +98,7 @@ param($OutputFolder)
          "VMware.vSphere.SsoAdmin.Utils.dll")
 
 
-      $netcoreTarget = Join-Path $OutputFolder "netcoreapp2.0"
+      $netcoreTarget = Join-Path $OutputFolder "netcoreapp3.1"
       $net45Target = Join-Path $OutputFolder "net45"
 
       Copy-Item -Path $netcoreLsSource -Destination $netcoreTarget -Force

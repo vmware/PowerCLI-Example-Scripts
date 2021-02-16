@@ -42,9 +42,9 @@ Describe "Get-IdentitySource Tests" {
          $actual = Get-IdentitySource
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.Count | Should BeGreaterThan 1
-         $actual[0].NAme | Should Be 'localos'
+         $actual | Should -Not -Be $null
+         $actual.Count | Should -BeGreaterThan 1
+         $actual[0].NAme | Should -Be 'localos'
       }
 
       It 'Gets localos only identity source' {
@@ -52,9 +52,9 @@ Describe "Get-IdentitySource Tests" {
          $actual = Get-IdentitySource -Localos
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.Count | Should Be 1
-         $actual[0].NAme | Should Be 'localos'
+         $actual | Should -Not -Be $null
+         $actual.Count | Should -Be 1
+         $actual[0].Name | Should -Be 'localos'
       }
 
        It 'Gets all available identity sources' {
@@ -62,10 +62,10 @@ Describe "Get-IdentitySource Tests" {
          $actual = Get-IdentitySource -Localos -System
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.Count | Should Be 2
-         $actual[0].Name | Should Be 'localos'
-         $actual[0].Name | Should Not Be $null
+         $actual | Should -Not -Be $null
+         $actual.Count | Should -Be 2
+         $actual[0].Name | Should -Be 'localos'
+         $actual[0].Name | Should -Not -Be $null
       }
    }
 }

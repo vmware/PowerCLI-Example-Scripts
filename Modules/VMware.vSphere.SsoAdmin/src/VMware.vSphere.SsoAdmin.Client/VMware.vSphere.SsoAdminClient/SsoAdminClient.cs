@@ -693,22 +693,26 @@ namespace VMware.vSphere.SsoAdminClient
             }
          }
 
-         authorizedInvocationContext.
-         InvokeOperation(() =>
-            _ssoAdminBindingClient.RegisterLdapAsync(
-               new ManagedObjectReference {
-                  type = "SsoAdminIdentitySourceManagementService",
-                  Value = "identitySourceManagementService"
-               },
-               serverType,
-               domainName,
-               domainAlias,
-               adminLdapIdentitySourceDetails,
-               authenticationType,
-               new SsoAdminIdentitySourceManagementServiceAuthenticationCredentials {
-                  username = authenticationUserName,
-                  password = authenticationPassword
-               })).Wait();
+         try {         
+            authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.RegisterLdapAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminIdentitySourceManagementService",
+                     Value = "identitySourceManagementService"
+                  },
+                  serverType,
+                  domainName,
+                  domainAlias,
+                  adminLdapIdentitySourceDetails,
+                  authenticationType,
+                  new SsoAdminIdentitySourceManagementServiceAuthenticationCredentials {
+                     username = authenticationUserName,
+                     password = authenticationPassword
+                  })).Wait();
+         } catch (AggregateException e) {
+            throw e.InnerException;
+         }
       }
 
       public IEnumerable<IdentitySource> GetDomains() {

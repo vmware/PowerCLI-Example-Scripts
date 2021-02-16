@@ -17,7 +17,7 @@ $PSModuleRoot = $PSModule.ModuleBase
 $subModuleRoot = $PSModuleRoot
 
 if (($PSVersionTable.Keys -contains "PSEdition") -and ($PSVersionTable.PSEdition -ne 'Desktop')) {
-   $subModuleRoot = Join-Path -Path $PSModuleRoot -ChildPath 'netcoreapp2.0'
+   $subModuleRoot = Join-Path -Path $PSModuleRoot -ChildPath 'netcoreapp3.1'
 }
 else {
    $subModuleRoot = Join-Path -Path $PSModuleRoot -ChildPath 'net45'
@@ -1365,7 +1365,7 @@ function Add-ExternalDomainIdentitySource {
       -BaseDNGroups 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
       -Username 'sofPowercliAdmin' `
       -Password '$up3R$Tr0Pa$$w0rD' `
-      -ServerType 'OpenLDAP'
+      -ServerType 'ActiveDirectory'
 
    Adds External Identity Source
 #>
@@ -1445,7 +1445,7 @@ function Add-ExternalDomainIdentitySource {
       ValueFromPipeline=$false,
       ValueFromPipelineByPropertyName=$false,
       HelpMessage='External domain server type')]
-   [ValidateSet('ActiveDirectory','OpenLdap','NIS')]
+   [ValidateSet('ActiveDirectory')]
    [string]
    $DomainServerType = 'ActiveDirectory',
 
@@ -1521,17 +1521,17 @@ function Add-LDAPIdentitySource {
 
    .PARAMETER Passowrd
    Domain authentication password
-   
+
    .PARAMETER ServerType
    Type of the ExternalDomain, one of 'ActiveDirectory','OpenLdap','NIS'
-   
+
    .PARAMETER Certificates
    List of X509Certicate2 LDAP certificates
 
    .PARAMETER Server
    Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
    If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
-   
+
    Adds LDAP Identity Source
 #>
 [CmdletBinding()]
@@ -1609,15 +1609,15 @@ function Add-LDAPIdentitySource {
       ValueFromPipeline=$false,
       ValueFromPipelineByPropertyName=$false,
       HelpMessage='Ldap Server type')]
-   [ValidateSet('ActiveDirectory','OpenLdap','NIS')]
+   [ValidateSet('ActiveDirectory')]
    [string]
    $ServerType,
-   
+
     [Parameter(
       Mandatory=$false,
       ValueFromPipeline=$false,
       ValueFromPipelineByPropertyName=$false,
-      HelpMessage='Ldap Certificates')]   
+      HelpMessage='Ldap Certificates')]
    [System.Security.Cryptography.X509Certificates.X509Certificate2[]]
    $Certificates,
 
