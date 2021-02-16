@@ -697,8 +697,8 @@ namespace VMware.vSphere.SsoAdminClient
          InvokeOperation(() =>
             _ssoAdminBindingClient.RegisterLdapAsync(
                new ManagedObjectReference {
-                  type = "SsoAdminDomainManagementService",
-                  Value = "domainManagementService"
+                  type = "SsoAdminIdentitySourceManagementService",
+                  Value = "identitySourceManagementService"
                },
                serverType,
                domainName,

@@ -26,7 +26,7 @@ public partial class SsoFaultInvalidCredentials : SecurityError
 [System.Xml.Serialization.XmlIncludeAttribute(typeof(SsoFaultInvalidCredentials))]
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class SecurityError : RuntimeFault
 {
 }
@@ -60,7 +60,7 @@ public partial class SecurityError : RuntimeFault
 [System.Xml.Serialization.XmlIncludeAttribute(typeof(HostNotConnected))]
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class RuntimeFault : MethodFault
 {
 }
@@ -119,7 +119,7 @@ public partial class RuntimeFault : MethodFault
 [System.Xml.Serialization.XmlIncludeAttribute(typeof(HostNotConnected))]
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class MethodFault
 {
 }
@@ -177,7 +177,7 @@ public partial class MethodFault
 [System.Xml.Serialization.XmlIncludeAttribute(typeof(LocalizedMethodFault))]
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class DynamicData
 {
 }
@@ -393,7 +393,7 @@ public partial class SsoAboutInfo : DynamicData
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class ManagedObjectReference
 {
     
@@ -3946,7 +3946,7 @@ public partial class SsoAdminActiveDirectoryJoinInfo : DynamicData
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class LocalizedMethodFault : DynamicData
 {
     
@@ -4704,7 +4704,7 @@ public partial class SsoAdminFaultDomainManagerFault : SsoFaultRuntimeServiceFau
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class UnexpectedFault : RuntimeFault
 {
     
@@ -4744,7 +4744,7 @@ public partial class UnexpectedFault : RuntimeFault
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class SystemError : RuntimeFault
 {
     
@@ -4768,7 +4768,7 @@ public partial class SystemError : RuntimeFault
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class RequestCanceled : RuntimeFault
 {
 }
@@ -4776,7 +4776,7 @@ public partial class RequestCanceled : RuntimeFault
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class NotSupported : RuntimeFault
 {
 }
@@ -4784,7 +4784,7 @@ public partial class NotSupported : RuntimeFault
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class NotImplemented : RuntimeFault
 {
 }
@@ -4792,7 +4792,7 @@ public partial class NotImplemented : RuntimeFault
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class NotEnoughLicenses : RuntimeFault
 {
 }
@@ -4800,7 +4800,7 @@ public partial class NotEnoughLicenses : RuntimeFault
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class ManagedObjectNotFound : RuntimeFault
 {
     
@@ -4826,7 +4826,7 @@ public partial class ManagedObjectNotFound : RuntimeFault
 [System.Xml.Serialization.XmlIncludeAttribute(typeof(InvalidType))]
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class InvalidRequest : RuntimeFault
 {
 }
@@ -4834,7 +4834,7 @@ public partial class InvalidRequest : RuntimeFault
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class MethodNotFound : InvalidRequest
 {
     
@@ -4874,7 +4874,7 @@ public partial class MethodNotFound : InvalidRequest
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class InvalidType : InvalidRequest
 {
     
@@ -4898,7 +4898,7 @@ public partial class InvalidType : InvalidRequest
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class InvalidArgument : RuntimeFault
 {
     
@@ -4924,7 +4924,7 @@ public partial class InvalidArgument : RuntimeFault
 [System.Xml.Serialization.XmlIncludeAttribute(typeof(HostNotConnected))]
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class HostCommunication : RuntimeFault
 {
 }
@@ -4932,7 +4932,7 @@ public partial class HostCommunication : RuntimeFault
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class HostNotReachable : HostCommunication
 {
 }
@@ -4940,7 +4940,7 @@ public partial class HostNotReachable : HostCommunication
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:vim25")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class HostNotConnected : HostCommunication
 {
 }
@@ -5697,7 +5697,7 @@ public interface SsoPortType
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNotAuthenticated), Action="urn:sso/version3_5", Name="SsoFaultNotAuthenticatedFault")]
-    [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
+    [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]      
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task RegisterLdapAsync(ManagedObjectReference _this, string serverType, string domainName, string domainAlias, SsoAdminLdapIdentitySourceDetails details, string authenticationType, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials);
