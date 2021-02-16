@@ -54,7 +54,7 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
             -Password ($Password + "invalid") `
             -SkipCertificateCheck `
             -ErrorAction Stop } | `
-         Should Throw "Invalid credentials"
+         Should -Throw "Invalid credentials"
       }
 
       It 'Connect-SsoAdminServer throws error on invalid Tls Certificate' {
@@ -65,7 +65,7 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
             -User $User `
             -Password $Password `
             -ErrorAction Stop } | `
-         Should Throw "The SSL connection could not be established, see inner exception."
+         Should -Throw "The SSL connection could not be established, see inner exception."
       }
    }
 
@@ -160,7 +160,7 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
 
          # Act
          { Disconnect-SsoAdminServer -Server $expected } | `
-         Should Not Throw
+         Should -Not -Throw
 
          # Assert
          $global:DefaultSsoAdminServers | Should -Not -Contain $expected
