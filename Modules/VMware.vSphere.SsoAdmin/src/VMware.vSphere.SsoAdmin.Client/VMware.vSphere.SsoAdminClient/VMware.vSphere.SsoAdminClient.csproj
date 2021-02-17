@@ -4,14 +4,14 @@
     <RootNamespace>VMware.vSphere.SsoAdminClient</RootNamespace>
     <AssemblyName>VMware.vSphere.SsoAdminClient</AssemblyName>
     <Description>SSO Admin API client.</Description>
-    <TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
   </PropertyGroup>
   
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
     <DefineConstants>$(DefineConstants);NETCORE20</DefineConstants>
   </PropertyGroup>
   
@@ -24,7 +24,7 @@
     <PackageReference Include="System.ServiceModel.Security" Version="4.4.0" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="VMware.System.Private.ServiceModel" Version="4.4.4" />
   </ItemGroup>
   

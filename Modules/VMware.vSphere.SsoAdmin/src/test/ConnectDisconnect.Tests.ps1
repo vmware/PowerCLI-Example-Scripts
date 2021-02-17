@@ -38,11 +38,11 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
             -SkipCertificateCheck
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.GetType().FullName | Should Be 'VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer'
-         $actual.IsConnected | Should Be $true
-         $actual.Name | Should Be $VcAddress
-         $global:DefaultSsoAdminServers | Should Contain $actual
+         $actual | Should -Not -Be $null
+         $actual.GetType().FullName | Should -Be 'VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer'
+         $actual.IsConnected | Should -Be $true
+         $actual.Name | Should -Be $VcAddress
+         $global:DefaultSsoAdminServers | Should -Contain $actual
       }
 
       It 'Connect-SsoAdminServer throws error on invalid password' {
@@ -54,7 +54,7 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
             -Password ($Password + "invalid") `
             -SkipCertificateCheck `
             -ErrorAction Stop } | `
-         Should Throw "Invalid credentials"
+         Should -Throw "Invalid credentials"
       }
 
       It 'Connect-SsoAdminServer throws error on invalid Tls Certificate' {
@@ -65,7 +65,7 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
             -User $User `
             -Password $Password `
             -ErrorAction Stop } | `
-         Should Throw "The SSL connection could not be established, see inner exception."
+         Should -Throw "The SSL connection could not be established, see inner exception."
       }
    }
 
@@ -82,8 +82,8 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          $expected | Disconnect-SsoAdminServer
 
          # Assert
-         $global:DefaultSsoAdminServers | Should Not Contain $expected
-         $expected.IsConnected | Should Be $false
+         $global:DefaultSsoAdminServers | Should -Not -Contain $expected
+         $expected.IsConnected | Should -Be $false
       }
 
       It 'Diconnect-SsoAdminServer disconnects the currently connected SSO in case there is 1 SSO server' {
@@ -98,8 +98,8 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          Disconnect-SsoAdminServer -server $expected
 
          # Assert
-         $global:DefaultSsoAdminServers | Should Not Contain $expected
-         $expected.IsConnected | Should Be $false
+         $global:DefaultSsoAdminServers | Should -Not -Contain $expected
+         $expected.IsConnected | Should -Be $false
       }
 
       It 'Diconnect-SsoAdminServer does not disconnect if connected to more than 1 SSO server' {
@@ -118,13 +118,13 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          # Act
 
          # Assert
-         $connection2 | Should Be $connection1
-         $connection2.RefCount | Should Be 2
+         $connection2 | Should -Be $connection1
+         $connection2.RefCount | Should -Be 2
 
          Disconnect-SsoAdminServer
 
          $connection2.IsConnected | Should -Contain $true
-         $connection2.RefCount | Should Be 1
+         $connection2.RefCount | Should -Be 1
       }
 
       It 'Diconnect-SsoAdminServer does disconnect via pipeline if connected to more than 1 SSO server' {
@@ -143,9 +143,9 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          # Act
          $connection1, $connection2 | Disconnect-SsoAdminServer
          # Assert
-         $global:DefaultSsoAdminServers.Count | Should Be 0
-         $connection1.IsConnected | Should Be $false
-         $connection2.IsConnected | Should Be $false
+         $global:DefaultSsoAdminServers.Count | Should -Be 0
+         $connection1.IsConnected | Should -Be $false
+         $connection2.IsConnected | Should -Be $false
       }
 
       It 'Disconnects disconnected object' {
@@ -160,11 +160,11 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
 
          # Act
          { Disconnect-SsoAdminServer -Server $expected } | `
-         Should Not Throw
+         Should -Not -Throw
 
          # Assert
-         $global:DefaultSsoAdminServers | Should Not Contain $expected
-         $expected.IsConnected | Should Be $false
+         $global:DefaultSsoAdminServers | Should -Not -Contain $expected
+         $expected.IsConnected | Should -Be $false
       }
 
       It 'Disconnects DefaultSsoAdminServers when * is specified on -Server parameter' {
@@ -180,8 +180,8 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
 
 
          # Assert
-         $global:DefaultSsoAdminServers.Count | Should Be 0
-         $expected.IsConnected | Should Be $false
+         $global:DefaultSsoAdminServers.Count | Should -Be 0
+         $expected.IsConnected | Should -Be $false
       }
 
       It 'Disconnects server specified as string that is equal to VC Address' {
@@ -197,8 +197,8 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
 
 
          # Assert
-         $global:DefaultSsoAdminServers.Count | Should Be 0
-         $expected.IsConnected | Should Be $false
+         $global:DefaultSsoAdminServers.Count | Should -Be 0
+         $expected.IsConnected | Should -Be $false
       }
 
       It 'Disconnect-SsoAdminServer fails when string that does not match any servers is specified' {
@@ -210,13 +210,13 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
                -SkipCertificateCheck
 
          # Act
-         { Disconnect-SsoAdminServer -Server "testserver" } | Should Throw
+         { Disconnect-SsoAdminServer -Server "testserver" } | Should -Throw
 
 
          # Assert
-         $global:DefaultSsoAdminServers.Count | Should Be 1
-         $global:DefaultSsoAdminServers[0] | Should Be $expected
-         $expected.IsConnected | Should Be $true
+         $global:DefaultSsoAdminServers.Count | Should -Be 1
+         $global:DefaultSsoAdminServers[0] | Should -Be $expected
+         $expected.IsConnected | Should -Be $true
 
          # Cleanup
          Disconnect-SsoAdminServer -Server $expected

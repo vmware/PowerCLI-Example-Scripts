@@ -11,7 +11,7 @@
 RootModule = 'VMware.vSphere.SsoAdmin.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.0'
+ModuleVersion = '1.2.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3e25326-e809-4d68-a252-ca5fcaf1eb8b'
@@ -34,7 +34,7 @@ RequiredModules = @(
 )
 
 # Functions to export from this module
-FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer', 'New-SsoPersonUser', 'Get-SsoPersonUser', 'Set-SsoPersonUser', 'Remove-SsoPersonUser', 'Get-SsoGroup', 'Get-SsoPasswordPolicy', 'Set-SsoPasswordPolicy', 'Get-SsoLockoutPolicy', 'Set-SsoLockoutPolicy', 'Get-SsoTokenLifetime', 'Set-SsoTokenLifetime', 'Add-ExternalDomainIdentitySource', 'Get-IdentitySource')
+FunctionsToExport = @('Connect-SsoAdminServer', 'Disconnect-SsoAdminServer', 'New-SsoPersonUser', 'Get-SsoPersonUser', 'Set-SsoPersonUser', 'Remove-SsoPersonUser', 'Get-SsoGroup', 'Get-SsoPasswordPolicy', 'Set-SsoPasswordPolicy', 'Get-SsoLockoutPolicy', 'Set-SsoLockoutPolicy', 'Get-SsoTokenLifetime', 'Set-SsoTokenLifetime', 'Get-IdentitySource', 'Add-ActiveDirectoryIdentitySource', 'Add-LDAPIdentitySource', 'Set-LDAPIdentitySource')
 
 # Cmdlets to export from this module
 CmdletsToExport = @()

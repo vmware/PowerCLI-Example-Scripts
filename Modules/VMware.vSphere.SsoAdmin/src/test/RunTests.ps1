@@ -17,20 +17,35 @@ param(
 )
 
 function Test-PesterIsAvailable() {
-   $pesterModule = Get-Module Pester -List
-   if ($pesterModule -eq $null) {
-      throw "Pester Module is not available"
+   $pesterModules = Get-Module Pester -ListAvailable
+   $pesterModule = $null
+   # Search for Pester 4.X
+   foreach ($p in $pesterModules) {
+      if ($p.Version -ge [version]"5.0.0") {
+         $pesterModule = $p
+         break
+      }
    }
+
+   if ($pesterModule -eq $null) {
+      throw "Pester Module version 5.X is not available"
+   }
+
+   Import-Module -Name $pesterModule.Name -RequiredVersion $pesterModule.RequiredVersion
 }
 
 Test-PesterIsAvailable
 
-Invoke-Pester `
-   -Script @{
-       Path = $PSScriptRoot
-       Parameters = @{
-         VcAddress = $VcAddress
-         User = $User
-         Password = $Password
-      }
-   }
+$testsData = @{
+    VcAddress = $VcAddress
+    User = $User
+    Password = $Password
+}
+
+$pesterContainer = New-PesterContainer -Path $PSScriptRoot -Data $testsData
+$pesterConfiguration = [PesterConfiguration]::Default
+
+$pesterConfiguration.Run.Path = $PSScriptRoot
+$pesterConfiguration.Run.Container = $pesterContainer
+
+Invoke-Pester -Configuration $pesterConfiguration

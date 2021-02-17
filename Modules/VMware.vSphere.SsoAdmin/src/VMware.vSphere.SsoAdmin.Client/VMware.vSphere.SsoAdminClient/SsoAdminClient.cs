@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Selectors;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Security;
@@ -16,7 +17,7 @@ using VMware.Binding.WsTrust;
 using VMware.Binding.WsTrust.SecurityContext;
 using VMware.vSphere.LsClient;
 using VMware.vSphere.SsoAdminClient.DataTypes;
-using VMware.vSphere.SsoAdminClient.SsoAdminServiceReferencer;
+using VMware.vSphere.SsoAdminClient.SsoAdminServiceReference2;
 
 namespace VMware.vSphere.SsoAdminClient
 {
@@ -655,6 +656,106 @@ namespace VMware.vSphere.SsoAdminClient
                   username = authenticationUserName,
                   password = authenticationPassword
                })).Wait();
+      }
+
+      public void AddLdapIdentitySource(
+         string domainName,
+         string domainAlias,
+         string friendlyName,
+         string primaryUrl,
+         string baseDNUsers,
+         string baseDNGroups,
+         string authenticationUserName,
+         string authenticationPassword,
+         string serverType,
+         X509Certificate2[] ldapCertificates) {
+
+         string authenticationType = "password";
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         var adminLdapIdentitySourceDetails = new SsoAdminLdapIdentitySourceDetails {
+            friendlyName = friendlyName,
+            primaryUrl = primaryUrl,
+            userBaseDn = baseDNUsers,
+            groupBaseDn = baseDNGroups
+         };
+
+         if (ldapCertificates != null && ldapCertificates.Length > 0) {
+            var certificates = new List<string>();
+            foreach (var ldapCert in ldapCertificates) {               
+               certificates.Add(Convert.ToBase64String(ldapCert.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks));               
+            }
+
+            if (certificates.Count > 0) {
+               adminLdapIdentitySourceDetails.certificates = certificates.ToArray();
+            }
+         }
+
+         try {         
+            authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.RegisterLdapAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminIdentitySourceManagementService",
+                     Value = "identitySourceManagementService"
+                  },
+                  serverType,
+                  domainName,
+                  domainAlias,
+                  adminLdapIdentitySourceDetails,
+                  authenticationType,
+                  new SsoAdminIdentitySourceManagementServiceAuthenticationCredentials {
+                     username = authenticationUserName,
+                     password = authenticationPassword
+                  })).Wait();
+         } catch (AggregateException e) {
+            throw e.InnerException;
+         }
+      }
+
+      public void UpdateLdapIdentitySource(
+         string name,         
+         string friendlyName,
+         string primaryUrl,
+         string baseDNUsers,
+         string baseDNGroups,         
+         X509Certificate2[] ldapCertificates) {
+                  
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         var adminLdapIdentitySourceDetails = new SsoAdminLdapIdentitySourceDetails {
+            friendlyName = friendlyName,
+            primaryUrl = primaryUrl,
+            userBaseDn = baseDNUsers,
+            groupBaseDn = baseDNGroups
+         };
+
+         if (ldapCertificates != null && ldapCertificates.Length > 0) {
+            var certificates = new List<string>();
+            foreach (var ldapCert in ldapCertificates) {
+               certificates.Add(Convert.ToBase64String(ldapCert.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks));
+            }
+
+            if (certificates.Count > 0) {
+               adminLdapIdentitySourceDetails.certificates = certificates.ToArray();
+            }
+         }
+
+         try {
+            authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.UpdateLdapAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminIdentitySourceManagementService",
+                     Value = "identitySourceManagementService"
+                  },
+                  name,
+                  adminLdapIdentitySourceDetails)).Wait();
+         } catch (AggregateException e) {
+            throw e.InnerException;
+         }
       }
 
       public IEnumerable<IdentitySource> GetDomains() {

@@ -40,8 +40,8 @@ Describe "Lookup Service Client Integration Tests" {
          $actual = $script:lsClient.GetSsoAdminEndpointUri()
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.ToString().StartsWith("https://$VCAddress/sso-adminserver/sdk/") | Should Be $true
+         $actual | Should -Not -Be $null
+         $actual.ToString().StartsWith("https://$VCAddress/sso-adminserver/sdk/") | Should -Be $true
       }
 
       It 'Gets STS API Url' {
@@ -49,8 +49,8 @@ Describe "Lookup Service Client Integration Tests" {
          $actual = $script:lsClient.GetStsEndpointUri()
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.ToString().StartsWith("https://$VCAddress/sts/STSService") | Should Be $true
+         $actual | Should -Not -Be $null
+         $actual.ToString().StartsWith("https://$VCAddress/sts/STSService") | Should -Be $true
       }
    }
 }

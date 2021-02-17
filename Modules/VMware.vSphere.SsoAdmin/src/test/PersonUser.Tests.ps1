@@ -63,14 +63,14 @@ Describe "PersonUser Tests" {
          $script:usersToCleanup += $actual
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.GetType().FullName | Should Be 'VMware.vSphere.SsoAdminClient.DataTypes.PersonUser'
-         $actual.Name | Should Be $expectedUserName
-         $actual.Domain | Should Not Be $null
-         $actual.Description | Should Be $expectedDescription
-         $actual.FirstName | Should Be $expectedFirstName
-         $actual.LastName | Should Be $expectedLastName
-         $actual.EmailAddress | Should Be $expectedEmailAddress
+         $actual | Should -Not -Be $null
+         $actual.GetType().FullName | Should -Be 'VMware.vSphere.SsoAdminClient.DataTypes.PersonUser'
+         $actual.Name | Should -Be $expectedUserName
+         $actual.Domain | Should -Not -Be $null
+         $actual.Description | Should -Be $expectedDescription
+         $actual.FirstName | Should -Be $expectedFirstName
+         $actual.LastName | Should -Be $expectedLastName
+         $actual.EmailAddress | Should -Be $expectedEmailAddress
       }
 
       It 'Creates person user without details' {
@@ -92,14 +92,14 @@ Describe "PersonUser Tests" {
          $script:usersToCleanup += $actual
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.GetType().FullName | Should Be 'VMware.vSphere.SsoAdminClient.DataTypes.PersonUser'
-         $actual.Name | Should Be $expectedUserName
-         $actual.Domain | Should Not Be $null
-         $actual.Description | Should Be $null
-         $actual.FirstName | Should Be $null
-         $actual.LastName | Should Be $null
-         $actual.EmailAddress | Should Be $null
+         $actual | Should -Not -Be $null
+         $actual.GetType().FullName | Should -Be 'VMware.vSphere.SsoAdminClient.DataTypes.PersonUser'
+         $actual.Name | Should -Be $expectedUserName
+         $actual.Domain | Should -Not -Be $null
+         $actual.Description | Should -Be $null
+         $actual.FirstName | Should -Be $null
+         $actual.LastName | Should -Be $null
+         $actual.EmailAddress | Should -Be $null
       }
    }
 
@@ -116,10 +116,10 @@ Describe "PersonUser Tests" {
          $actual = Get-SsoPersonUser
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.Count | Should BeGreaterThan 0
-         $actual[0].Name | Should Not Be $null
-         $actual[0].Domain | Should Be 'localos'
+         $actual | Should -Not -Be $null
+         $actual.Count | Should -BeGreaterThan 0
+         $actual[0].Name | Should -Not -Be $null
+         $actual[0].Domain | Should -Be 'localos'
       }
 
       It 'Gets person users by name (exact match) and domain filters' {
@@ -153,10 +153,10 @@ Describe "PersonUser Tests" {
             -Server $connection
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.Name | Should Be $expectedUserName
-         $actual.Domain | Should Not Be $null
-         $actual.Domain | Should Be $personUserToSearch.Domain
+         $actual | Should -Not -Be $null
+         $actual.Name | Should -Be $expectedUserName
+         $actual.Domain | Should -Not -Be $null
+         $actual.Domain | Should -Be $personUserToSearch.Domain
       }
 
       It 'Gets person users by name (* wildcard match) and domain filters' {
@@ -190,10 +190,10 @@ Describe "PersonUser Tests" {
             -Server $connection
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.Count | Should Be 2
-         $actual.Name | Should Contain $expectedUserName
-         $actual.Name | Should Contain $secondUserName
+         $actual | Should -Not -Be $null
+         $actual.Count | Should -Be 2
+         $actual.Name | Should -Contain $expectedUserName
+         $actual.Name | Should -Contain $secondUserName
       }
 
       It 'Gets person users by name (? wildcard match) and domain filters' {
@@ -227,10 +227,10 @@ Describe "PersonUser Tests" {
             -Server $connection
 
          # Assert
-         $actual | Should Not Be $null
-         $actual.Count | Should Be 2
-         $actual.Name | Should Contain $expectedUserName
-         $actual.Name | Should Contain $secondUserName
+         $actual | Should -Not -Be $null
+         $actual.Count | Should -Be 2
+         $actual.Name | Should -Contain $expectedUserName
+         $actual.Name | Should -Contain $secondUserName
       }
 
       It 'Gets person users by unexisting name does not return' {
@@ -258,7 +258,7 @@ Describe "PersonUser Tests" {
             -Server $connection
 
          # Assert
-         $actual | Should Be $null
+         $actual | Should -Be $null
       }
    }
 
@@ -292,7 +292,7 @@ Describe "PersonUser Tests" {
             -Add
 
          # Assert
-         $actual | Should Not Be $null
+         $actual | Should -Not -Be $null
       }
 
       It 'Removes person user from group' {
@@ -329,7 +329,7 @@ Describe "PersonUser Tests" {
             -Remove
 
          # Assert
-         $actual | Should Not Be $null
+         $actual | Should -Not -Be $null
       }
 
       It 'Resets person user password' {
@@ -356,7 +356,7 @@ Describe "PersonUser Tests" {
             -NewPassword $newPassword
 
          # Assert
-         $actual | Should Not Be $null
+         $actual | Should -Not -Be $null
       }
 
       It 'Unlocks not locked person user' {
@@ -382,7 +382,7 @@ Describe "PersonUser Tests" {
             -Unlock
 
          # Assert
-         $actual | Should Be $null
+         $actual | Should -Be $null
       }
    }
 
@@ -407,12 +407,12 @@ Describe "PersonUser Tests" {
          Remove-SsoPersonUser -User $personUserToRemove
 
          # Assert
-         $personUserToRemove | Should Not Be $null
+         $personUserToRemove | Should -Not -Be $null
          $userFromServer = Get-SsoPersonUser `
             -Name $personUserToRemove.Name `
             -Domain $personUserToRemove.Domain `
             -Server $connection
-         $userFromServer | Should Be $null
+         $userFromServer | Should -Be $null
       }
    }
 }

@@ -17,7 +17,7 @@ $PSModuleRoot = $PSModule.ModuleBase
 $subModuleRoot = $PSModuleRoot
 
 if (($PSVersionTable.Keys -contains "PSEdition") -and ($PSVersionTable.PSEdition -ne 'Desktop')) {
-   $subModuleRoot = Join-Path -Path $PSModuleRoot -ChildPath 'netcoreapp2.0'
+   $subModuleRoot = Join-Path -Path $PSModuleRoot -ChildPath 'netcoreapp3.1'
 }
 else {
    $subModuleRoot = Join-Path -Path $PSModuleRoot -ChildPath 'net45'
@@ -1337,9 +1337,8 @@ function Add-ExternalDomainIdentitySource {
    .PARAMETER Passowrd
    Domain authentication password
 
-   .PARAMETER Server
-   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
-   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+   .PARAMETER DomainServerType
+   Type of the ExternalDomain, one of 'ActiveDirectory','OpenLdap','NIS'
 
    .PARAMETER Server
    Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
@@ -1355,18 +1354,6 @@ function Add-ExternalDomainIdentitySource {
       -BaseDNGroups 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
       -Username 'sofPowercliAdmin' `
       -Password '$up3R$Tr0Pa$$w0rD'
-
-    .EXAMPLE
-   Add-ExternalDomainIdentitySource `
-      -Name 'sof-powercli' `
-      -DomainName 'sof-powercli.vmware.com' `
-      -DomainAlias 'sof-powercli' `
-      -PrimaryUrl 'ldap://sof-powercli.vmware.com:389' `
-      -BaseDNUsers 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
-      -BaseDNGroups 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
-      -Username 'sofPowercliAdmin' `
-      -Password '$up3R$Tr0Pa$$w0rD' `
-      -ServerType 'OpenLDAP'
 
    Adds External Identity Source
 #>
@@ -1446,7 +1433,7 @@ function Add-ExternalDomainIdentitySource {
       ValueFromPipeline=$false,
       ValueFromPipelineByPropertyName=$false,
       HelpMessage='External domain server type')]
-   [ValidateSet('ActiveDirectory','OpenLdap','NIS')]
+   [ValidateSet('ActiveDirectory')]
    [string]
    $DomainServerType = 'ActiveDirectory',
 
@@ -1485,6 +1472,278 @@ function Add-ExternalDomainIdentitySource {
    } catch {
       Write-Error (FormatError $_.Exception)
    }
+}
+
+function Add-LDAPIdentitySource {
+<#
+   .NOTES
+   ===========================================================================
+   Created on:   	2/11/2021
+   Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+   ===========================================================================
+   .DESCRIPTION
+   This function adds LDAP Identity Source of ActiveDirectory, OpenLDAP or NIS type.
+
+   .PARAMETER Name
+   Friendly name of the identity source
+
+   .PARAMETER DomainName
+   Domain name
+
+   .PARAMETER DomainAlias
+   Domain alias
+
+   .PARAMETER PrimaryUrl
+   Primary Server URL
+
+   .PARAMETER BaseDNUsers
+   Base distinguished name for users
+
+   .PARAMETER BaseDNGroups
+   Base distinguished name for groups
+
+   .PARAMETER Username
+   Domain authentication user name
+
+   .PARAMETER Passowrd
+   Domain authentication password
+
+   .PARAMETER ServerType
+   Type of the ExternalDomain, one of 'ActiveDirectory','OpenLdap','NIS'
+
+   .PARAMETER Certificates
+   List of X509Certicate2 LDAP certificates
+
+   .PARAMETER Server
+   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
+   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+
+   Adds LDAP Identity Source
+
+   .EXAMPLE
+   Add-LDAPIdentitySource `
+      -Name 'sof-powercli' `
+      -DomainName 'sof-powercli.vmware.com' `
+      -DomainAlias 'sof-powercli' `
+      -PrimaryUrl 'ldap://sof-powercli.vmware.com:389' `
+      -BaseDNUsers 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
+      -BaseDNGroups 'CN=Users,DC=sof-powercli,DC=vmware,DC=com' `
+      -Username 'sofPowercliAdmin@sof-powercli.vmware.com' `
+      -Password '$up3R$Tr0Pa$$w0rD' `
+      -Certificates 'C:\Temp\test.cer'
+#>
+[CmdletBinding()]
+ param(
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Friendly name of the identity source')]
+   [ValidateNotNull()]
+   [string]
+   $Name,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [ValidateNotNull()]
+   [string]
+   $DomainName,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [string]
+   $DomainAlias,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]
+   [ValidateNotNull()]
+   [string]
+   $PrimaryUrl,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Base distinguished name for users')]
+   [ValidateNotNull()]
+   [string]
+   $BaseDNUsers,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Base distinguished name for groups')]
+   [ValidateNotNull()]
+   [string]
+   $BaseDNGroups,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Domain authentication user name')]
+   [ValidateNotNull()]
+   [string]
+   $Username,
+
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Domain authentication password')]
+   [ValidateNotNull()]
+   [string]
+   $Password,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Ldap Certificates')]
+   [System.Security.Cryptography.X509Certificates.X509Certificate2[]]
+   $Certificates,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Ldap Server type')]
+   [ValidateSet('ActiveDirectory')]
+   [string]
+   $ServerType = 'ActiveDirectory',
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Connected SsoAdminServer object')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+   $Server)
+
+   $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
+   if ($Server -ne $null) {
+      $serversToProcess = $Server
+   }
+
+   try {
+      foreach ($connection in $serversToProcess) {
+         if (-not $connection.IsConnected) {
+            Write-Error "Server $connection is disconnected"
+            continue
+         }
+
+         $connection.Client.AddLdapIdentitySource(
+            $DomainName,
+            $DomainAlias,
+            $Name,
+            $PrimaryUrl,
+            $BaseDNUsers,
+            $BaseDNGroups,
+            $Username,
+            $Password,
+            $ServerType,
+            $Certificates);
+      }
+   } catch {
+      Write-Error (FormatError $_.Exception)
+   }
+}
+
+function Set-LDAPIdentitySource {
+<#
+   .NOTES
+   ===========================================================================
+   Created on:   	2/17/2021
+   Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+   ===========================================================================
+   .DESCRIPTION
+   This function adds LDAP Identity Source of ActiveDirectory, OpenLDAP or NIS type.
+
+   .PARAMETER IdentitySource
+   Identity Source to update
+
+   .PARAMETER Certificates
+   List of X509Certicate2 LDAP certificates
+
+   .PARAMETER Server
+   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
+   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+
+   Updates LDAP Identity Source
+
+   .EXAMPLE
+
+   Updates certificate of a LDAP identity source
+
+   Get-IdentitySource -External | `
+   Set-LDAPIdentitySource `
+      -Certificates 'C:\Temp\test.cer'
+#>
+[CmdletBinding()]
+ param(
+   [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$true,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Identity source to update')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.ActiveDirectoryIdentitySource]
+   $IdentitySource,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Ldap Certificates')]
+   [System.Security.Cryptography.X509Certificates.X509Certificate2[]]
+   $Certificates,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Connected SsoAdminServer object')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+   $Server)
+
+Process {
+   $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
+   if ($Server -ne $null) {
+      $serversToProcess = $Server
+   }
+
+   try {
+      foreach ($connection in $serversToProcess) {
+         if (-not $connection.IsConnected) {
+            Write-Error "Server $connection is disconnected"
+            continue
+         }
+
+         $connection.Client.UpdateLdapIdentitySource(
+            $IdentitySource.Name,
+            $IdentitySource.FriendlyName,
+            $IdentitySource.PrimaryUrl,
+            $IdentitySource.UserBaseDN,
+            $IdentitySource.GroupBaseDN,
+            $Certificates);
+      }
+   } catch {
+      Write-Error (FormatError $_.Exception)
+   }
+}
 }
 
 function Get-IdentitySource {
