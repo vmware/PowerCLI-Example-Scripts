@@ -683,11 +683,10 @@ namespace VMware.vSphere.SsoAdminClient
 
          if (ldapCertificates != null && ldapCertificates.Length > 0) {
             var certificates = new List<string>();
-            foreach (var ldapCert in ldapCertificates) {
-               if (ldapCert != null) {
-                  certificates.Add(ldapCert.ToString());
-               }  
+            foreach (var ldapCert in ldapCertificates) {               
+               certificates.Add(Convert.ToBase64String(ldapCert.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks));               
             }
+
             if (certificates.Count > 0) {
                adminLdapIdentitySourceDetails.certificates = certificates.ToArray();
             }

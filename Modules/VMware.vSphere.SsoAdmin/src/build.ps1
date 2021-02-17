@@ -49,7 +49,7 @@ param($OutputFolder)
          "VMware.vSphere.LsClient",
          "bin",
          $Configuration,
-         "netcoreapp2.0",
+         "netcoreapp3.1",
          "VMware.vSphere.LsClient.dll")
 
       $net45LsSource = [IO.Path]::Combine(
@@ -67,7 +67,7 @@ param($OutputFolder)
          "VMware.vSphere.SsoAdminClient",
          "bin",
          $Configuration,
-         "netcoreapp2.0",
+         "netcoreapp3.1",
          "VMware.vSphere.SsoAdminClient.dll")
 
       $net45SsoAdminSource = [IO.Path]::Combine(
@@ -85,7 +85,7 @@ param($OutputFolder)
          "VMware.vSphere.SsoAdmin.Utils",
          "bin",
          $Configuration,
-         "netcoreapp2.0",
+         "netcoreapp3.1",
          "VMware.vSphere.SsoAdmin.Utils.dll")
 
       $net45UtilsSource = [IO.Path]::Combine(
