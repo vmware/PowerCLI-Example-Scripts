@@ -19,10 +19,10 @@ This directory contains the .NET binaries sources code and Pester integration te
 ## Required test tools 
 - PowerShell 7.0
 - PowerCLI 12.0<br/>
-- Pester 4.8.1<br/>
+- Pester 5.0.0<br/>
 
 ## '/src/build.ps1' script
-The script builds the binaries and publishes them to the 'net45' and 'netcoreapp2.0' directories of the module.<br/>
+The script builds the binaries and publishes them to the 'net45' and 'netcoreapp3.1' directories of the module.<br/>
 
 It has also the option to run module Pester tests. The optional parameters for VC server and credentials has to be specified in order the script to run the tests. Tests run in separate PowreShell process because PowerShell has to load the module binaries which are build output.<br/>
 
