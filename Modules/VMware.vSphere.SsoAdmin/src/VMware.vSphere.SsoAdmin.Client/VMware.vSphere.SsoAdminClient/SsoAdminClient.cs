@@ -714,6 +714,50 @@ namespace VMware.vSphere.SsoAdminClient
          }
       }
 
+      public void UpdateLdapIdentitySource(
+         string name,         
+         string friendlyName,
+         string primaryUrl,
+         string baseDNUsers,
+         string baseDNGroups,         
+         X509Certificate2[] ldapCertificates) {
+                  
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         var adminLdapIdentitySourceDetails = new SsoAdminLdapIdentitySourceDetails {
+            friendlyName = friendlyName,
+            primaryUrl = primaryUrl,
+            userBaseDn = baseDNUsers,
+            groupBaseDn = baseDNGroups
+         };
+
+         if (ldapCertificates != null && ldapCertificates.Length > 0) {
+            var certificates = new List<string>();
+            foreach (var ldapCert in ldapCertificates) {
+               certificates.Add(Convert.ToBase64String(ldapCert.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks));
+            }
+
+            if (certificates.Count > 0) {
+               adminLdapIdentitySourceDetails.certificates = certificates.ToArray();
+            }
+         }
+
+         try {
+            authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.UpdateLdapAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminIdentitySourceManagementService",
+                     Value = "identitySourceManagementService"
+                  },
+                  name,
+                  adminLdapIdentitySourceDetails)).Wait();
+         } catch (AggregateException e) {
+            throw e.InnerException;
+         }
+      }
+
       public IEnumerable<IdentitySource> GetDomains() {
          var authorizedInvocationContext =
             CreateAuthorizedInvocationContext();
