@@ -663,6 +663,7 @@ namespace VMware.vSphere.SsoAdminClient
          string domainAlias,
          string friendlyName,
          string primaryUrl,
+         string failoverUrl,
          string baseDNUsers,
          string baseDNGroups,
          string authenticationUserName,
@@ -677,6 +678,7 @@ namespace VMware.vSphere.SsoAdminClient
          var adminLdapIdentitySourceDetails = new SsoAdminLdapIdentitySourceDetails {
             friendlyName = friendlyName,
             primaryUrl = primaryUrl,
+            failoverUrl = failoverUrl,
             userBaseDn = baseDNUsers,
             groupBaseDn = baseDNGroups
          };
