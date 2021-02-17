@@ -11,7 +11,7 @@
 RootModule = 'VMware.vSphere.SsoAdmin.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.0'
+ModuleVersion = '1.2.1'
 
 # ID used to uniquely identify this module
 GUID = 'b3e25326-e809-4d68-a252-ca5fcaf1eb8b'

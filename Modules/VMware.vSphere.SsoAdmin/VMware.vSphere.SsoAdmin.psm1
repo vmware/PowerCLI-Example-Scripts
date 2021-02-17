@@ -1497,6 +1497,9 @@ function Add-LDAPIdentitySource {
 
    .PARAMETER PrimaryUrl
    Primary Server URL
+   
+   .PARAMETER SecondaryUrl
+   Secondary Server URL
 
    .PARAMETER BaseDNUsers
    Base distinguished name for users
@@ -1560,6 +1563,13 @@ function Add-LDAPIdentitySource {
    [string]
    $DomainAlias,
 
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false)]   
+   [string]
+   $SecondaryUrl,
+   
    [Parameter(
       Mandatory=$true,
       ValueFromPipeline=$false,
@@ -1647,6 +1657,7 @@ function Add-LDAPIdentitySource {
             $DomainAlias,
             $Name,
             $PrimaryUrl,
+            $SecondaryUrl,
             $BaseDNUsers,
             $BaseDNGroups,
             $Username,
