@@ -3,10 +3,6 @@
 # **************************************************************************
 
 param(
-   [ValidateSet("Debug", "Release")]
-   [string]
-   $Configuration = "Release",
-
    [string]
    $TestVc,
 
@@ -14,8 +10,13 @@ param(
    $TestVcUser,
 
    [string]
-   $TestVcPassword
+   $TestVcPassword,
+
+   [switch]
+   $PrepareForPSGallery
 )
+
+$Configuration = "Release"
 
 function Test-BuildToolsAreAvailable {
    $dotnetSdk = Get-Command 'dotnet'
@@ -130,6 +131,25 @@ function Test {
    }
 }
 
+function PrepareForRelease {
+   $targetRootDirName = 'ForPSGallery'
+   $releaseDir = Join-Path (Split-Path $PSScriptRoot) $targetRootDirName
+   if (Test-Path $releaseDir) {
+      Remove-Item -Path $releaseDir -Recurse
+   }
+
+   New-Item -Path $releaseDir -ItemType Directory | Out-Null
+   $releaseDir = Join-Path $releaseDir 'VMware.vSphere.SsoAdmin'
+   New-Item -Path $releaseDir -ItemType Directory | Out-Null
+
+   $sourceDir = Split-Path $PSScriptRoot
+   Get-ChildItem -Path $sourceDir  -Exclude src, README.md, $targetRootDirName | `
+   Copy-Item -Recurse -Destination $releaseDir
+
+   $catalogFilePath = Join-path $releaseDir ((Get-Item $releaseDir).Name + ".cat")
+   New-FileCatalog -Path $releaseDir -CatalogFilePath $catalogFilePath | Out-Null
+}
+
 # 1. Test Build Tools
 LogInfo "Test build tools are available"
 Test-BuildToolsAreAvailable
@@ -145,3 +165,8 @@ Publish $OutputFolder
 
 # 4. Test
 Test
+
+# 5. Prepare For Release
+if ($PrepareForPSGallery) {
+   PrepareForRelease
+}
