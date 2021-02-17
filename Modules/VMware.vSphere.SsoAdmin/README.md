@@ -3,10 +3,10 @@ This module is combination of .NET binary libraries for accessing vSphere SSO Ad
 <br/>
 The module supports PowerShell 5.1 and PowerShell 7.0 and above.<br/>
 
-# Using the module
-The module can be used without the '/src' directory. The '/src' directory contains the source code of the module.<br/>
-
-This module depends on PowerCLI 'VMware.VimAutomation.Common', Version 12.0 module<br/>
+## Install Module from PowerShell Gallery
+```
+Install-Module VMware.vSphere.SsoAdmin
+```
 
 # Using the source code
 ## '/src' directory
