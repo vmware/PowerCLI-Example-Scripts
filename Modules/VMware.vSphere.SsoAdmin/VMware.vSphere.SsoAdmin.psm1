@@ -608,6 +608,67 @@ function Set-SsoPersonUser {
    }
 }
 
+function Set-SsoSelfPersonUserPassword {
+<#
+   .NOTES
+   ===========================================================================
+   Created on:   	2/19/2021
+   Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+   ===========================================================================
+   .DESCRIPTION
+   Resets connected person user password.
+
+
+   .PARAMETER NewPassword
+   Specifies new password for the connected person user.
+
+
+   .EXAMPLE
+   Set-SsoSelfPersonUserPassword -Password 'MyBrandNewPa$$W0RD' -Server $ssoAdminConnection
+
+   Resets password
+#>
+[CmdletBinding(ConfirmImpact='High')]
+ param(
+   [Parameter(
+      Mandatory=$true,
+      HelpMessage='New password for the connected user.')]
+   [ValidateNotNull()]
+   [SecureString]
+   $Password,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Connected SsoAdminServer object')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+   $Server)
+
+   Process {
+      $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
+      if ($Server -ne $null) {
+         $serversToProcess = $Server
+      }
+
+      foreach ($connection in $serversToProcess) {
+         if (-not $connection.IsConnected) {
+            Write-Error "Server $connection is disconnected"
+            continue
+         }
+
+         try {
+            $connection.Client.ResetSelfPersonUserPassword($Password)
+         } catch {
+            Write-Error (FormatError $_.Exception)
+         }
+      }
+   }
+}
+
 function Remove-SsoPersonUser {
 <#
    .NOTES
@@ -1497,7 +1558,7 @@ function Add-LDAPIdentitySource {
 
    .PARAMETER PrimaryUrl
    Primary Server URL
-   
+
    .PARAMETER SecondaryUrl
    Secondary Server URL
 
@@ -1566,10 +1627,10 @@ function Add-LDAPIdentitySource {
    [Parameter(
       Mandatory=$false,
       ValueFromPipeline=$false,
-      ValueFromPipelineByPropertyName=$false)]   
+      ValueFromPipelineByPropertyName=$false)]
    [string]
    $SecondaryUrl,
-   
+
    [Parameter(
       Mandatory=$true,
       ValueFromPipeline=$false,

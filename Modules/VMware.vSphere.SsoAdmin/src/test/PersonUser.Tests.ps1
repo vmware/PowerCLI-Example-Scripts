@@ -415,4 +415,51 @@ Describe "PersonUser Tests" {
          $userFromServer | Should -Be $null
       }
    }
+
+   Context "Set-SsoSelfPersonUserPassword" {
+      It 'Reset self person user password' {
+         # Arrange
+         $userName = "TestResetSelfPassPersonUserName"
+         $userPassword = '$tr0NG_TestPa$$w0rd'
+         $newUserPassword = ConvertTo-SecureString '$tr0NG_TestPa$$w0rd2' –AsPlainText –Force
+         $connection = Connect-SsoAdminServer `
+            -Server $VcAddress `
+            -User $User `
+            -Password $Password `
+            -SkipCertificateCheck
+
+         $personUserToUpdate = New-SsoPersonUser `
+            -UserName $userName `
+            -Password $userPassword `
+            -Server $connection
+
+         $script:usersToCleanup += $personUserToUpdate
+
+         Disconnect-SsoAdminServer -Server $connection
+
+         ## Connect with the new user
+         $testConnection = Connect-SsoAdminServer `
+            -Server $VcAddress `
+            -User "$userName@vsphere.local" `
+            -Password $userPassword `
+            -SkipCertificateCheck
+
+         # Act
+         $actual = Set-SsoSelfPersonUserPassword `
+            -Password $newUserPassword
+
+         # Assert
+         $actual | Should -Be $null
+
+         ## Cleanup
+         Disconnect-SsoAdminServer -Server $testConnection
+
+         ## Restore Connection
+         $connection = Connect-SsoAdminServer `
+            -Server $VcAddress `
+            -User $User `
+            -Password $Password `
+            -SkipCertificateCheck
+      }
+   }
 }

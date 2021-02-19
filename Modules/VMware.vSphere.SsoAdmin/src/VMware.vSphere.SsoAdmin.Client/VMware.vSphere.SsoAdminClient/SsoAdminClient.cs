@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Selectors;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -121,6 +122,16 @@ namespace VMware.vSphere.SsoAdminClient
             }
          };
          return securityContext;
+      }
+
+      String SecureStringToString(SecureString value) {
+         IntPtr valuePtr = IntPtr.Zero;
+         try {
+            valuePtr = Marshal.SecureStringToGlobalAllocUnicode(value);
+            return Marshal.PtrToStringUni(valuePtr);
+         } finally {
+            Marshal.ZeroFreeGlobalAllocUnicode(valuePtr);
+         }
       }
       #endregion
 
@@ -320,6 +331,22 @@ namespace VMware.vSphere.SsoAdminClient
                   },
                   user.Name,
                   newPassword)).Wait();
+      }
+
+      public void ResetSelfPersonUserPassword(SecureString newPassword) {
+         // Create Authorization Invocation Context
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         // Invoke SSO Admin ResetLocalPersonUserPasswordAsync operation
+         authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.ResetSelfLocalPersonUserPasswordAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminPrincipalManagementService",
+                     Value = "principalManagementService"
+                  },
+                  SecureStringToString(newPassword))).Wait();
       }
 
       public bool UnlockPersonUser(PersonUser user) {
