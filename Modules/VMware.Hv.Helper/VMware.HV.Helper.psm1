@@ -2278,6 +2278,38 @@ function New-HVFarm {
     [Parameter(Mandatory = $false)]
     [string]
     $Url,
+    
+    #farmSpec.data.lbSettings.lbMetricsSettings.includeSessionCount
+    [Parameter(Mandatory = $false)]
+    [boolean]
+    $includeSessionCount = $true,
+
+    #farmSpec.data.lbSettings.lbMetricsSettings.cpuThreshold
+    [ValidateRange(0, 100)]
+    [Parameter(Mandatory = $false)]
+    [int]
+    $cpuThreshold = 0,
+
+    #farmSpec.data.lbSettings.lbMetricsSettings.memThreshold
+    [ValidateRange(0, 100)]
+    [Parameter(Mandatory = $false)]
+    [int]
+    $memThreshold = 0,
+
+    #farmSpec.data.lbSettings.lbMetricsSettings.diskQueueLengthThreshold
+    [Parameter(Mandatory = $false)]
+    [int]
+    $diskQueueLengthThreshold = 0,
+
+    #farmSpec.data.lbSettings.lbMetricsSettings.diskReadLatencyThreshold
+    [Parameter(Mandatory = $false)]
+    [int]
+    $diskReadLatencyThreshold = 0,
+
+    #farmSpec.data.lbSettings.lbMetricsSettings.diskWriteLatencyThreshold
+    [Parameter(Mandatory = $false)]
+    [int]
+    $diskWriteLatencyThreshold = 0,
 
     #farmSpec.automatedfarmSpec.virtualCenter if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
@@ -2820,6 +2852,19 @@ function New-HVFarm {
         }
         $logoffAfterTimeout = $farmData.Settings.logoffAfterTimeout
     }
+    
+    # Load Balancing
+    if ($farmData.LbSettings) {
+        If ($farmdata.LbSettings.LbMetricsSettings){
+            $farmData.LbSettings.LbMetricsSettings.IncludeSessionCount = $includeSessionCount
+            $farmData.LbSettings.LbMetricsSettings.CpuThreshold = $cpuThreshold
+            $farmData.LbSettings.LbMetricsSettings.MemThreshold = $memThreshold
+            $farmData.LbSettings.LbMetricsSettings.DiskQueueLengthThreshold = $diskQueueLengthThreshold
+            $farmData.LbSettings.LbMetricsSettings.DiskReadLatencyThreshold = $diskReadLatencyThreshold
+            $farmData.LbSettings.LbMetricsSettings.DiskWriteLatencyThreshold = $diskWriteLatencyThreshold
+        }
+    }
+    
     if ($farmData.DisplayProtocolSettings) {
         $farmData.DisplayProtocolSettings.DefaultDisplayProtocol = $defaultDisplayProtocol
         $farmData.DisplayProtocolSettings.AllowDisplayProtocolOverride = $AllowDisplayProtocolOverride
@@ -3233,6 +3278,8 @@ function Get-FarmSpec {
 
   }
   $farm_spec_helper.getDataObject().Data.Settings = $farm_helper.getFarmSessionSettingsHelper().getDataObject()
+  $farm_spec_helper.getDataObject().Data.LbSettings = $farm_helper.getRDSHLoadBalancingSettingsHelper().getDataObject()
+  $farm_spec_helper.getDataObject().Data.LbSettings.LbMetricsSettings = $farm_helper.getRDSHLoadBalancingMetricsSettingsHelper().getDataObject()
   $farm_spec_helper.getDataObject().Data.DisplayProtocolSettings = $farm_helper.getFarmDisplayProtocolSettingsHelper().getDataObject()
   $farm_spec_helper.getDataObject().Data.MirageConfigurationOverrides = $farm_helper.getFarmMirageConfigurationOverridesHelper( ).getDataObject()
   return $farm_spec_helper.getDataObject()
