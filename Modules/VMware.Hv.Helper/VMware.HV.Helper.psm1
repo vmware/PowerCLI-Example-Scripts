@@ -12851,8 +12851,8 @@ Function Get-HVNetworkLabels {
 
 .EXAMPLE
     Get-HVNetworkLabels -HostOrClusterId $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.hostOrCluster
-    Get-HVNetworkLabels -HostOrClusterId $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.hostOrCluster | Where-Object {$_.Name -eq $_.NetworkLabelName}
-    (Get-HVNetworkLabels -HostOrClusterId $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.hostOrCluster | Where-Object {$_.Name -eq $_.NetworkLabelName}).ID
+    Get-HVNetworkLabels -HostOrClusterId $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.hostOrCluster | Where-Object {$_.Name -eq $NetworkLabelName}
+    (Get-HVNetworkLabels -HostOrClusterId $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.hostOrCluster | Where-Object {$_.Name -eq $NetworkLabelName}).ID
 
 .OUTPUTS
     An array of NetworkLabelInfos.
