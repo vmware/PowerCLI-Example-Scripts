@@ -33,6 +33,15 @@ function Get-HVObject {
   return New-Object $objStr -Property $propertyName
 }
 
+function Get-HVServerBuild {
+  foreach ($cs in $hvServer.ExtensionData.ConnectionServer.ConnectionServer_List()) {
+    if ($cs.general.fqhn -eq $hvServer.name) {
+      return ($cs.general.version -split '-')[1]
+    }
+  }
+  return 0
+}
+
 function Get-ViewAPIService {
   param(
     [Parameter(Mandatory = $false)]
@@ -45,13 +54,26 @@ function Get-ViewAPIService {
       return $null
     }
     elseif ($hvServer.IsConnected) {
-      return $hvServer.ExtensionData
+      return $hvServer.ExtensionData, (Get-HVServerBuild)
     }
   } elseif ($global:DefaultHVServers.Length -gt 0) {
      $hvServer = $global:DefaultHVServers[0]
-     return $hvServer.ExtensionData
+     return $hvServer.ExtensionData, (Get-HVServerBuild)
   }
   return $null
+}
+
+function Get-HVBaseImageVmList {
+  param(
+    [Parameter(Mandatory = $true)]
+    $vcID
+  )
+  $BaseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
+  if ($hvBuild -lt 16962788) {
+    return $BaseImage_service_helper.BaseImageVm_List($services, $vcID)
+  } else {
+    return $BaseImage_service_helper.BaseImageVm_List($services, $vcID, $null)
+  }
 }
 
 function Get-HVConfirmFlag {
@@ -138,7 +160,7 @@ function Get-HVvCenterServer {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
 
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
@@ -211,7 +233,7 @@ function Get-HVvCenterServerHealth {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
 
     Write-Warning "Get-HvVcenterServerHealth is targeted for deprecation in a future release. Use Get-HVHealth -Servicename VirtualCenter instead."
 
@@ -395,7 +417,7 @@ The Add-HVDesktop adds virtual machines to already exiting pools by using view A
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -567,7 +589,7 @@ function Add-HVRDSServer {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -679,7 +701,7 @@ function Connect-HVEvent {
   begin {
     [System.Reflection.Assembly]::LoadWithPartialName("System.Data.OracleClient") | Out-Null
     # Connect to Connection Server and call the View API service
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -1142,7 +1164,7 @@ function Get-HVFarm {
     $HvServer = $null
   )
 
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
@@ -1253,7 +1275,7 @@ function Get-HVFarmSummary {
     $HvServer = $null
   )
 
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
@@ -1447,7 +1469,7 @@ function Get-HVPool {
     $HvServer = $null
   )
 
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
@@ -1583,7 +1605,7 @@ function Get-HVPoolSummary {
     $HvServer = $null
   )
 
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
@@ -1932,7 +1954,7 @@ function Get-HVQueryResult {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
 
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
@@ -2553,7 +2575,7 @@ function New-HVFarm {
   #
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -3011,8 +3033,7 @@ function Get-HVFarmProvisioningData {
     $vmObject = $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData
   }
   if ($parentVM) {
-    $BaseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
-    $parentList = $BaseImage_service_helper.BaseImageVm_List($services, $vcID)
+    $parentList = Get-HVBaseImageVmList -vcID $vcID
     $parentVMObj = $parentList | Where-Object { $_.name -eq $parentVM }
     if ($null -eq $parentVMObj) {
       throw "No Parent VM found with name: [$parentVM]"
@@ -4329,7 +4350,7 @@ function New-HVPool {
   #
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -4811,7 +4832,7 @@ function New-HVPool {
           $hostClusterId = $desktopVirtualCenterProvisioningData.HostOrCluster
           $hostOrCluster_helper = New-Object VMware.Hv.HostOrClusterService
           $hostClusterIds = (($hostOrCluster_helper.HostOrCluster_GetHostOrClusterTree($services, $desktopVirtualCenterProvisioningData.datacenter)).treeContainer.children.info).Id
-          $desktopVirtualCenterStorageSettings = Get-HVPoolStorageObject -hostClusterIds $hostClusterId -storageObject $desktopVirtualCenterStorageSettings
+          $desktopVirtualCenterStorageSettings = Get-HVPoolStorageObject -hostClusterIds $hostClusterIds -storageObject $desktopVirtualCenterStorageSettings
           $DesktopVirtualCenterNetworkingSettings = Get-HVPoolNetworkSetting -networkObject $DesktopVirtualCenterNetworkingSettings
           $desktopCustomizationSettings = Get-HVPoolCustomizationSetting -vc $virtualCenterID -customObject $desktopCustomizationSettings
         } catch {
@@ -4995,7 +5016,7 @@ function Get-HVResourceStructure {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -hvServer $HvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -5007,8 +5028,7 @@ function Get-HVResourceStructure {
     foreach ($vc in $vcList) {
       Write-Host vCenter $vc.ServerSpec.ServerName
       $datacenterList = @{}
-      $BaseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
-      $parentList = $BaseImage_service_helper.BaseImageVm_List($services, $vc.id)
+      $parentList = Get-HVBaseImageVmList -vcID $vc.id
       foreach ($possibleParent in $parentList) {
 	if (-not $datacenterList.ContainsKey($possibleParent.datacenter.id)) {
 	  $datacenterList.Add($possibleParent.datacenter.id, $possibleParent.datacenter)
@@ -5060,6 +5080,7 @@ function Get-HVResourceStructure {
 }
 
 function Get-HVPoolProvisioningData {
+  [OutputType([VMware.Hv.DesktopVirtualCenterProvisioningData])]
   param(
     [Parameter(Mandatory = $false)]
     [VMware.Hv.DesktopVirtualCenterProvisioningData]$VmObject,
@@ -5086,8 +5107,7 @@ function Get-HVPoolProvisioningData {
     $vmObject.datacenter = $dataCenterID
   }
   if ($parentVM) {
-    $base_imageVm_helper = New-Object VMware.Hv.BaseImageVmService
-    $parentList = $base_imageVm_helper.BaseImageVm_List($services,$vcID)
+    $parentList = Get-HVBaseImageVmList -vcID $vcID
     $parentVmObj = $parentList | Where-Object { $_.name -eq $parentVM }
     if ($null -eq $parentVMObj) {
       throw "No parent VM found with Name: [$parentVM]"
@@ -5749,7 +5769,7 @@ function Remove-HVFarm {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -5871,7 +5891,7 @@ function Remove-HVPool {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -6052,7 +6072,7 @@ function Set-HVFarm {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -6279,7 +6299,7 @@ function Set-HVPool {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -6598,7 +6618,7 @@ function Start-HVFarm {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -6799,8 +6819,7 @@ function Set-HVFarmSpec {
     $Spec
   )
   if ($parentVM) {
-    $baseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
-    $parentList = $baseImage_service_helper.BaseImageVm_List($services, $vcID)
+    $parentList = Get-HVBaseImageVmList -vcID $vcID
     $parentVMObj = $parentList | Where-Object { $_.name -eq $parentVM }
     if ($null -eq $parentVMObj) {
       throw "No Parent VM found with name: [$parentVM]"
@@ -6973,7 +6992,7 @@ function Start-HVPool {
 
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -7205,7 +7224,7 @@ function Get-HVBaseImageVM {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
 
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
@@ -7330,7 +7349,7 @@ function Get-HVBaseImageSnapshot {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
 
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
@@ -7376,8 +7395,7 @@ function Set-HVPoolSpec {
     $Spec
   )
   if ($parentVM) {
-    $baseimage_helper = New-Object VMware.Hv.BaseImageVmService
-    $parentList = $baseimage_helper.BaseImageVm_List($services,$vcID)
+    $parentList = Get-HVBaseImageVmList -vcID $vcID
     $parentVMObj = $parentList | Where-Object { $_.name -eq $parentVM }
     $spec.ParentVm = $parentVMObj.id
   }
@@ -7626,7 +7644,7 @@ function Get-HVMachine {
     $HvServer = $null
   )
 
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
@@ -7750,7 +7768,7 @@ function Get-HVMachineSummary {
     $HvServer = $null
   )
 
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
@@ -8052,7 +8070,7 @@ function Get-HVInternalName {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -8074,7 +8092,11 @@ function Get-HVInternalName {
          return $Info.Base.Username
        }
        'BaseImageVm' {
-         $info = $services.BaseImageVm.BaseImageVm_List($VcId) | Where-Object { $_.id.id -eq  $EntityId.id }
+         if ($hvBuild -lt  16962788) {
+           $info = $services.BaseImageVm.BaseImageVm_List($VcId) | Where-Object { $_.id.id -eq  $EntityId.id }
+	 } else {
+           $info = $services.BaseImageVm.BaseImageVm_List($VcId, $null) | Where-Object { $_.id.id -eq  $EntityId.id }
+	 }
          return $info.name
        }
        'BaseImageSnapshot' {
@@ -8237,7 +8259,7 @@ function New-HVEntitlement {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -8470,7 +8492,7 @@ function Get-HVEntitlement {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -8680,7 +8702,7 @@ function Remove-HVEntitlement {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -8936,7 +8958,7 @@ PARAMETER Key
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -9168,7 +9190,7 @@ function New-HVGlobalEntitlement {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -9347,7 +9369,7 @@ function Get-HVGlobalEntitlement {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -9467,7 +9489,7 @@ function Set-HVGlobalEntitlement {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -9606,7 +9628,7 @@ function Remove-HVGlobalEntitlement {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -9687,7 +9709,7 @@ param(
     $HvServer = $null
 )
 
-$services = Get-ViewAPIService -HvServer $HvServer
+$services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
 if ($null -eq $services) {
   Write-Error "Could not retrieve ViewApi services from connection object."
   break
@@ -9764,7 +9786,7 @@ function Set-HVApplicationIcon {
   )
 
   begin {
-    $services = Get-ViewAPIService -HvServer $HvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object."
       break
@@ -9890,7 +9912,7 @@ Function Remove-HVApplicationIcon {
   )
 
   begin {
-    $services = Get-ViewAPIService -HvServer $HvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object."
       break
@@ -9981,7 +10003,7 @@ function Get-HVGlobalSettings {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
 
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
@@ -10232,7 +10254,7 @@ function Set-HVGlobalSettings {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -10369,7 +10391,7 @@ The Get-HVLocalSession gets all local session by using view API service object(h
       $HvServer = $null
   )
 
-  $services = Get-ViewAPIService -HvServer $HvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object."
     break
@@ -10450,7 +10472,7 @@ function Reset-HVMachine {
 
   Begin {
 
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
 
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
@@ -10539,7 +10561,7 @@ function Remove-HVMachine {
 
   Begin {
     #Connect to HV Server
-    $services = Get-ViewAPIService -HVServer $HVServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
 
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
@@ -10709,7 +10731,7 @@ function Get-HVHealth {
 		$HvServer = $null
 	  )
 	
-  $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
 	    break
@@ -10792,7 +10814,7 @@ function New-HVPodFederation {
 	)
 
 		
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
 		Write-Error "Could not retrieve ViewApi services from connection object"
 	  break
@@ -10843,7 +10865,7 @@ function Remove-HVPodFederation {
 	)
 
 		
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
 		Write-Error "Could not retrieve ViewApi services from connection object"
 		break
@@ -10894,7 +10916,7 @@ function Get-HVPodFederation {
 	)
 
 		
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
 		Write-Error "Could not retrieve ViewApi services from connection object"
 		break
@@ -10970,7 +10992,7 @@ function Register-HVPod {
 	)
 
 		
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
 	  Write-Error "Could not retrieve ViewApi services from connection object"
 	  break
@@ -11048,7 +11070,7 @@ function Unregister-HVPod {
 	)
 
 		
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
 	    break
@@ -11127,7 +11149,7 @@ function Set-HVPodFederation {
 	)
 
 		
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
 		Write-Error "Could not retrieve ViewApi services from connection object"
 	  break
@@ -11180,7 +11202,7 @@ function Get-HVSite {
 	)
 
 		
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
 		Write-Error "Could not retrieve ViewApi services from connection object"
 		break
@@ -11243,7 +11265,7 @@ function New-HVSite {
 	)
 
 		
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
 		break
@@ -11315,7 +11337,7 @@ function Set-HVSite {
 	)
 
 		
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
 		break
@@ -11375,7 +11397,7 @@ function Remove-HVSite {
 	)
 
 		
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
 		break
@@ -11434,7 +11456,7 @@ function Get-HVHomeSite {
 	)
 
   begin{
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
 		  break
@@ -11555,7 +11577,7 @@ function New-HVHomeSite {
   )
 
   begin{
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
 		  break
@@ -11696,7 +11718,7 @@ function Set-HVEventDatabase {
     $HvServer = $null
   )
 
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
 	    Write-Error "Could not retrieve ViewApi services from connection object"
 		  break
@@ -11766,7 +11788,7 @@ function Get-HVEventDatabase {
     $HvServer = $null
 	)
 
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
@@ -11828,7 +11850,7 @@ function Clear-HVEventDatabase {
 
   PROCESS {
 
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
     Write-Error "Could not retrieve ViewApi services from connection object"
     break
@@ -11885,7 +11907,7 @@ function Set-HVlicense {
 	)
 
 		
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
 	  Write-Error "Could not retrieve ViewApi services from connection object"
 		break
@@ -11943,7 +11965,7 @@ function Get-HVlicense {
 	)
 
 		
-  $services = Get-ViewAPIService -hvServer $hvServer
+  $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
   if ($null -eq $services) {
 	  Write-Error "Could not retrieve ViewApi services from connection object"
 		break
@@ -12008,7 +12030,7 @@ function Set-HVInstantCloneMaintenance {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -12084,7 +12106,7 @@ Function Get-HVApplication {
     [string]$FormatList = $False
   )
   begin {
-    $services = Get-ViewAPIService -HvServer $HvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
         Write-Error "Could not retrieve View API services from connection object."
         break
@@ -12155,7 +12177,7 @@ param (
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -HvServer $HvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
         Write-Error "Could not retrieve View API services from connection object"
         break
@@ -12337,7 +12359,7 @@ Function New-HVManualApplication {
     [String]$GlobalApplicationEntitlement = $null
   )
   begin {
-    $services = Get-ViewAPIService -HvServer $HvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
         Write-Error "Could not retrieve View API services from connection object"
         break
@@ -12416,7 +12438,7 @@ Function Get-HVPreInstalledApplication {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -HvServer $HvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
         Write-Error "Could not retrieve ViewApi services from connection object"
         break
@@ -12526,7 +12548,7 @@ Function New-HVPreInstalledApplication {
     $HvServer = $null
   )
   begin {
-    $services = Get-ViewAPIService -HvServer $HvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
         Write-Error "Could not retrieve ViewApi services from connection object"
         break
@@ -12740,7 +12762,7 @@ param (
   [switch]$clearGlobalEntitlement
 )
   begin {
-    $services = Get-ViewAPIService -HvServer $HvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
         Write-Error "Could not retrieve View API services from connection object"
         break
@@ -12873,7 +12895,7 @@ function Get-HVSyslog {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
@@ -12944,7 +12966,7 @@ function Set-HVSyslog {
   )
 
   begin {
-    $services = Get-ViewAPIService -hvServer $hvServer
+    $services, $hvBuild = Get-ViewAPIService -hvServer $hvServer
     if ($null -eq $services) {
       Write-Error "Could not retrieve ViewApi services from connection object"
       break
