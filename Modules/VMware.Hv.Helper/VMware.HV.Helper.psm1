@@ -4826,8 +4826,6 @@ function New-HVPool {
         try {
           $desktopVirtualCenterProvisioningData = Get-HVPoolProvisioningData -vc $virtualCenterID -vmObject $desktopVirtualCenterProvisioningData
           $hostClusterId = $desktopVirtualCenterProvisioningData.HostOrCluster
-          $hostOrCluster_helper = New-Object VMware.Hv.HostOrClusterService
-          $hostClusterIds = (($hostOrCluster_helper.HostOrCluster_GetHostOrClusterTree($services, $desktopVirtualCenterProvisioningData.datacenter)).treeContainer.children.info).Id
           $desktopVirtualCenterStorageSettings = Get-HVPoolStorageObject -hostClusterIds $hostClusterId -storageObject $desktopVirtualCenterStorageSettings
           $DesktopVirtualCenterNetworkingSettings = Get-HVPoolNetworkSetting -networkObject $DesktopVirtualCenterNetworkingSettings
           $desktopCustomizationSettings = Get-HVPoolCustomizationSetting -vc $virtualCenterID -customObject $desktopCustomizationSettings
