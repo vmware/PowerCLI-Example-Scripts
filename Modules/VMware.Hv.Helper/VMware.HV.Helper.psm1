@@ -12916,6 +12916,135 @@ Function Get-HVNetworkLabels {
     }
 }
 
+function Get-HVSyslog {
+<#
+  .SYNOPSIS
+    This function is used to get the current syslog server settings
+
+  .DESCRIPTION
+    Queries HVServer for the current syslog settings
+
+  .PARAMETER HvServer
+    Reference to Horizon View Server to query. If the value is not passed or null then
+    first element from global:DefaultHVServers would be considered inplace of hvServer
+
+  .EXAMPLE
+    Get-HVSyslog
+    Returns both file and UDP syslog settings
+
+  .EXAMPLE
+    Get-HVSyslog | Select -ExpandProperty udpData
+    Displays the udpData settings
+
+  .OUTPUTS
+    Returns object of type VMware.Hv.SyslogInfo which contains objects for both file and UDP Syslog settgs
+
+.NOTES
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+
+#>
+
+  [CmdletBinding()]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+    $syslog_helper = New-Object VMware.Hv.SyslogService
+    $syslog_helper.Syslog_Get($services)
+  }
+
+  end {
+    [System.gc]::collect()
+  }
+}
+
+function Set-HVSyslog {
+<#
+  .SYNOPSIS
+    This function is used to set the syslog servers
+
+  .DESCRIPTION
+    Set-HVSyslog sets the syslog servers used by Horizon and enables/disables logging.
+
+  .PARAMETER servers
+    Array of servers to be used in the format <ip>:<port>
+
+  .PARAMETER enabled
+    Switch paramter to enabled or disable syslog data.  Defaults to enabled.
+
+  .EXAMPLE
+    Set-HVSyslog -servers "1.2.3.4:514"
+    Set the default HV server to use syslog server 1.2.3.4 on port 514 and turn on logging.
+
+  .EXAMPLE
+    Set-HVSyslog -servers "1.2.3.4:514", "5.6.7.8:514" -enabled:$true -hvserver vcs
+    Set the syslog servers to 1.2.3.4:514 and 5.6.7.8:514 on Horizon View server vcs and specifically enables logging.
+
+  .EXAMPLE
+    Set-HVSyslog -enabled:$false -hvserver vcs
+    Disables syslog logging on server vcs without changing the currently defined syslog servers.
+    Note you can not see whether it's enabled or diabled in the GUI.  Use Get-HVSyslog instead.
+
+  .EXAMPLE
+    Set-HVSyslog -enabled -hvserver vcs
+    Enables syslog logging on server vcs without changing the currently defined syslog servers.
+
+  .OUTPUTS
+    None
+
+  .NOTES
+    Author : Mark Elvers <mark.elvers@tunbury.org>
+
+#>
+
+  [CmdletBinding()]
+
+  param(
+    [Parameter(Mandatory = $false)]
+    [string[]]
+    $servers = @(),
+
+    [Parameter(Mandatory = $false)]
+    [switch]$enabled = $true,
+
+    [Parameter(Mandatory = $false)]
+    $HvServer = $null
+  )
+
+  begin {
+    $services = Get-ViewAPIService -hvServer $hvServer
+    if ($null -eq $services) {
+      Write-Error "Could not retrieve ViewApi services from connection object"
+      break
+    }
+  }
+
+  process {
+    $syslog_helper = New-Object VMware.Hv.SyslogService
+    $updates = @()
+    $updates += Get-MapEntry -key 'udpData.enabled' -value ([bool]$enabled)
+    if ($servers.count) {
+      $updates += Get-MapEntry -key 'udpData.networkAddresses' -value $servers
+    }
+    $syslog_helper.Syslog_Update($services, $updates)
+  }
+
+  end {
+    [System.gc]::collect()
+  }
+}
+
 # Object related
 Export-ModuleMember -Function Get-HVMachine, Get-HVMachineSummary, Get-HVQueryResult, Get-HVQueryFilter, Get-HVInternalName
 # RDS Farm related
@@ -12938,4 +13067,4 @@ Export-ModuleMember -Function Get-HVEventDatabase, Set-HVEventDatabase, Clear-HV
 # vCenter Server related
 Export-ModuleMember -Function Get-HVvCenterServer, Get-HVvCenterServerHealth
 # Misc/other related
-Export-ModuleMember -Function Get-HVlicense, Set-HVlicense, Get-HVHealth, Set-HVInstantCloneMaintenance, Get-HVBaseImageVM, Get-HVBaseImageVMSnapshot
+Export-ModuleMember -Function Get-HVlicense, Set-HVlicense, Get-HVHealth, Set-HVInstantCloneMaintenance, Get-HVBaseImageVM, Get-HVBaseImageVMSnapshot, Set-HVSyslog, Get-HVSyslog
