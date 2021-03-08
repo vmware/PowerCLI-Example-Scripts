@@ -12837,6 +12837,70 @@ param (
   }
 }
 
+Function Get-HVNetworkLabels {
+
+<#
+.Synopsis
+    Returns all network labels on the given host or cluster that may be suitable for configuration with a desktop's network interface card.
+
+.DESCRIPTION
+    Returns all network labels on the given host or cluster that may be suitable for configuration with a desktop's network interface card. This includes both standard and distributed virtual switch network label types. 
+
+.PARAMETER HostOrClusterID
+    The cluster id.
+
+.EXAMPLE
+    Get-HVNetworkLabels -HostOrClusterId $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.hostOrCluster
+    Get-HVNetworkLabels -HostOrClusterId $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.hostOrCluster | Where-Object {$_.Name -eq $NetworkLabelName}
+    (Get-HVNetworkLabels -HostOrClusterId $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.hostOrCluster | Where-Object {$_.Name -eq $NetworkLabelName}).ID
+
+.OUTPUTS
+    An array of NetworkLabelInfos.
+
+.NOTES
+    Author                      : Rico Roodenburg
+    Author email                : r.roodenburg@outlook.com
+    Version                     : 1.0
+
+    ===Tested Against Environment====
+    Horizon View Server Version : 2012 (8.1)
+    PowerCLI Version            : PowerCLI 12.0
+    PowerShell Version          : 5.1
+#>
+    
+    param (
+
+        [Parameter(Mandatory = $True) ]
+        [VMware.Hv.HostOrClusterId]$HostOrClusterID
+
+    )
+
+    Begin {
+    
+        $services = Get-ViewAPIService -HvServer $HvServer
+        if ($null -eq $services) {
+            Write-Error "Could not retrieve View API services from connection object"
+            break
+        }
+    
+    }
+
+    Process {
+
+        $NetworkLabelSpec = new-object vmware.hv.NetworkLabelSpec
+        $NetworkLabelSpec.HostOrClusterId = $HostOrClusterID
+        $NetworkLabelService = New-Object VMware.Hv.NetworkLabelService
+        $NetworkLabels = $NetworkLabelService.NetworkLabel_ListByNetworkLabelSpec($Services,$NetworkLabelSpec)
+
+        $Result = $Networklabels | Foreach {
+            [pscustomobject]@{'Id'=$_.Id;'Name'=$_.Data.Name;'SwitchType'=$_.Data.SwitchType;'LabelType'=$_.Data.LabelType;'MaxNumOfPort'=$_.Data.MaxNumOfPort;'AvailablePorts'=$_.Data.AvailablePorts;'NotConfiguredOnAllHosts'=$_.Data.IncompatibleReasons.NotConfiguredOnAllHosts;'DvsUplinkPort'=$_.Data.IncompatibleReasons.DvsUplinkPort;'VmcNetworks'=$_.Data.IncompatibleReasons.VmcNetworks}
+        }
+
+        Return $Result
+
+    }
+}
+
 # Object related
 Export-ModuleMember -Function Get-HVMachine, Get-HVMachineSummary, Get-HVQueryResult, Get-HVQueryFilter, Get-HVInternalName
 # RDS Farm related
