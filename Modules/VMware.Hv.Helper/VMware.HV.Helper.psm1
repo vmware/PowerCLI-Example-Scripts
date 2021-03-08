@@ -54,6 +54,24 @@ function Get-ViewAPIService {
   return $null
 }
 
+function Get-HVModuleVersion {
+  $hvModules = @( Get-Module -Name "Vmware.VimAutomation.HorizonView" -ErrorAction "SilentlyContinue" );
+  return $($hvModules.version | measure -Maximum).Maximum
+}
+
+function Get-HVBaseImageVmList {
+  param(
+    [Parameter(Mandatory = $true)]
+    $vcID
+  )
+  $BaseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
+  if ((Get-HVModuleVersion) -lt [version] "12.2") {
+    return $BaseImage_service_helper.BaseImageVm_List($services, $vcID)
+  } else {
+    return $BaseImage_service_helper.BaseImageVm_List($services, $vcID, $null)
+  }
+}
+
 function Get-HVConfirmFlag {
   Param(
     [Parameter(Mandatory = $true)]
@@ -3011,8 +3029,7 @@ function Get-HVFarmProvisioningData {
     $vmObject = $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData
   }
   if ($parentVM) {
-    $BaseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
-    $parentList = $BaseImage_service_helper.BaseImageVm_List($services, $vcID)
+    $parentList = Get-HVBaseImageVmList -vcID $vcID
     $parentVMObj = $parentList | Where-Object { $_.name -eq $parentVM }
     if ($null -eq $parentVMObj) {
       throw "No Parent VM found with name: [$parentVM]"
@@ -5007,8 +5024,7 @@ function Get-HVResourceStructure {
     foreach ($vc in $vcList) {
       Write-Host vCenter $vc.ServerSpec.ServerName
       $datacenterList = @{}
-      $BaseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
-      $parentList = $BaseImage_service_helper.BaseImageVm_List($services, $vc.id)
+      $parentList = Get-HVBaseImageVmList -vcID $vc.id
       foreach ($possibleParent in $parentList) {
 	if (-not $datacenterList.ContainsKey($possibleParent.datacenter.id)) {
 	  $datacenterList.Add($possibleParent.datacenter.id, $possibleParent.datacenter)
@@ -5086,8 +5102,7 @@ function Get-HVPoolProvisioningData {
     $vmObject.datacenter = $dataCenterID
   }
   if ($parentVM) {
-    $base_imageVm_helper = New-Object VMware.Hv.BaseImageVmService
-    $parentList = $base_imageVm_helper.BaseImageVm_List($services,$vcID)
+    $parentList = Get-HVBaseImageVmList -vcID $vcID
     $parentVmObj = $parentList | Where-Object { $_.name -eq $parentVM }
     if ($null -eq $parentVMObj) {
       throw "No parent VM found with Name: [$parentVM]"
@@ -6799,8 +6814,7 @@ function Set-HVFarmSpec {
     $Spec
   )
   if ($parentVM) {
-    $baseImage_service_helper = New-Object VMware.Hv.BaseImageVmService
-    $parentList = $baseImage_service_helper.BaseImageVm_List($services, $vcID)
+    $parentList = Get-HVBaseImageVmList -vcID $vcID
     $parentVMObj = $parentList | Where-Object { $_.name -eq $parentVM }
     if ($null -eq $parentVMObj) {
       throw "No Parent VM found with name: [$parentVM]"
@@ -7376,8 +7390,7 @@ function Set-HVPoolSpec {
     $Spec
   )
   if ($parentVM) {
-    $baseimage_helper = New-Object VMware.Hv.BaseImageVmService
-    $parentList = $baseimage_helper.BaseImageVm_List($services,$vcID)
+    $parentList = Get-HVBaseImageVmList -vcID $vcID
     $parentVMObj = $parentList | Where-Object { $_.name -eq $parentVM }
     $spec.ParentVm = $parentVMObj.id
   }
@@ -8074,7 +8087,11 @@ function Get-HVInternalName {
          return $Info.Base.Username
        }
        'BaseImageVm' {
-         $info = $services.BaseImageVm.BaseImageVm_List($VcId) | Where-Object { $_.id.id -eq  $EntityId.id }
+         if ((Get-HVModuleVersion) -lt [version] "12.2") {
+           $info = $services.BaseImageVm.BaseImageVm_List($VcId) | Where-Object { $_.id.id -eq  $EntityId.id }
+	 } else {
+           $info = $services.BaseImageVm.BaseImageVm_List($VcId, $null) | Where-Object { $_.id.id -eq  $EntityId.id }
+	 }
          return $info.name
        }
        'BaseImageSnapshot' {
