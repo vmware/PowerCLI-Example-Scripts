@@ -3792,12 +3792,14 @@ function New-HVPool {
     $ConnectionServerRestrictions,
 
     #desktopSpec.desktopSettings.logoffSettings.powerPolicy
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('TAKE_NO_POWER_ACTION', 'ALWAYS_POWERED_ON', 'SUSPEND', 'POWER_OFF')]
     [string]$PowerPolicy = 'TAKE_NO_POWER_ACTION',
 
-    #desktopSpec.desktopSettings.logoffSettings.powerPolicy
+    #desktopSpec.desktopSettings.logoffSettings.automaticLogoffPolicy
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
@@ -3805,12 +3807,14 @@ function New-HVPool {
     [string]$AutomaticLogoffPolicy = 'NEVER',
 
     #desktopSpec.desktopSettings.logoffSettings.automaticLogoffMinutes
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateRange(1,[int]::MaxValue)]
     [int]$AutomaticLogoffMinutes = 120,
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToResetMachines
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
@@ -3844,6 +3848,7 @@ function New-HVPool {
 
     #DesktopDisplayProtocolSettings
     #desktopSpec.desktopSettings.logoffSettings.supportedDisplayProtocols
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
@@ -3851,6 +3856,7 @@ function New-HVPool {
     [string[]]$supportedDisplayProtocols = @('RDP', 'PCOIP', 'BLAST'),
 
     #desktopSpec.desktopSettings.logoffSettings.defaultDisplayProtocol
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
@@ -3858,12 +3864,14 @@ function New-HVPool {
     [string]$defaultDisplayProtocol = 'PCOIP',
 
     #desktopSpec.desktopSettings.logoffSettings.allowUsersToChooseProtocol
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [int]$allowUsersToChooseProtocol = $true,
 
     #desktopSpec.desktopSettings.logoffSettings.enableHTMLAccess
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
@@ -3888,11 +3896,13 @@ function New-HVPool {
     [int]$vRamSizeMB = 96,
 
     #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.maxNumberOfMonitors
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateRange(1,4)]
     [int]$maxNumberOfMonitors = 2,
 
     #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.maxResolutionOfAnyOneMonitor
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [ValidateSet('WUXGA', 'WSXGA_PLUS', 'WQXGA', 'UHD')]
     [string]$maxResolutionOfAnyOneMonitor = 'WUXGA',
@@ -4229,7 +4239,8 @@ function New-HVPool {
     [string]
     $CustType,
 
-    #desktopSpec.automatedDesktopSpec.customizationSettings.reusePreExistingAccounts if LINKED_CLONE, INSTANT_CLONE
+    #desktopSpec.automatedDesktopSpec.customizationSettings.reusePreExistingAccounts if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
+    [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
     [Boolean]
@@ -5510,6 +5521,7 @@ function Get-HVPoolCustomizationSetting {
         $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.DomainAdministrator = $ViewComposerDomainAdministratorID
         $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
       } elseIf ($FullClone) {
+        $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
         if ($custType -eq 'SYS_PREP') {
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.CustomizationType = 'SYS_PREP'
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings.SysprepCustomizationSettings = Get-CustomizationObject
