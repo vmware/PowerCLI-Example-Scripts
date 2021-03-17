@@ -145,9 +145,6 @@ function PrepareForRelease {
    $sourceDir = Split-Path $PSScriptRoot
    Get-ChildItem -Path $sourceDir  -Exclude src, README.md, $targetRootDirName | `
    Copy-Item -Recurse -Destination $releaseDir
-
-   $catalogFilePath = Join-path $releaseDir ((Get-Item $releaseDir).Name + ".cat")
-   New-FileCatalog -Path $releaseDir -CatalogFilePath $catalogFilePath | Out-Null
 }
 
 # 1. Test Build Tools
