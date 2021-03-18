@@ -229,6 +229,40 @@ namespace VMware.vSphere.SsoAdminClient
 
       }
 
+      public IEnumerable<PersonUser> GetPersonUsersInGroup(string searchString, DataTypes.Group group) {
+         // Create Authorization Invocation Context
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         // Invoke SSO Admin FindPersonUsersAsync operation
+         var personUsers = authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.FindPersonUsersInGroupAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminPrincipalDiscoveryService",
+                     Value = "principalDiscoveryService"
+                  },
+                  new SsoPrincipalId {
+                     name = group.Name,
+                     domain = group.Domain
+                  },
+                  searchString,
+                  int.MaxValue)).Result.returnval;
+
+         if (personUsers != null) {
+            foreach (var personUser in personUsers) {
+               yield return new PersonUser(this) {
+                  Name = personUser.id.name,
+                  Domain = personUser.id.domain,
+                  Description = personUser.details.description,
+                  FirstName = personUser.details.firstName,
+                  LastName = personUser.details.lastName,
+                  EmailAddress = personUser.details.emailAddress
+               };
+            }
+         }
+      }
+
       public void DeleteLocalUser(
          PersonUser principal) {
 
