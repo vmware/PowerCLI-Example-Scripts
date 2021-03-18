@@ -394,6 +394,11 @@ function Get-SsoPersonUser {
    Get-SsoPersonUser -Name admin -Domain vsphere.local
 
    Gets person user accounts which contain name 'admin' in 'vsphere.local' domain
+
+   .EXAMPLE
+   Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local' | Get-SsoPersonUser
+
+   Gets person user accounts members of 'Administrators' group
 #>
 [CmdletBinding()]
  param(
@@ -406,12 +411,22 @@ function Get-SsoPersonUser {
    $Name,
 
    [Parameter(
+      ParameterSetName = 'ByNameAndDomain',
       Mandatory=$false,
       ValueFromPipeline=$false,
       ValueFromPipelineByPropertyName=$false,
       HelpMessage='Domain name to search in, default is "localos"')]
    [string]
    $Domain = 'localos',
+
+   [Parameter(
+      ParameterSetName = 'ByGroup',
+      Mandatory=$true,
+      ValueFromPipeline=$true,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Searches members of the specified group')]
+   [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+   $Group,
 
    [Parameter(
       Mandatory=$false,
@@ -439,21 +454,31 @@ function Get-SsoPersonUser {
                continue
             }
 
-            foreach ($personUser in $connection.Client.GetLocalUsers(
-               (RemoveWildcardSymbols $Name),
-               $Domain)) {
+            $personUsers = $null
 
+            if ($Group -ne $null) {
+               $personUsers = $connection.Client.GetPersonUsersInGroup(
+                  (RemoveWildcardSymbols $Name),
+                  $Group)
+            } else {
+               $personUsers = $connection.Client.GetLocalUsers(
+                  (RemoveWildcardSymbols $Name),
+                  $Domain)
+            }
 
-               if ([string]::IsNullOrEmpty($Name) ) {
-                  Write-Output $personUser
-               } else {
-                  # Apply Name filtering
-                  if ((HasWildcardSymbols $Name) -and `
-                      $personUser.Name -like $Name) {
-                      Write-Output $personUser
-                  } elseif ($personUser.Name -eq $Name) {
-                     # Exactly equal
+            if ($personUsers -ne $null) {
+               foreach ($personUser in $personUsers) {
+                  if ([string]::IsNullOrEmpty($Name) ) {
                      Write-Output $personUser
+                  } else {
+                     # Apply Name filtering
+                     if ((HasWildcardSymbols $Name) -and `
+                         $personUser.Name -like $Name) {
+                         Write-Output $personUser
+                     } elseif ($personUser.Name -eq $Name) {
+                        # Exactly equal
+                        Write-Output $personUser
+                     }
                   }
                }
             }

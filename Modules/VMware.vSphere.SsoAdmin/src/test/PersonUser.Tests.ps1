@@ -260,6 +260,24 @@ Describe "PersonUser Tests" {
          # Assert
          $actual | Should -Be $null
       }
+
+      It 'Gets person users members of Administrators group' {
+         # Arrange
+         $connection = Connect-SsoAdminServer `
+            -Server $VcAddress `
+            -User $User `
+            -Password $Password `
+            -SkipCertificateCheck
+
+         # Act
+         $actual = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local' | Get-SsoPersonUser
+
+         # Assert
+         $actual | Should -Not -Be $null
+         $actual.Count | Should -BeGreaterThan 0
+         $actual[0].Name | Should -Not -Be $null
+         $actual[0].Domain | Should -Be 'vsphere.local'
+      }
    }
 
    Context "Set-SsoPersonUser" {
