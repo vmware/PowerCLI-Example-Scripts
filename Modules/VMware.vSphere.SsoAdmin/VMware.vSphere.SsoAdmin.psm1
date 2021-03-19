@@ -1833,6 +1833,7 @@ Process {
             $IdentitySource.Name,
             $IdentitySource.FriendlyName,
             $IdentitySource.PrimaryUrl,
+            $IdentitySource.FailoverUrl,
             $IdentitySource.UserBaseDN,
             $IdentitySource.GroupBaseDN,
             $Certificates);
@@ -1941,5 +1942,73 @@ function Get-IdentitySource {
       #Return result
       $resultIdentitySources
    }
+}
+
+function Remove-IdentitySource {
+<#
+   .NOTES
+   ===========================================================================
+   Created on:   03/19/2021
+   Created by:   Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+   ===========================================================================
+   .DESCRIPTION
+   This function removes Identity Source.
+
+   .PARAMETER IdentitySource
+   The identity source to remove
+
+   .PARAMETER Server
+   Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
+   If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+
+   .EXAMPLE
+   Get-IdentitySource -External | Remove-IdentitySource
+
+   Removes all external domain identity source
+#>
+[CmdletBinding()]
+ param(
+
+  [Parameter(
+      Mandatory=$true,
+      ValueFromPipeline=$true,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Identity source to remove')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.IdentitySource]
+   $IdentitySource,
+
+   [Parameter(
+      Mandatory=$false,
+      ValueFromPipeline=$false,
+      ValueFromPipelineByPropertyName=$false,
+      HelpMessage='Connected SsoAdminServer object')]
+   [ValidateNotNull()]
+   [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+   $Server)
+
+Process {
+
+   $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
+   if ($Server -ne $null) {
+      $serversToProcess = $Server
+   }
+
+
+   try {
+      foreach ($connection in $serversToProcess) {
+         if (-not $connection.IsConnected) {
+            Write-Error "Server $connection is disconnected"
+            continue
+         }
+
+         $connection.Client.DeleteDomain($IdentitySource.Name)
+      }
+   } catch {
+      Write-Error (FormatError $_.Exception)
+   }
+}
 }
 #endregion

@@ -787,6 +787,7 @@ namespace VMware.vSphere.SsoAdminClient
          string name,         
          string friendlyName,
          string primaryUrl,
+         string failoverUrl,
          string baseDNUsers,
          string baseDNGroups,         
          X509Certificate2[] ldapCertificates) {
@@ -797,6 +798,7 @@ namespace VMware.vSphere.SsoAdminClient
          var adminLdapIdentitySourceDetails = new SsoAdminLdapIdentitySourceDetails {
             friendlyName = friendlyName,
             primaryUrl = primaryUrl,
+            failoverUrl = failoverUrl,
             userBaseDn = baseDNUsers,
             groupBaseDn = baseDNGroups
          };
@@ -858,11 +860,31 @@ namespace VMware.vSphere.SsoAdminClient
                   extIdentitySource.AuthenticationUsername = externalDomain.authenticationDetails?.username;
                   extIdentitySource.FriendlyName = externalDomain.details?.friendlyName;
                   extIdentitySource.PrimaryUrl = externalDomain.details?.primaryUrl;
+                  extIdentitySource.FailoverUrl = externalDomain.details?.failoverUrl;
                   extIdentitySource.GroupBaseDN = externalDomain.details?.groupBaseDn;
                   extIdentitySource.UserBaseDN = externalDomain.details?.userBaseDn;
                   yield return extIdentitySource;
                }
             }
+         }
+      }
+
+      public void DeleteDomain(string name) {
+
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         try {
+            authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.DeleteAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminIdentitySourceManagementService",
+                     Value = "identitySourceManagementService"
+                  },
+                  name)).Wait();
+         } catch (AggregateException e) {
+            throw e.InnerException;
          }
       }
       #endregion

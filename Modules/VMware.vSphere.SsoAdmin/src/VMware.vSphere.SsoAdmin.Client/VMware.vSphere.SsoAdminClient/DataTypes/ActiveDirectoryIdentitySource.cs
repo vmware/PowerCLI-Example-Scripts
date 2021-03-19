@@ -20,6 +20,7 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
 
       public string FriendlyName { get; set; }
       public string PrimaryUrl { get; set; }
+      public string FailoverUrl { get; set; }
       public string UserBaseDN { get; set; }
       public string GroupBaseDN { get; set; }
    }
