@@ -191,7 +191,9 @@ namespace VMware.vSphere.SsoAdminClient
             Description = personUser.details.description,
             FirstName = personUser.details.firstName,
             LastName = personUser.details.lastName,
-            EmailAddress = personUser.details.emailAddress
+            EmailAddress = personUser.details.emailAddress,
+            Locked = personUser.locked,
+            Disabled = personUser.disabled
          };
       }
 
@@ -222,11 +224,49 @@ namespace VMware.vSphere.SsoAdminClient
                   Description = personUser.details.description,
                   FirstName = personUser.details.firstName,
                   LastName = personUser.details.lastName,
-                  EmailAddress = personUser.details.emailAddress
+                  EmailAddress = personUser.details.emailAddress,
+                  Locked = personUser.locked,
+                  Disabled = personUser.disabled
                };
             }
          }
 
+      }
+
+      public IEnumerable<PersonUser> GetPersonUsersInGroup(string searchString, DataTypes.Group group) {
+         // Create Authorization Invocation Context
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         // Invoke SSO Admin FindPersonUsersAsync operation
+         var personUsers = authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.FindPersonUsersInGroupAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminPrincipalDiscoveryService",
+                     Value = "principalDiscoveryService"
+                  },
+                  new SsoPrincipalId {
+                     name = group.Name,
+                     domain = group.Domain
+                  },
+                  searchString,
+                  int.MaxValue)).Result.returnval;
+
+         if (personUsers != null) {
+            foreach (var personUser in personUsers) {
+               yield return new PersonUser(this) {
+                  Name = personUser.id.name,
+                  Domain = personUser.id.domain,
+                  Description = personUser.details.description,
+                  FirstName = personUser.details.firstName,
+                  LastName = personUser.details.lastName,
+                  EmailAddress = personUser.details.emailAddress,
+                  Locked = personUser.locked,
+                  Disabled = personUser.disabled
+               };
+            }
+         }
       }
 
       public void DeleteLocalUser(
@@ -747,6 +787,7 @@ namespace VMware.vSphere.SsoAdminClient
          string name,         
          string friendlyName,
          string primaryUrl,
+         string failoverUrl,
          string baseDNUsers,
          string baseDNGroups,         
          X509Certificate2[] ldapCertificates) {
@@ -757,6 +798,7 @@ namespace VMware.vSphere.SsoAdminClient
          var adminLdapIdentitySourceDetails = new SsoAdminLdapIdentitySourceDetails {
             friendlyName = friendlyName,
             primaryUrl = primaryUrl,
+            failoverUrl = failoverUrl,
             userBaseDn = baseDNUsers,
             groupBaseDn = baseDNGroups
          };
@@ -818,11 +860,31 @@ namespace VMware.vSphere.SsoAdminClient
                   extIdentitySource.AuthenticationUsername = externalDomain.authenticationDetails?.username;
                   extIdentitySource.FriendlyName = externalDomain.details?.friendlyName;
                   extIdentitySource.PrimaryUrl = externalDomain.details?.primaryUrl;
+                  extIdentitySource.FailoverUrl = externalDomain.details?.failoverUrl;
                   extIdentitySource.GroupBaseDN = externalDomain.details?.groupBaseDn;
                   extIdentitySource.UserBaseDN = externalDomain.details?.userBaseDn;
                   yield return extIdentitySource;
                }
             }
+         }
+      }
+
+      public void DeleteDomain(string name) {
+
+         var authorizedInvocationContext =
+            CreateAuthorizedInvocationContext();
+
+         try {
+            authorizedInvocationContext.
+            InvokeOperation(() =>
+               _ssoAdminBindingClient.DeleteAsync(
+                  new ManagedObjectReference {
+                     type = "SsoAdminIdentitySourceManagementService",
+                     Value = "identitySourceManagementService"
+                  },
+                  name)).Wait();
+         } catch (AggregateException e) {
+            throw e.InnerException;
          }
       }
       #endregion

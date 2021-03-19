@@ -98,6 +98,23 @@ namespace VMware.vSphere.SsoAdminClient.Tests
       }
 
       [Test]
+      public void GetPersonUsersInGroup() {
+         // Arrange
+         var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
+
+         // Act
+         var actual = ssoAdminClient.GetPersonUsersInGroup("", new Group { 
+            Name = "Administrators",
+            Domain = "vsphere.local"
+         }).ToArray();
+
+         // Assert
+         Assert.NotNull(actual);
+         Assert.GreaterOrEqual(actual.Length, 1);
+         Assert.AreEqual("vsphere.local", actual[0].Domain);
+      }
+
+      [Test]
       public void AddRemoveUserFromGroup() {
          // Arrange
          var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
