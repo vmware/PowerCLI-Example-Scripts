@@ -5092,7 +5092,7 @@ function Get-HVPoolProvisioningData {
     $vmObject.Template = $templateVM.id
     $dataCenterID = $templateVM.datacenter
     if ($dataCenter -and $dataCenterID) {
-        $VmTemplateInfo = $vm_template_helper.VmTemplate_ListByDatacenter($dataCenterID)
+        $VmTemplateInfo = $vm_template_helper.VmTemplate_ListByDatacenter($services,$dataCenterID)
         if (! ($VmTemplateInfo.Path -like "/$dataCenter/*")) {
             throw "$template not exists in datacenter: [$dataCenter]"
         }
