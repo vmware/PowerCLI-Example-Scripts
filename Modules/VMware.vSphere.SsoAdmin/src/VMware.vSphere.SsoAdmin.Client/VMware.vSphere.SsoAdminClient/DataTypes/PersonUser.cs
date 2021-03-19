@@ -22,6 +22,8 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
       public string FirstName { get; set; }
       public string LastName { get; set; }
       public string EmailAddress { get; set; }
+      public bool Locked { get; set; }
+      public bool Disabled { get; set; }
 
       public SsoAdminClient GetClient() {
          return _client;

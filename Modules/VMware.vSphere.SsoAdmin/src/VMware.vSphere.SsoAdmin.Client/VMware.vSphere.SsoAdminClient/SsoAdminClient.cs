@@ -191,7 +191,9 @@ namespace VMware.vSphere.SsoAdminClient
             Description = personUser.details.description,
             FirstName = personUser.details.firstName,
             LastName = personUser.details.lastName,
-            EmailAddress = personUser.details.emailAddress
+            EmailAddress = personUser.details.emailAddress,
+            Locked = personUser.locked,
+            Disabled = personUser.disabled
          };
       }
 
@@ -222,7 +224,9 @@ namespace VMware.vSphere.SsoAdminClient
                   Description = personUser.details.description,
                   FirstName = personUser.details.firstName,
                   LastName = personUser.details.lastName,
-                  EmailAddress = personUser.details.emailAddress
+                  EmailAddress = personUser.details.emailAddress,
+                  Locked = personUser.locked,
+                  Disabled = personUser.disabled
                };
             }
          }
@@ -257,7 +261,9 @@ namespace VMware.vSphere.SsoAdminClient
                   Description = personUser.details.description,
                   FirstName = personUser.details.firstName,
                   LastName = personUser.details.lastName,
-                  EmailAddress = personUser.details.emailAddress
+                  EmailAddress = personUser.details.emailAddress,
+                  Locked = personUser.locked,
+                  Disabled = personUser.disabled
                };
             }
          }
