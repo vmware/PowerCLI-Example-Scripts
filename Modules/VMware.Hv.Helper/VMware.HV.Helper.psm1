@@ -55,7 +55,10 @@ function Get-ViewAPIService {
 }
 
 function Get-HVModuleVersion {
-  $hvModules = @( Get-Module -Name "Vmware.VimAutomation.HorizonView" -ErrorAction "SilentlyContinue" );
+  if (-not (Get-Module -Name "Vmware.VimAutomation.HorizonView" -ErrorAction "SilentlyContinue") ) {
+    Import-Module -Name "Vmware.VimAutomation.HorizonView" -ErrorAction Stop
+  }
+  $hvModules = @( Get-Module -Name "Vmware.VimAutomation.HorizonView" -ErrorAction SilentlyContinue);
   return $($hvModules.version | measure -Maximum).Maximum
 }
 
