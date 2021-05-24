@@ -278,7 +278,7 @@ Function New-VCSASchedule {
 		[Parameter(Mandatory=$false)][VMware.VimAutomation.Cis.Core.Types.V1.Secret]$BackupPassword,
 		[Parameter(Mandatory=$true)][ValidateRange(0,23)]$BackupHour,
 		[Parameter(Mandatory=$true)][ValidateRange(0,59)]$BackupMinute,
-		[Parameter(Mandatory=$true)][ValidateSet('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')][Array]$BackupDays = $null,
+		[Parameter(Mandatory=$true)][ValidateSet('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY', IgnoreCase = $False)][Array]$BackupDays = $null,
 		[Parameter(Mandatory=$true)][Int]$MaxCount,
 		[Parameter(Mandatory=$false)]$BackupID = "default",
 		[Parameter(Mandatory=$false)]$CisServer = $global:DefaultCisServers,
