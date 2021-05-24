@@ -39,7 +39,7 @@ Function Backup-VCSAToFile {
 		[switch]$FullBackup,
 		[Parameter(ParameterSetName='CommonBackup')]
 		[switch]$CommonBackup,
-		[ValidateSet('FTPS', 'HTTP', 'SCP', 'HTTPS', 'FTP')]
+		[ValidateSet('FTPS', 'HTTP', 'SCP', 'HTTPS', 'FTP', 'SMB')]
 		$LocationType = "FTP",
 		$Location,
 		$LocationUser,
