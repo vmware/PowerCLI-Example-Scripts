@@ -35,9 +35,9 @@ Function Backup-VCSAToFile {
 		-CommonBackup will only backup the config whereas -Fullbackup grabs the historical data as well
 #>
 	param (
-		[Parameter(ParameterSetName=’FullBackup’)]
+		[Parameter(ParameterSetName='FullBackup')]
 		[switch]$FullBackup,
-		[Parameter(ParameterSetName=’CommonBackup’)]
+		[Parameter(ParameterSetName='CommonBackup')]
 		[switch]$CommonBackup,
 		[ValidateSet('FTPS', 'HTTP', 'SCP', 'HTTPS', 'FTP')]
 		$LocationType = "FTP",
@@ -239,7 +239,7 @@ Function New-VCSASchedule {
 	.EXAMPLE
 		The Below Create a schedule on Monday @11:30pm to FTP location 10.1.1.10:/vcsabackup/vcenter01
 		and keep 4 backups with a Encryption Passowrd of "VMw@re123"
-		
+
 		$location = "ftp://10.1.1.10/vcsabackup/vcenter01"
 		$LocationUser = "admin"
 		[VMware.VimAutomation.Cis.Core.Types.V1.Secret]$locationPassword = "VMw@re123"
@@ -248,14 +248,14 @@ Function New-VCSASchedule {
 		$BDays = @("Monday")
 		$MaxCount = 4
 		[VMware.VimAutomation.Cis.Core.Types.V1.Secret]$BackupPassword = "VMw@re123"
-		
+
 		PS C:\> New-VCSASchedule -Location $location -LocationUser $LocationUser -LocationPassword $locationPassword -BackupHour $BHour -BackupMinute $BMin -backupDays $BDays -MaxCount $MaxCount -BackupPassword $BackupPassword
 	.EXAMPLE
 		The Below Create a schedule on Sunday & Wednesday @5:15am
 		to NFS location 10.1.1.10:/vcsabackup/vcenter01
 		keep 10 backups with a Encryption Passowrd of "VMw@re123"
 		with Event Data included (Seat) and will delete any existing schedule.
-		
+
 		$location = "nfs://10.1.1.10/vcsabackup/vcenter01"
 		$LocationUser = "admin"
 		[VMware.VimAutomation.Cis.Core.Types.V1.Secret]$locationPassword = "VMw@re123"
@@ -264,7 +264,7 @@ Function New-VCSASchedule {
 		$BDays = @("Sunday", "Monday")
 		$MaxCount = 10
 		[VMware.VimAutomation.Cis.Core.Types.V1.Secret]$BackupPassword = "VMw@re123"
-		
+
 		PS C:\> New-VCSASchedule -IncludeSeat -force -Location $location -LocationUser $LocationUser -LocationPassword $locationPassword -BackupHour $BHour -BackupMinute $BMin -backupDays $BDays -MaxCount $MaxCount -BackupPassword $BackupPassword -CisServer "vcserver.sphere.local"
 	.NOTES
 		Credit goes to @AlanRenouf & @vBrianGraf for sharing the base of this function.
@@ -324,8 +324,8 @@ Function New-VCSASchedule {
 			$CreateSpec.parts = @()
 		}
 		$CurrentSchedule = $BackupAPI.list()
-		
-		
+
+
 		if ($CurrentSchedule.keys.value) {
 			if($Force -or $PSCmdlet.ShouldContinue($CurrentSchedule.keys.value,'Delete Old Schedule')){
 				$BackupAPI.delete($CurrentSchedule.keys.value)
@@ -374,7 +374,7 @@ Function Get-VCSASchedule {
 		PS C:\> Get-VCSASchedule -ScheduleID 1 -CisServer "vcserver.sphere.local"
 	.NOTES
 		Credit goes to @AlanRenouf & @vBrianGraf for sharing the base of this function.
-		Returns a simplified object with the schedule details. 
+		Returns a simplified object with the schedule details.
 		You must be connected to the CisService for this to work, if you are not connected, the function will prompt you for your credentials
 #>
 	param (
