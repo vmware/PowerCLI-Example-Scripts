@@ -279,7 +279,7 @@ Function New-VCSASchedule {
 		[Parameter(Mandatory=$true)][ValidateRange(0,23)]$BackupHour,
 		[Parameter(Mandatory=$true)][ValidateRange(0,59)]$BackupMinute,
 		[Parameter(Mandatory=$true)][ValidateSet('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')][Array]$BackupDays = $null,
-		[Parameter(Mandatory=$true)][Integer]$MaxCount,
+		[Parameter(Mandatory=$true)][Int]$MaxCount,
 		[Parameter(Mandatory=$false)]$BackupID = "default",
 		[Parameter(Mandatory=$false)]$CisServer = $global:DefaultCisServers,
 		[Parameter(Mandatory=$false)][switch]$IncludeSeat,
