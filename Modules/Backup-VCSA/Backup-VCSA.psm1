@@ -319,9 +319,9 @@ Function New-VCSASchedule {
 		$CreateSpec.recurrence_info.Days = $BackupDays
 		$CreateSpec.retention_info.max_count = $MaxCount
 		if ($IncludeSeat) {
-			$CreateSpec.parts = @("seat")
+			$CreateSpec.parts = @("seat","common")
 		} else {
-			$CreateSpec.parts = @()
+			$CreateSpec.parts = @("common")
 		}
 		$CurrentSchedule = $BackupAPI.list()
 
