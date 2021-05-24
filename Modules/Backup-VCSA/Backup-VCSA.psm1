@@ -275,7 +275,7 @@ Function New-VCSASchedule {
 		[Parameter(Mandatory=$true)]$Location,
 		[Parameter(Mandatory=$true)]$LocationUser,
 		[Parameter(Mandatory=$true)][VMware.VimAutomation.Cis.Core.Types.V1.Secret]$LocationPassword,
-		[Parameter(Mandatory=$true)][VMware.VimAutomation.Cis.Core.Types.V1.Secret]$BackupPassword,
+		[Parameter(Mandatory=$false)][VMware.VimAutomation.Cis.Core.Types.V1.Secret]$BackupPassword,
 		[Parameter(Mandatory=$true)][ValidateRange(0,23)]$BackupHour,
 		[Parameter(Mandatory=$true)][ValidateRange(0,59)]$BackupMinute,
 		[Parameter(Mandatory=$true)][ValidateSet('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')][Array]$BackupDays = $null,
