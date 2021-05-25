@@ -65,7 +65,7 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
             -User $User `
             -Password $Password `
             -ErrorAction Stop } | `
-         Should -Throw "The SSL connection could not be established, see inner exception."
+         Should -Throw "*The SSL connection could not be established, see inner exception.*"
       }
    }
 

@@ -103,7 +103,7 @@ namespace VMware.vSphere.SsoAdminClient.Tests
          var ssoAdminClient = new SsoAdminClient(_vc, _user, _password, new AcceptAllX509CertificateValidator());
 
          // Act
-         var actual = ssoAdminClient.GetPersonUsersInGroup("", new Group { 
+         var actual = ssoAdminClient.GetPersonUsersInGroup("", new Group(ssoAdminClient) {
             Name = "Administrators",
             Domain = "vsphere.local"
          }).ToArray();
