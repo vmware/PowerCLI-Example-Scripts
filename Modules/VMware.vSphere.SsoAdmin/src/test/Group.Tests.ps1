@@ -127,4 +127,21 @@ Describe "SsoGroup Tests" {
             Get-SsoGroup -Name $groupName -Domain 'vsphere.local' | Should -Be $null
         }
     }
+
+    Context "Set-SsoGroup" {
+        It 'Should update a SsoGroup with new description' {
+            # Arrange
+            $groupName = 'TestGroup4'
+            $expectedDescription = 'Test Description 4'
+            $groupToUpdate = New-SsoGroup -Name $groupName
+
+            # Act
+            $actual = $groupToUpdate | Set-SsoGroup -Description $expectedDescription
+
+            # Assert
+            $actual | Should -Not -Be $null
+            $script:testGroupsToDelete += $actual
+            $actual.Description | Should -Be $expectedDescription
+        }
+    }
 }

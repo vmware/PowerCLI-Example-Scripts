@@ -23,7 +23,7 @@ function New-SsoGroup {
     Specifies the name of the group.
 
     .PARAMETER Description
-    Specifies optionaldescription of the group.
+    Specifies an optional description of the group.
 
     .PARAMETER Server
     Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
@@ -32,7 +32,7 @@ function New-SsoGroup {
     .EXAMPLE
     New-SsoGroup -Name 'myGroup' -Description 'My Group Description'
 
-    Creates local groupwith user  'myGroup' and description 'My Group Description'
+    Creates a local group with name 'myGroup' and description 'My Group Description'
 
     #>
 
@@ -87,65 +87,6 @@ function New-SsoGroup {
             }
         }
     }
-}
-
-function Set-SsoGroup {
-}
-
-function Remove-SsoGroup {
-    <#
-    .NOTES
-    ===========================================================================
-    Created on:   	5/25/2021
-    Created by:   	Dimitar Milov
-    Twitter:       @dimitar_milov
-    Github:        https://github.com/dmilov
-    ===========================================================================
-    .DESCRIPTION
-    This function removes existing local group.
-
-    .PARAMETER Group
-    Specifies the Group instance to remove.
-
-    .EXAMPLE
-    $ssoAdminConnection = Connect-SsoAdminServer -Server my.vc.server -User ssoAdmin@vsphere.local -Password 'ssoAdminStrongPa$$w0rd'
-    $myNewGroup = New-SsoGroup -Server $ssoAdminConnection -Name 'myGroup'
-    Remove-SsoGroup -Group $myNewGroup
-
-    Remove plocal group with name 'myGroup'
-#>
-    [CmdletBinding(ConfirmImpact = 'High')]
-    param(
-        [Parameter(
-            Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'Group instance you want to remove from specified servers')]
-        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
-        $Group)
-
-    Process {
-        try {
-            foreach ($g in $Group) {
-                $ssoAdminClient = $g.GetClient()
-                if ((-not $ssoAdminClient)) {
-                    Write-Error "Object '$g' is from disconnected server"
-                    continue
-                }
-
-                $ssoAdminClient.RemoveLocalGroup($g)
-            }
-        }
-        catch {
-            Write-Error (FormatError $_.Exception)
-        }
-    }
-}
-
-function Add-PrincipalToSsoGroup {
-}
-
-function Remove-PrincipalFromSsoGroup {
 }
 
 function Get-SsoGroup {
@@ -246,4 +187,126 @@ function Get-SsoGroup {
             Write-Error (FormatError $_.Exception)
         }
     }
+}
+
+function Set-SsoGroup {
+    <#
+    .NOTES
+       ===========================================================================
+       Created on:   	5/25/2021
+       Created by:   	Dimitar Milov
+        Twitter:       @dimitar_milov
+        Github:        https://github.com/dmilov
+       ===========================================================================
+
+    .SYNOPSIS
+    Updates Local Sso Group
+
+    .DESCRIPTION
+    Updates Local Sso Group details
+
+    .PARAMETER Gtoup
+    Specifies the group instace to update.
+
+    .PARAMETER Description
+    Specifies a description of the group.
+
+    .EXAMPLE
+    $myGroup = New-SsoGroup -Name 'myGroup'
+    $myGroup | Set-SsoGroup -Description 'My Group Description'
+
+    Updates local group $myGroup with description 'My Group Description'
+
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Group instance you want to update')]
+        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+        $Group,
+
+        [Parameter(
+            Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Specifies the description of the group')]
+        [string]
+        $Description)
+
+    Process {
+        try {
+            foreach ($g in $Group) {
+                $ssoAdminClient = $g.GetClient()
+                if ((-not $ssoAdminClient)) {
+                    Write-Error "Object '$g' is from disconnected server"
+                    continue
+                }
+
+                $ssoAdminClient.UpdateLocalGroup($g, $Description)
+            }
+        }
+        catch {
+            Write-Error (FormatError $_.Exception)
+        }
+    }
+}
+
+function Remove-SsoGroup {
+    <#
+    .NOTES
+    ===========================================================================
+    Created on:   	5/25/2021
+    Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+    ===========================================================================
+    .DESCRIPTION
+    This function removes existing local group.
+
+    .PARAMETER Group
+    Specifies the Group instance to remove.
+
+    .EXAMPLE
+    $ssoAdminConnection = Connect-SsoAdminServer -Server my.vc.server -User ssoAdmin@vsphere.local -Password 'ssoAdminStrongPa$$w0rd'
+    $myNewGroup = New-SsoGroup -Server $ssoAdminConnection -Name 'myGroup'
+    Remove-SsoGroup -Group $myNewGroup
+
+    Remove plocal group with name 'myGroup'
+#>
+    [CmdletBinding(ConfirmImpact = 'High')]
+    param(
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Group instance you want to remove')]
+        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+        $Group)
+
+    Process {
+        try {
+            foreach ($g in $Group) {
+                $ssoAdminClient = $g.GetClient()
+                if ((-not $ssoAdminClient)) {
+                    Write-Error "Object '$g' is from disconnected server"
+                    continue
+                }
+
+                $ssoAdminClient.RemoveLocalGroup($g)
+            }
+        }
+        catch {
+            Write-Error (FormatError $_.Exception)
+        }
+    }
+}
+
+function Add-PrincipalToSsoGroup {
+}
+
+function Remove-PrincipalFromSsoGroup {
 }

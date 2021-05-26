@@ -498,7 +498,7 @@ function Remove-SsoPersonUser {
             Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'Person User instance you want to remove from specified servers')]
+            HelpMessage = 'Person User instance you want to remove')]
         [VMware.vSphere.SsoAdminClient.DataTypes.PersonUser]
         $User)
 

@@ -379,6 +379,41 @@ namespace VMware.vSphere.SsoAdminClient
             }
         }
 
+        public DataTypes.Group UpdateLocalGroup(DataTypes.Group group, string description)
+        {
+            if (description == null) {
+                description = string.Empty;
+            }
+
+            // Create Authorization Invocation Context
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            // Invoke SSO Admin DeleteLocalPrincipal operation
+            var updatedGroup = authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.UpdateLocalGroupDetailsAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminPrincipalManagementService",
+                         Value = "principalManagementService"
+                     },
+                     group.Name,
+                     new SsoAdminGroupDetails
+                     {
+                         description = description
+                     })).Result;
+
+            if (updatedGroup != null)
+            {
+                return FindGroup(updatedGroup.name, updatedGroup.domain, authorizedInvocationContext);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
 
         public void RemoveLocalGroup(DataTypes.Group group)
         {
