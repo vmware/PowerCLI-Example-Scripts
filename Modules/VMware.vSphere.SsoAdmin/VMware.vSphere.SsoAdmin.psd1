@@ -37,7 +37,7 @@ RequiredModules = @(
 FunctionsToExport = @(
     'Connect-SsoAdminServer', 'Disconnect-SsoAdminServer',
     'New-SsoPersonUser', 'Get-SsoPersonUser', 'Set-SsoPersonUser', 'Remove-SsoPersonUser', 'Set-SsoSelfPersonUserPassword'
-    'New-SsoGroup', 'Get-SsoGroup', 'Set-SsoGroup', 'Remove-SsoGroup', 'Add-PrincipalToSsoGroup', 'Remove-PrincipalFromSsoGroup'
+    'New-SsoGroup', 'Get-SsoGroup', 'Set-SsoGroup', 'Remove-SsoGroup', 'Add-GroupToSsoGroup', 'Remove-GroupFromSsoGroup', 'Add-UserToSsoGroup', 'Remove-UserFromSsoGroup'
     'Get-SsoPasswordPolicy', 'Set-SsoPasswordPolicy',
     'Get-SsoLockoutPolicy', 'Set-SsoLockoutPolicy',
     'Get-SsoTokenLifetime', 'Set-SsoTokenLifetime',

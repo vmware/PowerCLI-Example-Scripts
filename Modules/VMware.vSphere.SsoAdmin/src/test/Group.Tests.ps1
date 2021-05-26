@@ -29,12 +29,17 @@ Describe "SsoGroup Tests" {
             -SkipCertificateCheck
 
         $script:testGroupsToDelete = @()
+        $script:testUsersToDelete = @()
     }
 
     AfterEach {
 
         foreach ($group in $script:testGroupsToDelete) {
             Remove-SsoGroup -Group $group
+        }
+
+        foreach ($user in $script:testUsersToDelete) {
+            Remove-SsoPersonUser -User $user
         }
 
         $connectionsToCleanup = $global:DefaultSsoAdminServers.ToArray()
@@ -106,7 +111,7 @@ Describe "SsoGroup Tests" {
             $actual = New-SsoGroup -Name $expectedName -Description $expectedDescription
 
             # Assert
-            $actual | Should -Not -Be $
+            $actual | Should -Not -Be $null
             $script:testGroupsToDelete += $actual
             $actual.Name | Should -Be $expectedName
             $actual.Domain | Should -Be 'vsphere.local'
@@ -142,6 +147,76 @@ Describe "SsoGroup Tests" {
             $actual | Should -Not -Be $null
             $script:testGroupsToDelete += $actual
             $actual.Description | Should -Be $expectedDescription
+        }
+    }
+
+    Context "Add-GroupToSsoGroup" {
+        It 'Should add a newly created SsoGroup to another SsoGroup' {
+            # Arrange
+            $groupName = 'TestGroup5'
+            $groupToAdd = New-SsoGroup -Name $groupName
+            $script:testGroupsToDelete += $groupToAdd
+
+            $targetGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
+
+            # Act
+            $groupToAdd | Add-GroupToSsoGroup -TargetGroup $targetGroup
+
+            # Assert
+            ## TODO: Implement Get Group Members and verify
+        }
+    }
+
+    Context "Remove-GroupFromSsoGroup" {
+        It 'Should remove a SsoGroup from another SsoGroup' {
+            # Arrange
+            $groupName = 'TestGroup6'
+            $groupToRemove = New-SsoGroup -Name $groupName
+            $script:testGroupsToDelete += $groupToRemove
+
+            $targetGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
+            $groupToRemove | Add-GroupToSsoGroup -TargetGroup $targetGroup
+
+            # Act
+            $groupToRemove | Remove-GroupFromSsoGroup -TargetGroup $targetGroup
+
+            # Assert
+            ## TODO: Implement Get Group Members and verify
+        }
+    }
+
+    Context "Add-UserToSsoGroup" {
+        It 'Should add a newly created PersonUser to SsoGroup' {
+            # Arrange
+            $expectedUser = New-SsoPersonUser -User 'GroupTestUser1' -Password 'MyStrongPa$$w0rd'
+            $script:testUsersToDelete += $expectedUser
+
+            $targetGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
+
+            # Act
+            $expectedUser | Add-UserToSsoGroup -TargetGroup $targetGroup
+
+            # Assert
+            $actualUsers = $targetGroup | Get-SsoPersonUser
+            $actualUsers | Where-Object { $_.Name -eq $expectedUser.Name} | Should -Not -Be $null
+        }
+    }
+
+    Context "Remove-GroupFromSsoGroup" {
+        It 'Should remove a SsoGroup from another SsoGroup' {
+            # Arrange
+            $expectedUser = New-SsoPersonUser -User 'GroupTestUser2' -Password 'MyStrongPa$$w0rd'
+            $script:testUsersToDelete += $expectedUser
+
+            $targetGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
+            $expectedUser | Add-UserToSsoGroup -TargetGroup $targetGroup
+
+            # Act
+            $expectedUser | Remove-UserFromSsoGroup -TargetGroup $targetGroup
+
+            # Assert
+            $actualUsers = $targetGroup | Get-SsoPersonUser
+            $actualUsers | Where-Object { $_.Name -eq $expectedUser.Name} | Should -Be $null
         }
     }
 }

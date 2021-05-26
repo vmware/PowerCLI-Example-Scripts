@@ -264,6 +264,7 @@ function Remove-SsoGroup {
     Twitter:       @dimitar_milov
     Github:        https://github.com/dmilov
     ===========================================================================
+
     .DESCRIPTION
     This function removes existing local group.
 
@@ -305,8 +306,302 @@ function Remove-SsoGroup {
     }
 }
 
-function Add-PrincipalToSsoGroup {
+function Add-GroupToSsoGroup {
+    <#
+    .NOTES
+    ===========================================================================
+    Created on:   	5/26/2021
+    Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+    ===========================================================================
+
+
+    .SYNOPSIS
+    Adds a group to another group
+
+    .DESCRIPTION
+    Adds the specified group on $Group parameter to target group specified on $TargetGroup parameter
+
+    .PARAMETER Group
+    A Group instance to be added to the $TargetGroup
+
+    .PARAMETER TargetGroup
+    A target group to which the $Group will be added.
+
+    .EXAMPLE
+    $administratosGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
+    Get-SsoGroup -Name 'TestGroup' -Domain 'MyDomain' | Add-GroupToSsoGroup -TargetGroup $administratosGroup
+
+    Adds 'TestGroup' from 'MyDomain' domain to vsphere.local Administrators group.
+    #>
+    [CmdletBinding(ConfirmImpact = 'Medium')]
+    param(
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'SsoGroup instance you want to add to the target group')]
+        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+        $Group,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Target SsoGroup instance where the $Group wtill be added')]
+        [ValidateNotNull()]
+        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+        $TargetGroup)
+
+    Process {
+        try {
+            foreach ($g in $Group) {
+                $ssoAdminClient = $g.GetClient()
+                if ((-not $ssoAdminClient)) {
+                    Write-Error "Object '$g' is from disconnected server"
+                    continue
+                }
+
+                if ($g.GetClient().ServiceUri -ne $TargetGroup.GetClient().ServiceUri) {
+                    Write-Error "Group '$g' is not from the same server as the target group"
+                    continue
+                }
+
+                $result = $ssoAdminClient.AddGroupToGroup($g, $TargetGroup)
+                if (-not $result) {
+                    Write-Error "Group '$g' was not added to the target group. The Server operation result doesn't indicate success"
+                    continue
+                }
+            }
+        }
+        catch {
+            Write-Error (FormatError $_.Exception)
+        }
+    }
 }
 
-function Remove-PrincipalFromSsoGroup {
+function Remove-GroupFromSsoGroup {
+    <#
+    .NOTES
+    ===========================================================================
+    Created on:   	5/26/2021
+    Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+    ===========================================================================
+
+
+    .SYNOPSIS
+    Removes a group to another group
+
+    .DESCRIPTION
+    Removes the specified group on $Group parameter from target group specified on $TargetGroup parameter
+
+    .PARAMETER Group
+    A Group instance to be removed from the $TargetGroup
+
+    .PARAMETER TargetGroup
+    A target group from which the $Group will be removed.
+
+    .EXAMPLE
+    $administratosGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
+    Get-SsoGroup -Name 'TestGroup' -Domain 'MyDomain' | Remove-GroupFromSsoGroup -TargetGroup $administratosGroup
+
+    Removes 'TestGroup' from 'MyDomain' domain from vsphere.local Administrators group.
+    #>
+    [CmdletBinding(ConfirmImpact = 'Medium')]
+    param(
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'SsoGroup instance you want to remove from the target group')]
+        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+        $Group,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Target SsoGroup instance from which the $Group wtill be removed')]
+        [ValidateNotNull()]
+        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+        $TargetGroup)
+
+    Process {
+        try {
+            foreach ($g in $Group) {
+                $ssoAdminClient = $g.GetClient()
+                if ((-not $ssoAdminClient)) {
+                    Write-Error "Object '$g' is from disconnected server"
+                    continue
+                }
+
+                if ($g.GetClient().ServiceUri -ne $TargetGroup.GetClient().ServiceUri) {
+                    Write-Error "Group '$g' is not from the same server as the target group"
+                    continue
+                }
+
+                $result = $ssoAdminClient.RemoveGroupFromGroup($g, $TargetGroup)
+                if (-not $result) {
+                    Write-Error "Group '$g' was not removed to the target group. The Server operation result doesn't indicate success"
+                    continue
+                }
+            }
+        }
+        catch {
+            Write-Error (FormatError $_.Exception)
+        }
+    }
+}
+
+function Add-UserToSsoGroup {
+    <#
+    .NOTES
+    ===========================================================================
+    Created on:   	5/26/2021
+    Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+    ===========================================================================
+
+
+    .SYNOPSIS
+    Adds an user to a group
+
+    .DESCRIPTION
+    Adds the user on $User parameter to target group specified on $TargetGroup parameter
+
+    .PARAMETER User
+    A PersonUser instance to be added to the $TargetGroup
+
+    .PARAMETER TargetGroup
+    A target group to which the $User will be added.
+
+    .EXAMPLE
+    $administratosGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
+    Get-SsoPersonUser -Name 'TestUser' -Domain 'MyDomain' | Add-UserToSsoGroup -TargetGroup $administratosGroup
+
+    Adds 'TestUser' from 'MyDomain' domain to vsphere.local Administrators group.
+    #>
+    [CmdletBinding(ConfirmImpact = 'Medium')]
+    param(
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'PersonUser instance you want to add to the target group')]
+        [VMware.vSphere.SsoAdminClient.DataTypes.PersonUser]
+        $User,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Target SsoGroup instance where the $Group wtill be added')]
+        [ValidateNotNull()]
+        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+        $TargetGroup)
+
+    Process {
+        try {
+            foreach ($u in $User) {
+                $ssoAdminClient = $u.GetClient()
+                if ((-not $ssoAdminClient)) {
+                    Write-Error "Object '$u' is from disconnected server"
+                    continue
+                }
+
+                if ($u.GetClient().ServiceUri -ne $TargetGroup.GetClient().ServiceUri) {
+                    Write-Error "User '$u' is not from the same server as the target group"
+                    continue
+                }
+
+                $result = $ssoAdminClient.AddPersonUserToGroup($u, $TargetGroup)
+                if (-not $result) {
+                    Write-Error "User '$u' was not added to the target group. The Server operation result doesn't indicate success"
+                    continue
+                }
+            }
+        }
+        catch {
+            Write-Error (FormatError $_.Exception)
+        }
+    }
+}
+
+function Remove-UserFromSsoGroup {
+    <#
+    .NOTES
+    ===========================================================================
+    Created on:   	5/26/2021
+    Created by:   	Dimitar Milov
+    Twitter:       @dimitar_milov
+    Github:        https://github.com/dmilov
+    ===========================================================================
+
+
+    .SYNOPSIS
+    Removes a person user from group
+
+    .DESCRIPTION
+    Removes the specified person user on $User parameter from target group specified on $TargetGroup parameter
+
+    .PARAMETER User
+    A PersonUser instance to be removed from the $TargetGroup
+
+    .PARAMETER TargetGroup
+    A target group from which the $User will be removed.
+
+    .EXAMPLE
+    $administratosGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
+    Get-SsoPersonUser -Name 'TestUser' -Domain 'MyDomain' | Remove-UserFromSsoGroup -TargetGroup $administratosGroup
+
+    Removes 'TestUser' from 'MyDomain' domain from vsphere.local Administrators group.
+    #>
+    [CmdletBinding(ConfirmImpact = 'Medium')]
+    param(
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'PersonUser instance you want to remove from the target group')]
+        [VMware.vSphere.SsoAdminClient.DataTypes.PersonUser]
+        $User,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Target SsoGroup instance from which the $User wtill be removed')]
+        [ValidateNotNull()]
+        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+        $TargetGroup)
+
+    Process {
+        try {
+            foreach ($u in $User) {
+                $ssoAdminClient = $u.GetClient()
+                if ((-not $ssoAdminClient)) {
+                    Write-Error "Object '$u' is from disconnected server"
+                    continue
+                }
+
+                if ($u.GetClient().ServiceUri -ne $TargetGroup.GetClient().ServiceUri) {
+                    Write-Error "User '$u' is not from the same server as the target group"
+                    continue
+                }
+
+                $result = $ssoAdminClient.RemovePersonUserFromGroup($u, $TargetGroup)
+                if (-not $result) {
+                    Write-Error "User '$u' was not removed to the target group. The Server operation result doesn't indicate success"
+                    continue
+                }
+            }
+        }
+        catch {
+            Write-Error (FormatError $_.Exception)
+        }
+    }
 }

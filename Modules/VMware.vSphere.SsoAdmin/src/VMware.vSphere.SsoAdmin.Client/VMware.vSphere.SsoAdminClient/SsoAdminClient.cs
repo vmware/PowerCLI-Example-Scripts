@@ -487,6 +487,29 @@ namespace VMware.vSphere.SsoAdminClient
                      group.Name)).Result;
         }
 
+        public bool AddGroupToGroup(DataTypes.Group groupToAdd, DataTypes.Group destinationGroup)
+        {
+            // Create Authorization Invocation Context
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            // Invoke SSO Admin AddGroupToLocalGroupAsync operation
+            return authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.AddGroupToLocalGroupAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminPrincipalManagementService",
+                         Value = "principalManagementService"
+                     },
+                     new SsoPrincipalId
+                     {
+                         name = groupToAdd.Name,
+                         domain = groupToAdd.Domain
+                     },
+                     destinationGroup.Name)).Result;
+        }
+
         public bool RemovePersonUserFromGroup(PersonUser user, DataTypes.Group group)
         {
             // Create Authorization Invocation Context
@@ -506,6 +529,29 @@ namespace VMware.vSphere.SsoAdminClient
                      {
                          name = user.Name,
                          domain = user.Domain
+                     },
+                     group.Name)).Result;
+        }
+
+        public bool RemoveGroupFromGroup(DataTypes.Group groupToRemove, DataTypes.Group group)
+        {
+            // Create Authorization Invocation Context
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            // Invoke SSO Admin RemoveFromLocalGroupAsync operation
+            return authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.RemoveFromLocalGroupAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminPrincipalManagementService",
+                         Value = "principalManagementService"
+                     },
+                     new SsoPrincipalId
+                     {
+                         name = groupToRemove.Name,
+                         domain = groupToRemove.Domain
                      },
                      group.Name)).Result;
         }
