@@ -107,6 +107,8 @@ function Get-SsoGroup {
        .PARAMETER Domain
        Specifies the Domain in which search will be applied, default is 'localos'.
 
+       .PARAMETER Group
+        Specifies the group in which search for person user members will be applied.
 
        .PARAMETER Server
        Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
@@ -128,6 +130,7 @@ function Get-SsoGroup {
         $Name,
 
         [Parameter(
+            ParameterSetName = 'ByNameAndDomain',
             Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
@@ -136,6 +139,16 @@ function Get-SsoGroup {
         $Domain = 'localos',
 
         [Parameter(
+            ParameterSetName = 'ByGroup',
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Searches group members of the specified group')]
+        [VMware.vSphere.SsoAdminClient.DataTypes.Group]
+        $Group,
+
+        [Parameter(
+            ParameterSetName = 'ByNameAndDomain',
             Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
@@ -146,38 +159,70 @@ function Get-SsoGroup {
 
     Process {
         $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
-        if ($Server -ne $null) {
+        if ($null -ne $Server) {
             $serversToProcess = $Server
         }
 
-        if ($Name -eq $null) {
+        if ($null -eq $Name) {
             $Name = [string]::Empty
         }
 
         try {
-            foreach ($connection in $serversToProcess) {
-                if (-not $connection.IsConnected) {
-                    Write-Error "Server $connection is disconnected"
-                    continue
+            if ($null -ne $Group) {
+
+                foreach ($g in $Group) {
+                    $ssoAdminClient = $g.GetClient()
+                    if ((-not $ssoAdminClient)) {
+                        Write-Error "Object '$g' is from disconnected server"
+                        continue
+                    }
+
+                    foreach ($resultGroup in $ssoAdminClient.GetGroupsInGroup(
+                            (RemoveWildcardSymbols $Name),
+                            $Group)) {
+
+                        if ([string]::IsNullOrEmpty($Name) ) {
+                            Write-Output $resultGroup
+                        }
+                        else {
+                            # Apply Name filtering
+                            if ((HasWildcardSymbols $Name) -and `
+                                    $resultGroup.Name -like $Name) {
+                                Write-Output $resultGroup
+                            }
+                            elseif ($resultGroup.Name -eq $Name) {
+                                # Exactly equal
+                                Write-Output $resultGroup
+                            }
+                        }
+                    }
                 }
 
-                foreach ($group in $connection.Client.GetGroups(
-                        (RemoveWildcardSymbols $Name),
-                        $Domain)) {
-
-
-                    if ([string]::IsNullOrEmpty($Name) ) {
-                        Write-Output $group
+            } else {
+                foreach ($connection in $serversToProcess) {
+                    if (-not $connection.IsConnected) {
+                        Write-Error "Server $connection is disconnected"
+                        continue
                     }
-                    else {
-                        # Apply Name filtering
-                        if ((HasWildcardSymbols $Name) -and `
-                                $group.Name -like $Name) {
-                            Write-Output $group
+
+                    foreach ($resultGroup in $connection.Client.GetGroups(
+                            (RemoveWildcardSymbols $Name),
+                            $Domain)) {
+
+
+                        if ([string]::IsNullOrEmpty($Name) ) {
+                            Write-Output $resultGroup
                         }
-                        elseif ($group.Name -eq $Name) {
-                            # Exactly equal
-                            Write-Output $group
+                        else {
+                            # Apply Name filtering
+                            if ((HasWildcardSymbols $Name) -and `
+                                    $resultGroup.Name -like $Name) {
+                                Write-Output $resultGroup
+                            }
+                            elseif ($resultGroup.Name -eq $Name) {
+                                # Exactly equal
+                                Write-Output $resultGroup
+                            }
                         }
                     }
                 }
@@ -205,7 +250,7 @@ function Set-SsoGroup {
     .DESCRIPTION
     Updates Local Sso Group details
 
-    .PARAMETER Gtoup
+    .PARAMETER Group
     Specifies the group instace to update.
 
     .PARAMETER Description

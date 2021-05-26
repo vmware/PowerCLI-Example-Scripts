@@ -153,35 +153,35 @@ Describe "SsoGroup Tests" {
     Context "Add-GroupToSsoGroup" {
         It 'Should add a newly created SsoGroup to another SsoGroup' {
             # Arrange
-            $groupName = 'TestGroup5'
-            $groupToAdd = New-SsoGroup -Name $groupName
-            $script:testGroupsToDelete += $groupToAdd
+            $expectedGroup = New-SsoGroup -Name 'TestGroup5'
+            $script:testGroupsToDelete += $expectedGroup
 
             $targetGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
 
             # Act
-            $groupToAdd | Add-GroupToSsoGroup -TargetGroup $targetGroup
+            $expectedGroup | Add-GroupToSsoGroup -TargetGroup $targetGroup
 
             # Assert
-            ## TODO: Implement Get Group Members and verify
+            $actualGroups = $targetGroup | Get-SsoGroup
+            $actualGroups | Where-Object { $_.Name -eq $expectedGroup.Name} | Should -Not -Be $null
         }
     }
 
     Context "Remove-GroupFromSsoGroup" {
         It 'Should remove a SsoGroup from another SsoGroup' {
             # Arrange
-            $groupName = 'TestGroup6'
-            $groupToRemove = New-SsoGroup -Name $groupName
-            $script:testGroupsToDelete += $groupToRemove
+            $expectedGroup = New-SsoGroup -Name 'TestGroup6'
+            $script:testGroupsToDelete += $expectedGroup
 
             $targetGroup = Get-SsoGroup -Name 'Administrators' -Domain 'vsphere.local'
-            $groupToRemove | Add-GroupToSsoGroup -TargetGroup $targetGroup
+            $expectedGroup | Add-GroupToSsoGroup -TargetGroup $targetGroup
 
             # Act
-            $groupToRemove | Remove-GroupFromSsoGroup -TargetGroup $targetGroup
+            $expectedGroup | Remove-GroupFromSsoGroup -TargetGroup $targetGroup
 
             # Assert
-            ## TODO: Implement Get Group Members and verify
+            $actualGroups = $targetGroup | Get-SsoGroup
+            $actualGroups | Where-Object { $_.Name -eq $expectedGroup.Name} | Should -Be $null
         }
     }
 

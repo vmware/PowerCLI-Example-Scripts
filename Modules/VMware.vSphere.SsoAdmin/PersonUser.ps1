@@ -155,6 +155,8 @@ function Get-SsoPersonUser {
     .PARAMETER Domain
     Specifies the Domain in which search will be applied, default is 'localos'.
 
+    .PARAMETER Group
+    Specifies the group in which search for person user members will be applied.
 
     .PARAMETER Server
     Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.

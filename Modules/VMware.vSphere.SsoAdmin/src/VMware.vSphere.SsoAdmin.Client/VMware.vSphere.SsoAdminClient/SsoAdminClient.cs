@@ -348,6 +348,43 @@ namespace VMware.vSphere.SsoAdminClient
             };
         }
 
+        public IEnumerable<DataTypes.Group> GetGroupsInGroup(string searchString, DataTypes.Group group)
+        {
+            // Create Authorization Invocation Context
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            // Invoke SSO Admin FindGroupsInGroupResponse operation
+            var groups = authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.FindGroupsInGroupAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminPrincipalDiscoveryService",
+                         Value = "principalDiscoveryService"
+                     },
+                     new SsoPrincipalId
+                     {
+                         name = group.Name,
+                         domain = group.Domain
+                     },
+                     searchString,
+                     int.MaxValue)).Result.returnval;
+
+            if (groups != null)
+            {
+                foreach (var g in groups)
+                {
+                    yield return new DataTypes.Group(this)
+                    {
+                        Name = g.id.name,
+                        Domain = g.id.domain,
+                        Description = g.details.description
+                    };
+                }
+            }
+        }
+
         public DataTypes.Group CreateLocalGroup(string name, string description)
         {
             // Create Authorization Invocation Context
