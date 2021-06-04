@@ -1,4 +1,9 @@
-﻿# Fetch Cis Server hostname and credentials
+﻿<#
+Copyright 2016-2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+# Fetch Cis Server hostname and credentials
 .\CisConfig.ps1
 
 Connect-rCisServer -Server $cisServer -User $cisUser -Password $cisPswd
@@ -17,4 +22,3 @@ Get-Cluster -Name Cluster1 | Get-Datastore | %{
 }
 
 Disconnect-rCisServer -Server $cisServer -Confirm:$false
- 

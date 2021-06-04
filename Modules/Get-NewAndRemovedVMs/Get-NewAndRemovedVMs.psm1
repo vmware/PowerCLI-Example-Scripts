@@ -1,15 +1,19 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 function Get-NewAndRemovedVMs {
-<#	
+<#
     .NOTES
     ===========================================================================
     Created by: Markus Kraus
     Twitter: @VMarkus_K
     Private Blog: mycloudrevolution.com
     ===========================================================================
-    Changelog:  
-    2016.12 ver 1.0 Base Release 
+    Changelog:
+    2016.12 ver 1.0 Base Release
     ===========================================================================
-    External Code Sources:  
+    External Code Sources:
     https://github.com/alanrenouf/vCheck-vSphere
     ===========================================================================
     Tested Against Environment:
@@ -22,10 +26,10 @@ function Get-NewAndRemovedVMs {
     ===========================================================================
 
     .DESCRIPTION
-    This Function report newly created and deleted VMs by Cluster.       
+    This Function report newly created and deleted VMs by Cluster.
 
     .Example
-    Get-NewAndRemovedVMs -ClusterName Cluster* | ft -AutoSize  
+    Get-NewAndRemovedVMs -ClusterName Cluster* | ft -AutoSize
 
     .Example
     Get-NewAndRemovedVMs -ClusterName Cluster01 -Days 90
@@ -51,7 +55,7 @@ param(
 )
 Begin {
     function Get-VIEventPlus {
-	 
+
 	param(
 		[VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]]$Entity,
 		[string[]]$EventType,
@@ -117,7 +121,7 @@ Begin {
 		{
 			$events | % { $_.createdTime = $_.createdTime.ToLocalTime() }
 		}
-		
+
 		$events
 	}
 }

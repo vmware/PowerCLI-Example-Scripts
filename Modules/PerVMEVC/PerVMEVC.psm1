@@ -1,18 +1,23 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
 function Get-VMEvcMode {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Gathers information on the EVC status of a VM
-.DESCRIPTION 
+.DESCRIPTION
     Will provide the EVC status for the specified VM
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy, thatcouldbeaproblem.com
 .PARAMETER Name
     VM name which the function should be ran against
 .EXAMPLE
 	Get-VMEvcMode -Name vmName
-	Retreives the EVC status of the provided VM 
+	Retreives the EVC status of the provided VM
 #>
-[CmdletBinding()] 
+[CmdletBinding()]
 	param(
 	[Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
         $Name
@@ -33,7 +38,7 @@ function Get-VMEvcMode {
 
         }
         elseif ($name -is [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl]) {$evVM += $name}
-        
+
         if ($evVM -eq $null) {Write-Warning "No VMs found."}
         else {
             $output = @()
@@ -55,20 +60,20 @@ function Get-VMEvcMode {
 }
 
 function Remove-VMEvcMode {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Removes the EVC status of a VM
-.DESCRIPTION 
+.DESCRIPTION
     Will remove the EVC status for the specified VM
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy, thatcouldbeaproblem.com
 .PARAMETER Name
     VM name which the function should be ran against
 .EXAMPLE
 	Remove-VMEvcMode -Name vmName
-	Removes the EVC status of the provided VM 
+	Removes the EVC status of the provided VM
 #>
-[CmdletBinding()] 
+[CmdletBinding()]
 	param(
 	[Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
         $Name
@@ -90,7 +95,7 @@ function Remove-VMEvcMode {
 
         }
         elseif ($name -is [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl]) {$evVM += $name}
-        
+
         if ($evVM -eq $null) {Write-Warning "No VMs found."}
         else {
             foreach ($v in $evVM) {
@@ -99,17 +104,17 @@ function Remove-VMEvcMode {
 
                     $v.ExtensionData.ApplyEvcModeVM_Task($null, $true) | Out-Null
                     $updateVM += $v.Name
-                                        
+
                 }
                 else {Write-Warning $v.Name + " does not have the minimum requirements of being Hardware Version 14 and powered off."}
 
             }
 
             if ($updateVM) {
-            
+
             Start-Sleep -Seconds 2
             Get-VMEvcMode -Name $updateVM
-            
+
             }
 
         }
@@ -119,12 +124,12 @@ function Remove-VMEvcMode {
 }
 
 function Set-VMEvcMode {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Configures the EVC status of a VM
-.DESCRIPTION 
+.DESCRIPTION
     Will configure the EVC status for the specified VM
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy, thatcouldbeaproblem.com
 .PARAMETER Name
     VM name which the function should be ran against
@@ -134,7 +139,7 @@ function Set-VMEvcMode {
 	Set-VMEvcMode -Name vmName -EvcMode intel-sandybridge
 	Configures the EVC status of the provided VM to be 'intel-sandybridge'
 #>
-[CmdletBinding()] 
+[CmdletBinding()]
 	param(
 	[Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
         $Name,
@@ -159,7 +164,7 @@ function Set-VMEvcMode {
 
         }
         elseif ($name -is [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl]) {$evVM += $name}
-        
+
         if ($evVM -eq $null) {Write-Warning "No VMs found."}
         else {
 
@@ -172,17 +177,17 @@ function Set-VMEvcMode {
 
                     $v.ExtensionData.ApplyEvcModeVM_Task($evcMask, $true) | Out-Null
                     $updateVM += $v.Name
-                                        
+
                 }
                 else {Write-Warning $v.Name + " does not have the minimum requirements of being Hardware Version 14 and powered off."}
 
             }
 
             if ($updateVM) {
-            
+
             Start-Sleep -Seconds 2
             Get-VMEvcMode -Name $updateVM
-            
+
             }
 
         }

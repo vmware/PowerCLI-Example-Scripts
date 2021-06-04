@@ -1,5 +1,5 @@
 PowerCLI-Example-Scripts<br/>
-Copyright 2016-2021 VMware, Inc.
+Copyright 2021 VMware, Inc.
 
 BSD 2-Clause License
 

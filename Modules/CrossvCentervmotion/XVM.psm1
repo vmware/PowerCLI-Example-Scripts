@@ -1,3 +1,7 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 Function Get-XVCMStatus {
 <#
     .NOTES
@@ -12,7 +16,7 @@ Function Get-XVCMStatus {
     .EXAMPLE
         Get-XVCMStatus
 #>
-    $Uri = "http://localhost:8080/api/status" #Updated for 2.0, Old: "http://localhost:8080/api/ping" 
+    $Uri = "http://localhost:8080/api/status" #Updated for 2.0, Old: "http://localhost:8080/api/ping"
 
     $results = Invoke-WebRequest -Uri $Uri -Method GET -TimeoutSec 5
 

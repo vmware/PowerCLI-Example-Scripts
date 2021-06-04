@@ -1,17 +1,21 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 function Recommend-Sizing {
-<#	
+<#
     .NOTES
     ===========================================================================
     Created by: Markus Kraus
     Twitter: @VMarkus_K
     Private Blog: mycloudrevolution.com
     ===========================================================================
-    Changelog:  
-    2016.11 ver 1.0 Base Release 
+    Changelog:
+    2016.11 ver 1.0 Base Release
     2016.11 ver 1.1 Optional Stats Collection
     2016.11 ver 1.2 VM Stats from Realtime Data and new Counters
     ===========================================================================
-    External Code Sources:  
+    External Code Sources:
     http://www.lucd.info/2011/04/22/get-the-maximum-iops/
     https://communities.vmware.com/thread/485386
     ===========================================================================
@@ -25,16 +29,16 @@ function Recommend-Sizing {
     ===========================================================================
 
     .DESCRIPTION
-    This Function collects Basic vSphere Informations for a Hardware Sizing Recommandation. Focus is in Compute Ressources.        
+    This Function collects Basic vSphere Informations for a Hardware Sizing Recommandation. Focus is in Compute Ressources.
 
     .Example
-    Recommend-Sizing -ClusterNames Cluster01, Cluster02 -Stats -StatsRange 60 -Verbose    
+    Recommend-Sizing -ClusterNames Cluster01, Cluster02 -Stats -StatsRange 60 -Verbose
 
     .Example
-    Recommend-Sizing -ClusterNames Cluster01, Cluster02 
+    Recommend-Sizing -ClusterNames Cluster01, Cluster02
 
     .Example
-    Recommend-Sizing -ClusterNames Cluster01 
+    Recommend-Sizing -ClusterNames Cluster01
 
     .PARAMETER ClusterNames
     List of your vSphere Cluser Names to process.
@@ -53,14 +57,14 @@ function Recommend-Sizing {
 #>
 
 [CmdletBinding()]
-param( 
+param(
     [Parameter(Mandatory=$True, ValueFromPipeline=$False, Position=0)]
         [Array] $ClusterNames,
     [Parameter(Mandatory=$False, ValueFromPipeline=$False, Position=1, ParameterSetName = "Stats")]
         [switch] $Stats,
      [Parameter(Mandatory=$False, ValueFromPipeline=$False, Position=2, ParameterSetName = "Stats")]
-        [int] $StatsRange = 1440      
-        
+        [int] $StatsRange = 1440
+
 )
 Begin {
      if ($Stats) {
@@ -70,7 +74,7 @@ Begin {
 
     $Validate = $True
     #region: Check Clusters
-    Write-Verbose "$(Get-Date -Format G) Starting Cluster Validation..." 
+    Write-Verbose "$(Get-Date -Format G) Starting Cluster Validation..."
     foreach ($ClusterName in $ClusterNames) {
         $TestCluster = Get-Cluster -Name $ClusterName -ErrorAction SilentlyContinue -Verbose:$False
         if(!($TestCluster)){
@@ -82,7 +86,7 @@ Begin {
             $Validate = $False
         }
     }
-    Write-Verbose "$(Get-Date -Format G) Cluster Validation completed" 
+    Write-Verbose "$(Get-Date -Format G) Cluster Validation completed"
     #endregion
 }
 
@@ -91,7 +95,7 @@ Process {
     if ($Validate -eq $True) {
         foreach ($ClusterName in $ClusterNames) {
             #region: Get Cluster Objects
-            Write-Verbose "$(Get-Date -Format G) Collect $ClusterName Cluster Objects..." 
+            Write-Verbose "$(Get-Date -Format G) Collect $ClusterName Cluster Objects..."
             $Cluster =  Get-Cluster -Name $ClusterName -Verbose:$False
             $ClusterVMs = $Cluster | Get-VM -Verbose:$False
             $ClusterVMsPoweredOn = $ClusterVMs | where {$_.PowerState -eq "PoweredOn"}
@@ -101,24 +105,24 @@ Process {
             $HostsAverageMemoryUsage = $([math]::round( (($ClusterHosts | Measure-Object -Average -Property MemoryUsageGB).Average / ($ClusterHosts | Measure-Object -Average -Property MemoryTotalGB).Average) * 100,1 ))
             $HostsAverageCpuUsageMhz = [math]::round( ($ClusterHosts | Measure-Object -Average -Property CpuUsageMhz).Average,1 )
             $HostsAverageCpuUsage = $([math]::round( (($ClusterHosts | Measure-Object -Average -Property CpuUsageMhz).Average / ($ClusterHosts | Measure-Object -Average -Property CpuTotalMhz).Average) * 100,1 ))
-            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) Cluster Objects completed" 
+            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) Cluster Objects completed"
             #endregion
 
             #region: CPU Calculation
-            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) CPU Details..." 
+            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) CPU Details..."
             $VMvCPUs = ($ClusterVMs | Measure-Object -Sum -Property NumCpu).sum
             $LogicalThreads = $Cluster.ExtensionData.Summary.NumCpuThreads
             $CpuCores = $Cluster.ExtensionData.Summary.NumCpuCores
             $vCPUpCPUratio = [math]::round( $VMvCPUs / $LogicalThreads,1 )
-            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) CPU Details completed." 
+            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) CPU Details completed."
             #endregion
 
             #region: Memory Calculation
-            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) Memory Details..." 
+            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) Memory Details..."
             $AllocatedVMMemoryGB = [math]::round( ($ClusterVMs | Measure-Object -Sum -Property MemoryGB).sum )
             $PhysicalMemory = [math]::round( $Cluster.ExtensionData.Summary.TotalMemory / 1073741824,1 )
             $MemoryUsage = [math]::round( ($AllocatedVMMemoryGB / $PhysicalMemory) * 100 ,1 )
-            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) Memory Details completed" 
+            Write-Verbose "$(Get-Date -Format G) Collect $($Cluster.name) Memory Details completed"
             #endregion
 
             if ($Stats) {
@@ -129,10 +133,10 @@ Process {
                 $VMStats = Get-Stat -Realtime -Stat $VMMetrics -Entity $ClusterVMsPoweredOn -Start $Start -Verbose:$False
                 Write-Verbose "$(Get-Date -Format G) Create $($Cluster.name) VM Stats completed"
                 #endregion
-                
+
                 #region: Creating VM Stats Report
                 Write-Verbose "$(Get-Date -Format G) Process $($Cluster.name) VM Stats Report..."
-                $ReportVMPerf = @() 
+                $ReportVMPerf = @()
                 $ReportVMPerf = $VMStats | Group-Object -Property {$_.Entity.Name},Instance | %{
                                     New-Object PSObject -Property @{
                                     IOPSWriteAvg = ($_.Group | `
@@ -168,7 +172,7 @@ Process {
                                 CapacityGB = $CapacityGB
                             }
                             $reportDiskSpace += $Report
-                        }   
+                        }
                     }
                 }
             Write-Verbose "$(Get-Date -Format G) Process $($Cluster.name) VM Disk Space Report completed"
@@ -188,9 +192,9 @@ Process {
                 DrsEnabled = $Cluster.DrsEnabled
                 Hosts = $Cluster.ExtensionData.Summary.NumHosts
                 HostsAverageMemoryUsageGB = $HostsAverageMemoryUsageGB
-                HostsAverageMemoryUsage = "$HostsAverageMemoryUsage %" 
+                HostsAverageMemoryUsage = "$HostsAverageMemoryUsage %"
                 HostsAverageCpuUsageMhz = $HostsAverageCpuUsageMhz
-                HostsAverageCpuUsage = "$HostsAverageCpuUsage %" 
+                HostsAverageCpuUsage = "$HostsAverageCpuUsage %"
                 PhysicalCPUCores = $CpuCores
                 LogicalCPUThreads = $LogicalThreads
                 VMs =  $ClusterVMs.count
@@ -198,7 +202,7 @@ Process {
                 VMvCPUs = $VMvCPUs
 				vCPUpCPUratio = "$vCPUpCPUratio : 1"
                 PhysicalMemoryGB = $PhysicalMemory
-                AllocatedVMMemoryGB = $AllocatedVMMemoryGB        
+                AllocatedVMMemoryGB = $AllocatedVMMemoryGB
 				ClusterMemoryUsage = "$MemoryUsage %"
                 SumVMDiskSpaceGB = [math]::round( ($reportDiskSpace | Measure-Object -Sum -Property CapacityGB).sum, 1 )
                 SumDatastoreSpaceGB = [math]::round( ($DatastoreReport | Measure-Object -Sum -Property CapacityGB).sum, 1 )
@@ -217,7 +221,7 @@ Process {
         Else {
             Write-Error "Validation Failed! Processing Skipped"
         }
-        
+
     }
 
     End {

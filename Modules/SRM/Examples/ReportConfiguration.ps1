@@ -1,4 +1,9 @@
-﻿# Depends on SRM Helper Methods - https://github.com/benmeadowcroft/SRM-Cmdlets
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+# Depends on SRM Helper Methods - https://github.com/benmeadowcroft/SRM-Cmdlets
 # It is assumed that the connection to VC and SRM Server have already been made
 
 Function Get-SrmConfigReportSite {
@@ -151,7 +156,7 @@ Function Get-SrmConfigReportProtectedVm {
                                    @{Label="Final Power State"; Expression={$_.finalPowerState} },
                                    @{Label="Pre-PowerOn Callouts"; Expression={$_.preCallouts} },
                                    @{Label="Post-PowerOn Callouts"; Expression={$_.postCallouts} }
-    
+
 }
 
 Function Get-SrmConfigReport {

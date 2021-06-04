@@ -1,4 +1,9 @@
-﻿# SRM Helper Methods - https://github.com/benmeadowcroft/SRM-Cmdlets
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+# SRM Helper Methods - https://github.com/benmeadowcroft/SRM-Cmdlets
 
 <#
 .SYNOPSIS
@@ -121,13 +126,13 @@ Function Get-RecoveryPlanResult {
         [DateTime] $startedBefore,
         [VMware.VimAutomation.Srm.Types.V1.SrmServer] $SrmServer
     )
-    
+
     $api = Get-ServerApiEndpoint -SrmServer $SrmServer
 
     # Get the history objects
     $history = $api.Recovery.GetHistory($RecoveryPlan.MoRef)
     $resultCount = $history.GetResultCount()
-    
+
     if ($resultCount -gt 0) {
         $results = $history.GetRecoveryResult($resultCount)
 
@@ -270,7 +275,7 @@ Function Set-RecoverySetting {
         [Parameter (Mandatory=$true, ValueFromPipeline=$true)][VMware.VimAutomation.Srm.Views.SrmRecoverySettings] $RecoverySettings
     )
 
-    
+
     $moRef = Get_MoRefFromVmObj -Vm $Vm -VmView $VmView -ProtectedVm $ProtectedVm
 
     if ($RecoveryPlan -and $moRef -and $RecoverySettings) {
@@ -416,9 +421,9 @@ Function Add-PostRecoveryCommand {
         [Parameter (Mandatory=$true, ValueFromPipeline=$true)][VMware.VimAutomation.Srm.Views.SrmRecoverySettings] $RecoverySettings,
         [Parameter (Mandatory=$true)][VMware.VimAutomation.Srm.Views.SrmCommand] $SrmCommand
     )
-    
+
     Add_Command -RecoverySettings $RecoverySettings -SrmCommand $SrmCommand -PostRecovery $true
-    
+
     return $RecoverySettings
 }
 
@@ -446,7 +451,7 @@ Function Remove-PostRecoveryCommand {
     if ($pscmdlet.ShouldProcess($SrmCommand.Description, "Remove")) {
         $RecoverySettings.PostPowerOnCallouts.Remove($SrmCommand)
     }
-    
+
     return $RecoverySettings
 }
 
@@ -494,7 +499,7 @@ Function New-RecoveryPlan {
     $protectionGroupmRefs += @( $ProtectionGroups | ForEach-Object { $_.MoRef } | Select-Object -Unique)
 
     [VMware.VimAutomation.Srm.Views.CreateRecoveryPlanTask] $task = $null
-    
+
     if ($PSCmdlet.ShouldProcess($Name, "New")) {
         $task = $api.Recovery.CreateRecoveryPlan(
             $Name,

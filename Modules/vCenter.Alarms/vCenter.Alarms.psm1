@@ -1,4 +1,9 @@
-﻿<#	
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+<#
 	===========================================================================
 	Created by: 	Jason Robinson
 	Created on:		05/2017
@@ -23,7 +28,7 @@ function New-AlarmDefinition {
 		This cmdlet creates a new alarm defintion on the specified entity in vCenter.
 		An alarm trigger is required in order to create a new alarm definition.
 		They can be created by using the New-AlarmTrigger cmdlet.
-	
+
 		After the alarm definition is created, if alarm actions are required use
 		the cmdlet New-AlarmAction to create actions for the alarm.
 	.PARAMETER Name
@@ -40,7 +45,7 @@ function New-AlarmDefinition {
 		information about triggers, run Get-Help New-AlarmTrigger.
 	.PARAMETER Enabled
 		Specifies if the alarm is enabled when it is created. If unset, the
-		default value is true.	
+		default value is true.
 	.PARAMETER ActionRepeatMinutes
 		Specifies the frequency how often the actions should repeat when an alarm
 		does not change state.
@@ -48,16 +53,16 @@ function New-AlarmDefinition {
 		Specifies how often the alarm is triggered, measured in minutes. A zero
 		value means the alarm is allowed to trigger as often as possible. A
 		nonzero value means that any subsequent triggers are suppressed for a
-		period of minutes following a reported trigger. 
-	
-		If unset, the default value is 0. Allowed range is 0 - 60. 
+		period of minutes following a reported trigger.
+
+		If unset, the default value is 0. Allowed range is 0 - 60.
 	.PARAMETER ToleranceRange
 		Specifies the tolerance range for the metric triggers, measure in
 		percentage. A zero value means that the alarm triggers whenever the metric
 		value is above or below the specified value. A nonzero means that the
 		alarm triggers only after reaching a certain percentage above or below
 		the nominal trigger value.
-	
+
 		If unset, the default value is 0. Allowed range is 0 - 100.
 	.PARAMETER Server
 		Specifies the vCenter Server system on which you want to run the cmdlet.
@@ -77,7 +82,7 @@ function New-AlarmDefinition {
 		Type  Value
 		----  -----
 		Alarm alarm-1801
-	
+
 		This will create a host connection state alarm trigger and store it in
 		the variable $trigger. Then it will create a new alarm 'Host Connection'
 		on the root level of vCenter and set the action to repeat every 10 mins.
@@ -88,27 +93,27 @@ function New-AlarmDefinition {
 		[ValidateNotNullOrEmpty()]
 		[Alias('AlarmName')]
 		[string]$Name,
-		
+
 		[string]$Description,
-		
+
 		[Parameter(Mandatory = $true)]
 		[string]$Entity,
-		
+
 		[Parameter(Mandatory = $true)]
 		[ValidateNotNullOrEmpty()]
 		[VMware.Vim.AlarmExpression[]]$Trigger,
-		
+
 		[boolean]$Enabled = $true,
-		
+
 		[ValidateRange(0, 60)]
 		[int32]$ActionRepeatMinutes,
-		
+
 		[ValidateRange(0, 60)]
 		[int32]$ReportingFrequency = 0,
-		
+
 		[ValidateRange(0, 100)]
 		[int32]$ToleranceRange = 0,
-		
+
 		[string]$Server
 	)
 	BEGIN {
@@ -129,7 +134,7 @@ function New-AlarmDefinition {
 				$Object = Get-Inventory -Name $PSBoundParameters['Entity'] -ErrorAction Stop -Server $global:DefaultVIServer
 				$AlarmMgr = Get-View AlarmManager -ErrorAction Stop -Server $global:DefaultVIServer
 			}
-			
+
 			if ($PSCmdlet.ShouldProcess($global:DefaultVIServer, "Create alarm $($PSBoundParameters['Name'])")) {
 				$Alarm = New-Object -TypeName VMware.Vim.AlarmSpec
 				$Alarm.Name = $PSBoundParameters['Name']
@@ -158,12 +163,12 @@ function New-AlarmAction {
 		This cmdlet differs from the VMware PowerCLI New-AlarmAction cmdlet as it
 		will create the transitions of the alarm state.	It requires an alarm
 		action and at least one transition to be specified.
-		
+
 		The transition indicates when the action executes and if it repeats.
 		There are only four	acceptable transitions: green to yellow, yellow to
 		red, red to yellow, and yellow to green. At least one pair must be
 		specified or the results will be an invalid.
-	
+
 		If an alarm action already exists on the alarm definition, it will be
 		overwritten if the same alarm action is specified. For example if the
 		alarm definition already has an alarm action of Snmp on the transition
@@ -171,7 +176,7 @@ function New-AlarmAction {
 		Snmp on the transition of yellow to red, it will overwrite the existing
 		action and transition. The end result will be one Snmp action on the
 		transition of yellow to red. If you want the old to transition to remain
-		both should be specified during the usage of the cmdlet.	
+		both should be specified during the usage of the cmdlet.
 	.PARAMETER AlarmDefinition
 		Specifies the alarm definition for which you want to configure actions.
 		The alarm definition can be retreived by using the Get-AlarmDefinition
@@ -209,18 +214,18 @@ function New-AlarmAction {
 		remain unset.
 	.NOTES
 		This cmdlet requires a connection to vCenter to create the alarm action.
-		
+
 		When using this cmdlet specify the Module-Qualified cmdlet name to avoid
 		using the New-AlarmAction cmdlet with VMware PowerCLI.
 	.EXAMPLE
 		PS C:\> vCenter.Alarms\New-AlarmAction -AlarmDefinition (Get-AlarmDefintion "Host CPU Usage") -Snmp -YellowToRed Repeat
-		
+
 		This will create an Snmp alarm action on the "Host CPU Usage" alarm
 		transition of yellow to red. The alarm action will also repeat, as per
 		the action frequency defined on the alarm.
 	.EXAMPLE
 		PS C:\> Get-AlarmDefintion "Cluster HA Status" | vCenter.Alarms\New-AlarmAction -Email -To helpdesk@company.com -GreenToYellow Once -YellowToRed Once
-	
+
 		This will create an Email alarm action on the "Cluster HA Status" alarm
 		transition of green to yellow and yellow to red. The alarm action will
 		send an email to helpdesk@company.com one time per transition.
@@ -229,38 +234,38 @@ function New-AlarmAction {
 	param (
 		[Parameter(Mandatory = $true, ValueFromPipeline = $true)]
 		[VMware.VimAutomation.ViCore.Types.V1.Alarm.AlarmDefinition]$AlarmDefinition,
-		
+
 		[Parameter(Mandatory = $true, ParameterSetName = 'Snmp')]
 		[switch]$Snmp,
-		
+
 		[Parameter(Mandatory = $true, ParameterSetName = 'Email')]
 		[switch]$Email,
-		
+
 		[Parameter(Mandatory = $true, ParameterSetName = 'Email')]
 		[string[]]$To,
-		
+
 		[Parameter(ParameterSetName = 'Email')]
 		[string[]]$Cc,
-		
+
 		[Parameter(ParameterSetName = 'Email')]
 		[string]$Subject,
-		
+
 		[Parameter(ParameterSetName = 'Email')]
 		[string]$Body,
-		
+
 		[ValidateSet('Once', 'Repeat')]
 		[string]$GreenToYellow,
-		
+
 		[ValidateSet('Once', 'Repeat')]
 		[string]$YellowToRed,
-		
+
 		[ValidateSet('Once', 'Repeat')]
 		[string]$RedToYellow,
-		
+
 		[ValidateSet('Once', 'Repeat')]
 		[string]$YellowToGreen
 	)
-	
+
 	BEGIN {
 	}
 	PROCESS {
@@ -273,7 +278,7 @@ function New-AlarmAction {
 			$Alarm.ActionFrequency = $AlarmView.Info.ActionFrequency
 			$Alarm.Action = New-Object VMware.Vim.GroupAlarmAction
 			$Trigger = New-Object VMware.Vim.AlarmTriggeringAction
-			
+
 			Write-Verbose -Message "Defining alarm actions"
 			if ($PSCmdlet.ParameterSetName -eq 'Snmp') {
 				$Trigger.Action = New-Object -TypeName VMware.Vim.SendSNMPAction
@@ -292,7 +297,7 @@ function New-AlarmAction {
 				$Trigger.Action.Subject = $PSBoundParameters['Subject']
 				$Trigger.Action.Body = $PSBoundParameters['Body']
 			}
-			
+
 			Write-Verbose -Message "Defining alarm transitions"
 			if ($PSBoundParameters.ContainsKey('GreenToYellow')) {
 				$Trans1 = New-Object -TypeName VMware.Vim.AlarmTriggeringActionTransitionSpec
@@ -303,7 +308,7 @@ function New-AlarmAction {
 				}
 				$Trigger.TransitionSpecs += $Trans1
 			}
-			
+
 			if ($PSBoundParameters.ContainsKey('YellowToRed')) {
 				$Trans2 = New-Object -TypeName VMware.Vim.AlarmTriggeringActionTransitionSpec
 				$Trans2.StartState = 'yellow'
@@ -315,7 +320,7 @@ function New-AlarmAction {
 				}
 				$Trigger.TransitionSpecs += $Trans2
 			}
-			
+
 			if ($PSBoundParameters.ContainsKey('RedToYellow')) {
 				$Trans3 = New-Object -TypeName VMware.Vim.AlarmTriggeringActionTransitionSpec
 				$Trans3.StartState = 'red'
@@ -327,7 +332,7 @@ function New-AlarmAction {
 				}
 				$Trigger.TransitionSpecs += $Trans3
 			}
-			
+
 			if ($PSBoundParameters.ContainsKey('YellowToGreen')) {
 				$Trans4 = New-Object -TypeName VMware.Vim.AlarmTriggeringActionTransitionSpec
 				$Trans4.StartState = 'yellow'
@@ -339,7 +344,7 @@ function New-AlarmAction {
 				}
 				$Trigger.TransitionSpecs += $Trans4
 			}
-			
+
 			$Alarm.Action.Action += $Trigger
 			$Alarm.Expression = New-Object -TypeName VMware.Vim.OrAlarmExpression
 			$Alarm.Expression.Expression += $AlarmView.Info.Expression.Expression
@@ -408,40 +413,40 @@ function New-AlarmTrigger {
 	.PARAMETER ObjectType
 		Specifies the type of object on which the event is logged, the object
 		type containing the state condition or the type of object containing the
-		metric. 
-		
+		metric.
+
 		When creating a state alarm trigger the only acceptable values are
 		'HostSystem' or 'VirtualMachine'. The supported state types for each object
 		are as follows:
 			VirtualMachine type: runtime.powerState or summary.quickStats.guestHeartbeatStatus
 			HostSystem type: runtime.connectionState
 	.OUTPUTS
-		(Event|State|Metric)AlarmExpression	
+		(Event|State|Metric)AlarmExpression
 	.NOTES
-		This cmdlet requires the PowerCLI module to be imported. 
+		This cmdlet requires the PowerCLI module to be imported.
 	.LINK
 		Event Alarm Trigger
 		http://pubs.vmware.com/vsphere-6-0/topic/com.vmware.wssdk.apiref.doc/vim.alarm.EventAlarmExpression.html
-		
+
 		State Alarm Trigger
 		http://pubs.vmware.com/vsphere-6-0/topic/com.vmware.wssdk.apiref.doc/vim.alarm.StateAlarmExpression.html
-	
+
 		Metric Alarm Trigger
 		http://pubs.vmware.com/vsphere-6-0/topic/com.vmware.wssdk.apiref.doc/vim.alarm.MetricAlarmExpression.html
 	.EXAMPLE
 		PS C:\> New-AlarmTrigger -EventType "DasDisabledEvent" -Status Red -ObjectType ClusterComputeResource
-		
+
 		Comparisons :
 		EventType   : DasDisabledEvent
 		ObjectType  : ClusterComputeResource
 		Status      : red
-		
+
 		Creates an event trigger on 'DasDisabledEvent' (HA Disabled) with a
 		status on 'Red'. The object type is a ClusterComputerResource because
 		this event occurs at a cluster level.
 	.EXAMPLE
 		PS C:\> New-AlarmTrigger -MetricId (Get-MetricId | Where Name -EQ 'cpu.usage.average').Key -Operator isAbove -Yellow 90 -YellowInterval 30 -Red 98 -RedInterval 15 -ObjectType HostSytem
-		
+
 		Operator       : isAbove
 		Type           : HostSytem
 		Metric         : VMware.Vim.PerfMetricId
@@ -449,7 +454,7 @@ function New-AlarmTrigger {
 		YellowInterval : 30
 		Red            : 9800
 		RedInterval    : 15
-		
+
 		Creates a trigger on the 'cpu.usage.average' metric where the warning
 		condition must be above 90% for 30mins and the alert condition must be
 		above 98% for 15mins. The object type is a HostSystem.
@@ -461,7 +466,7 @@ function New-AlarmTrigger {
 		StatePath : runtime.connectionState
 		Yellow    : Disconnected
 		Red       : notResponding
-		
+
 		Creates a trigger on the 'runtime.connectionState' condition where the
 		warning condition is 'disconnected' and the alert condition is
 		'notResponding'. The object type is a HostSystem.
@@ -470,51 +475,51 @@ function New-AlarmTrigger {
 	param (
 		[Parameter(Mandatory = $true, ParameterSetName = 'Event')]
 		[string]$EventType,
-		
+
 		[Parameter(ParameterSetName = 'Event')]
 		[string]$EventTypeId,
-		
+
 		[Parameter(Mandatory = $true, ParameterSetName = 'Event')]
 		[ValidateSet('Green', 'Yellow', 'Red')]
 		[string]$Status,
-		
+
 		[Parameter(Mandatory = $true, ParameterSetName = 'State')]
 		[ValidateSet('runtime.powerState', 'summary.quickStats.guestHeartbeatStatus', 'runtime.connectionState')]
 		[string]$StateType,
-		
+
 		[Parameter(Mandatory = $true, ParameterSetName = 'State')]
 		[VMware.Vim.StateAlarmOperator]$StateOperator,
-		
+
 		[Parameter(ParameterSetName = 'State')]
 		[ValidateSet('disconnected', 'notResponding', 'connected', 'noHeartbeat', 'intermittentHeartbeat', 'poweredOn', 'poweredOff', 'suspended')]
 		[string]$YellowStateCondition,
-		
+
 		[Parameter(ParameterSetName = 'State')]
 		[ValidateSet('disconnected', 'notResponding', 'connected', 'noHeartbeat', 'intermittentHeartbeat', 'poweredOn', 'poweredOff', 'suspended')]
 		[string]$RedStateCondition,
-		
+
 		[Parameter(Mandatory = $true, ParameterSetName = 'Metric')]
 		[string]$MetricId,
-		
+
 		[Parameter(Mandatory = $true, ParameterSetName = 'Metric')]
 		[VMware.Vim.MetricAlarmOperator]$MetricOperator,
-		
+
 		[Parameter(ParameterSetName = 'Metric')]
 		[ValidateRange(1, 100)]
 		[int32]$Yellow,
-		
+
 		[Parameter(ParameterSetName = 'Metric')]
 		[ValidateRange(1, 90)]
 		[int32]$YellowInterval,
-		
+
 		[Parameter(ParameterSetName = 'Metric')]
 		[ValidateRange(1, 100)]
 		[int32]$Red,
-		
+
 		[Parameter(ParameterSetName = 'Metric')]
 		[ValidateRange(1, 90)]
 		[int32]$RedInterval,
-		
+
 		[Parameter(Mandatory = $true)]
 		[ValidateSet('ClusterComputeResource', 'Datacenter', 'Datastore', 'DistributedVirtualSwitch', 'HostSystem', 'Network', 'ResourcePool', 'VirtualMachine')]
 		[string]$ObjectType
@@ -547,7 +552,7 @@ function New-AlarmTrigger {
 				$Expression.Operator = $PSBoundParameters['StateOperator']
 				$Expression.Type = $PSBoundParameters['ObjectType']
 				$Expression.StatePath = $PSBoundParameters['StateType']
-				
+
 				if ($PSBoundParameters.ContainsKey('RedStateCondition')) {
 					if ($PSBoundParameters['RedStateCondition'] -eq 'intermittentHeartbeat') {
 						$Expression.Red = 'yellow'
@@ -557,7 +562,7 @@ function New-AlarmTrigger {
 						$Expression.Red = $PSBoundParameters['RedStateCondition']
 					}
 				}
-				
+
 				if ($PSBoundParameters.ContainsKey('YellowStateCondition')) {
 					if ($PSBoundParameters['YellowStateCondition'] -eq 'intermittentHeartbeat') {
 						$Expression.Yellow = 'yellow'
@@ -583,13 +588,13 @@ function Get-MetricId {
 		This cmdlet collects all of the available metrics from vCenter. It will
 		provide the metric name, key, stats level, and summary of the metric.
 		The information can be used to identify the available metrics on vCenter
-		as well as gathering the metric key needed for configuring an alarm. 
-	
-		The metric keys are unique across vCenters. If you are connected to 
+		as well as gathering the metric key needed for configuring an alarm.
+
+		The metric keys are unique across vCenters. If you are connected to
 		more than one vCenter metrics from each vCenter will be generated. A
 		vCenter property is available to help determine the correct metric key
 		on a given vCenter. This is extrememly useful when trying to create
-		a metric based vCenter alarm. 
+		a metric based vCenter alarm.
 	.PARAMETER MetricGroup
 		Specifies the name of the metric group you would like to see. Allowed
 		values are 'CPU', 'Mem', 'Disk', 'Net', and 'Datastore'.
@@ -618,7 +623,7 @@ function Get-MetricId {
 		Summary : Memory usage as percentage of total configured or available memory
 		vCenter : vCenter01
 		.....
-	
+
 		Collects all of the available memory metrics on the connected vCenter.
 #>
 	[CmdletBinding()]
@@ -626,7 +631,7 @@ function Get-MetricId {
 		[ValidateSet('CPU', 'Mem', 'Disk', 'Net', 'Datastore')]
 		[string]$MetricGroup
 	)
-	
+
 	foreach ($Mgr in (Get-View PerformanceManager-PerfMgr)) {
 		$vCenter = $Mgr.Client.ServiceUrl.Split('/')[2]
 		if ($PSBoundParameters.ContainsKey('MetricGroup')) {
@@ -636,7 +641,7 @@ function Get-MetricId {
 		} else {
 			$Metrics += $Mgr.PerfCounter
 		}
-		
+
 		$Metrics | ForEach-Object -Process {
 			[pscustomobject] @{
 				Name  = $_.GroupInfo.Key + "." + $_.NameInfo.key + "." + $_.RollupType
@@ -659,12 +664,12 @@ function Get-EventId {
 		description, and summary of the event. The information can be used to
 		identify the available events on vCenter as well as gathering the event
 		type and event type id (if applicable) required for configuring an alarm.
-	
+
 		If the event type is 'EventEx' or 'ExtendedEvent' both the event type
 		and event type id will be required to create a new event based vCenter
 		alarm.
-	
-		The event types can be unique across vCenters. If you are connected to 
+
+		The event types can be unique across vCenters. If you are connected to
 		more than one vCenter events from each vCenter will be generated. A
 		vCenter property is available to help determine the correct event type
 		on a given vCenter. This is extrememly useful when trying to create
@@ -678,7 +683,7 @@ function Get-EventId {
 		This cmdlet requires a connection to vCenter to collect event data.
 	.EXAMPLE
 		PS C:\> Get-EventId -Category Error
-		
+
 		EventType   : ExtendedEvent
 		EventTypeId : ad.event.ImportCertFailedEvent
 		Category    : error
@@ -705,7 +710,7 @@ function Get-EventId {
 	param (
 		[VMware.Vim.EventCategory]$Category
 	)
-	
+
 	foreach ($Mgr in (Get-View EventManager)) {
 		$vCenter = $Mgr.Client.ServiceUrl.Split('/')[2]
 		if ($PSBoundParameters.ContainsKey('Category')) {
@@ -715,7 +720,7 @@ function Get-EventId {
 		} else {
 			$Events += $Mgr.Description.EventInfo
 		}
-		
+
 		$Events | ForEach-Object -Process {
 			$Hash = [ordered]@{}
 			$Hash.Add('EventType', $_.Key)

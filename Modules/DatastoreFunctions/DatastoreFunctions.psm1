@@ -1,4 +1,9 @@
 <#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+<#
 .SYNOPSIS Datastore Functions
 .DESCRIPTION A collection of functions to manipulate datastore Mount + Attach status
 .EXAMPLE Get-Datastore | Get-DatastoreMountInfo | Sort Datastore, VMHost | FT -AutoSize
@@ -47,7 +52,7 @@ Function Get-HostViews {
 		}
 		write-progress -activity "Collecting ESXi Host Views" -completed
 		$allHosts
-	}           
+	}
 }
 
 Function Get-DatastoreMountInfo {
@@ -74,7 +79,7 @@ Function Get-DatastoreMountInfo {
 			Throw "No Datastores found.`nIs ""$Datastore"" a Datastore Object?"
 		}
 		$allDatastoreNAAs = foreach ($ds in $allDatastores) {$ds.ExtensionData.Info.vmfs.extent[0].diskname}
-		
+
 		#Build the array of custom Host Objects
 		$allHosts = Get-HostViews -datastore $allDatastores
 		$output = @()
@@ -89,9 +94,9 @@ Function Get-DatastoreMountInfo {
 					$thisDatastore = $alldatastores | ? {$_.ExtensionData.Info.vmfs.extent[0].diskname -eq $device.canonicalName}
 					$hostviewDSAttachState = ""
 					if ($device.operationalState[0] -eq "ok") {
-						$hostviewDSAttachState = "Attached"						    
+						$hostviewDSAttachState = "Attached"
 					} elseif ($device.operationalState[0] -eq "off") {
-						$hostviewDSAttachState = "Detached"						   
+						$hostviewDSAttachState = "Detached"
 					} else {
 						$hostviewDSAttachState = $device.operationalstate[0]
 					}

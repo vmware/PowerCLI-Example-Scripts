@@ -1,3 +1,8 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
 Function Get-VAMISummary {
 <#
     .NOTES
@@ -201,7 +206,7 @@ Function Set-VAMITimeSync {
         [Parameter(Mandatory=$false,HelpMessage="NTP Servers need to be either a string separated by ',' or an array of servers")]
         $NTPServers
     )
-    
+
     $timeSyncMode = ( Get-VAMIServiceAPI -NameFilter "timesync").get()
     if ($timeSyncMode.gettype().name -eq "PSCustomObject") {
         if ($SyncMode.ToUpper() -ne $timeSyncMode.mode.toupper()) {
@@ -746,7 +751,7 @@ Function New-VAMIUser {
     $CreateSpec.role = $Role
     $CreateSpec.email = $Email
     $CreateSpec.password = [VMware.VimAutomation.Cis.Core.Types.V1.Secret]$Password
-    
+
     if ($CreateSpec.psobject.properties.name -contains "username") {
         $CreateSpec.username = $Name
         try {

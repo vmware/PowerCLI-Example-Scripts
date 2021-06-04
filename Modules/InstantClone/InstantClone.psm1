@@ -1,4 +1,8 @@
-﻿Function New-InstantClone {
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+Function New-InstantClone {
 <#
     .NOTES
     ===========================================================================

@@ -1,16 +1,20 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 function Get-VMmaxIOPS {
-<#	
+<#
     .NOTES
     ===========================================================================
     Created by: Markus Kraus
     Twitter: @VMarkus_K
     Private Blog: mycloudrevolution.com
     ===========================================================================
-    Changelog:  
-    2016.10 ver 1.0 Base Release 
+    Changelog:
+    2016.10 ver 1.0 Base Release
     2016.11 ver 1.1 Added vSphere 6.5 Support, New Counters, More Error Handling
     ===========================================================================
-    External Code Sources:  
+    External Code Sources:
     http://www.lucd.info/2011/04/22/get-the-maximum-iops/
     https://communities.vmware.com/thread/485386
     ===========================================================================
@@ -24,7 +28,7 @@ function Get-VMmaxIOPS {
     ===========================================================================
 
     .DESCRIPTION
-    This Function will Create a VM Disk IOPS Report  
+    This Function will Create a VM Disk IOPS Report
 
     .Example
     Get-VM TST* | Get-VMmaxIOPS -Minutes 60 | FT -Autosize
@@ -34,17 +38,17 @@ function Get-VMmaxIOPS {
     Get-VMmaxIOPS -VMs $SampleVMs -Minutes 60
 
     .PARAMETER VMs
-    Specify the VMs 
+    Specify the VMs
 
 	.PARAMETER Minutes
-    Specify the Minutes to report (10080 is one Week) 
+    Specify the Minutes to report (10080 is one Week)
 
 #Requires PS -Version 4.0
 #Requires -Modules VMware.VimAutomation.Core, @{ModuleName="VMware.VimAutomation.Core";ModuleVersion="6.3.0.0"}
 #>
 
 [CmdletBinding()]
-param( 
+param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$True, Position=0)]
     [ValidateNotNullorEmpty()]
         [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]] $VMs,
@@ -55,7 +59,7 @@ param(
 Begin {
     # none
     }
-Process { 
+Process {
        if ($_.PowerState -eq "PoweredOn") {
             #region: Global Definitions
             [int]$TimeRange = "-" + $Minutes
@@ -82,7 +86,7 @@ Process {
 
             #region: Creating Reports
             Write-Verbose "$(Get-Date -Format G) Create Report..."
-            $reportPerf = @() 
+            $reportPerf = @()
             $reportPerf = $stats | Group-Object -Property {$_.Entity.Name},Instance | %{
                 New-Object PSObject -Property @{
                     VM = $_.Values[0]
@@ -98,7 +102,7 @@ Process {
             }
             Write-Verbose "$(Get-Date -Format G) Create Report completed"
             #endregion
-            
+
 
         }
         Else {
@@ -108,7 +112,7 @@ Process {
     }
 
 End {
-     # none   
+     # none
     }
 
 }

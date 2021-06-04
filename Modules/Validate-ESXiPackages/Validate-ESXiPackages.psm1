@@ -1,4 +1,9 @@
-﻿function Validate-ESXiPackages {
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+function Validate-ESXiPackages {
     <#
     .DESCRIPTION
         Compares all ESXi Host VIBs within a vSphere with a reference Hosts.
@@ -28,9 +33,9 @@
     .PARAMETER RefernceHost
         The VIB Reference ESXi Host
     #>
-    
+
     [CmdletBinding()]
-    param( 
+    param(
         [Parameter(Mandatory=$True, ValueFromPipeline=$True, HelpMessage="vSphere Cluster to verify")]
         [ValidateNotNullorEmpty()]
             [VMware.VimAutomation.ViCore.Impl.V1.Inventory.ComputeResourceImpl] $Cluster,
@@ -38,24 +43,24 @@
         [ValidateNotNullorEmpty()]
             [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl] $RefernceHost
     )
-        
+
     Process {
-        
+
         #region: Get reference VIBs
         $EsxCli2 = Get-ESXCLI -VMHost $RefernceHost -V2
         $RefernceVibList = $esxcli2.software.vib.list.invoke()
         #endregion
-        
+
         #region: Compare reference VIBs
-        $MyView = @()    
+        $MyView = @()
         foreach ($VmHost in ($Cluster | Get-VMHost)) {
-    
+
             $EsxCli2 = Get-ESXCLI -VMHost $VmHost -V2
             $VibList = $esxcli2.software.vib.list.invoke()
             [Array]$VibDiff = Compare-Object -ReferenceObject $RefernceVibList.ID -DifferenceObject $VibList.ID
 
             if($VibDiff.Count -gt 0) {
-                $VibDiffSideIndicator = @() 
+                $VibDiffSideIndicator = @()
                 foreach ($Item in $VibDiff) {
                     $VibDiffSideIndicator += $($Item.SideIndicator + " " + $Item.InputObject)
                 }
@@ -73,7 +78,7 @@
                     VibDiffSideIndicator = $VibDiffSideIndicator
                     }
             $MyView += $Report
-    
+
         }
         #region: Compare reference VIBs
 

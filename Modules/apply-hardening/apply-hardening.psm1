@@ -1,16 +1,21 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
 function Apply-Hardening {
-<#	
+<#
     .NOTES
     ===========================================================================
     Created by: Markus Kraus
     Twitter: @VMarkus_K
     Private Blog: mycloudrevolution.com
     ===========================================================================
-    Changelog:  
-    2016.11 ver 2.0 Base Release 
+    Changelog:
+    2016.11 ver 2.0 Base Release
     ===========================================================================
-    External Code Sources:  
-    
+    External Code Sources:
+
     ===========================================================================
     Tested Against Environment:
     vSphere Version: 5.5 U2
@@ -24,14 +29,14 @@ function Apply-Hardening {
     Applys a set of Hardening options to your VMs
 
     .Example
-    Get-VM TST* | Apply-Hardening 
+    Get-VM TST* | Apply-Hardening
 
     .Example
     $SampleVMs = Get-VM "TST*"
     Apply-Hardening -VMs $SampleVMs
 
     .PARAMETER VMs
-    Specify the VMs 
+    Specify the VMs
 
 
 #Requires PS -Version 4.0
@@ -39,7 +44,7 @@ function Apply-Hardening {
 #>
 
 [CmdletBinding()]
-param( 
+param(
     [Parameter(Mandatory=$true,
     ValueFromPipeline=$True,
                 Position=0)]
@@ -47,7 +52,7 @@ param(
     $VMs
 )
 
-Process { 
+Process {
 #region: Create Options
 	$ExtraOptions = @{
 		"isolation.tools.diskShrink.disable"="true";
@@ -55,20 +60,20 @@ Process {
 		"isolation.tools.copy.disable"="true";
 		"isolation.tools.paste.disable"="true";
 		"isolation.tools.dnd.disable"="true";
-		"isolation.tools.setGUIOptions.enable"="false"; 
+		"isolation.tools.setGUIOptions.enable"="false";
 		"log.keepOld"="10";
 		"log.rotateSize"="100000"
 		"RemoteDisplay.maxConnections"="2";
-		"RemoteDisplay.vnc.enabled"="false";  
-	
+		"RemoteDisplay.vnc.enabled"="false";
+
 	}
     if ($DebugPreference -eq "Inquire") {
         Write-Output "VM Hardening Options:"
         $ExtraOptions | Format-Table -AutoSize
     }
-	
+
 	$VMConfigSpec = New-Object VMware.Vim.VirtualMachineConfigSpec
-	
+
 	Foreach ($Option in $ExtraOptions.GetEnumerator()) {
 		$OptionValue = New-Object VMware.Vim.optionvalue
 		$OptionValue.Key = $Option.Key

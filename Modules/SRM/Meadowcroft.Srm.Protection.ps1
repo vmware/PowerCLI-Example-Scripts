@@ -1,4 +1,9 @@
-﻿# SRM Helper Methods - https://github.com/benmeadowcroft/SRM-Cmdlets
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+# SRM Helper Methods - https://github.com/benmeadowcroft/SRM-Cmdlets
 
 <#
 .SYNOPSIS
@@ -48,7 +53,7 @@ Function Get-ProtectionGroup {
             $pgi = $pg.GetInfo()
             $selected = (-not $Name -or ($Name -eq $pgi.Name)) -and (-not $Type -or ($Type -eq $pgi.Type))
             if ($selected) {
-                Add-Member -InputObject $pg -MemberType NoteProperty -Name "Name" -Value $pgi.Name 
+                Add-Member -InputObject $pg -MemberType NoteProperty -Name "Name" -Value $pgi.Name
                 $pg
             }
         }
@@ -95,7 +100,7 @@ Function Get-ProtectedVM {
             try {
                 $_.Vm.UpdateViewData()
             } catch {
-                Write-Error $_            
+                Write-Error $_
             } finally {
                 $_
             }
@@ -359,7 +364,7 @@ Function New-ProtectionGroup {
         if ($pscmdlet.ShouldProcess($Name, "New")) {
             $task = $api.Protection.CreateHbrProtectionGroup($Folder.MoRef, $Name, $Description, $moRefs)
         }
-        
+
     } elseif ($ArrayReplication) {
         #create list of managed object references from VM and/or VM view arrays
         $moRefs = @()
@@ -373,7 +378,7 @@ Function New-ProtectionGroup {
         if ($pscmdlet.ShouldProcess($Name, "New")) {
             $task = $api.Protection.CreateAbrProtectionGroup($Folder.MoRef, $Name, $Description, $moRefs)
         }
-        
+
     } else {
         throw "Undetermined protection group type"
     }
@@ -386,7 +391,7 @@ Function New-ProtectionGroup {
     if ($pg) {
         $unProtectedVMs = Get-UnProtectedVM -ProtectionGroup $pg
         $unProtectedVMs | Protect-VM -ProtectionGroup $pg
-    }      
+    }
 
     return $pg
 }
