@@ -1,3 +1,7 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 @{
 	ModuleToProcess = 'NSXT.psm1'
 	ModuleVersion = '1.0.0.0'
@@ -34,7 +38,7 @@
                         'Get-NSXTIPAMIPBlock',
                         'Set-NSXTIPAMIPBlock',
                         'Remove-NSXTIPAMIPBlock'
-                        
+
 
 	PrivateData = @{
 		PSData = @{

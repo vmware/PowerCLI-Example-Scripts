@@ -1,4 +1,9 @@
 ﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+<#
 .SYNOPSIS Retrieve the installation date of an ESXi host
 .NOTES  Author:  William Lam
 .NOTES  Site:    www.virtuallyghetto.com

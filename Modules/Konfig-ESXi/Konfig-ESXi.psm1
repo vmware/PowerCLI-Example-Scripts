@@ -1,16 +1,16 @@
 function Konfig-ESXi {
-<#	
+<#
     .NOTES
     ===========================================================================
     Created by: Markus Kraus
     Twitter: @VMarkus_K
     Private Blog: mycloudrevolution.com
     ===========================================================================
-    Changelog:  
+    Changelog:
     2016.12 ver 1.0 Base Release
-    2016.12 ver 1.1 ESXi 6.5 Tests, Minor enhancements  
+    2016.12 ver 1.1 ESXi 6.5 Tests, Minor enhancements
     ===========================================================================
-    External Code Sources: 
+    External Code Sources:
     Function My-Logger : http://www.virtuallyghetto.com/
     ===========================================================================
     Tested Against Environment:
@@ -18,7 +18,7 @@ function Konfig-ESXi {
     PowerCLI Version: PowerCLI 6.3 R1, PowerCLI 6.5 R1
     PowerShell Version: 4.0, 5.0
     OS Version: Windows 8.1, Server 2012 R2
-    Keyword: ESXi, NTP, SSH, Syslog, SATP, 
+    Keyword: ESXi, NTP, SSH, Syslog, SATP,
     ===========================================================================
 
     .DESCRIPTION
@@ -29,7 +29,7 @@ function Konfig-ESXi {
     * Syslog
     * Power Management
     * HP 3PAR SATP/PSP Rule
-    * ... 
+    * ...
 
     .Example
     Konfig-ESXi -VMHost myesxi.lan.local -NTP 192.168.2.1, 192.168.2.2 -syslog "udp://loginsight.lan.local:514"
@@ -51,14 +51,14 @@ function Konfig-ESXi {
 #>
 
 [CmdletBinding()]
-param( 
+param(
     [Parameter(Mandatory=$True, ValueFromPipeline=$False, Position=0)]
         [String] $VMHost,
     [Parameter(Mandatory=$true, ValueFromPipeline=$False, Position=1)]
         [array]$NTP,
     [Parameter(Mandatory=$true, ValueFromPipeline=$False, Position=2)]
         [String] $syslog
-        
+
 )
 
 Begin {
@@ -75,11 +75,11 @@ Begin {
     }
     function Set-MyESXiOption {
     [CmdletBinding()]
-    param( 
+    param(
         [Parameter(Mandatory=$True, ValueFromPipeline=$False, Position=0)]
             [String] $Name,
         [Parameter(Mandatory=$False, ValueFromPipeline=$False, Position=1)]
-            [String] $Value     
+            [String] $Value
     )
     process {
         $myESXiOption = Get-AdvancedSetting -Entity $ESXiHost -Name $Name
@@ -89,7 +89,7 @@ Begin {
         }
         else {
             My-Logger "    ESXi Option $Name already has Value $Value"
-        } 
+        }
     }
     }
 }
@@ -100,7 +100,7 @@ Process {
     #region: Start vCenter Connection
     My-Logger "Starting to Process ESXi Server Connection to $VMHost ..."
     if (($global:DefaultVIServers).count -gt 0) {
-       Disconnect-VIServer  -Force -Confirm:$False -ErrorAction SilentlyContinue 
+       Disconnect-VIServer  -Force -Confirm:$False -ErrorAction SilentlyContinue
     }
     $VIConnection = Connect-VIServer -Server $VMHost
     if (-not $VIConnection.IsConnected) {
@@ -118,9 +118,9 @@ Process {
     #endregion
 
     if ($Validate -eq $True) {
-        
+
         #region: Enable SSH and disable SSH Warning
-        $SSHService = $ESXiHost | Get-VMHostService | where {$_.Key -eq 'TSM-SSH'} 
+        $SSHService = $ESXiHost | Get-VMHostService | where {$_.Key -eq 'TSM-SSH'}
         My-Logger "Starting SSH Service..."
         if($SSHService.Running -ne $True){
             Start-VMHostService -HostService $SSHService -Confirm:$false | Out-Null
@@ -140,12 +140,12 @@ Process {
         #endregion
 
         #region: Config NTP
-        My-Logger "Removing existing NTP Server..." 
+        My-Logger "Removing existing NTP Server..."
         try {
-            $ESXiHost | Remove-VMHostNtpServer -NtpServer (Get-VMHostNtpServer) -Confirm:$false 
+            $ESXiHost | Remove-VMHostNtpServer -NtpServer (Get-VMHostNtpServer) -Confirm:$false
         }
         catch [System.Exception] {
-            Write-Warning "Error during removing existing NTP Servers."    
+            Write-Warning "Error during removing existing NTP Servers."
         }
         My-Logger "Setting new NTP Servers..."
         foreach ($myNTP in $NTP) {
@@ -154,16 +154,16 @@ Process {
 
         My-Logger "Configure NTP Service..."
         $NTPService = $ESXiHost | Get-VMHostService| Where-Object {$_.key -eq "ntpd"}
-        if($NTPService.Running -eq $True){ 
+        if($NTPService.Running -eq $True){
             Stop-VMHostService -HostService $NTPService -Confirm:$false | Out-Null
         }
-        if($NTPService.Policy -ne "on"){ 
+        if($NTPService.Policy -ne "on"){
             Set-VMHostService -HostService $NTPService -Policy "on" -confirm:$False | Out-Null
         }
 
         My-Logger "Configure Local Time..."
-        $HostTimeSystem = Get-View $ESXiHost.ExtensionData.ConfigManager.DateTimeSystem 
-        $HostTimeSystem.UpdateDateTime([DateTime]::UtcNow) 
+        $HostTimeSystem = Get-View $ESXiHost.ExtensionData.ConfigManager.DateTimeSystem
+        $HostTimeSystem.UpdateDateTime([DateTime]::UtcNow)
 
         My-Logger "Start NTP Service..."
         Start-VMHostService -HostService $NTPService -confirm:$False | Out-Null
@@ -181,16 +181,16 @@ Process {
         #endregion
 
         #region: Configure Static HighPower
-        My-Logger "Setting PowerProfile to Static HighPower..." 
+        My-Logger "Setting PowerProfile to Static HighPower..."
         try {
             $HostView = ($ESXiHost | Get-View)
             (Get-View $HostView.ConfigManager.PowerSystem).ConfigurePowerPolicy(1)
         }
         catch [System.Exception] {
-            Write-Warning "Error during Configure Static HighPower. See latest errors..."    
+            Write-Warning "Error during Configure Static HighPower. See latest errors..."
         }
         #endregion
-        
+
         #region: Conf Syslog
         My-Logger "Setting Syslog Firewall Rule ..."
         $SyslogFW = ($ESXiHost | Get-VMHostFirewallException | where {$_.Name -eq 'syslog'})
@@ -225,7 +225,7 @@ Process {
             $esxcli2.storage.nmp.satp.rule.add.Invoke($arguments)
         }
         catch {
-             Write-Warning "Error during Configure HP 3PAR SATP/PSP Rule. See latest errors..."  
+             Write-Warning "Error during Configure HP 3PAR SATP/PSP Rule. See latest errors..."
         }
 		#endregion
 

@@ -1,4 +1,13 @@
-﻿# Depends on SRM Helper Methods - https://github.com/benmeadowcroft/SRM-Cmdlets
+﻿<#
+Copyright 2017-2021 VMware, Inc.
+SPDX-License-Identifier: Apache-2.0
+#>
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+# Depends on SRM Helper Methods - https://github.com/benmeadowcroft/SRM-Cmdlets
 # It is assumed that the connections to active VC and SRM Server have already been made
 
 Import-Module Meadowcroft.SRM -Prefix Srm

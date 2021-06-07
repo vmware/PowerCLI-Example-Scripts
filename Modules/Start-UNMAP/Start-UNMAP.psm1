@@ -1,40 +1,44 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 function Start-UNMAP {
 <#
 	.SYNOPSIS
     Process SCSI UNMAP on VMware Datastores
-    
+
 	.DESCRIPTION
     This Function will process SCSI UNMAP on VMware Datastores via ESXCLI -V2
 
 	.Example
-    Start-UNMAP -ClusterName myCluster -DSWildcard *RAID5* 
+    Start-UNMAP -ClusterName myCluster -DSWildcard *RAID5*
 
 	.Example
     Start-UNMAP -ClusterName myCluster -DSWildcard *RAID5* -Verbose -WhatIf
 
 	.Notes
 	NAME: Start-UNMAP.psm1
-    AUTHOR: Markus Kraus  
+    AUTHOR: Markus Kraus
 	LASTEDIT: 23.09.2016
 	VERSION: 1.0
 	KEYWORDS: VMware, vSphere, ESXi, SCSI, VAAI, UNMAP
-   
+
 	.Link
 	http://mycloudrevolution.com/
- 
+
  #Requires PS -Version 4.0
  #Requires -Modules VMware.VimAutomation.Core, @{ModuleName="VMware.VimAutomation.Core";ModuleVersion="6.3.0.0"}
  #>
 
     [CmdletBinding(SupportsShouldProcess = $true,ConfirmImpact='High')]
-    param( 
+    param(
         [Parameter(Mandatory=$true, Position=0)]
             [String]$ClusterName,
         [Parameter(Mandatory=$true, Position=1)]
             [String]$DSWildcard
     )
     Process {
-        $Validate = $true 
+        $Validate = $true
         #region: PowerCLI Session Timeout
         Write-Verbose "Set Session Timeout ..."
         $initialTimeout = (Get-PowerCLIConfiguration -Scope Session).WebOperationTimeoutSeconds
@@ -90,10 +94,10 @@ function Start-UNMAP {
         }
         #endregion
 
-    #region: Revert PowerCLI Session Timeout    
+    #region: Revert PowerCLI Session Timeout
     Write-Verbose "Revert Session Timeout ..."
     Set-PowerCLIConfiguration -Scope Session -WebOperationTimeoutSeconds $initialTimeout -Confirm:$False | Out-Null
     #endregion
     }
-    
+
 }

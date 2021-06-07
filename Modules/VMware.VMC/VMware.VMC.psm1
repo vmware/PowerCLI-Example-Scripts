@@ -1,3 +1,7 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 Function Get-VMCCommand {
 <#
     .NOTES
@@ -34,7 +38,7 @@ Function Connect-VMCVIServer {
     Blog:          http://vmware.com/go/powercli
     Twitter:       @powercli
    ===========================================================================
-    
+
     .SYNOPSIS
         Cmdlet to connect to your VMC vCenter Server
     .DESCRIPTION
@@ -50,7 +54,7 @@ Function Connect-VMCVIServer {
         [switch]$Autologin,
         [switch]$UseManagementIP
     )
-    
+
     If (-Not $global:DefaultVMCServers) { Write-error "No VMC Connection found, please use the Connect-VMC to connect" } Else {
         $creds = Get-VMCSDDCDefaultCredential -Org $Org -Sddc $Sddc
         If($UseManagementIP){
@@ -297,7 +301,7 @@ Function Get-VMCSDDCVersion {
     Blog:          http://vmware.com/go/powercli
     Twitter:       @powercli
     ===========================================================================
-    
+
     .SYNOPSIS
         Returns SDDC Version
     .DESCRIPTION
@@ -707,7 +711,7 @@ Function Get-VMCLogicalNetwork {
         .DESCRIPTION
             Retruns VMC Logical Networks for a given SDDC
         .EXAMPLE
-            Get-VMCLogicalNetwork -OrgName <Org Name> -SDDCName <SDDC Name> 
+            Get-VMCLogicalNetwork -OrgName <Org Name> -SDDCName <SDDC Name>
         .EXAMPLE
             Get-VMCLogicalNetwork -OrgName <Org Name> -SDDCName <SDDC Name> -LogicalNetworkName <Logical Network Name>
     #>
@@ -738,7 +742,7 @@ Function Get-VMCLogicalNetwork {
     $logicalNetworks = do{
         $netData = $logicalNetworkService.get_0($orgId,$sddcId,$pagesize,$index)
         $netData.data | Sort-Object -Property id
-        $index = $index + $netdata.paging_info.page_size    
+        $index = $index + $netdata.paging_info.page_size
     }
     until($index -ge $netData.paging_info.total_count)
 
@@ -840,7 +844,7 @@ Function New-VMCLogicalNetwork {
 
     $orgId = (Get-VMCOrg -Name $OrgName).Id
     $sddcId = (Get-VMCSDDC -Name $SDDCName -Org $OrgName).Id
-    
+
     if(-not $orgId) {
         Write-Host -ForegroundColor red "Unable to find Org $OrgName, please verify input"
         break
@@ -1166,7 +1170,7 @@ Twitter:       @LucD22
         $edges = do{
             $edgeData = $edgeService.get($orgId,$sddcId,$EdgeType,'',$index)
             $edgeData.edge_page.data | Sort-Object -Property id
-            $index = $index + $edgeData.edge_page.paging_info.page_size    
+            $index = $index + $edgeData.edge_page.paging_info.page_size
         }
         until($index -ge $edgeData.paging_info.total_count)
         $edges | %{
@@ -1227,7 +1231,7 @@ Twitter:       @LucD22
                 State = $_.edge_VM_status
                 HAState = $_.ha_state
                 Index = $_.index
-            }        
+            }
         }
         $featureStatus = $status.feature_statuses | %{
             [pscustomobject]@{
@@ -1333,7 +1337,7 @@ Twitter:       @LucD22
         $edgeId = Get-VMCEdge -SDDCName $SDDCName -Org $OrgName | where{$_.Name -eq $EdgeName} | select -ExpandProperty Id
 
 #        $epoch = Get-Date 01/01/1970
-#        
+#
 #        if($start){
 #            $startEpoch = (New-TimeSpan -Start $epoch -End $Start.ToUniversalTime()).TotalMilliseconds
 #        }
@@ -1398,7 +1402,7 @@ Twitter:       @LucD22
         $edgeId = Get-VMCEdge -SDDCName $SDDCName -Org $OrgName | where{$_.Name -eq $EdgeName} | select -ExpandProperty Id
 
 #        $epoch = Get-Date 01/01/1970
-#        
+#
 #        if($start){
 #            $startEpoch = (New-TimeSpan -Start $epoch -End $Start.ToUniversalTime()).TotalMilliseconds
 #        }
@@ -1436,7 +1440,7 @@ Function New-VMCSDDCCluster {
         Blog:          https://www.kmruddy.com
         Twitter:       @kmruddy
         ===========================================================================
-    
+
         .SYNOPSIS
             Creates a new cluster for the designated SDDC
         .DESCRIPTION
@@ -1485,7 +1489,7 @@ Function Get-VMCSDDCCluster {
         Blog:          https://www.kmruddy.com
         Twitter:       @kmruddy
         ===========================================================================
-    
+
         .SYNOPSIS
             Retreives cluster information for the designated SDDC
         .DESCRIPTION
@@ -1534,7 +1538,7 @@ Function New-VMCSDDCCluster {
         Blog:          https://www.kmruddy.com
         Twitter:       @kmruddy
         ===========================================================================
-    
+
         .SYNOPSIS
             Creates a new cluster for the designated SDDC
         .DESCRIPTION
@@ -1583,7 +1587,7 @@ Function Remove-VMCSDDCCluster {
         Blog:          https://www.kmruddy.com
         Twitter:       @kmruddy
         ===========================================================================
-    
+
         .SYNOPSIS
             Removes a specified cluster from the designated SDDC
         .DESCRIPTION

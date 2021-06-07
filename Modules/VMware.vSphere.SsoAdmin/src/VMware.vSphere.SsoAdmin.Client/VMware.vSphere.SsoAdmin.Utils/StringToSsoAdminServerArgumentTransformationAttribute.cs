@@ -1,6 +1,7 @@
-﻿// **************************************************************************
-//  Copyright 2020 VMware, Inc.
-// **************************************************************************
+﻿/*
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+*/
 
 using System;
 using System.Collections.Generic;
@@ -29,13 +30,13 @@ namespace VMware.vSphere.SsoAdmin.Utils
             var obnMatchingServers = new List<SsoAdminServer>();
 
             var ssoAdminServerVariable = engineIntrinsics.SessionState.PSVariable.GetValue("DefaultSsoAdminServers");
-            
+
             if (ssoAdminServerVariable is PSObject ssoAdminServersPsObj &&
                 ssoAdminServersPsObj.BaseObject is List<SsoAdminServer> connectedServers) {
                foreach (var server in connectedServers) {
                   if (!string.IsNullOrEmpty(Regex.Match(server.ToString(), csharpObnValue)?.Value)) {
                      obnMatchingServers.Add(server);
-                  }                     
+                  }
               }
             }
 
@@ -45,9 +46,9 @@ namespace VMware.vSphere.SsoAdmin.Utils
                // Non-terminating error for not matching value
                engineIntrinsics.Host.UI.WriteErrorLine($"'{obnValue}' doesn't match any objects in $global:DefaultSsoAdminServers variable");
             }
-            
+
          }
-            
+
          return result;
       }
    }

@@ -47,7 +47,7 @@ Function Get-HostViews {
 		}
 		write-progress -activity "Collecting ESXi Host Views" -completed
 		$allHosts
-	}           
+	}
 }
 
 Function Get-DatastoreMountInfo {
@@ -74,7 +74,7 @@ Function Get-DatastoreMountInfo {
 			Throw "No Datastores found.`nIs ""$Datastore"" a Datastore Object?"
 		}
 		$allDatastoreNAAs = foreach ($ds in $allDatastores) {$ds.ExtensionData.Info.vmfs.extent[0].diskname}
-		
+
 		#Build the array of custom Host Objects
 		$allHosts = Get-HostViews -datastore $allDatastores
 		$output = @()
@@ -89,9 +89,9 @@ Function Get-DatastoreMountInfo {
 					$thisDatastore = $alldatastores | ? {$_.ExtensionData.Info.vmfs.extent[0].diskname -eq $device.canonicalName}
 					$hostviewDSAttachState = ""
 					if ($device.operationalState[0] -eq "ok") {
-						$hostviewDSAttachState = "Attached"						    
+						$hostviewDSAttachState = "Attached"
 					} elseif ($device.operationalState[0] -eq "off") {
-						$hostviewDSAttachState = "Detached"						   
+						$hostviewDSAttachState = "Detached"
 					} else {
 						$hostviewDSAttachState = $device.operationalstate[0]
 					}

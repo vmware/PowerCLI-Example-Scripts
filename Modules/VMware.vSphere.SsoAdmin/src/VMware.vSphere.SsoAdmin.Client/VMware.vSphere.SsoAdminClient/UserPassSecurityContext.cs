@@ -1,6 +1,7 @@
-﻿// **************************************************************************
-//  Copyright 2020 VMware, Inc.
-// **************************************************************************
+﻿/*
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+*/
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Selectors;
@@ -21,9 +22,9 @@ namespace VMware.vSphere.SsoAdminClient
       private VmwareSecruityTokenService _stsClient;
       private SamlSecurityToken _validToken;
       public UserPassSecurityContext(
-         string user, 
-         SecureString password, 
-         Uri stsUri, 
+         string user,
+         SecureString password,
+         Uri stsUri,
          X509CertificateValidator serverCertificateValidator) {
 
          if (user == null) throw new ArgumentNullException(nameof(user));

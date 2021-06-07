@@ -1,15 +1,15 @@
 ﻿function Get-NICDetails {
-<#	
+<#
     .NOTES
     ===========================================================================
     Created by: Markus Kraus
     Twitter: @VMarkus_K
     Private Blog: mycloudrevolution.com
     ===========================================================================
-    Changelog:  
-    2017.02 ver 1.0 Base Release  
+    Changelog:
+    2017.02 ver 1.0 Base Release
     ===========================================================================
-    External Code Sources: 
+    External Code Sources:
     -
     ===========================================================================
     Tested Against Environment:
@@ -35,11 +35,11 @@
 #>
 
 [CmdletBinding()]
-param( 
+param(
     [Parameter(Mandatory=$True, ValueFromPipeline=$False, Position=0)]
     [ValidateNotNullorEmpty()]
         [String] $Clustername
-        
+
 )
 
 Begin {
@@ -49,14 +49,14 @@ Begin {
        $Validate = $False
        thow "No Cluster '$myCluster' found!"
     }
-  
+
 }
 
 Process {
 
     $MyView = @()
     if ($Validate -eq $True) {
-  
+
         foreach ($myVMhost in ($myCluster | Get-VMHost)) {
 
             $esxcli2 = Get-ESXCLI -VMHost $myVMhost -V2
@@ -85,7 +85,7 @@ Process {
 		        }
 
 		}
-        
+
        $MyView
 
     }

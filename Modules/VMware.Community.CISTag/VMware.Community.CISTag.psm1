@@ -1,25 +1,29 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 function Get-CISTag {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Gathers tag information from the CIS REST API endpoint
-.DESCRIPTION 
+.DESCRIPTION
     Will provide a list of tags
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Name
     Tag name which should be retreived
 .PARAMETER Category
     Tag category name which should be retreived
 .PARAMETER Id
-    Tag ID which should be retreived 
+    Tag ID which should be retreived
 .EXAMPLE
 	Get-CISTag
-    Retreives all tag information 
+    Retreives all tag information
 .EXAMPLE
 	Get-CISTag -Name tagName
     Retreives the tag information based on the specified name
 #>
-[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')] 
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
 	param(
 	[Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
     [String]$Name,
@@ -30,7 +34,7 @@ function Get-CISTag {
   	)
 
     If (-Not $global:DefaultCisServers) { Write-error "No CIS Connection found, please use the Connect-CisServer to connect" } Else {
-        $tagSvc = Get-CisService -Name com.vmware.cis.tagging.tag 
+        $tagSvc = Get-CisService -Name com.vmware.cis.tagging.tag
         if ($PSBoundParameters.ContainsKey("Id")) {
             $tagOutput = $tagSvc.get($Id)
         } else {
@@ -50,9 +54,9 @@ function Get-CISTag {
             if ($PSBoundParameters.ContainsKey("Name")) {
                 if ($vCenterConn){
                     $tagOutput = $vCTagList | Where-Object {$_.Name -eq $Name}
-                } else {$tagOutput = $tagArray | Where-Object {$_.Name -eq $Name}}                
-            } elseif ($PSBoundParameters.ContainsKey("Category")) { 
-                if ($vCenterConn){ 
+                } else {$tagOutput = $tagArray | Where-Object {$_.Name -eq $Name}}
+            } elseif ($PSBoundParameters.ContainsKey("Category")) {
+                if ($vCenterConn){
                     $tagOutput = $vCTagList | Where-Object {$_.Category -eq $Category}
                 } else {
                     $tagCatid = Get-CISTagCategory -Name $Category | Select-Object -ExpandProperty Id
@@ -74,12 +78,12 @@ function Get-CISTag {
 }
 
 function New-CISTag {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Creates a new tag from the CIS REST API endpoint
-.DESCRIPTION 
+.DESCRIPTION
     Will create a new tag
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Name
     Tag name which should be created
@@ -93,7 +97,7 @@ function New-CISTag {
     New-CISTag -Name tagName -Category categoryName -Description "Tag Descrition"
     Creates a new tag based on the specified name
 #>
-[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')] 
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
     param(
     [Parameter(Mandatory=$true,Position=0)]
     [String]$Name,
@@ -106,7 +110,7 @@ function New-CISTag {
     )
 
     If (-Not $global:DefaultCisServers) { Write-error "No CIS Connection found, please use the Connect-CisServer to connect" } Else {
-        $tagSvc = Get-CisService -Name com.vmware.cis.tagging.tag 
+        $tagSvc = Get-CisService -Name com.vmware.cis.tagging.tag
         $tagCreateHelper = $tagSvc.Help.create.create_spec.Create()
         $tagCreateHelper.name = $Name
         if ($PSBoundParameters.ContainsKey("Category")) {
@@ -126,22 +130,22 @@ function New-CISTag {
 }
 
 function Remove-CISTag {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Removes a tag from the CIS REST API endpoint
-.DESCRIPTION 
+.DESCRIPTION
     Will delete a new tag
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Name
     Tag name which should be removed
 .PARAMETER ID
     Tag ID which should be removed
 .EXAMPLE
-    Remove-CISTag -Name tagName 
+    Remove-CISTag -Name tagName
     Removes a new tag based on the specified name
 #>
-[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')] 
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     param(
     [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
     [String]$Name,
@@ -150,7 +154,7 @@ function Remove-CISTag {
     )
 
     If (-Not $global:DefaultCisServers) { Write-error "No CIS Connection found, please use the Connect-CisServer to connect" } Else {
-        $tagSvc = Get-CisService -Name com.vmware.cis.tagging.tag 
+        $tagSvc = Get-CisService -Name com.vmware.cis.tagging.tag
         if ($ID) {
             $tagSvc.delete($ID)
         } else {
@@ -162,25 +166,25 @@ function Remove-CISTag {
 }
 
 function Get-CISTagCategory {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Gathers tag category information from the CIS REST API endpoint
-.DESCRIPTION 
+.DESCRIPTION
     Will provide a list of tag categories
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Name
-    Tag category name which should be retreived 
+    Tag category name which should be retreived
 .PARAMETER Id
     Tag category ID which should be retreived
 .EXAMPLE
     Get-CISTagCategory
-    Retreives all tag category information 
+    Retreives all tag category information
 .EXAMPLE
     Get-CISTagCategory -Name tagCategoryName
     Retreives the tag category information based on the specified name
 #>
-[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')] 
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
     param(
     [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
     [String]$Name,
@@ -210,26 +214,26 @@ function Get-CISTagCategory {
 }
 
 function New-CISTagCategory {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Creates a new tag category from the CIS REST API endpoint
-.DESCRIPTION 
+.DESCRIPTION
     Will create a new tag category
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Name
-    Tag category name which should be created 
+    Tag category name which should be created
 .PARAMETER Description
     Tag category ID which should be retreived
 .PARAMETER Cardinality
     Tag category ID which should be retreived
 .PARAMETER AssociableTypes
-    Tag category ID which should be retreived    
+    Tag category ID which should be retreived
 .EXAMPLE
-    New-CISTagCategory -Name NewTagCategoryName -Description "New Tag Category Description" -Cardinality "Single" -AssociableTypes    
+    New-CISTagCategory -Name NewTagCategoryName -Description "New Tag Category Description" -Cardinality "Single" -AssociableTypes
     Creates a new tag category with the specified information
 #>
-[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')] 
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
     param(
     [Parameter(Mandatory=$true,Position=0)]
     [String]$Name,
@@ -261,15 +265,15 @@ function New-CISTagCategory {
 }
 
 function Remove-CISTagCategory {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Removes tag category information from the CIS REST API endpoint
-.DESCRIPTION 
+.DESCRIPTION
     Will remove a tag category
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Name
-    Tag category name which should be removed 
+    Tag category name which should be removed
 .PARAMETER Id
     Tag category ID which should be removed
 .EXAMPLE
@@ -277,7 +281,7 @@ function Remove-CISTagCategory {
     Removes the tag category information based on the specified name
 
 #>
-[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')] 
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     param(
     [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
     [String]$Name,
@@ -297,12 +301,12 @@ function Remove-CISTagCategory {
 }
 
 function Get-CISTagAssignment {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Displays a list of the tag assignments from the CIS REST API endpoint
-.DESCRIPTION 
+.DESCRIPTION
     Will provide a list of the tag assignments
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Category
     Tag category name which should be referenced
@@ -311,7 +315,7 @@ function Get-CISTagAssignment {
 .PARAMETER ObjectId
     Object ID which should be retreived
 .EXAMPLE
-    Get-CISTagAssignment 
+    Get-CISTagAssignment
     Retreives all tag assignment information
 .EXAMPLE
     Get-CISTagAssignment -Entity VMName
@@ -320,7 +324,7 @@ function Get-CISTagAssignment {
     Get-CISTagAssignment -ObjectId 'vm-11'
     Retreives all tag assignments for the VM object
 #>
-[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')] 
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
     param(
     [Parameter(Mandatory=$false,Position=0)]
     [String]$Category,
@@ -357,7 +361,7 @@ function Get-CISTagAssignment {
                 $filterVmNameObj.names.add($Entity) | Out-Null
                 $objId = $vmSvc.list($filterVmNameObj) | Select-Object -ExpandProperty vm
                 if ($objId) {$objType = "VirtualMachine"}
-                else {   
+                else {
                     $dsSvc = Get-CisService com.vmware.vcenter.datastore
                     $filterDsNameObj = $dsSvc.Help.list.filter.Create()
                     $filterDsNameObj.names.add($Entity) | Out-Null
@@ -371,7 +375,7 @@ function Get-CISTagAssignment {
             }
             $tagIdOutput = $tagAssocSvc.list_attached_tags($objObject)
         } else {
-            $tagSvc = Get-CisService -Name com.vmware.cis.tagging.tag 
+            $tagSvc = Get-CisService -Name com.vmware.cis.tagging.tag
             $tagIdOutput = @()
             $tagCategories = Get-CISTagCategory | Sort-Object -Property Name
             if ($Category) {
@@ -404,7 +408,7 @@ function Get-CISTagAssignment {
                         $filterDsObj = $dsSvc.help.list.filter.create()
                         $filterDsObj.datastores.add($obj.Id) | Out-Null
                         $objName = $dsSvc.list($filterDsObj) | Select-Object -ExpandProperty Name
-                    } else {$objName = 'Object Not Found'}                
+                    } else {$objName = 'Object Not Found'}
                     $tempObject = "" | Select-Object Tag, Entity
                     $tempObject.Tag = $tagReference | Where-Object {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
                     $tempObject.Entity = $objName
@@ -436,7 +440,7 @@ function Get-CISTagAssignment {
                         $filterDsObj = $dsSvc.help.list.filter.create()
                         $filterDsObj.datastores.add($obj.Id) | Out-Null
                         $objName = $dsSvc.list($filterDsObj) | Select-Object -ExpandProperty Name
-                    } else {$objName = 'Object Not Found'}                
+                    } else {$objName = 'Object Not Found'}
                     $tempObject = "" | Select-Object Tag, Entity
                     $tempObject.Tag = $tagReference | Where-Object {$_.id -eq $tagId} | Select-Object -ExpandProperty Name
                     $tempObject.Entity = $objName
@@ -449,12 +453,12 @@ function Get-CISTagAssignment {
 }
 
 function New-CISTagAssignment {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Creates new tag assignments from the CIS REST API endpoint
-.DESCRIPTION 
+.DESCRIPTION
     Will create new tag assignments
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Tag
     Tag name which should be referenced
@@ -471,7 +475,7 @@ function New-CISTagAssignment {
     New-CISTagAssignment -TagId $tagId -ObjectId 'vm-11'
     Creates a tag assignment between the Tag ID and the Object ID
 #>
-[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')] 
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
     param(
     [Parameter(Mandatory=$false,Position=0)]
     $Tag,
@@ -603,19 +607,19 @@ function New-CISTagAssignment {
                 $objObject.type = $objType
                 $tagAssocSvc.attach($TagId,$objObject) | Out-Null
             }
-        
+
         } else {Write-Output "Multiple tags with multiple objects are not a supported call."}
 
     }
 }
 
 function Remove-CISTagAssignment {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Removes a tag assignment from the CIS REST API endpoint
-.DESCRIPTION 
+.DESCRIPTION
     Will remove provided tag assignments
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy
 .PARAMETER Tag
     Tag name which should be removed
@@ -632,7 +636,7 @@ function Remove-CISTagAssignment {
     Remove-CISTagAssignment -Tag TagName -Entity VMName
     Removes the tag assignment between the Tag name and the Entity name
 #>
-[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')] 
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     param(
     [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
     $Tag,

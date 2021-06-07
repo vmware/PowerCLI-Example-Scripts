@@ -1,5 +1,9 @@
-﻿function Get-BiosBootStatus {
-<#	
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+function Get-BiosBootStatus {
+<#
 	.NOTES
 	===========================================================================
 	 Created by: Brian Graf
@@ -17,10 +21,10 @@
     .Example
     # Only returns VMs that are booting to BIOS
     Get-BiosBootStatus (Get-VM) -IsSetup
-    
+
 #>
   [CmdletBinding()]
-    param( 
+    param(
         [Parameter(Mandatory=$true,
         ValueFromPipeline=$True,
                    Position=0)]

@@ -1,6 +1,7 @@
-﻿// **************************************************************************
-//  Copyright 2020 VMware, Inc.
-// **************************************************************************
+﻿/*
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+*/
 
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,9 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
 
       private SsoAdminClient _client;
 
-      public SsoAdminServer(string hostname, 
-         string user, 
-         SecureString password, 
+      public SsoAdminServer(string hostname,
+         string user,
+         SecureString password,
          X509CertificateValidator serverCertificateValidator) {
 
          Name = hostname;
@@ -56,7 +57,7 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
       public void Disconnect() {
          if (--RefCount == 0) {
             _client = null;
-         }            
+         }
       }
 
       public override string ToString() {

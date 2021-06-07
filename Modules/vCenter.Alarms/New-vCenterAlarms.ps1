@@ -1,10 +1,15 @@
-﻿<#	
-	
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+<#
+
 	===========================================================================
 	Created by: 	Jason Robinson
 	Created on:		05/2017
 	Twitter:		@jrob24
-	Filename:  New-vCenterAlarms.ps1   	
+	Filename:  New-vCenterAlarms.ps1
 	===========================================================================
 	.DESCRIPTION
 		Examples of creating alarms using vCenter.Alarm module

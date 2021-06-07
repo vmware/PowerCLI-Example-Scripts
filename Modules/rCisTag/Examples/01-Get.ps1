@@ -1,4 +1,9 @@
-﻿# Fetch Cis Server hostname and credentials
+﻿<#
+Copyright 2016-2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+# Fetch Cis Server hostname and credentials
 .\CisConfig.ps1
 
 
@@ -14,4 +19,3 @@ Get-rCisTagCategory
 Get-rCisTagAssignment
 
 Disconnect-rCisServer -Server $cisServer -Confirm:$false
- 

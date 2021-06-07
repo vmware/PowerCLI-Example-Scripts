@@ -1,15 +1,15 @@
 function Set-CBT {
-<#	
+<#
     .NOTES
     ===========================================================================
     Created by: Markus Kraus
     Twitter: @VMarkus_K
     Private Blog: mycloudrevolution.com
     ===========================================================================
-    Changelog:  
-    2016.11 ver 1.0 Base Release 
+    Changelog:
+    2016.11 ver 1.0 Base Release
     ===========================================================================
-    External Code Sources:  
+    External Code Sources:
     http://wahlnetwork.com/2015/12/01/change-block-tracking-cbt-powercli/
     ===========================================================================
     Tested Against Environment:
@@ -22,13 +22,13 @@ function Set-CBT {
     ===========================================================================
 
     .DESCRIPTION
-    This Function enables or disables CBT.       
+    This Function enables or disables CBT.
 
     .Example
-    Get-VN TST* | Set-CBT -DisableCBT  
+    Get-VN TST* | Set-CBT -DisableCBT
 
     .Example
-    Get-VN TST* | Set-CBT -EnableCBT  
+    Get-VN TST* | Set-CBT -EnableCBT
 
     .PARAMETER DisableCBT
     Disables CBT for any VMs found with it enabled
@@ -41,7 +41,7 @@ function Set-CBT {
 #>
 
   [CmdletBinding()]
-    param( 
+    param(
         [Parameter(Mandatory=$True, ValueFromPipeline=$True, Position=0, HelpMessage = "VMs to process")]
         [ValidateNotNullorEmpty()]
         	[VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]] $myVMs,
@@ -52,7 +52,7 @@ function Set-CBT {
         [ValidateNotNullorEmpty()]
             [Switch]$DisableCBT
     )
-Process { 
+Process {
 
 	    $vmconfigspec = New-Object -TypeName VMware.Vim.VirtualMachineConfigSpec
         Write-Verbose -Message "Walking through given VMs"
@@ -60,7 +60,7 @@ Process {
         {
             if ($DisableCBT -and $myVM.ExtensionData.Config.ChangeTrackingEnabled -eq $true -and $myVM.ExtensionData.Snapshot -eq $null)
             {
-                try 
+                try
                 {
                     Write-Verbose -Message "Reconfiguring $($myVM.name) to disable CBT" -Verbose
                     $vmconfigspec.ChangeTrackingEnabled = $false
@@ -75,7 +75,7 @@ Process {
                     }
 
                 }
-                catch 
+                catch
                 {
                     throw $myVM
                 }
@@ -94,13 +94,13 @@ Process {
                     $SnapShot |  Remove-Snapshot -Confirm:$false
                 }
             }
-            else 
+            else
             {
-                if ($myVM.ExtensionData.Snapshot -ne $null -and $EnableCBT) 
+                if ($myVM.ExtensionData.Snapshot -ne $null -and $EnableCBT)
                 {
                     Write-Warning -Message "Skipping $($myVM.name) - Snapshots found"
                 }
-                elseif ($myVM.ExtensionData.Snapshot -ne $null -and $DisableCBT) 
+                elseif ($myVM.ExtensionData.Snapshot -ne $null -and $DisableCBT)
                 {
                     Write-Warning -Message "Skipping $($myVM.name) - Snapshots found"
                 }

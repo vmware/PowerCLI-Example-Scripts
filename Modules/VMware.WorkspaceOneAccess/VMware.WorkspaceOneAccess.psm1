@@ -1,3 +1,8 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
 Function Connect-WorkspaceOneAccess {
 <#
     .NOTES
@@ -626,9 +631,9 @@ Function Get-UEMConfig {
     if($results.StatusCode -eq 200) {
         $config = ([System.Text.Encoding]::ASCII.GetString($results.Content) | ConvertFrom-Json)
         $config
-    } 
+    }
 }
-    
+
 Function Remove-UEMConfig {
 <#
     .NOTES

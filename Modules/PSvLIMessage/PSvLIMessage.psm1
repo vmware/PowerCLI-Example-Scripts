@@ -30,18 +30,18 @@ add-type @"
 
   .SYNOPSIS
 	Push Messages to VMware vRealize Log Insight.
-  
+
   .DESCRIPTION
 	Creates a Messages in VMware vRealize Log Insight via the Ingestion API
 
   .EXAMPLE
 	Push-vLIMessage -vLIServer "loginsight.lan.local" -vLIAgentID "12862842-5A6D-679C-0E38-0E2BE888BB28" -Text "My Test"
-	
+
   .EXAMPLE
 	Push-vLIMessage -vLIServer "loginsight.lan.local" -vLIAgentID "12862842-5A6D-679C-0E38-0E2BE888BB28" -Text "My Test" -Hostname MyTEST -FieldName myTest -FieldContent myTest
-	
+
   .PARAMETER vLIServer
-	Specify the FQDN of your vRealize Log Insight Appliance	
+	Specify the FQDN of your vRealize Log Insight Appliance
 
   .PARAMETER vLIAgentID
 	Specify the vRealize Log Insight Agent ID, e.g. "12862842-5A6D-679C-0E38-0E2BE888BB28"
@@ -54,13 +54,13 @@ add-type @"
 
   .PARAMETER FieldName
 	Specify the a Optional Field Name for vRealize Log Insight
-	
+
   .PARAMETER FieldContent
 	Specify the a Optional FieldContent for the Field in -FieldName for vRealize Log Insight
 	If FielName is missing and FieldContent is given, it will be ignored
-	
+
  #Requires PS -Version 3.0
- 
+
  #>
 function Push-vLIMessage {
 
@@ -88,9 +88,9 @@ function Push-vLIMessage {
 						name = "hostname"
 						content = $Hostname
 						}
-					
+
 		$Fields = @($Field_vLI, $Field_HostName)
-		
+
 		if ($FieldName) {
 			$Field_Custom = [ordered]@{
 					name = $FieldName
@@ -98,14 +98,14 @@ function Push-vLIMessage {
 					}
 			$Fields += @($Field_Custom)
 			}
-			
+
 		$Restcall = @{
 					messages =    ([Object[]]([ordered]@{
 							text = ($Text)
 							fields = ([Object[]]$Fields)
 							}))
 					} | convertto-json -Depth 4
-	
+
 		$Resturl = ("http://" + $vLIServer + ":9000/api/v1/messages/ingest/" + $vLIAgentID)
 		try
 		{

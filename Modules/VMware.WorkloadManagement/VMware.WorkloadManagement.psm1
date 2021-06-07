@@ -1,3 +1,7 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 Function New-WorkloadManagement {
     <#
         .NOTES
@@ -106,7 +110,7 @@ Function New-WorkloadManagement {
         $mgmtNetworkMoRef = $networkService.list($networkFilterSpec).network.Value
         if ($mgmtNetworkMoRef -eq $NULL) {
             Write-Host -ForegroundColor Red "Unable to find vSphere Cluster ${MgmtNetwork}"
-            break 
+            break
         }
 
         # Cluster Moref

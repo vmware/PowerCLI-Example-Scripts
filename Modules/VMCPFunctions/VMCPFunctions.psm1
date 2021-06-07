@@ -1,5 +1,9 @@
-﻿function Get-VMCPSettings {
-<#	
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+function Get-VMCPSettings {
+<#
 	.NOTES
 	===========================================================================
 	 Created on:   	10/27/2015 9:25 PM
@@ -11,7 +15,7 @@
      Modified on:  	10/11/2016
 	 Modified by:  	Erwan Quélin
      Twitter:       @erwanquelin
-     Github:        https://github.com/equelin    
+     Github:        https://github.com/equelin
 	===========================================================================
 	.DESCRIPTION
     This function will allow users to view the VMCP settings for their clusters
@@ -94,7 +98,7 @@
 }
 
 function Set-VMCPSettings {
-<#	
+<#
 	.NOTES
 	===========================================================================
 	 Created on:   	10/27/2015 9:25 PM
@@ -106,7 +110,7 @@ function Set-VMCPSettings {
      Modified on:  	10/11/2016
 	 Modified by:  	Erwan Quélin
      Twitter:       @erwanquelin
-     Github:        https://github.com/equelin    
+     Github:        https://github.com/equelin
 	===========================================================================
 	.DESCRIPTION
     This function will allow users to enable/disable VMCP and also allow
@@ -147,21 +151,21 @@ function Set-VMCPSettings {
     .EXAMPLE
     Set-VMCPSettings -cluster LAB-CL -enableVMCP:$True -VmStorageProtectionForPDL `
     restartAggressive -VmStorageProtectionForAPD restartAggressive `
-    -VmTerminateDelayForAPDSec 2000 -VmReactionOnAPDCleared reset 
+    -VmTerminateDelayForAPDSec 2000 -VmReactionOnAPDCleared reset
 
     This will enable VMCP and configure the Settings on cluster LAB-CL
 
     .EXAMPLE
     Set-VMCPSettings -cluster LAB-CL -enableVMCP:$False -VmStorageProtectionForPDL `
     disabled -VmStorageProtectionForAPD disabled `
-    -VmTerminateDelayForAPDSec 600 -VmReactionOnAPDCleared none 
+    -VmTerminateDelayForAPDSec 600 -VmReactionOnAPDCleared none
 
     This will disable VMCP and configure the Settings on cluster LAB-CL
 
     .EXAMPLE
     Set-VMCPSettings -enableVMCP:$False -VmStorageProtectionForPDL `
     disabled -VmStorageProtectionForAPD disabled `
-    -VmTerminateDelayForAPDSec 600 -VmReactionOnAPDCleared none 
+    -VmTerminateDelayForAPDSec 600 -VmReactionOnAPDCleared none
 
     This will disable VMCP and configure the Settings on all clusters available
 #>
@@ -173,7 +177,7 @@ function Set-VMCPSettings {
         ValueFromPipelineByPropertyName=$True,
         HelpMessage='What is the Cluster Name?')]
         $cluster,
-        
+
         [Parameter(Mandatory=$False,
         ValueFromPipeline=$False,
         HelpMessage='$True=Enabled $False=Disabled')]
@@ -184,24 +188,24 @@ function Set-VMCPSettings {
         HelpMessage='Actions that can be taken in response to a PDL event')]
         [ValidateSet("disabled","warning","restartAggressive")]
         [string]$VmStorageProtectionForPDL,
-        
+
         [Parameter(Mandatory=$False,
         ValueFromPipeline=$False,
         HelpMessage='Options available for an APD response')]
         [ValidateSet("disabled","restartConservative","restartAggressive","warning")]
         [string]$VmStorageProtectionForAPD,
-        
+
         [Parameter(Mandatory=$False,
         ValueFromPipeline=$False,
         HelpMessage='Value in seconds')]
         [Int]$VmTerminateDelayForAPDSec,
-        
+
         [Parameter(Mandatory=$False,
         ValueFromPipeline=$False,
         HelpMessage='This setting will instruct vSphere HA to take a certain action if an APD event is cleared')]
         [ValidateSet("reset","none")]
         [string]$VmReactionOnAPDCleared,
-        
+
         [Parameter(Mandatory=$False)]
         [VMware.VimAutomation.Types.VIServer[]]$Server = $global:DefaultVIServers
     )
@@ -232,14 +236,14 @@ function Set-VMCPSettings {
                 # Create the object we will configure
                 $settings = New-Object VMware.Vim.ClusterConfigSpecEx
                 $settings.dasConfig = New-Object VMware.Vim.ClusterDasConfigInfo
-                
-                # Based on $enableVMCP switch 
-                if ($enableVMCP -eq $false)  { 
+
+                # Based on $enableVMCP switch
+                if ($enableVMCP -eq $false)  {
                     $settings.dasConfig.vmComponentProtecting = "disabled"
-                } 
-                elseif ($enableVMCP -eq $true) { 
-                    $settings.dasConfig.vmComponentProtecting = "enabled" 
-                }  
+                }
+                elseif ($enableVMCP -eq $true) {
+                    $settings.dasConfig.vmComponentProtecting = "enabled"
+                }
 
                 #Create the VMCP object to work with
                 $settings.dasConfig.defaultVmSettings = New-Object VMware.Vim.ClusterDasVmSettings
@@ -295,7 +299,7 @@ function Set-VMCPSettings {
                 } else {
                     $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmTerminateDelayForAPDSec = $ActualSettings.'APD Timeout (Seconds)'
                 }
-                
+
                 # Reaction On APD Cleared
                 If ($PSBoundParameters.ContainsKey('VmReactionOnAPDCleared')) {
                     $settings.dasConfig.defaultVmSettings.vmComponentProtectionSettings.vmReactionOnAPDCleared = "$VmReactionOnAPDCleared"

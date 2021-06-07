@@ -1,4 +1,13 @@
-﻿#
+﻿<#
+Copyright 2017-2021 VMware, Inc.
+SPDX-License-Identifier: Apache-2.0
+#>
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+#
 # Module manifest for module 'Meadowcroft.Srm'
 #
 

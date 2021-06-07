@@ -1,3 +1,7 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 Function Connect-HcxServer {
 <#
     .NOTES
@@ -1057,7 +1061,7 @@ Function Set-HcxLocation {
 
             if(-not $cityDetails) {
                 Write-Host -ForegroundColor Red "Invalid input for City and/or Country, please provide the exact input from Get-HcxCity cmdlet"
-                break 
+                break
             }
 
             $locationConfig = @{
@@ -1089,7 +1093,7 @@ Function Set-HcxLocation {
             if($results.StatusCode -eq 204) {
                 Write-Host -ForegroundColor Green "Successfully registered datacenter location $City to HCX Manager"
             } else {
-                Write-Error "Failed to registerd datacenter location in HCX Manager" 
+                Write-Error "Failed to registerd datacenter location in HCX Manager"
             }
         } else {
             Write-Error "Failed to search for city $City"

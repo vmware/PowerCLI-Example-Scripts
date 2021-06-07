@@ -1,4 +1,9 @@
 ﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
+<#
 .SYNOPSIS Retrieve the current VMFS Unmap priority for VMFS 6 datastore
 .NOTES  Author:  William Lam
 .NOTES  Site:    www.virtuallyghetto.com
