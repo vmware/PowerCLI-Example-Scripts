@@ -1,8 +1,3 @@
-<#
-Copyright 2021 VMware, Inc.
-SPDX-License-Identifier: BSD-2-Clause
-#>
-
 add-type @"
     using System.Net;
     using System.Security.Cryptography.X509Certificates;

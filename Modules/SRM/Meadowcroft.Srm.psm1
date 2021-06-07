@@ -1,8 +1,11 @@
 <#
+Copyright 2017-2021 VMware, Inc.
+SPDX-License-Identifier: Apache-2.0
+#>
+<#
 Copyright 2021 VMware, Inc.
 SPDX-License-Identifier: BSD-2-Clause
 #>
-
 # SRM Helper Methods - https://github.com/benmeadowcroft/SRM-Cmdlets
 
 <#

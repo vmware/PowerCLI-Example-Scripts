@@ -1,9 +1,4 @@
 <#
-Copyright 2021 VMware, Inc.
-SPDX-License-Identifier: BSD-2-Clause
-#>
-
-<#
 .SYNOPSIS Datastore Functions
 .DESCRIPTION A collection of functions to manipulate datastore Mount + Attach status
 .EXAMPLE Get-Datastore | Get-DatastoreMountInfo | Sort Datastore, VMHost | FT -AutoSize

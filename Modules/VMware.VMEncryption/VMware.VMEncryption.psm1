@@ -1,3 +1,8 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
 # Script Module : VMware.VMEncryption
 # Version       : 1.2
 

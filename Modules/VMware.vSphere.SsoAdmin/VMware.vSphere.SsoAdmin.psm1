@@ -1,6 +1,7 @@
-# **************************************************************************
-#  Copyright 2020 VMware, Inc.
-# **************************************************************************
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 
 #
 # Script module for module 'VMware.vSphere.SsoAdmin'

@@ -1,18 +1,23 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+
 function Get-DatastoreSIOCStatCollection {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Gathers information on the status of SIOC statistics collection for a datastore
-.DESCRIPTION 
+.DESCRIPTION
     Will provide the status on a datastore's SIOC statistics collection
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy, thatcouldbeaproblem.com
 .PARAMETER Datastore
     Datastore to be ran against
 .EXAMPLE
 	Get-DatastoreSIOCStatCollection -Datastore ExampleDatastore
-	Retreives the status of SIOC statistics collection for the provided datastore 
+	Retreives the status of SIOC statistics collection for the provided datastore
 #>
-[CmdletBinding()] 
+[CmdletBinding()]
 	param(
 	[Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
         $Datastore
@@ -20,13 +25,13 @@ function Get-DatastoreSIOCStatCollection {
 
     Process {
 
-        #Collect information about the desired datastore/s and verify existance 
+        #Collect information about the desired datastore/s and verify existance
         $ds = Get-Datastore $datastore -warningaction silentlycontinue -erroraction silentlycontinue
         if (!$ds) {Write-Warning -Message "No Datastore found"}
         else {
 
             $report = @()
-            
+
             #Loops through each datastore provided and feeds back information about the SIOC Statistics Collection status
             foreach ($item in $ds) {
 
@@ -36,7 +41,7 @@ function Get-DatastoreSIOCStatCollection {
                 $report += $tempitem
 
             }
-        
+
         #Returns the output to the user
         return $report
 
@@ -48,20 +53,20 @@ function Get-DatastoreSIOCStatCollection {
 
 
 function Set-DatastoreSIOCStatCollection {
-<#  
-.SYNOPSIS  
+<#
+.SYNOPSIS
     Configures the status of SIOC statistics collection for a datastore
-.DESCRIPTION 
+.DESCRIPTION
     Will modify the status on a datastore's SIOC statistics collection
-.NOTES  
+.NOTES
     Author:  Kyle Ruddy, @kmruddy, thatcouldbeaproblem.com
 .PARAMETER Datastore
     Datastore to be ran against
 .EXAMPLE
 	Set-DatastoreSIOCStatCollection -Datastore ExampleDatastore -Enable
-	Enables SIOC statistics collection for the provided datastore 
+	Enables SIOC statistics collection for the provided datastore
 #>
-[CmdletBinding(SupportsShouldProcess)] 
+[CmdletBinding(SupportsShouldProcess)]
 	param(
 	    [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
         $Datastore,
@@ -97,7 +102,7 @@ function Set-DatastoreSIOCStatCollection {
                 $_this.ConfigureDatastoreIORM_Task($dsobj.ExtensionData.MoRef,$spec) | out-null
                 start-sleep -s 1
                 $report += Get-View -Id $dsobj.ExtensionData.MoRef -Property Name,Iormconfiguration.statsCollectionEnabled | select Name,@{N='SIOCStatCollection';E={$_.Iormconfiguration.statsCollectionEnabled}}
-                
+
             }
 
             #Returns the output to the user

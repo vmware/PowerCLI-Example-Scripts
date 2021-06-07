@@ -1,3 +1,7 @@
+<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
 Function Get-VCSAPasswordPolicy {
 <#
     .DESCRIPTION Retrieves vCenter Server Appliance SSO and Local OS Password Policy Configuration

@@ -1,6 +1,7 @@
-// **************************************************************************
-//  Copyright 2020 VMware, Inc.
-// **************************************************************************
+/*
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+*/
 using NUnit.Framework;
 using System.Linq;
 using System.Security;

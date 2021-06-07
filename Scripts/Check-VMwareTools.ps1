@@ -1,5 +1,9 @@
-﻿function Check-Tools {
-<#	
+﻿<#
+Copyright 2021 VMware, Inc.
+SPDX-License-Identifier: BSD-2-Clause
+#>
+function Check-Tools {
+<#
 	.NOTES
 	===========================================================================
 	 Created by: Brian Graf
@@ -18,14 +22,14 @@
     Check-Tools -VMs $SampleVMs
 #>
   [CmdletBinding()]
-    param( 
+    param(
         [Parameter(Mandatory=$true,
         ValueFromPipeline=$True,
                    Position=0)]
         [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]]
         $VMs
     )
-Process { 
+Process {
 #foreach ($VM in $VMs) {
 $OutofDate = $VMs | where {$_.ExtensionData.Guest.ToolsStatus -ne "toolsOk"}
 $Result = @($OutofDate | select Name,@{Name="ToolsVersion";Expression={$_.ExtensionData.Guest.Toolsversion}})

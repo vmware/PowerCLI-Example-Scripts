@@ -1,4 +1,4 @@
-PowerCLI-Example-Scripts<br/>
+PowerCLI-Example-Scripts
 Copyright 2021 VMware, Inc.
 
 BSD 2-Clause License
