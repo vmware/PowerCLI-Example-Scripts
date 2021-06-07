@@ -26,6 +26,8 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
       public bool Locked { get; set; }
       public bool Disabled { get; set; }
 
+      public Nullable<int> PasswordExpirationRemainingDays { get; set; }
+
       public SsoAdminClient GetClient() {
          return _client;
       }
