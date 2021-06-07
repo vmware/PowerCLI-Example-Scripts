@@ -101,6 +101,7 @@ Describe "PersonUser Tests" {
          $actual.FirstName | Should -Be $null
          $actual.LastName | Should -Be $null
          $actual.EmailAddress | Should -Be $null
+         $actual.PasswordExpirationRemainingDays | Should -Not -Be $null
       }
    }
 
@@ -121,6 +122,7 @@ Describe "PersonUser Tests" {
          $actual.Count | Should -BeGreaterThan 0
          $actual[0].Name | Should -Not -Be $null
          $actual[0].Domain | Should -Be 'localos'
+         $actual[0].PasswordExpirationRemainingDays | Should -Not -Be $null
       }
 
       It 'Gets person users by name (exact match) and domain filters' {
@@ -278,6 +280,7 @@ Describe "PersonUser Tests" {
          $actual.Count | Should -BeGreaterThan 0
          $actual[0].Name | Should -Not -Be $null
          $actual[0].Domain | Should -Be 'vsphere.local'
+         $actual[0].PasswordExpirationRemainingDays | Should -Not -Be $null
       }
    }
 

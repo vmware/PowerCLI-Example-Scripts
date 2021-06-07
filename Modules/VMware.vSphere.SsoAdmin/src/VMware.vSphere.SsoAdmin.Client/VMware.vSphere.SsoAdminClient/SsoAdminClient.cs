@@ -207,6 +207,25 @@ namespace VMware.vSphere.SsoAdminClient
                          name = userName,
                          domain = domain
                      })).Result;
+
+            Nullable<int> passwordRemainingDays = null;
+            try {
+                passwordRemainingDays = wsSecurityContext.
+                    InvokeOperation(() =>
+                        _ssoAdminBindingClient.GetDaysRemainingUntilPasswordExpirationAsync(
+                            new ManagedObjectReference
+                            {
+                               type = "SsoAdminPrincipalManagementService",
+                               Value = "principalManagementService"
+                            },
+                            new SsoPrincipalId
+                            {
+                                name = userName,
+                                domain = domain
+                            })).Result;
+            } catch {}
+
+
             return new PersonUser(this)
             {
                 Name = personUser.id.name,
@@ -216,7 +235,8 @@ namespace VMware.vSphere.SsoAdminClient
                 LastName = personUser.details.lastName,
                 EmailAddress = personUser.details.emailAddress,
                 Locked = personUser.locked,
-                Disabled = personUser.disabled
+                Disabled = personUser.disabled,
+                PasswordExpirationRemainingDays = passwordRemainingDays
             };
         }
 
@@ -246,6 +266,18 @@ namespace VMware.vSphere.SsoAdminClient
             {
                 foreach (var personUser in personUsers)
                 {
+                    Nullable<int> passwordRemainingDays = null;
+                    try {
+                        passwordRemainingDays = authorizedInvocationContext.
+                            InvokeOperation(() =>
+                                _ssoAdminBindingClient.GetDaysRemainingUntilPasswordExpirationAsync(
+                                    new ManagedObjectReference
+                                    {
+                                       type = "SsoAdminPrincipalManagementService",
+                                       Value = "principalManagementService"
+                                    },
+                                   personUser.id)).Result;
+                    } catch {}
                     yield return new PersonUser(this)
                     {
                         Name = personUser.id.name,
@@ -255,7 +287,8 @@ namespace VMware.vSphere.SsoAdminClient
                         LastName = personUser.details.lastName,
                         EmailAddress = personUser.details.emailAddress,
                         Locked = personUser.locked,
-                        Disabled = personUser.disabled
+                        Disabled = personUser.disabled,
+                        PasswordExpirationRemainingDays = passwordRemainingDays
                     };
                 }
             }
@@ -289,8 +322,21 @@ namespace VMware.vSphere.SsoAdminClient
             {
                 foreach (var personUser in personUsers)
                 {
-                    yield return new PersonUser(this)
-                    {
+                     Nullable<int> passwordRemainingDays = null;
+                     try
+                     {
+                        passwordRemainingDays = authorizedInvocationContext.
+                            InvokeOperation(() =>
+                                _ssoAdminBindingClient.GetDaysRemainingUntilPasswordExpirationAsync(
+                                    new ManagedObjectReference
+                                    {
+                                       type = "SsoAdminPrincipalManagementService",
+                                       Value = "principalManagementService"
+                                    },
+                                   personUser.id)).Result;
+                     } catch {}
+                     yield return new PersonUser(this)
+                     {
                         Name = personUser.id.name,
                         Domain = personUser.id.domain,
                         Description = personUser.details.description,
@@ -298,8 +344,9 @@ namespace VMware.vSphere.SsoAdminClient
                         LastName = personUser.details.lastName,
                         EmailAddress = personUser.details.emailAddress,
                         Locked = personUser.locked,
-                        Disabled = personUser.disabled
-                    };
+                        Disabled = personUser.disabled,
+                        PasswordExpirationRemainingDays = passwordRemainingDays
+                     };
                 }
             }
         }
