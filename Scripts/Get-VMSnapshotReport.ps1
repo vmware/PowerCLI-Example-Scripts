@@ -34,7 +34,7 @@
  #>
 function Get-VMSnapshotReport {
 
-    [CmdletBinding(DefaultParametersetName = "Disabled")]
+    [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True)]
         [ValidateNotNullOrEmpty()]
