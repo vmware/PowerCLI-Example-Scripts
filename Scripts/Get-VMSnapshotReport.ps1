@@ -17,7 +17,7 @@
     OS Version: Windows 10
    
 .INPUTS
-   No inputs required
+   VIServerFilePath
 .OUTPUTS
    html file named VMStatusReport.html
     
