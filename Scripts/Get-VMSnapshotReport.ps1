@@ -18,6 +18,7 @@
    
 .INPUTS
    VIServerFilePath
+   
 .OUTPUTS
    html file named VMStatusReport.html
     
