@@ -2,7 +2,7 @@
 Script name: VMsStatusReport.ps1
 Created on: 20/06/2021
 Author: Jimit Gohel, @PsJimKG
-Description: The purpose of the script is to get a list of all VM Snaphots, Powered On VMs and Powered Off VMs. Utlises css and converts to a good looking html report. HTML format highlights large/old snapshots. This can be scheduled via taks scheduler and emailed to administrators or uplaoded to an IIS web location. 
+Description: The purpose of the script is to get a list of all VM Snaphots, Powered On VMs and Powered Off VMs. Utilises css and converts to a good looking html report. HTML format highlights large/old snapshots. This can be scheduled via taks scheduler and emailed to administrators or uplaoded to an IIS web location. 
 Dependencies: Along with PowerCli, this script also requires Don Jones EnhancedHTML2 module. https://www.powershellgallery.com/packages/EnhancedHTML2/2.1.0.1
 
 ===Tested Against Environment====
@@ -81,7 +81,7 @@ $reportgeneratedtag = (Get-Date -Format "dd MMMM yyyy HH:mm:ss")
             'TableCssClass'='grid';
             'Properties' = 'VM',@{Name = 'SnapshotName';Expression = {$_.Name}},'Created', @{Name = 'AgeDays';Expression = {((New-TimeSpan -Start $_.Created -End (get-date)).Days)};css={if (((New-TimeSpan -Start $_.Created -End (get-date)).Days) -gt 120) {'red'}}},'Description', @{name = 'SizeGB';expression = {[math]::Round($_.sizegb,2)};css={if ($_.sizegb -gt 100) {'red'}}}, 'PowerState','IsCurrent','ParentSnapshot','Children'
     }
-    $snapshots = $vms |Get-Snapshot |ConvertTo-EnhancedHTMLFragment @paramsSnapshotFragment 
+    $snapshots = $vms | Get-Snapshot | ConvertTo-EnhancedHTMLFragment @paramsSnapshotFragment 
 
 #PoweredOff
 
@@ -91,7 +91,7 @@ $paramsPoweredoff = @{'As'='Table';
 'TableCssClass'='grid';
 'Properties' = 'Name','PowerState', 'Notes' , 'Folder'
 }
-$poweredoffvms = $vms |Where-Object {$_.PowerState -ne 'PoweredOn'}|ConvertTo-EnhancedHTMLFragment @paramsPoweredoff   
+$poweredoffvms = $vms | Where-Object {$_.PowerState -ne 'PoweredOn'} | ConvertTo-EnhancedHTMLFragment @paramsPoweredoff   
 
 #PoweredOn
 
@@ -101,7 +101,7 @@ $paramsPoweredon = @{'As'='Table';
 'TableCssClass'='grid';
 'Properties' = 'Name','PowerState', 'Notes' , 'Folder'
 }
-$poweredonvms = $vms |Where-Object {$_.PowerState -eq 'PoweredOn'}|ConvertTo-EnhancedHTMLFragment @paramsPoweredon   
+$poweredonvms = $vms | Where-Object {$_.PowerState -eq 'PoweredOn'} | ConvertTo-EnhancedHTMLFragment @paramsPoweredon   
 
 
     # Finalising main html report
@@ -111,7 +111,7 @@ $poweredonvms = $vms |Where-Object {$_.PowerState -eq 'PoweredOn'}|ConvertTo-Enh
         'Title' = 'VM Status Report';
         'PreContent' = "<h1>VM Status Report</h1>"
     }
-    ConvertTo-EnhancedHTML  @paramsMainHTML|Out-File "C:\Temp\VMStatusReport.html" -Encoding utf8
+    ConvertTo-EnhancedHTML  @paramsMainHTML | Out-File "C:\Temp\VMStatusReport.html" -Encoding utf8
 
 
 Disconnect-VIServer -Server $viservers -Force -Confirm:$false
