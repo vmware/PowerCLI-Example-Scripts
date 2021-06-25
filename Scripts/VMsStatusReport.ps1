@@ -2,21 +2,14 @@
 .SYNOPSIS 
     Creates HTML report of snapshots , Poweroff and PoweredOn VMS
 
-
-Description: The purpose of the script is to get a list of all VM Snaphots, Powered On VMs and Powered Off VMs. Utilises css and converts to a good looking html report. HTML format highlights large/old snapshots. This can be scheduled via taks scheduler and emailed to administrators or uplaoded to an IIS web location. 
-Dependencies: Along with PowerCli, this script also requires Don Jones EnhancedHTML2 module. https://www.powershellgallery.com/packages/EnhancedHTML2/2.1.0.1
-
-
-   
 .DESCRIPTION
-   VM_CreationNotes is run daily as a scheduled task requiring no interaction. 
-   The script will take in vCenter events for the latest 24 hour period filtering
-   for vm creation, clone or vapp deployment and parse the data.
-   Utilizes GET-VIEventsPlus by Luc Dekens for faster event gathering
+    The purpose of the script is to get a list of all VM Snaphots, Powered On VMs and Powered Off VMs. Utilises css and converts to a good looking html report. HTML format highlights large/old snapshots. This can be scheduled via taks scheduler and emailed to administrators or uplaoded to an IIS web location. 
+
 .NOTES 
     Script name: VMsStatusReport.ps1
     Created on: 20/06/2021
     Author: Jimit Gohel, @PsJimKG
+    Dependencies: Along with PowerCli, this script also requires Don Jones EnhancedHTML2 module. https://www.powershellgallery.com/packages/EnhancedHTML2/2.1.0.1
     ===Tested Against Environment====
     vSphere Version: 6.7
     PowerCLI Version: PowerCLI 12.0
