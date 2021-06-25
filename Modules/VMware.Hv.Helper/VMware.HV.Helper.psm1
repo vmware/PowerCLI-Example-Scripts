@@ -7090,7 +7090,7 @@ function Start-HVPool {
             $updates = @()
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.parentVm' -value $spec.ParentVM
             $updates += Get-MapEntry -key 'automatedDesktopData.virtualCenterProvisioningSettings.virtualCenterProvisioningData.snapshot' -value $spec.Snapshot
-            if ($startTime) { $spec.Settings.startTime = $startTime }
+            if ($startTime) { $spec.startTime = $startTime }
 	    if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_Update($services,$item,$updates)
             }
