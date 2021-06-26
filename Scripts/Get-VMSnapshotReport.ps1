@@ -12,7 +12,7 @@
     Dependencies: Along with PowerCli, this script also requires Don Jones EnhancedHTML2 module. https://www.powershellgallery.com/packages/EnhancedHTML2/2.1.0.1
     ===Tested Against Environment====
     vSphere Version: 6.7
-    PowerCLI Version: PowerCLI 12.0
+    PowerCLI Version: PowerCLI 11.5.0
     PowerShell Version: 5.1
     OS Version: Windows 10
    
@@ -31,6 +31,9 @@
 .EXAMPLE
  	PS> Get-VMSnapshotReport -VIServerFilePath "C:\Temp\viservers.csv" -OutPath "C:\MyReports"
 
+.EXAMPLE
+  PS> Get-VMSnapshotReport "C:\temp\viserverslist.csv" C:\VMReports"
+  
  #>
 function Get-VMSnapshotReport {
 
@@ -45,7 +48,7 @@ function Get-VMSnapshotReport {
     )
     # path to CSV list of viservers
 
-    $viservers = (Get-Content "VIServerFilePath")
+    $viservers = (Get-Content "$VIServerFilePath")
 
     Connect-VIServer $viservers
 
