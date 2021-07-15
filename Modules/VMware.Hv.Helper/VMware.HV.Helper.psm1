@@ -6134,9 +6134,9 @@ function Set-HVFarm {
     }
 
     $updates = @()
-    if ($key -and $value) {
+    if ($PSBoundParameters.ContainsKey("key") -and $PSBoundParameters.ContainsKey("value")) {
       $updates += Get-MapEntry -key $key -value $value
-    } elseif ($key -or $value) {
+    } elseif ($PSBoundParameters.ContainsKey("key") -or $PSBoundParameters.ContainsKey("value")) {
       Write-Error "Both key:[$key] and value:[$value] need to be specified"
     }
     if ($spec) {
