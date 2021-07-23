@@ -700,6 +700,50 @@ namespace VMware.vSphere.SsoAdminClient
                      })).Result;
         }
 
+        public bool EnablePersonUser(PersonUser user)
+        {
+            // Create Authorization Invocation Context
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            // Invoke SSO Admin EnableUserAccountAsync operation
+            return authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.EnableUserAccountAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminPrincipalManagementService",
+                         Value = "principalManagementService"
+                     },
+                     new SsoPrincipalId
+                     {
+                         name = user.Name,
+                         domain = user.Domain
+                     })).Result;
+        }
+
+        public bool DisablePersonUser(PersonUser user)
+        {
+            // Create Authorization Invocation Context
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            // Invoke SSO Admin DisableUserAccountAsync operation
+            return authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.DisableUserAccountAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminPrincipalManagementService",
+                         Value = "principalManagementService"
+                     },
+                     new SsoPrincipalId
+                     {
+                         name = user.Name,
+                         domain = user.Domain
+                     })).Result;
+        }
+
         public PasswordPolicy GetPasswordPolicy()
         {
             PasswordPolicy result = null;

@@ -290,10 +290,13 @@ function Set-SsoPersonUser {
     Specifies user will be removed from the spcified group.
 
     .PARAMETER Unlock
-    Specifies user will be unloacked.
+    Specifies user will be unlocked.
 
     .PARAMETER NewPassword
     Specifies new password for the specified user.
+
+    .PARAMETER Enable
+    Specifies user to be enabled or disabled.
 
     .EXAMPLE
     Set-SsoPersonUser -User $myPersonUser -Group $myExampleGroup -Add -Server $ssoAdminConnection
@@ -309,6 +312,11 @@ function Set-SsoPersonUser {
     Set-SsoPersonUser -User $myPersonUser -Unlock -Server $ssoAdminConnection
 
     Unlocks $myPersonUser
+
+     .EXAMPLE
+    Set-SsoPersonUser -User $myPersonUser -Enable $false -Server $ssoAdminConnection
+
+    Disable user account
 
     .EXAMPLE
     Set-SsoPersonUser -User $myPersonUser -NewPassword 'MyBrandNewPa$$W0RD' -Server $ssoAdminConnection
@@ -366,7 +374,14 @@ function Set-SsoPersonUser {
             Mandatory = $true,
             HelpMessage = 'Specifies to unlock user account.')]
         [switch]
-        $Unlock)
+        $Unlock,
+
+        [Parameter(
+            ParameterSetName = 'EnableDisableUserAccount',
+            Mandatory = $true,
+            HelpMessage = 'Specifies to enable or disable user account.')]
+        [bool]
+        $Enable)
 
     Process {
         try {
@@ -401,6 +416,19 @@ function Set-SsoPersonUser {
                 if ($NewPassword) {
                     $ssoAdminClient.ResetPersonUserPassword($u, $NewPassword)
                     Write-Output $u
+                }
+
+                if ($PSBoundParameters.ContainsKey('Enable')) {
+                    $result = $false
+                    if ($Enable) {
+                        $result = $ssoAdminClient.EnablePersonUser($u)
+                    } else {
+                        $result = $ssoAdminClient.DisablePersonUser($u)
+                    }
+                    if ($result) {
+                        # Return update person user
+                        Write-Output ($ssoAdminClient.GetLocalUsers($u.Name, $u.Domain))
+                    }
                 }
             }
         }

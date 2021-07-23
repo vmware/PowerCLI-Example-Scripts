@@ -406,6 +406,41 @@ Describe "PersonUser Tests" {
          # Assert
          $actual | Should -Be $null
       }
+
+      It 'Disables and enables person user' {
+        # Arrange
+        $userName = "TestEnablePersonUserName"
+        $userPassword = '$tr0NG_TestPa$$w0rd'
+        $connection = Connect-SsoAdminServer `
+           -Server $VcAddress `
+           -User $User `
+           -Password $Password `
+           -SkipCertificateCheck
+
+        $personUserToUpdate = New-SsoPersonUser `
+           -UserName $userName `
+           -Password $userPassword `
+           -Server $connection
+
+        $script:usersToCleanup += $personUserToUpdate
+
+        # Act
+        $personUserToUpdate.Disabled | Should -Be $false
+        $actual = Set-SsoPersonUser `
+           -User $personUserToUpdate `
+           -Enable $false
+
+        # Assert
+        $actual.Disabled | Should -Be $true
+
+        # Act
+        $actual = Set-SsoPersonUser `
+           -User $actual `
+           -Enable $true
+
+        # Assert
+        $actual.Disabled | Should -Be $false
+     }
    }
 
    Context "Remove-SsoPersonUser" {
