@@ -1296,5 +1296,130 @@ namespace VMware.vSphere.SsoAdminClient
             }
         }
         #endregion
+
+        #region AuthenticationConfiguration
+        public DataTypes.AuthenticationPolicy GetAuthenticationPolicy() {
+             var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            var authnPolicy = authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.GetAuthnPolicyAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminConfigurationManagementService",
+                         Value = "configurationManagementService"
+                     })).Result;
+
+            return new DataTypes.AuthenticationPolicy(this)
+            {
+                PasswordAuthnEnabled = authnPolicy.PasswordAuthnEnabled,
+                WindowsAuthnEnabled = authnPolicy.WindowsAuthEnabled,
+                SmartCardAuthnEnabled = authnPolicy.CertAuthEnabled,
+                CRLCacheSize = authnPolicy.clientCertPolicy.crlCacheSize,
+                CRLUrl = authnPolicy.clientCertPolicy.crlUrl,
+                OCSPEnabled = authnPolicy.clientCertPolicy.ocspEnabled,
+                OCSPResponderSigningCert = string.IsNullOrEmpty(authnPolicy.clientCertPolicy.ocspResponderSigningCert) ? null : new X509Certificate2(authnPolicy.clientCertPolicy.ocspResponderSigningCert),
+                OCSPUrl = authnPolicy.clientCertPolicy.ocspUrl,
+                Oids = authnPolicy.clientCertPolicy.oids,
+                SendOCSPNonce = authnPolicy.clientCertPolicy.sendOCSPNonce,
+                TrustedCAs = authnPolicy.clientCertPolicy.trustedCAs,
+                UseCRLAsFailOver = authnPolicy.clientCertPolicy.useCRLAsFailOver,
+                UseInCertCRL = authnPolicy.clientCertPolicy.useInCertCRL
+            };
+        }
+
+        public void SetAuthenticationPolicy(
+            bool passwordAuthnEnabled,
+            bool windowsAuthnEnabled,
+            bool smartCardAuthnEnabled,
+            int crlCacheSize,
+            string crlUrl,
+            bool ocspEnabled,
+            X509Certificate2 ocspResponderSigningCert,
+            string ocspUrl,
+            string[] oids,
+            bool sendOCSPNonce,
+            string[] trustedCAs,
+            bool useCRLAsFailOver,
+            bool useInCertCRL
+        ) {
+             var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+             var ssoAdminAuthnPolicy = new SsoAdminAuthnPolicy{
+                         PasswordAuthnEnabled = passwordAuthnEnabled,
+                         WindowsAuthEnabled = windowsAuthnEnabled,
+                         CertAuthEnabled = smartCardAuthnEnabled,
+                         clientCertPolicy = new SsoAdminClientCertPolicy {
+                            enabled = smartCardAuthnEnabled,
+                            crlCacheSize = crlCacheSize,
+                            crlUrl = crlUrl,
+                            ocspEnabled = ocspEnabled,
+                            ocspUrl = ocspUrl,
+                            oids = oids,
+                            sendOCSPNonce = sendOCSPNonce,
+                            trustedCAs = trustedCAs,
+                            useCRLAsFailOver = useCRLAsFailOver,
+                            useInCertCRL = useInCertCRL
+                         }
+                     };
+                if (ocspResponderSigningCert != null) {
+                    ssoAdminAuthnPolicy.clientCertPolicy.ocspResponderSigningCert = Convert.ToBase64String(ocspResponderSigningCert.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks);
+                }
+
+
+            authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.SetAuthnPolicyAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminConfigurationManagementService",
+                         Value = "configurationManagementService"
+                     },
+                     ssoAdminAuthnPolicy
+                    )).Wait();
+        }
+        #endregion
+
+        #region Global Permission
+        public void SetRoleForUser(DataTypes.PersonUser user, string role) {
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            var authnPolicy = authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.SetRoleAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminRoleManagementService",
+                         Value = "roleManagementService"
+                     },
+                     new SsoPrincipalId{
+                         domain = user.Domain,
+                         name = user.Name
+                     },
+                     role)).Result;
+        }
+
+        public void SetRoleForGroup(DataTypes.Group group, string role) {
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            var authnPolicy = authorizedInvocationContext.
+               InvokeOperation(() =>
+                  _ssoAdminBindingClient.SetRoleAsync(
+                     new ManagedObjectReference
+                     {
+                         type = "SsoAdminRoleManagementService",
+                         Value = "roleManagementService"
+                     },
+                     new SsoPrincipalId{
+                         domain = group.Domain,
+                         name = group.Name
+                     },
+                     role)).Result;
+        }
+        #endregion
     }
 }

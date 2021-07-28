@@ -188,13 +188,13 @@ public partial class DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoGroupcheckServiceContent : DynamicData
 {
-    
+
     private SsoAboutInfo aboutInfoField;
-    
+
     private ManagedObjectReference sessionManagerField;
-    
+
     private ManagedObjectReference groupCheckServiceField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public SsoAboutInfo aboutInfo
@@ -208,7 +208,7 @@ public partial class SsoGroupcheckServiceContent : DynamicData
             this.aboutInfoField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public ManagedObjectReference sessionManager
@@ -222,7 +222,7 @@ public partial class SsoGroupcheckServiceContent : DynamicData
             this.sessionManagerField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public ManagedObjectReference groupCheckService
@@ -244,25 +244,25 @@ public partial class SsoGroupcheckServiceContent : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAboutInfo : DynamicData
 {
-    
+
     private string versionField;
-    
+
     private string buildField;
-    
+
     private string apiRevisionField;
-    
+
     private string clusterIdField;
-    
+
     private string deploymentIdField;
-    
+
     private string ssoProductInfoField;
-    
+
     private string ssoProductVersionMajorField;
-    
+
     private string ssoProductVersionMinorField;
-    
+
     private string ssoProductVersionMaintField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string version
@@ -276,7 +276,7 @@ public partial class SsoAboutInfo : DynamicData
             this.versionField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string build
@@ -290,7 +290,7 @@ public partial class SsoAboutInfo : DynamicData
             this.buildField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string apiRevision
@@ -304,7 +304,7 @@ public partial class SsoAboutInfo : DynamicData
             this.apiRevisionField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public string clusterId
@@ -318,7 +318,7 @@ public partial class SsoAboutInfo : DynamicData
             this.clusterIdField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public string deploymentId
@@ -332,7 +332,7 @@ public partial class SsoAboutInfo : DynamicData
             this.deploymentIdField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=5)]
     public string ssoProductInfo
@@ -346,7 +346,7 @@ public partial class SsoAboutInfo : DynamicData
             this.ssoProductInfoField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=6)]
     public string ssoProductVersionMajor
@@ -360,7 +360,7 @@ public partial class SsoAboutInfo : DynamicData
             this.ssoProductVersionMajorField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=7)]
     public string ssoProductVersionMinor
@@ -374,7 +374,7 @@ public partial class SsoAboutInfo : DynamicData
             this.ssoProductVersionMinorField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=8)]
     public string ssoProductVersionMaint
@@ -396,11 +396,11 @@ public partial class SsoAboutInfo : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class ManagedObjectReference
 {
-    
+
     private string typeField;
-    
+
     private string valueField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
     public string type
@@ -414,7 +414,7 @@ public partial class ManagedObjectReference
             this.typeField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlTextAttribute()]
     public string Value
@@ -436,11 +436,11 @@ public partial class ManagedObjectReference
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminVmHost : DynamicData
 {
-    
+
     private string hostNameField;
-    
+
     private bool domainControllerField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string hostName
@@ -454,7 +454,7 @@ public partial class SsoAdminVmHost : DynamicData
             this.hostNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public bool domainController
@@ -476,15 +476,15 @@ public partial class SsoAdminVmHost : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminUser : DynamicData
 {
-    
+
     private SsoPrincipalId idField;
-    
+
     private SsoPrincipalId aliasField;
-    
+
     private string kindField;
-    
+
     private string descriptionField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public SsoPrincipalId id
@@ -498,7 +498,7 @@ public partial class SsoAdminUser : DynamicData
             this.idField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public SsoPrincipalId alias
@@ -512,7 +512,7 @@ public partial class SsoAdminUser : DynamicData
             this.aliasField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string kind
@@ -526,7 +526,7 @@ public partial class SsoAdminUser : DynamicData
             this.kindField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public string description
@@ -548,11 +548,11 @@ public partial class SsoAdminUser : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoPrincipalId : DynamicData
 {
-    
+
     private string nameField;
-    
+
     private string domainField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string name
@@ -566,7 +566,7 @@ public partial class SsoPrincipalId : DynamicData
             this.nameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string domain
@@ -588,15 +588,15 @@ public partial class SsoPrincipalId : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminTrustedSTSConfig : DynamicData
 {
-    
+
     private string issuerField;
-    
+
     private SsoAdminConfigurationManagementServiceCertificateChain signingCertChainField;
-    
+
     private SsoAdminConfigurationManagementServiceAttributeConfig[] subjectFormatMappingsField;
-    
+
     private SsoAdminConfigurationManagementServiceTokenClaimGroupMapping[] tokenClaimGroupMappingsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string issuer
@@ -610,7 +610,7 @@ public partial class SsoAdminTrustedSTSConfig : DynamicData
             this.issuerField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public SsoAdminConfigurationManagementServiceCertificateChain signingCertChain
@@ -624,7 +624,7 @@ public partial class SsoAdminTrustedSTSConfig : DynamicData
             this.signingCertChainField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("subjectFormatMappings", Order=2)]
     public SsoAdminConfigurationManagementServiceAttributeConfig[] subjectFormatMappings
@@ -638,7 +638,7 @@ public partial class SsoAdminTrustedSTSConfig : DynamicData
             this.subjectFormatMappingsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("tokenClaimGroupMappings", Order=3)]
     public SsoAdminConfigurationManagementServiceTokenClaimGroupMapping[] tokenClaimGroupMappings
@@ -660,9 +660,9 @@ public partial class SsoAdminTrustedSTSConfig : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminConfigurationManagementServiceCertificateChain : DynamicData
 {
-    
+
     private string[] certificatesField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("certificates", Order=0)]
     public string[] certificates
@@ -684,11 +684,11 @@ public partial class SsoAdminConfigurationManagementServiceCertificateChain : Dy
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminConfigurationManagementServiceAttributeConfig : DynamicData
 {
-    
+
     private string tokenAttributeField;
-    
+
     private string storeAttributeField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string tokenAttribute
@@ -702,7 +702,7 @@ public partial class SsoAdminConfigurationManagementServiceAttributeConfig : Dyn
             this.tokenAttributeField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string storeAttribute
@@ -724,11 +724,11 @@ public partial class SsoAdminConfigurationManagementServiceAttributeConfig : Dyn
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminConfigurationManagementServiceTokenClaimGroupMapping : DynamicData
 {
-    
+
     private SsoAdminConfigurationManagementServiceTokenClaimAttribute tokenClaimField;
-    
+
     private string[] groupsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public SsoAdminConfigurationManagementServiceTokenClaimAttribute tokenClaim
@@ -742,7 +742,7 @@ public partial class SsoAdminConfigurationManagementServiceTokenClaimGroupMappin
             this.tokenClaimField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("groups", Order=1)]
     public string[] groups
@@ -764,11 +764,11 @@ public partial class SsoAdminConfigurationManagementServiceTokenClaimGroupMappin
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminConfigurationManagementServiceTokenClaimAttribute : DynamicData
 {
-    
+
     private string claimNameField;
-    
+
     private string claimValueField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string claimName
@@ -782,7 +782,7 @@ public partial class SsoAdminConfigurationManagementServiceTokenClaimAttribute :
             this.claimNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string claimValue
@@ -804,21 +804,21 @@ public partial class SsoAdminConfigurationManagementServiceTokenClaimAttribute :
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminSsoHealthStats : DynamicData
 {
-    
+
     private string tenantField;
-    
+
     private int totalTokensGeneratedField;
-    
+
     private int totalTokensRenewedField;
-    
+
     private int generatedTokensForTenantField;
-    
+
     private int renewedTokensForTenantField;
-    
+
     private long uptimeIDMField;
-    
+
     private long uptimeSTSField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string tenant
@@ -832,7 +832,7 @@ public partial class SsoAdminSsoHealthStats : DynamicData
             this.tenantField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public int totalTokensGenerated
@@ -846,7 +846,7 @@ public partial class SsoAdminSsoHealthStats : DynamicData
             this.totalTokensGeneratedField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public int totalTokensRenewed
@@ -860,7 +860,7 @@ public partial class SsoAdminSsoHealthStats : DynamicData
             this.totalTokensRenewedField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public int generatedTokensForTenant
@@ -874,7 +874,7 @@ public partial class SsoAdminSsoHealthStats : DynamicData
             this.generatedTokensForTenantField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public int renewedTokensForTenant
@@ -888,7 +888,7 @@ public partial class SsoAdminSsoHealthStats : DynamicData
             this.renewedTokensForTenantField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=5)]
     public long uptimeIDM
@@ -902,7 +902,7 @@ public partial class SsoAdminSsoHealthStats : DynamicData
             this.uptimeIDMField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=6)]
     public long uptimeSTS
@@ -924,21 +924,21 @@ public partial class SsoAdminSsoHealthStats : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminSmtpConfig : DynamicData
 {
-    
+
     private string hostField;
-    
+
     private int portField;
-    
+
     private bool portFieldSpecified;
-    
+
     private bool authenticateField;
-    
+
     private bool authenticateFieldSpecified;
-    
+
     private string userField;
-    
+
     private string passwordField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string host
@@ -952,7 +952,7 @@ public partial class SsoAdminSmtpConfig : DynamicData
             this.hostField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public int port
@@ -966,7 +966,7 @@ public partial class SsoAdminSmtpConfig : DynamicData
             this.portField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public bool portSpecified
@@ -980,7 +980,7 @@ public partial class SsoAdminSmtpConfig : DynamicData
             this.portFieldSpecified = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public bool authenticate
@@ -994,7 +994,7 @@ public partial class SsoAdminSmtpConfig : DynamicData
             this.authenticateField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public bool authenticateSpecified
@@ -1008,7 +1008,7 @@ public partial class SsoAdminSmtpConfig : DynamicData
             this.authenticateFieldSpecified = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public string user
@@ -1022,7 +1022,7 @@ public partial class SsoAdminSmtpConfig : DynamicData
             this.userField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public string password
@@ -1044,39 +1044,39 @@ public partial class SsoAdminSmtpConfig : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminServiceContent : DynamicData
 {
-    
+
     private SsoAboutInfo aboutInfoField;
-    
+
     private ManagedObjectReference sessionManagerField;
-    
+
     private ManagedObjectReference configurationManagementServiceField;
-    
+
     private ManagedObjectReference smtpManagementServiceField;
-    
+
     private ManagedObjectReference principalDiscoveryServiceField;
-    
+
     private ManagedObjectReference principalManagementServiceField;
-    
+
     private ManagedObjectReference roleManagementServiceField;
-    
+
     private ManagedObjectReference passwordPolicyServiceField;
-    
+
     private ManagedObjectReference lockoutPolicyServiceField;
-    
+
     private ManagedObjectReference domainManagementServiceField;
-    
+
     private ManagedObjectReference identitySourceManagementServiceField;
-    
+
     private ManagedObjectReference systemManagementServiceField;
-    
+
     private ManagedObjectReference computerManagementServiceField;
-    
+
     private ManagedObjectReference ssoHealthManagementServiceField;
-    
+
     private ManagedObjectReference deploymentInformationServiceField;
-    
+
     private ManagedObjectReference replicationServiceField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public SsoAboutInfo aboutInfo
@@ -1090,7 +1090,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.aboutInfoField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public ManagedObjectReference sessionManager
@@ -1104,7 +1104,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.sessionManagerField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public ManagedObjectReference configurationManagementService
@@ -1118,7 +1118,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.configurationManagementServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public ManagedObjectReference smtpManagementService
@@ -1132,7 +1132,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.smtpManagementServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public ManagedObjectReference principalDiscoveryService
@@ -1146,7 +1146,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.principalDiscoveryServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=5)]
     public ManagedObjectReference principalManagementService
@@ -1160,7 +1160,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.principalManagementServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=6)]
     public ManagedObjectReference roleManagementService
@@ -1174,7 +1174,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.roleManagementServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=7)]
     public ManagedObjectReference passwordPolicyService
@@ -1188,7 +1188,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.passwordPolicyServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=8)]
     public ManagedObjectReference lockoutPolicyService
@@ -1202,7 +1202,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.lockoutPolicyServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=9)]
     public ManagedObjectReference domainManagementService
@@ -1216,7 +1216,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.domainManagementServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=10)]
     public ManagedObjectReference identitySourceManagementService
@@ -1230,7 +1230,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.identitySourceManagementServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=11)]
     public ManagedObjectReference systemManagementService
@@ -1244,7 +1244,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.systemManagementServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=12)]
     public ManagedObjectReference computerManagementService
@@ -1258,7 +1258,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.computerManagementServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=13)]
     public ManagedObjectReference ssoHealthManagementService
@@ -1272,7 +1272,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.ssoHealthManagementServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=14)]
     public ManagedObjectReference deploymentInformationService
@@ -1286,7 +1286,7 @@ public partial class SsoAdminServiceContent : DynamicData
             this.deploymentInformationServiceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=15)]
     public ManagedObjectReference replicationService
@@ -1308,11 +1308,11 @@ public partial class SsoAdminServiceContent : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminPrincipalDiscoveryServiceSearchCriteria : DynamicData
 {
-    
+
     private string searchStringField;
-    
+
     private string domainField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string searchString
@@ -1326,7 +1326,7 @@ public partial class SsoAdminPrincipalDiscoveryServiceSearchCriteria : DynamicDa
             this.searchStringField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string domain
@@ -1348,11 +1348,11 @@ public partial class SsoAdminPrincipalDiscoveryServiceSearchCriteria : DynamicDa
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminSolutionDetails : DynamicData
 {
-    
+
     private string descriptionField;
-    
+
     private string certificateField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string description
@@ -1366,7 +1366,7 @@ public partial class SsoAdminSolutionDetails : DynamicData
             this.descriptionField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string certificate
@@ -1388,17 +1388,17 @@ public partial class SsoAdminSolutionDetails : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminSolutionUser : DynamicData
 {
-    
+
     private SsoPrincipalId idField;
-    
+
     private SsoPrincipalId aliasField;
-    
+
     private SsoAdminSolutionDetails detailsField;
-    
+
     private bool disabledField;
-    
+
     private bool externalField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public SsoPrincipalId id
@@ -1412,7 +1412,7 @@ public partial class SsoAdminSolutionUser : DynamicData
             this.idField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public SsoPrincipalId alias
@@ -1426,7 +1426,7 @@ public partial class SsoAdminSolutionUser : DynamicData
             this.aliasField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public SsoAdminSolutionDetails details
@@ -1440,7 +1440,7 @@ public partial class SsoAdminSolutionUser : DynamicData
             this.detailsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public bool disabled
@@ -1454,7 +1454,7 @@ public partial class SsoAdminSolutionUser : DynamicData
             this.disabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public bool external
@@ -1476,13 +1476,13 @@ public partial class SsoAdminSolutionUser : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminPrincipalDiscoveryServiceSearchResult : DynamicData
 {
-    
+
     private SsoAdminPersonUser[] personUsersField;
-    
+
     private SsoAdminSolutionUser[] solutionUsersField;
-    
+
     private SsoAdminGroup[] groupsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("personUsers", Order=0)]
     public SsoAdminPersonUser[] personUsers
@@ -1496,7 +1496,7 @@ public partial class SsoAdminPrincipalDiscoveryServiceSearchResult : DynamicData
             this.personUsersField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("solutionUsers", Order=1)]
     public SsoAdminSolutionUser[] solutionUsers
@@ -1510,7 +1510,7 @@ public partial class SsoAdminPrincipalDiscoveryServiceSearchResult : DynamicData
             this.solutionUsersField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("groups", Order=2)]
     public SsoAdminGroup[] groups
@@ -1532,17 +1532,17 @@ public partial class SsoAdminPrincipalDiscoveryServiceSearchResult : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminPersonUser : DynamicData
 {
-    
+
     private SsoPrincipalId idField;
-    
+
     private SsoPrincipalId aliasField;
-    
+
     private SsoAdminPersonDetails detailsField;
-    
+
     private bool disabledField;
-    
+
     private bool lockedField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public SsoPrincipalId id
@@ -1556,7 +1556,7 @@ public partial class SsoAdminPersonUser : DynamicData
             this.idField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public SsoPrincipalId alias
@@ -1570,7 +1570,7 @@ public partial class SsoAdminPersonUser : DynamicData
             this.aliasField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public SsoAdminPersonDetails details
@@ -1584,7 +1584,7 @@ public partial class SsoAdminPersonUser : DynamicData
             this.detailsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public bool disabled
@@ -1598,7 +1598,7 @@ public partial class SsoAdminPersonUser : DynamicData
             this.disabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public bool locked
@@ -1620,17 +1620,17 @@ public partial class SsoAdminPersonUser : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminPersonDetails : DynamicData
 {
-    
+
     private string descriptionField;
-    
+
     private string emailAddressField;
-    
+
     private string firstNameField;
-    
+
     private string lastNameField;
-    
+
     private string userPrincipalNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string description
@@ -1644,7 +1644,7 @@ public partial class SsoAdminPersonDetails : DynamicData
             this.descriptionField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string emailAddress
@@ -1658,7 +1658,7 @@ public partial class SsoAdminPersonDetails : DynamicData
             this.emailAddressField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string firstName
@@ -1672,7 +1672,7 @@ public partial class SsoAdminPersonDetails : DynamicData
             this.firstNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public string lastName
@@ -1686,7 +1686,7 @@ public partial class SsoAdminPersonDetails : DynamicData
             this.lastNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public string userPrincipalName
@@ -1708,13 +1708,13 @@ public partial class SsoAdminPersonDetails : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminGroup : DynamicData
 {
-    
+
     private SsoPrincipalId idField;
-    
+
     private SsoPrincipalId aliasField;
-    
+
     private SsoAdminGroupDetails detailsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public SsoPrincipalId id
@@ -1728,7 +1728,7 @@ public partial class SsoAdminGroup : DynamicData
             this.idField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public SsoPrincipalId alias
@@ -1742,7 +1742,7 @@ public partial class SsoAdminGroup : DynamicData
             this.aliasField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public SsoAdminGroupDetails details
@@ -1764,9 +1764,9 @@ public partial class SsoAdminGroup : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminGroupDetails : DynamicData
 {
-    
+
     private string descriptionField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string description
@@ -1788,17 +1788,17 @@ public partial class SsoAdminGroupDetails : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminPasswordPolicy : DynamicData
 {
-    
+
     private string descriptionField;
-    
+
     private int prohibitedPreviousPasswordsCountField;
-    
+
     private SsoAdminPasswordFormat passwordFormatField;
-    
+
     private int passwordLifetimeDaysField;
-    
+
     private bool passwordLifetimeDaysFieldSpecified;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string description
@@ -1812,7 +1812,7 @@ public partial class SsoAdminPasswordPolicy : DynamicData
             this.descriptionField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public int prohibitedPreviousPasswordsCount
@@ -1826,7 +1826,7 @@ public partial class SsoAdminPasswordPolicy : DynamicData
             this.prohibitedPreviousPasswordsCountField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public SsoAdminPasswordFormat passwordFormat
@@ -1840,7 +1840,7 @@ public partial class SsoAdminPasswordPolicy : DynamicData
             this.passwordFormatField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public int passwordLifetimeDays
@@ -1854,7 +1854,7 @@ public partial class SsoAdminPasswordPolicy : DynamicData
             this.passwordLifetimeDaysField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public bool passwordLifetimeDaysSpecified
@@ -1876,17 +1876,17 @@ public partial class SsoAdminPasswordPolicy : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminPasswordFormat : DynamicData
 {
-    
+
     private SsoAdminPasswordFormatLengthRestriction lengthRestrictionField;
-    
+
     private SsoAdminPasswordFormatAlphabeticRestriction alphabeticRestrictionField;
-    
+
     private int minNumericCountField;
-    
+
     private int minSpecialCharCountField;
-    
+
     private int maxIdenticalAdjacentCharactersField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public SsoAdminPasswordFormatLengthRestriction lengthRestriction
@@ -1900,7 +1900,7 @@ public partial class SsoAdminPasswordFormat : DynamicData
             this.lengthRestrictionField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public SsoAdminPasswordFormatAlphabeticRestriction alphabeticRestriction
@@ -1914,7 +1914,7 @@ public partial class SsoAdminPasswordFormat : DynamicData
             this.alphabeticRestrictionField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public int minNumericCount
@@ -1928,7 +1928,7 @@ public partial class SsoAdminPasswordFormat : DynamicData
             this.minNumericCountField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public int minSpecialCharCount
@@ -1942,7 +1942,7 @@ public partial class SsoAdminPasswordFormat : DynamicData
             this.minSpecialCharCountField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public int maxIdenticalAdjacentCharacters
@@ -1964,11 +1964,11 @@ public partial class SsoAdminPasswordFormat : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminPasswordFormatLengthRestriction : DynamicData
 {
-    
+
     private int minLengthField;
-    
+
     private int maxLengthField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public int minLength
@@ -1982,7 +1982,7 @@ public partial class SsoAdminPasswordFormatLengthRestriction : DynamicData
             this.minLengthField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public int maxLength
@@ -2004,13 +2004,13 @@ public partial class SsoAdminPasswordFormatLengthRestriction : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminPasswordFormatAlphabeticRestriction : DynamicData
 {
-    
+
     private int minAlphabeticCountField;
-    
+
     private int minUppercaseCountField;
-    
+
     private int minLowercaseCountField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public int minAlphabeticCount
@@ -2024,7 +2024,7 @@ public partial class SsoAdminPasswordFormatAlphabeticRestriction : DynamicData
             this.minAlphabeticCountField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public int minUppercaseCount
@@ -2038,7 +2038,7 @@ public partial class SsoAdminPasswordFormatAlphabeticRestriction : DynamicData
             this.minUppercaseCountField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public int minLowercaseCount
@@ -2060,15 +2060,15 @@ public partial class SsoAdminPasswordFormatAlphabeticRestriction : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminPasswordExpirationConfig : DynamicData
 {
-    
+
     private bool emailNotificationEnabledField;
-    
+
     private string emailFromField;
-    
+
     private string emailSubjectField;
-    
+
     private int[] notificationDaysField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public bool emailNotificationEnabled
@@ -2082,7 +2082,7 @@ public partial class SsoAdminPasswordExpirationConfig : DynamicData
             this.emailNotificationEnabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string emailFrom
@@ -2096,7 +2096,7 @@ public partial class SsoAdminPasswordExpirationConfig : DynamicData
             this.emailFromField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string emailSubject
@@ -2110,7 +2110,7 @@ public partial class SsoAdminPasswordExpirationConfig : DynamicData
             this.emailSubjectField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("notificationDays", Order=3)]
     public int[] notificationDays
@@ -2132,15 +2132,15 @@ public partial class SsoAdminPasswordExpirationConfig : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminMailContent : DynamicData
 {
-    
+
     private string fromField;
-    
+
     private string toField;
-    
+
     private string subjectField;
-    
+
     private string contentField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string from
@@ -2154,7 +2154,7 @@ public partial class SsoAdminMailContent : DynamicData
             this.fromField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string to
@@ -2168,7 +2168,7 @@ public partial class SsoAdminMailContent : DynamicData
             this.toField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string subject
@@ -2182,7 +2182,7 @@ public partial class SsoAdminMailContent : DynamicData
             this.subjectField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public string content
@@ -2204,17 +2204,17 @@ public partial class SsoAdminMailContent : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminLockoutPolicy : DynamicData
 {
-    
+
     private string descriptionField;
-    
+
     private int maxFailedAttemptsField;
-    
+
     private int failedAttemptsField;
-    
+
     private long failedAttemptIntervalSecField;
-    
+
     private long autoUnlockIntervalSecField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string description
@@ -2228,7 +2228,7 @@ public partial class SsoAdminLockoutPolicy : DynamicData
             this.descriptionField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public int maxFailedAttempts
@@ -2242,7 +2242,7 @@ public partial class SsoAdminLockoutPolicy : DynamicData
             this.maxFailedAttemptsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public int failedAttempts
@@ -2256,7 +2256,7 @@ public partial class SsoAdminLockoutPolicy : DynamicData
             this.failedAttemptsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public long failedAttemptIntervalSec
@@ -2270,7 +2270,7 @@ public partial class SsoAdminLockoutPolicy : DynamicData
             this.failedAttemptIntervalSecField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public long autoUnlockIntervalSec
@@ -2292,17 +2292,17 @@ public partial class SsoAdminLockoutPolicy : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminIdentitySources : DynamicData
 {
-    
+
     private SsoAdminIdentitySource[] allField;
-    
+
     private SsoAdminIdentitySource systemField;
-    
+
     private SsoAdminIdentitySource localOSField;
-    
+
     private SsoAdminLdapIdentitySource[] ldapsField;
-    
+
     private SsoAdminIdentitySource nativeADField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("all", Order=0)]
     public SsoAdminIdentitySource[] all
@@ -2316,7 +2316,7 @@ public partial class SsoAdminIdentitySources : DynamicData
             this.allField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public SsoAdminIdentitySource system
@@ -2330,7 +2330,7 @@ public partial class SsoAdminIdentitySources : DynamicData
             this.systemField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public SsoAdminIdentitySource localOS
@@ -2344,7 +2344,7 @@ public partial class SsoAdminIdentitySources : DynamicData
             this.localOSField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("ldaps", Order=3)]
     public SsoAdminLdapIdentitySource[] ldaps
@@ -2358,7 +2358,7 @@ public partial class SsoAdminIdentitySources : DynamicData
             this.ldapsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public SsoAdminIdentitySource nativeAD
@@ -2381,11 +2381,11 @@ public partial class SsoAdminIdentitySources : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminIdentitySource : DynamicData
 {
-    
+
     private string nameField;
-    
+
     private SsoAdminDomain[] domainsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string name
@@ -2399,7 +2399,7 @@ public partial class SsoAdminIdentitySource : DynamicData
             this.nameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("domains", Order=1)]
     public SsoAdminDomain[] domains
@@ -2421,11 +2421,11 @@ public partial class SsoAdminIdentitySource : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminDomain : DynamicData
 {
-    
+
     private string nameField;
-    
+
     private string aliasField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string name
@@ -2439,7 +2439,7 @@ public partial class SsoAdminDomain : DynamicData
             this.nameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string alias
@@ -2461,13 +2461,13 @@ public partial class SsoAdminDomain : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminLdapIdentitySource : SsoAdminIdentitySource
 {
-    
+
     private string typeField;
-    
+
     private SsoAdminLdapIdentitySourceDetails detailsField;
-    
+
     private SsoAdminLdapIdentitySourceAuthenticationDetails authenticationDetailsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string type
@@ -2481,7 +2481,7 @@ public partial class SsoAdminLdapIdentitySource : SsoAdminIdentitySource
             this.typeField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public SsoAdminLdapIdentitySourceDetails details
@@ -2495,7 +2495,7 @@ public partial class SsoAdminLdapIdentitySource : SsoAdminIdentitySource
             this.detailsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public SsoAdminLdapIdentitySourceAuthenticationDetails authenticationDetails
@@ -2517,25 +2517,25 @@ public partial class SsoAdminLdapIdentitySource : SsoAdminIdentitySource
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
 {
-    
+
     private string friendlyNameField;
-    
+
     private string userBaseDnField;
-    
+
     private string groupBaseDnField;
-    
+
     private string primaryUrlField;
-    
+
     private string failoverUrlField;
-    
+
     private int searchTimeoutSecondsField;
-    
+
     private bool isSiteAffinityEnabledField;
-    
+
     private bool isSiteAffinityEnabledFieldSpecified;
-    
+
     private string[] certificatesField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string friendlyName
@@ -2549,7 +2549,7 @@ public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
             this.friendlyNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string userBaseDn
@@ -2563,7 +2563,7 @@ public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
             this.userBaseDnField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string groupBaseDn
@@ -2577,7 +2577,7 @@ public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
             this.groupBaseDnField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(DataType="anyURI", Order=3)]
     public string primaryUrl
@@ -2591,7 +2591,7 @@ public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
             this.primaryUrlField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(DataType="anyURI", Order=4)]
     public string failoverUrl
@@ -2605,7 +2605,7 @@ public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
             this.failoverUrlField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=5)]
     public int searchTimeoutSeconds
@@ -2619,7 +2619,7 @@ public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
             this.searchTimeoutSecondsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=6)]
     public bool isSiteAffinityEnabled
@@ -2633,7 +2633,7 @@ public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
             this.isSiteAffinityEnabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public bool isSiteAffinityEnabledSpecified
@@ -2647,7 +2647,7 @@ public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
             this.isSiteAffinityEnabledFieldSpecified = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("certificates", Order=7)]
     public string[] certificates
@@ -2669,11 +2669,11 @@ public partial class SsoAdminLdapIdentitySourceDetails : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminLdapIdentitySourceAuthenticationDetails : DynamicData
 {
-    
+
     private string authenticationTypeField;
-    
+
     private string usernameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string authenticationType
@@ -2687,7 +2687,7 @@ public partial class SsoAdminLdapIdentitySourceAuthenticationDetails : DynamicDa
             this.authenticationTypeField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string username
@@ -2709,17 +2709,17 @@ public partial class SsoAdminLdapIdentitySourceAuthenticationDetails : DynamicDa
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminIdentitySourceManagementServiceAuthenticationCredentials : DynamicData
 {
-    
+
     private string usernameField;
-    
+
     private string passwordField;
-    
+
     private bool useMachineAccountField;
-    
+
     private bool useMachineAccountFieldSpecified;
-    
+
     private string spnField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string username
@@ -2733,7 +2733,7 @@ public partial class SsoAdminIdentitySourceManagementServiceAuthenticationCreden
             this.usernameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string password
@@ -2747,7 +2747,7 @@ public partial class SsoAdminIdentitySourceManagementServiceAuthenticationCreden
             this.passwordField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public bool useMachineAccount
@@ -2761,7 +2761,7 @@ public partial class SsoAdminIdentitySourceManagementServiceAuthenticationCreden
             this.useMachineAccountField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public bool useMachineAccountSpecified
@@ -2775,7 +2775,7 @@ public partial class SsoAdminIdentitySourceManagementServiceAuthenticationCreden
             this.useMachineAccountFieldSpecified = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public string spn
@@ -2797,13 +2797,13 @@ public partial class SsoAdminIdentitySourceManagementServiceAuthenticationCreden
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminServiceEndpoint : DynamicData
 {
-    
+
     private string nameField;
-    
+
     private string endpointField;
-    
+
     private string bindingField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string name
@@ -2817,7 +2817,7 @@ public partial class SsoAdminServiceEndpoint : DynamicData
             this.nameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string endpoint
@@ -2831,7 +2831,7 @@ public partial class SsoAdminServiceEndpoint : DynamicData
             this.endpointField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string binding
@@ -2853,27 +2853,27 @@ public partial class SsoAdminServiceEndpoint : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminIDPConfiguration : DynamicData
 {
-    
+
     private string entityIDField;
-    
+
     private string[] nameIDFormatsField;
-    
+
     private SsoAdminServiceEndpoint[] ssoServicesField;
-    
+
     private SsoAdminServiceEndpoint[] sloServicesField;
-    
+
     private string[] signingCertificateChainField;
-    
+
     private SsoAdminConfigurationManagementServiceAttributeConfig[] subjectFormatMappingsField;
-    
+
     private bool isJitEnabledField;
-    
+
     private bool isJitEnabledFieldSpecified;
-    
+
     private SsoAdminConfigurationManagementServiceTokenClaimGroupMapping[] tokenClaimGroupMappingsField;
-    
+
     private string upnSuffixField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string entityID
@@ -2887,7 +2887,7 @@ public partial class SsoAdminIDPConfiguration : DynamicData
             this.entityIDField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("nameIDFormats", Order=1)]
     public string[] nameIDFormats
@@ -2901,7 +2901,7 @@ public partial class SsoAdminIDPConfiguration : DynamicData
             this.nameIDFormatsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("ssoServices", Order=2)]
     public SsoAdminServiceEndpoint[] ssoServices
@@ -2915,7 +2915,7 @@ public partial class SsoAdminIDPConfiguration : DynamicData
             this.ssoServicesField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("sloServices", Order=3)]
     public SsoAdminServiceEndpoint[] sloServices
@@ -2929,7 +2929,7 @@ public partial class SsoAdminIDPConfiguration : DynamicData
             this.sloServicesField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("signingCertificateChain", Order=4)]
     public string[] signingCertificateChain
@@ -2943,7 +2943,7 @@ public partial class SsoAdminIDPConfiguration : DynamicData
             this.signingCertificateChainField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("subjectFormatMappings", Order=5)]
     public SsoAdminConfigurationManagementServiceAttributeConfig[] subjectFormatMappings
@@ -2957,7 +2957,7 @@ public partial class SsoAdminIDPConfiguration : DynamicData
             this.subjectFormatMappingsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=6)]
     public bool isJitEnabled
@@ -2971,7 +2971,7 @@ public partial class SsoAdminIDPConfiguration : DynamicData
             this.isJitEnabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public bool isJitEnabledSpecified
@@ -2985,7 +2985,7 @@ public partial class SsoAdminIDPConfiguration : DynamicData
             this.isJitEnabledFieldSpecified = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("tokenClaimGroupMappings", Order=7)]
     public SsoAdminConfigurationManagementServiceTokenClaimGroupMapping[] tokenClaimGroupMappings
@@ -2999,7 +2999,7 @@ public partial class SsoAdminIDPConfiguration : DynamicData
             this.tokenClaimGroupMappingsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=8)]
     public string upnSuffix
@@ -3021,11 +3021,11 @@ public partial class SsoAdminIDPConfiguration : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminExternalDomainAuthenticationDetails : DynamicData
 {
-    
+
     private string authenticationTypeField;
-    
+
     private string usernameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string authenticationType
@@ -3039,7 +3039,7 @@ public partial class SsoAdminExternalDomainAuthenticationDetails : DynamicData
             this.authenticationTypeField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string username
@@ -3061,11 +3061,11 @@ public partial class SsoAdminExternalDomainAuthenticationDetails : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminExternalDomainAttributeMapping : DynamicData
 {
-    
+
     private string attributeIdField;
-    
+
     private string attributeNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string attributeId
@@ -3079,7 +3079,7 @@ public partial class SsoAdminExternalDomainAttributeMapping : DynamicData
             this.attributeIdField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string attributeName
@@ -3101,13 +3101,13 @@ public partial class SsoAdminExternalDomainAttributeMapping : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminExternalDomainObjectMapping : DynamicData
 {
-    
+
     private string objectIdField;
-    
+
     private string objectClassField;
-    
+
     private SsoAdminExternalDomainAttributeMapping[] attributeMappingsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string objectId
@@ -3121,7 +3121,7 @@ public partial class SsoAdminExternalDomainObjectMapping : DynamicData
             this.objectIdField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string objectClass
@@ -3135,7 +3135,7 @@ public partial class SsoAdminExternalDomainObjectMapping : DynamicData
             this.objectClassField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("attributeMappings", Order=2)]
     public SsoAdminExternalDomainAttributeMapping[] attributeMappings
@@ -3157,9 +3157,9 @@ public partial class SsoAdminExternalDomainObjectMapping : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminExternalDomainSchemaDetails : DynamicData
 {
-    
+
     private SsoAdminExternalDomainObjectMapping[] objectMappingsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("objectMappings", Order=0)]
     public SsoAdminExternalDomainObjectMapping[] objectMappings
@@ -3181,23 +3181,23 @@ public partial class SsoAdminExternalDomainSchemaDetails : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminExternalDomainDetails : DynamicData
 {
-    
+
     private string friendlyNameField;
-    
+
     private string userBaseDnField;
-    
+
     private string groupBaseDnField;
-    
+
     private string primaryUrlField;
-    
+
     private string failoverUrlField;
-    
+
     private int searchTimeoutSecondsField;
-    
+
     private SsoAdminExternalDomainSchemaDetails schemaDetailsField;
-    
+
     private string[] upnSuffixesField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string friendlyName
@@ -3211,7 +3211,7 @@ public partial class SsoAdminExternalDomainDetails : DynamicData
             this.friendlyNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string userBaseDn
@@ -3225,7 +3225,7 @@ public partial class SsoAdminExternalDomainDetails : DynamicData
             this.userBaseDnField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string groupBaseDn
@@ -3239,7 +3239,7 @@ public partial class SsoAdminExternalDomainDetails : DynamicData
             this.groupBaseDnField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(DataType="anyURI", Order=3)]
     public string primaryUrl
@@ -3253,7 +3253,7 @@ public partial class SsoAdminExternalDomainDetails : DynamicData
             this.primaryUrlField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(DataType="anyURI", Order=4)]
     public string failoverUrl
@@ -3267,7 +3267,7 @@ public partial class SsoAdminExternalDomainDetails : DynamicData
             this.failoverUrlField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=5)]
     public int searchTimeoutSeconds
@@ -3281,7 +3281,7 @@ public partial class SsoAdminExternalDomainDetails : DynamicData
             this.searchTimeoutSecondsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=6)]
     public SsoAdminExternalDomainSchemaDetails schemaDetails
@@ -3295,7 +3295,7 @@ public partial class SsoAdminExternalDomainDetails : DynamicData
             this.schemaDetailsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("upnSuffixes", Order=7)]
     public string[] upnSuffixes
@@ -3317,17 +3317,17 @@ public partial class SsoAdminExternalDomainDetails : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminExternalDomain : DynamicData
 {
-    
+
     private string typeField;
-    
+
     private string nameField;
-    
+
     private string aliasField;
-    
+
     private SsoAdminExternalDomainDetails detailsField;
-    
+
     private SsoAdminExternalDomainAuthenticationDetails authenticationDetailsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string type
@@ -3341,7 +3341,7 @@ public partial class SsoAdminExternalDomain : DynamicData
             this.typeField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string name
@@ -3355,7 +3355,7 @@ public partial class SsoAdminExternalDomain : DynamicData
             this.nameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string alias
@@ -3369,7 +3369,7 @@ public partial class SsoAdminExternalDomain : DynamicData
             this.aliasField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public SsoAdminExternalDomainDetails details
@@ -3383,7 +3383,7 @@ public partial class SsoAdminExternalDomain : DynamicData
             this.detailsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public SsoAdminExternalDomainAuthenticationDetails authenticationDetails
@@ -3405,15 +3405,15 @@ public partial class SsoAdminExternalDomain : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminDomains : DynamicData
 {
-    
+
     private SsoAdminExternalDomain[] externalDomainsField;
-    
+
     private string systemDomainNameField;
-    
+
     private string[] systemDomainUpnSuffixesField;
-    
+
     private string localOSDomainNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("externalDomains", Order=0)]
     public SsoAdminExternalDomain[] externalDomains
@@ -3427,7 +3427,7 @@ public partial class SsoAdminDomains : DynamicData
             this.externalDomainsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string systemDomainName
@@ -3441,7 +3441,7 @@ public partial class SsoAdminDomains : DynamicData
             this.systemDomainNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("systemDomainUpnSuffixes", Order=2)]
     public string[] systemDomainUpnSuffixes
@@ -3455,7 +3455,7 @@ public partial class SsoAdminDomains : DynamicData
             this.systemDomainUpnSuffixesField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public string localOSDomainName
@@ -3477,17 +3477,17 @@ public partial class SsoAdminDomains : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminDomainManagementServiceAuthenticationCredentails : DynamicData
 {
-    
+
     private string usernameField;
-    
+
     private string passwordField;
-    
+
     private bool useMachineAccountField;
-    
+
     private bool useMachineAccountFieldSpecified;
-    
+
     private string spnField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string username
@@ -3501,7 +3501,7 @@ public partial class SsoAdminDomainManagementServiceAuthenticationCredentails : 
             this.usernameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string password
@@ -3515,7 +3515,7 @@ public partial class SsoAdminDomainManagementServiceAuthenticationCredentails : 
             this.passwordField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public bool useMachineAccount
@@ -3529,7 +3529,7 @@ public partial class SsoAdminDomainManagementServiceAuthenticationCredentails : 
             this.useMachineAccountField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public bool useMachineAccountSpecified
@@ -3543,7 +3543,7 @@ public partial class SsoAdminDomainManagementServiceAuthenticationCredentails : 
             this.useMachineAccountFieldSpecified = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public string spn
@@ -3565,29 +3565,29 @@ public partial class SsoAdminDomainManagementServiceAuthenticationCredentails : 
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminClientCertPolicy : DynamicData
 {
-    
+
     private bool enabledField;
-    
+
     private bool ocspEnabledField;
-    
+
     private bool useCRLAsFailOverField;
-    
+
     private bool sendOCSPNonceField;
-    
+
     private string ocspUrlField;
-    
+
     private string ocspResponderSigningCertField;
-    
+
     private bool useInCertCRLField;
-    
+
     private string crlUrlField;
-    
+
     private int crlCacheSizeField;
-    
+
     private string[] oidsField;
-    
+
     private string[] trustedCAsField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public bool enabled
@@ -3601,7 +3601,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.enabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public bool ocspEnabled
@@ -3615,7 +3615,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.ocspEnabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public bool useCRLAsFailOver
@@ -3629,7 +3629,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.useCRLAsFailOverField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public bool sendOCSPNonce
@@ -3643,7 +3643,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.sendOCSPNonceField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=4)]
     public string ocspUrl
@@ -3657,7 +3657,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.ocspUrlField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=5)]
     public string ocspResponderSigningCert
@@ -3671,7 +3671,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.ocspResponderSigningCertField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=6)]
     public bool useInCertCRL
@@ -3685,7 +3685,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.useInCertCRLField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=7)]
     public string crlUrl
@@ -3699,7 +3699,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.crlUrlField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=8)]
     public int crlCacheSize
@@ -3713,7 +3713,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.crlCacheSizeField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("oids", Order=9)]
     public string[] oids
@@ -3727,7 +3727,7 @@ public partial class SsoAdminClientCertPolicy : DynamicData
             this.oidsField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("trustedCAs", Order=10)]
     public string[] trustedCAs
@@ -3749,15 +3749,15 @@ public partial class SsoAdminClientCertPolicy : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminAuthnPolicy : DynamicData
 {
-    
+
     private bool passwordAuthnEnabledField;
-    
+
     private bool windowsAuthEnabledField;
-    
+
     private bool certAuthEnabledField;
-    
+
     private SsoAdminClientCertPolicy clientCertPolicyField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public bool PasswordAuthnEnabled
@@ -3771,7 +3771,7 @@ public partial class SsoAdminAuthnPolicy : DynamicData
             this.passwordAuthnEnabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public bool WindowsAuthEnabled
@@ -3785,7 +3785,7 @@ public partial class SsoAdminAuthnPolicy : DynamicData
             this.windowsAuthEnabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public bool CertAuthEnabled
@@ -3799,7 +3799,7 @@ public partial class SsoAdminAuthnPolicy : DynamicData
             this.certAuthEnabledField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public SsoAdminClientCertPolicy clientCertPolicy
@@ -3821,13 +3821,13 @@ public partial class SsoAdminAuthnPolicy : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminAuthenticationAccountInfo : DynamicData
 {
-    
+
     private string userNameField;
-    
+
     private string spnField;
-    
+
     private bool useMachineAccountField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string userName
@@ -3841,7 +3841,7 @@ public partial class SsoAdminAuthenticationAccountInfo : DynamicData
             this.userNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string spn
@@ -3855,7 +3855,7 @@ public partial class SsoAdminAuthenticationAccountInfo : DynamicData
             this.spnField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public bool useMachineAccount
@@ -3877,15 +3877,15 @@ public partial class SsoAdminAuthenticationAccountInfo : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminActiveDirectoryJoinInfo : DynamicData
 {
-    
+
     private string joinStatusField;
-    
+
     private string nameField;
-    
+
     private string aliasField;
-    
+
     private string dnField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string joinStatus
@@ -3899,7 +3899,7 @@ public partial class SsoAdminActiveDirectoryJoinInfo : DynamicData
             this.joinStatusField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string name
@@ -3913,7 +3913,7 @@ public partial class SsoAdminActiveDirectoryJoinInfo : DynamicData
             this.nameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=2)]
     public string alias
@@ -3927,7 +3927,7 @@ public partial class SsoAdminActiveDirectoryJoinInfo : DynamicData
             this.aliasField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=3)]
     public string dn
@@ -3949,11 +3949,11 @@ public partial class SsoAdminActiveDirectoryJoinInfo : DynamicData
 [System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class LocalizedMethodFault : DynamicData
 {
-    
+
     private MethodFault faultField;
-    
+
     private string localizedMessageField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public MethodFault fault
@@ -3967,7 +3967,7 @@ public partial class LocalizedMethodFault : DynamicData
             this.faultField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string localizedMessage
@@ -4020,9 +4020,9 @@ public partial class SsoFaultServiceFault : MethodFault
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoFaultInvalidPrincipalFault : SsoFaultServiceFault
 {
-    
+
     private string principalField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string principal
@@ -4060,9 +4060,9 @@ public partial class SsoAdminFaultPasswordPolicyViolationFault : SsoFaultService
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultNoSuchRelyingPartyFault : SsoFaultServiceFault
 {
-    
+
     private string relyingPartyNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string relyingPartyName
@@ -4084,9 +4084,9 @@ public partial class SsoAdminFaultNoSuchRelyingPartyFault : SsoFaultServiceFault
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultNoSuchExternalSTSConfigFault : SsoFaultServiceFault
 {
-    
+
     private string issuerNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string issuerName
@@ -4108,9 +4108,9 @@ public partial class SsoAdminFaultNoSuchExternalSTSConfigFault : SsoFaultService
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultNoSuchConfigFault : SsoFaultServiceFault
 {
-    
+
     private string issuerNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string issuerName
@@ -4140,11 +4140,11 @@ public partial class SsoAdminFaultInvalidPasswordPolicyFault : SsoFaultServiceFa
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultGroupCyclicDependencyFault : SsoFaultServiceFault
 {
-    
+
     private string groupBeingAddedField;
-    
+
     private string existingGroupField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string groupBeingAdded
@@ -4158,7 +4158,7 @@ public partial class SsoAdminFaultGroupCyclicDependencyFault : SsoFaultServiceFa
             this.groupBeingAddedField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string existingGroup
@@ -4180,9 +4180,9 @@ public partial class SsoAdminFaultGroupCyclicDependencyFault : SsoFaultServiceFa
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultExtraneousCertsInCertChainFault : SsoFaultServiceFault
 {
-    
+
     private string issuerNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string issuerName
@@ -4204,9 +4204,9 @@ public partial class SsoAdminFaultExtraneousCertsInCertChainFault : SsoFaultServ
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultExternalSTSExtraneousCertsInCertChainFault : SsoFaultServiceFault
 {
-    
+
     private string issuerNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string issuerName
@@ -4228,9 +4228,9 @@ public partial class SsoAdminFaultExternalSTSExtraneousCertsInCertChainFault : S
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultExternalSTSCertChainInvalidTrustedPathFault : SsoFaultServiceFault
 {
-    
+
     private string issuerNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string issuerName
@@ -4260,11 +4260,11 @@ public partial class SsoAdminFaultDuplicateSolutionCertificateFault : SsoFaultSe
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultDuplicateDomainNameFault : SsoFaultServiceFault
 {
-    
+
     private string domainNameField;
-    
+
     private string domainAliasField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string domainName
@@ -4278,7 +4278,7 @@ public partial class SsoAdminFaultDuplicateDomainNameFault : SsoFaultServiceFaul
             this.domainNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string domainAlias
@@ -4308,9 +4308,9 @@ public partial class SsoAdminFaultDuplicateDataFault : SsoFaultServiceFault
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultDomainNotFoundFault : SsoFaultServiceFault
 {
-    
+
     private string domainNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string domainName
@@ -4332,9 +4332,9 @@ public partial class SsoAdminFaultDomainNotFoundFault : SsoFaultServiceFault
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultDirectoryServiceConnectionFault : SsoFaultServiceFault
 {
-    
+
     private string uriField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(DataType="anyURI", Order=0)]
     public string uri
@@ -4356,9 +4356,9 @@ public partial class SsoAdminFaultDirectoryServiceConnectionFault : SsoFaultServ
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultCertificateDeletionFault : SsoFaultServiceFault
 {
-    
+
     private string certificateField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string certificate
@@ -4380,9 +4380,9 @@ public partial class SsoAdminFaultCertificateDeletionFault : SsoFaultServiceFaul
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultCertChainInvalidTrustedPathFault : SsoFaultServiceFault
 {
-    
+
     private string issuerNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string issuerName
@@ -4404,9 +4404,9 @@ public partial class SsoAdminFaultCertChainInvalidTrustedPathFault : SsoFaultSer
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultADIDSAlreadyExistFault : SsoFaultServiceFault
 {
-    
+
     private string domainNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string domainName
@@ -4428,9 +4428,9 @@ public partial class SsoAdminFaultADIDSAlreadyExistFault : SsoFaultServiceFault
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultADDomainUnknownDomainFault : SsoFaultServiceFault
 {
-    
+
     private string domainField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string domain
@@ -4468,11 +4468,11 @@ public partial class SsoAdminFaultADDomainAlreadyJoinedFault : SsoFaultServiceFa
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultADDomainAccessDeniedFault : SsoFaultServiceFault
 {
-    
+
     private string domainField;
-    
+
     private string usernameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string domain
@@ -4486,7 +4486,7 @@ public partial class SsoAdminFaultADDomainAccessDeniedFault : SsoFaultServiceFau
             this.domainField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string username
@@ -4523,9 +4523,9 @@ public partial class SsoFaultRuntimeServiceFault : RuntimeFault
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoFaultNoDomainSearchPermission : SsoFaultRuntimeServiceFault
 {
-    
+
     private string domainNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string domainName
@@ -4571,11 +4571,11 @@ public partial class SsoAdminFaultLocalOSDomainRegistrationFault : SsoFaultRunti
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultInvalidProviderFault : SsoFaultRuntimeServiceFault
 {
-    
+
     private string fieldNameField;
-    
+
     private string fieldValueField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string fieldName
@@ -4589,7 +4589,7 @@ public partial class SsoAdminFaultInvalidProviderFault : SsoFaultRuntimeServiceF
             this.fieldNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string fieldValue
@@ -4611,11 +4611,11 @@ public partial class SsoAdminFaultInvalidProviderFault : SsoFaultRuntimeServiceF
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultHostNotJoinedRequiredDomainFault : SsoFaultRuntimeServiceFault
 {
-    
+
     private string requiredDomainNameField;
-    
+
     private string joinedDomainNameField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string requiredDomainName
@@ -4629,7 +4629,7 @@ public partial class SsoAdminFaultHostNotJoinedRequiredDomainFault : SsoFaultRun
             this.requiredDomainNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string joinedDomainName
@@ -4651,13 +4651,13 @@ public partial class SsoAdminFaultHostNotJoinedRequiredDomainFault : SsoFaultRun
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class SsoAdminFaultDomainManagerFault : SsoFaultRuntimeServiceFault
 {
-    
+
     private string domainNameField;
-    
+
     private int errorCodeField;
-    
+
     private bool errorCodeFieldSpecified;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string domainName
@@ -4671,7 +4671,7 @@ public partial class SsoAdminFaultDomainManagerFault : SsoFaultRuntimeServiceFau
             this.domainNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public int errorCode
@@ -4685,7 +4685,7 @@ public partial class SsoAdminFaultDomainManagerFault : SsoFaultRuntimeServiceFau
             this.errorCodeField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public bool errorCodeSpecified
@@ -4707,11 +4707,11 @@ public partial class SsoAdminFaultDomainManagerFault : SsoFaultRuntimeServiceFau
 [System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class UnexpectedFault : RuntimeFault
 {
-    
+
     private string faultNameField;
-    
+
     private LocalizedMethodFault faultField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string faultName
@@ -4725,7 +4725,7 @@ public partial class UnexpectedFault : RuntimeFault
             this.faultNameField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public LocalizedMethodFault fault
@@ -4747,9 +4747,9 @@ public partial class UnexpectedFault : RuntimeFault
 [System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class SystemError : RuntimeFault
 {
-    
+
     private string reasonField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string reason
@@ -4803,9 +4803,9 @@ public partial class NotEnoughLicenses : RuntimeFault
 [System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class ManagedObjectNotFound : RuntimeFault
 {
-    
+
     private ManagedObjectReference objField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public ManagedObjectReference obj
@@ -4837,11 +4837,11 @@ public partial class InvalidRequest : RuntimeFault
 [System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class MethodNotFound : InvalidRequest
 {
-    
+
     private ManagedObjectReference receiverField;
-    
+
     private string methodField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public ManagedObjectReference receiver
@@ -4855,7 +4855,7 @@ public partial class MethodNotFound : InvalidRequest
             this.receiverField = value;
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=1)]
     public string method
@@ -4877,9 +4877,9 @@ public partial class MethodNotFound : InvalidRequest
 [System.Xml.Serialization.XmlTypeAttribute(Namespace= "urn:sso")]
 public partial class InvalidType : InvalidRequest
 {
-    
+
     private string argumentField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string argument
@@ -4901,9 +4901,9 @@ public partial class InvalidType : InvalidRequest
 [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:sso")]
 public partial class InvalidArgument : RuntimeFault
 {
-    
+
     private string invalidPropertyField;
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order=0)]
     public string invalidProperty
@@ -4965,35 +4965,35 @@ public partial class SsoFaultNoPermission : SecurityError
 [System.ServiceModel.ServiceContractAttribute(Namespace="urn:sso", ConfigurationName="SsoPortType")]
 public interface SsoPortType
 {
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task LoginAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(InvalidRequest), Action="urn:sso/version3_5", Name="InvalidRequestFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task LogoutAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> SetLocaleAsync(ManagedObjectReference _this, string locale);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> GetLocaleAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5003,7 +5003,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> AddCertificateAsync(ManagedObjectReference _this, string certificate);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5012,7 +5012,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<GetAllCertificatesResponse> GetAllCertificatesAsync(GetAllCertificatesRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5022,7 +5022,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> FindCertificateAsync(ManagedObjectReference _this, string fingerprint);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5032,7 +5032,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> DeleteCertificateAsync(ManagedObjectReference _this, string fingerprint);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5041,28 +5041,28 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<GetComputersResponse> GetComputersAsync(GetComputersRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<GetKnownCertificateChainsResponse> GetKnownCertificateChainsAsync(GetKnownCertificateChainsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<GetTrustedCertificatesResponse> GetTrustedCertificatesAsync(GetTrustedCertificatesRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<GetIssuersCertificatesResponse> GetIssuersCertificatesAsync(GetIssuersCertificatesRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultExternalSTSCertChainInvalidTrustedPathFault), Action="urn:sso/version3_5", Name="SsoAdminFaultExternalSTSCertChainInvalidTrustedPathFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultExternalSTSExtraneousCertsInCertChainFault), Action="urn:sso/version3_5", Name="SsoAdminFaultExternalSTSExtraneousCertsInCertChainFaultFault")]
@@ -5073,7 +5073,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task ImportTrustedSTSConfigurationAsync(ManagedObjectReference _this, SsoAdminTrustedSTSConfig stsConfig);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultExternalSTSCertChainInvalidTrustedPathFault), Action="urn:sso/version3_5", Name="SsoAdminFaultExternalSTSCertChainInvalidTrustedPathFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultExternalSTSExtraneousCertsInCertChainFault), Action="urn:sso/version3_5", Name="SsoAdminFaultExternalSTSExtraneousCertsInCertChainFaultFault")]
@@ -5084,7 +5084,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task RemoveTrustedSTSConfigurationAsync(ManagedObjectReference _this, string issuerName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultExternalSTSCertChainInvalidTrustedPathFault), Action="urn:sso/version3_5", Name="SsoAdminFaultExternalSTSCertChainInvalidTrustedPathFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultExternalSTSExtraneousCertsInCertChainFault), Action="urn:sso/version3_5", Name="SsoAdminFaultExternalSTSExtraneousCertsInCertChainFaultFault")]
@@ -5095,7 +5095,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task ImportExternalIDPConfigurationAsync(ManagedObjectReference _this, string externalIDPConfigDoc);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultCertChainInvalidTrustedPathFault), Action="urn:sso/version3_5", Name="SsoAdminFaultCertChainInvalidTrustedPathFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultExtraneousCertsInCertChainFault), Action="urn:sso/version3_5", Name="SsoAdminFaultExtraneousCertsInCertChainFaultFault")]
@@ -5105,7 +5105,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task CreateExternalIDPConfigurationAsync(ManagedObjectReference _this, SsoAdminIDPConfiguration config);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultNoSuchConfigFault), Action="urn:sso/version3_5", Name="SsoAdminFaultNoSuchConfigFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNotAuthenticated), Action="urn:sso/version3_5", Name="SsoFaultNotAuthenticatedFault")]
@@ -5114,7 +5114,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminIDPConfiguration> GetExternalIDPConfigurationAsync(ManagedObjectReference _this, string entityID);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultCertChainInvalidTrustedPathFault), Action="urn:sso/version3_5", Name="SsoAdminFaultCertChainInvalidTrustedPathFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultExtraneousCertsInCertChainFault), Action="urn:sso/version3_5", Name="SsoAdminFaultExtraneousCertsInCertChainFaultFault")]
@@ -5124,7 +5124,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetExternalIDPConfigurationAsync(ManagedObjectReference _this, SsoAdminIDPConfiguration config);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultNoSuchConfigFault), Action="urn:sso/version3_5", Name="SsoAdminFaultNoSuchConfigFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5133,7 +5133,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task DeleteExternalIDPConfigurationAsync(ManagedObjectReference _this, string entityID);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultNoSuchConfigFault), Action="urn:sso/version3_5", Name="SsoAdminFaultNoSuchConfigFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5142,20 +5142,20 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task DeleteExternalIDPConfigurationAndUsersAsync(ManagedObjectReference _this, string entityID);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<EnumerateExternalIDPEntityIDsResponse> EnumerateExternalIDPEntityIDsAsync(EnumerateExternalIDPEntityIDsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<GetExternalIdpTrustedCertificateChainsResponse> GetExternalIdpTrustedCertificateChainsAsync(GetExternalIdpTrustedCertificateChainsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
@@ -5163,7 +5163,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminConfigurationManagementServiceCertificateChain> GetExternalIdpTrustedCertificateChainAsync(ManagedObjectReference _this, string entityId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultCertificateDeletionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultCertificateDeletionFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5174,7 +5174,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> DeleteTrustedCertificateAsync(ManagedObjectReference _this, string fingerprint);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5183,7 +5183,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetNewSignerIdentityAsync(ManagedObjectReference _this, string signingKey, SsoAdminConfigurationManagementServiceCertificateChain signingCertificateChain);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5192,7 +5192,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetSignerIdentityAsync(ManagedObjectReference _this, SsoPrincipalId adminUser, string adminPass, string signingKey, SsoAdminConfigurationManagementServiceCertificateChain signingCertificateChain);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
@@ -5200,7 +5200,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<long> GetClockToleranceAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5209,7 +5209,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetClockToleranceAsync(ManagedObjectReference _this, long milliseconds);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5219,7 +5219,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<int> GetDelegationCountAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNotAuthenticated), Action="urn:sso/version3_5", Name="SsoFaultNotAuthenticatedFault")]
@@ -5227,7 +5227,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetDelegationCountAsync(ManagedObjectReference _this, int delegationCount);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5237,7 +5237,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<int> GetRenewCountAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5246,7 +5246,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetRenewCountAsync(ManagedObjectReference _this, int renewCount);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5256,7 +5256,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<long> GetMaximumBearerTokenLifetimeAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5265,7 +5265,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetMaximumBearerTokenLifetimeAsync(ManagedObjectReference _this, long maxLifetime);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5275,7 +5275,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<long> GetMaximumHoKTokenLifetimeAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5284,7 +5284,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetMaximumHoKTokenLifetimeAsync(ManagedObjectReference _this, long maxLifetime);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5294,7 +5294,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminPasswordExpirationConfig> GetPasswordExpirationConfigurationAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5303,7 +5303,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task UpdatePasswordExpirationConfigurationAsync(ManagedObjectReference _this, SsoAdminPasswordExpirationConfig config);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5312,7 +5312,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task ImportSAMLMetadataAsync(ManagedObjectReference _this, string samlConfigDoc);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultNoSuchRelyingPartyFault), Action="urn:sso/version3_5", Name="SsoAdminFaultNoSuchRelyingPartyFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5322,14 +5322,14 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task DeleteRelyingPartyAsync(ManagedObjectReference _this, string rpName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> GetIssuerNameAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultNoSuchConfigFault), Action="urn:sso/version3_5", Name="SsoAdminFaultNoSuchConfigFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNotAuthenticated), Action="urn:sso/version3_5", Name="SsoFaultNotAuthenticatedFault")]
@@ -5338,7 +5338,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> IsExternalIDPJitEnabledAsync(ManagedObjectReference _this, string entityID);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNotAuthenticated), Action="urn:sso/version3_5", Name="SsoFaultNotAuthenticatedFault")]
@@ -5346,7 +5346,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetExternalIDPJitAttributeAsync(ManagedObjectReference _this, string entityID, bool enableJit);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNotAuthenticated), Action="urn:sso/version3_5", Name="SsoFaultNotAuthenticatedFault")]
@@ -5354,7 +5354,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetAuthnPolicyAsync(ManagedObjectReference _this, SsoAdminAuthnPolicy policy);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNotAuthenticated), Action="urn:sso/version3_5", Name="SsoFaultNotAuthenticatedFault")]
@@ -5363,7 +5363,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminAuthnPolicy> GetAuthnPolicyAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInternalFault), Action="urn:sso/version3_5", Name="SsoFaultInternalFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5374,7 +5374,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> IsMultiSiteDeploymentAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInternalFault), Action="urn:sso/version3_5", Name="SsoFaultInternalFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5384,7 +5384,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<RetrieveHaBackupConfigurationPackageResponse> RetrieveHaBackupConfigurationPackageAsync(RetrieveHaBackupConfigurationPackageRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInternalFault), Action="urn:sso/version3_5", Name="SsoFaultInternalFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5395,7 +5395,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<RetrieveReplicaConfigurationPackageResponse> RetrieveReplicaConfigurationPackageAsync(RetrieveReplicaConfigurationPackageRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDirectoryServiceConnectionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDirectoryServiceConnectionFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5405,7 +5405,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<ProbeConnectivityResponse> ProbeConnectivityAsync(ProbeConnectivityRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDirectoryServiceConnectionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDirectoryServiceConnectionFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDuplicateDomainNameFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDuplicateDomainNameFaultFault")]
@@ -5416,7 +5416,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task AddExternalDomainAsync(ManagedObjectReference _this, string serverType, string domainName, string domainAlias, SsoAdminExternalDomainDetails details, string authenticationType, SsoAdminDomainManagementServiceAuthenticationCredentails authnCredentials);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDuplicateDomainNameFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDuplicateDomainNameFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultLocalOSDomainRegistrationFault), Action="urn:sso/version3_5", Name="SsoAdminFaultLocalOSDomainRegistrationFaultFault")]
@@ -5427,7 +5427,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task RegisterLocalOSDomainAsync(ManagedObjectReference _this, string domainName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5437,7 +5437,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminDomains> GetDomainsAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5447,7 +5447,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminExternalDomain> FindExternalDomainAsync(ManagedObjectReference _this, string name);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5456,7 +5456,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetBrandNameAsync(ManagedObjectReference _this, string brandName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5466,7 +5466,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> GetBrandNameAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5475,7 +5475,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetLogonBannerAsync(ManagedObjectReference _this, string logonBanner);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5485,7 +5485,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> GetLogonBannerAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5494,7 +5494,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetLogonBannerTitleAsync(ManagedObjectReference _this, string logonBannerTitle);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5504,7 +5504,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> GetLogonBannerTitleAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5513,7 +5513,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetLogonBannerContentAsync(ManagedObjectReference _this, string logonBannerContent);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5523,7 +5523,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> GetLogonBannerContentAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5532,7 +5532,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SetLogonBannerCheckboxFlagAsync(ManagedObjectReference _this, bool enableLogonBannerCheckbox);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5542,7 +5542,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> GetLogonBannerCheckboxFlagAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5551,7 +5551,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task DisableLogonBannerAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5561,7 +5561,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> IsLogonBannerDisabledAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
@@ -5569,7 +5569,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> GetSystemDomainNameAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
@@ -5577,7 +5577,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> GetSystemTenantNameAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5587,7 +5587,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> GetLocalOSDomainNameAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5597,7 +5597,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task UpdateExternalDomainDetailsAsync(ManagedObjectReference _this, string name, SsoAdminExternalDomainDetails details);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5607,7 +5607,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task UpdateExternalDomainAuthnTypeAsync(ManagedObjectReference _this, string name, string authnType, SsoAdminDomainManagementServiceAuthenticationCredentails authnCredentials);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5618,7 +5618,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> RegisterUpnSuffixAsync(ManagedObjectReference _this, string domainName, string upnSuffix);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5629,7 +5629,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> UnRegisterUpnSuffixAsync(ManagedObjectReference _this, string domainName, string upnSuffix);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5639,7 +5639,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<GetUpnSuffixesResponse> GetUpnSuffixesAsync(GetUpnSuffixesRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5649,7 +5649,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task DeleteDomainAsync(ManagedObjectReference _this, string name);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
@@ -5657,7 +5657,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<ManagedObjectReference> GetSslCertificateManagerAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDuplicateDomainNameFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDuplicateDomainNameFaultFault")]
@@ -5668,7 +5668,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<SetDefaultDomainsResponse> SetDefaultDomainsAsync(SetDefaultDomainsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5677,7 +5677,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<GetDefaultDomainsResponse> GetDefaultDomainsAsync(GetDefaultDomainsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDirectoryServiceConnectionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDirectoryServiceConnectionFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5688,7 +5688,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminConfigurationManagementServiceCertificateChain> GetSslIdentityAsync(ManagedObjectReference _this, string host, int ldapsPort);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultADIDSAlreadyExistFault), Action="urn:sso/version3_5", Name="SsoAdminFaultADIDSAlreadyExistFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDirectoryServiceConnectionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDirectoryServiceConnectionFaultFault")]
@@ -5697,11 +5697,11 @@ public interface SsoPortType
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNotAuthenticated), Action="urn:sso/version3_5", Name="SsoFaultNotAuthenticatedFault")]
-    [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]      
+    [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task RegisterLdapAsync(ManagedObjectReference _this, string serverType, string domainName, string domainAlias, SsoAdminLdapIdentitySourceDetails details, string authenticationType, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultADIDSAlreadyExistFault), Action="urn:sso/version3_5", Name="SsoAdminFaultADIDSAlreadyExistFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainManagerFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainManagerFaultFault")]
@@ -5715,7 +5715,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task RegisterActiveDirectoryAsync(ManagedObjectReference _this, string domainName, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials, SsoAdminExternalDomainSchemaDetails schemaMapping);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDuplicateDomainNameFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDuplicateDomainNameFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultLocalOSDomainRegistrationFault), Action="urn:sso/version3_5", Name="SsoAdminFaultLocalOSDomainRegistrationFaultFault")]
@@ -5726,7 +5726,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task RegisterLocalOSAsync(ManagedObjectReference _this, string name);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5736,7 +5736,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminIdentitySources> GetAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5746,7 +5746,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminAuthenticationAccountInfo> GetActiveDirectoryAuthnAccountInfoAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
@@ -5754,7 +5754,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<string> IdS_getSystemDomainNameAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDirectoryServiceConnectionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDirectoryServiceConnectionFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
@@ -5766,7 +5766,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task UpdateLdapAsync(ManagedObjectReference _this, string name, SsoAdminLdapIdentitySourceDetails details);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainManagerFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainManagerFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
@@ -5779,7 +5779,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task UpdateActiveDirectoryAsync(ManagedObjectReference _this, string domainName, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials, SsoAdminExternalDomainSchemaDetails schemaMapping);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDirectoryServiceConnectionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDirectoryServiceConnectionFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
@@ -5790,7 +5790,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task UpdateLdapAuthnTypeAsync(ManagedObjectReference _this, string name, string authnType, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5800,7 +5800,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task DeleteAsync(ManagedObjectReference _this, string name);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDomainNotFoundFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDomainNotFoundFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDuplicateDomainNameFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDuplicateDomainNameFaultFault")]
@@ -5811,7 +5811,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<IdS_setDefaultDomainsResponse> IdS_setDefaultDomainsAsync(IdS_setDefaultDomainsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5820,7 +5820,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<IdS_getDefaultDomainsResponse> IdS_getDefaultDomainsAsync(IdS_getDefaultDomainsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
@@ -5828,7 +5828,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<ManagedObjectReference> IdS_getSslCertificateManagerAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDirectoryServiceConnectionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDirectoryServiceConnectionFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5838,7 +5838,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<IdS_probeConnectivityResponse> IdS_probeConnectivityAsync(IdS_probeConnectivityRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDirectoryServiceConnectionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDirectoryServiceConnectionFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5848,7 +5848,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task IdS_probeLdapConnectivityAsync(ManagedObjectReference _this, string domainName, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredential, SsoAdminLdapIdentitySource identitySource);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDirectoryServiceConnectionFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDirectoryServiceConnectionFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5859,7 +5859,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminConfigurationManagementServiceCertificateChain> IdS_getSslIdentityAsync(ManagedObjectReference _this, string host, int ldapsPort);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5869,7 +5869,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminLockoutPolicy> GetLockoutPolicyAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5878,7 +5878,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task UpdateLockoutPolicyAsync(ManagedObjectReference _this, SsoAdminLockoutPolicy policy);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultInvalidPasswordPolicyFault), Action="urn:sso/version3_5", Name="SsoAdminFaultInvalidPasswordPolicyFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -5888,7 +5888,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task UpdateLocalPasswordPolicyAsync(ManagedObjectReference _this, SsoAdminPasswordPolicy policy);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5898,7 +5898,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminPasswordPolicy> GetLocalPasswordPolicyAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5908,7 +5908,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoPrincipalId> LookupAsync(ManagedObjectReference _this, SsoPrincipalId id, bool isGroup);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5918,7 +5918,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminPersonUser> FindPersonUserAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -5928,7 +5928,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminPersonUser> FindSelfPersonUserAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5938,7 +5938,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminSolutionUser> FindSolutionUserAsync(ManagedObjectReference _this, string userName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5948,7 +5948,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminSolutionUser> FindSolutionUserByCertDNAsync(ManagedObjectReference _this, string certDN);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5958,7 +5958,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminUser> FindUserAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5968,7 +5968,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminGroup> FindGroupAsync(ManagedObjectReference _this, SsoPrincipalId groupId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5977,7 +5977,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindPersonUsersResponse> FindPersonUsersAsync(FindPersonUsersRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5986,7 +5986,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindPersonUsersByNameResponse> FindPersonUsersByNameAsync(FindPersonUsersByNameRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -5995,7 +5995,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindSolutionUsersResponse> FindSolutionUsersAsync(FindSolutionUsersRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6004,7 +6004,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindUsersResponse> FindUsersAsync(FindUsersRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6014,7 +6014,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminPrincipalDiscoveryServiceSearchResult> FindUserAccountAsync(ManagedObjectReference _this, string userName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6024,7 +6024,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminGroup> FindGroupAccountAsync(ManagedObjectReference _this, string groupName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6033,7 +6033,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindGroupsResponse> FindGroupsAsync(FindGroupsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6042,7 +6042,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindGroupsByNameResponse> FindGroupsByNameAsync(FindGroupsByNameRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6052,7 +6052,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminPrincipalDiscoveryServiceSearchResult> FindAsync(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6062,7 +6062,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminPrincipalDiscoveryServiceSearchResult> FindByNameAsync(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6071,7 +6071,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindUsersInGroupResponse> FindUsersInGroupAsync(FindUsersInGroupRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6081,7 +6081,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindPersonUsersByNameInGroupResponse> FindPersonUsersByNameInGroupAsync(FindPersonUsersByNameInGroupRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6091,7 +6091,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindPersonUsersInGroupResponse> FindPersonUsersInGroupAsync(FindPersonUsersInGroupRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6101,7 +6101,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindSolutionUsersInGroupResponse> FindSolutionUsersInGroupAsync(FindSolutionUsersInGroupRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6111,7 +6111,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindGroupsInGroupResponse> FindGroupsInGroupAsync(FindGroupsInGroupRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6121,7 +6121,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindGroupsByNameInGroupResponse> FindGroupsByNameInGroupAsync(FindGroupsByNameInGroupRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6131,7 +6131,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindDirectParentGroupsResponse> FindDirectParentGroupsAsync(FindDirectParentGroupsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6141,7 +6141,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindNestedParentGroupsResponse> FindNestedParentGroupsAsync(FindNestedParentGroupsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6150,7 +6150,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindLockedUsersResponse> FindLockedUsersAsync(FindLockedUsersRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6159,7 +6159,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindDisabledPersonUsersResponse> FindDisabledPersonUsersAsync(FindDisabledPersonUsersRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6168,7 +6168,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindDisabledSolutionUsersResponse> FindDisabledSolutionUsersAsync(FindDisabledSolutionUsersRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6178,14 +6178,14 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminPersonUser> FindRegisteredExternalIDPUserAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<GetImplicitGroupNamesResponse> GetImplicitGroupNamesAsync(GetImplicitGroupNamesRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultPasswordPolicyViolationFault), Action="urn:sso/version3_5", Name="SsoAdminFaultPasswordPolicyViolationFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6197,7 +6197,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoPrincipalId> CreateLocalPersonUserAsync(ManagedObjectReference _this, string userName, SsoAdminPersonDetails userDetails, string password);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultDuplicateSolutionCertificateFault), Action="urn:sso/version3_5", Name="SsoAdminFaultDuplicateSolutionCertificateFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6209,7 +6209,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoPrincipalId> CreateLocalSolutionUserAsync(ManagedObjectReference _this, string userName, SsoAdminSolutionDetails userDetails, bool external);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6220,7 +6220,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoPrincipalId> CreateLocalGroupAsync(ManagedObjectReference _this, string groupName, SsoAdminGroupDetails groupDetails);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6230,7 +6230,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task DeleteLocalPrincipalAsync(ManagedObjectReference _this, string principalName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6241,7 +6241,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> RemoveFromLocalGroupAsync(ManagedObjectReference _this, SsoPrincipalId principalId, string groupName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6251,7 +6251,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<RemovePrincipalsFromLocalGroupResponse> RemovePrincipalsFromLocalGroupAsync(RemovePrincipalsFromLocalGroupRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6262,7 +6262,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> AddUserToLocalGroupAsync(ManagedObjectReference _this, SsoPrincipalId userId, string groupName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6272,7 +6272,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<AddUsersToLocalGroupResponse> AddUsersToLocalGroupAsync(AddUsersToLocalGroupRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultGroupCyclicDependencyFault), Action="urn:sso/version3_5", Name="SsoAdminFaultGroupCyclicDependencyFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6284,7 +6284,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> AddGroupToLocalGroupAsync(ManagedObjectReference _this, SsoPrincipalId groupId, string groupName);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultGroupCyclicDependencyFault), Action="urn:sso/version3_5", Name="SsoAdminFaultGroupCyclicDependencyFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6295,7 +6295,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<AddGroupsToLocalGroupResponse> AddGroupsToLocalGroupAsync(AddGroupsToLocalGroupRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6306,7 +6306,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoPrincipalId> UpdateLocalPersonUserDetailsAsync(ManagedObjectReference _this, string userName, SsoAdminPersonDetails userDetails);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultPasswordPolicyViolationFault), Action="urn:sso/version3_5", Name="SsoAdminFaultPasswordPolicyViolationFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6317,7 +6317,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task ResetLocalPersonUserPasswordAsync(ManagedObjectReference _this, string userName, string newPassword);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6328,7 +6328,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoPrincipalId> UpdateLocalSolutionUserDetailsAsync(ManagedObjectReference _this, string userName, SsoAdminSolutionDetails userDetails);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6339,7 +6339,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoPrincipalId> UpdateLocalGroupDetailsAsync(ManagedObjectReference _this, string groupName, SsoAdminGroupDetails groupDetails);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6349,7 +6349,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoPrincipalId> UpdateSelfLocalPersonUserDetailsAsync(ManagedObjectReference _this, SsoAdminPersonDetails userDetails);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6358,7 +6358,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task DeleteSelfSolutionUserAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultPasswordPolicyViolationFault), Action="urn:sso/version3_5", Name="SsoAdminFaultPasswordPolicyViolationFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6368,7 +6368,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task ResetSelfLocalPersonUserPasswordAsync(ManagedObjectReference _this, string newPassword);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultPasswordPolicyViolationFault), Action="urn:sso/version3_5", Name="SsoAdminFaultPasswordPolicyViolationFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6377,7 +6377,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task ResetLocalUserPasswordAsync(ManagedObjectReference _this, string username, string currentPassword, string newPassword);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6387,7 +6387,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoPrincipalId> UpdateSelfLocalSolutionUserDetailsAsync(ManagedObjectReference _this, SsoAdminSolutionDetails userDetails);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6398,7 +6398,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> UnlockUserAccountAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6409,7 +6409,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> EnableUserAccountAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6420,7 +6420,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> DisableUserAccountAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6431,7 +6431,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<int> GetDaysRemainingUntilPasswordExpirationAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6441,7 +6441,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<int> GetDaysRemainingUntilSelfPasswordExpirationAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6452,7 +6452,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> RegisterExternalUserAsync(ManagedObjectReference _this, SsoPrincipalId externalUserId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6463,7 +6463,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> RemoveExternalUserAsync(ManagedObjectReference _this, SsoPrincipalId externalUserId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInternalFault), Action="urn:sso/version3_5", Name="SsoFaultInternalFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6474,7 +6474,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<ExportFullStateResponse> ExportFullStateAsync(ExportFullStateRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInternalFault), Action="urn:sso/version3_5", Name="SsoFaultInternalFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6486,7 +6486,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<ImportFullStateResponse> ImportFullStateAsync(ImportFullStateRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6497,7 +6497,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> SetRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6508,7 +6508,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> HasAdministratorRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6519,7 +6519,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> HasConfigurationUserRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6530,7 +6530,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> HasRegularUserRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6541,7 +6541,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> GrantWSTrustRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6552,7 +6552,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> RevokeWSTrustRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6563,7 +6563,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> GrantIDPProvisioningRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6574,7 +6574,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> RevokeIDPProvisioningRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
@@ -6582,7 +6582,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminServiceContent> SsoAdminServiceInstanceAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultSmtpConfigNotSetFault), Action="urn:sso/version3_5", Name="SsoAdminFaultSmtpConfigNotSetFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6593,7 +6593,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminSmtpConfig> GetSmtpConfigurationAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6602,7 +6602,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task UpdateSmtpConfigurationAsync(ManagedObjectReference _this, SsoAdminSmtpConfig config);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultSmtpConfigNotSetFault), Action="urn:sso/version3_5", Name="SsoAdminFaultSmtpConfigNotSetFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
@@ -6612,7 +6612,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task SendMailAsync(ManagedObjectReference _this, SsoAdminMailContent content);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6622,7 +6622,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminSsoHealthStats> GetSsoStatisticsAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultNoPermission), Action="urn:sso/version3_5", Name="SsoFaultNoPermissionFault")]
@@ -6632,7 +6632,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<SsoAdminActiveDirectoryJoinInfo> IdS_getActiveDirectoryJoinStatusAsync(ManagedObjectReference _this);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultADDomainAccessDeniedFault), Action="urn:sso/version3_5", Name="SsoAdminFaultADDomainAccessDeniedFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultADDomainAlreadyJoinedFault), Action="urn:sso/version3_5", Name="SsoAdminFaultADDomainAlreadyJoinedFaultFault")]
@@ -6643,7 +6643,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task JoinActiveDirectoryAsync(ManagedObjectReference _this, string username, string password, string domain, string orgUnit);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultADDomainAccessDeniedFault), Action="urn:sso/version3_5", Name="SsoAdminFaultADDomainAccessDeniedFaultFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoAdminFaultADDomainNotJoinedFault), Action="urn:sso/version3_5", Name="SsoAdminFaultADDomainNotJoinedFaultFault")]
@@ -6655,7 +6655,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task LeaveActiveDirectoryAsync(ManagedObjectReference _this, string username, string password);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6666,7 +6666,7 @@ public interface SsoPortType
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     [return: System.ServiceModel.MessageParameterAttribute(Name="returnval")]
     System.Threading.Tasks.Task<bool> IsMemberOfGroupAsync(ManagedObjectReference _this, SsoPrincipalId userId, SsoPrincipalId groupId);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6676,7 +6676,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindParentGroupsResponse> FindParentGroupsAsync(FindParentGroupsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidPrincipalFault), Action="urn:sso/version3_5", Name="SsoFaultInvalidPrincipalFaultFault")]
@@ -6686,7 +6686,7 @@ public interface SsoPortType
     [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(DynamicData))]
     System.Threading.Tasks.Task<FindAllParentGroupsResponse> FindAllParentGroupsAsync(FindAllParentGroupsRequest request);
-    
+
     [System.ServiceModel.OperationContractAttribute(Action="urn:sso/version3_5", ReplyAction="*")]
     [System.ServiceModel.FaultContractAttribute(typeof(SsoFaultInvalidCredentials), Action="urn:sso/version3_5", Name="SsoFaultInvalidCredentialsFault")]
     [System.ServiceModel.FaultContractAttribute(typeof(RuntimeFault), Action="urn:sso/version3_5", Name="RuntimeFaultFault")]
@@ -6702,14 +6702,14 @@ public interface SsoPortType
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetAllCertificates", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetAllCertificatesRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public GetAllCertificatesRequest()
     {
     }
-    
+
     public GetAllCertificatesRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -6722,15 +6722,15 @@ public partial class GetAllCertificatesRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetAllCertificatesResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetAllCertificatesResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public string[] returnval;
-    
+
     public GetAllCertificatesResponse()
     {
     }
-    
+
     public GetAllCertificatesResponse(string[] returnval)
     {
         this.returnval = returnval;
@@ -6743,17 +6743,17 @@ public partial class GetAllCertificatesResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetComputers", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetComputersRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public bool getDCOnly;
-    
+
     public GetComputersRequest()
     {
     }
-    
+
     public GetComputersRequest(ManagedObjectReference _this, bool getDCOnly)
     {
         this._this = _this;
@@ -6767,15 +6767,15 @@ public partial class GetComputersRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetComputersResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetComputersResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminVmHost[] returnval;
-    
+
     public GetComputersResponse()
     {
     }
-    
+
     public GetComputersResponse(SsoAdminVmHost[] returnval)
     {
         this.returnval = returnval;
@@ -6788,14 +6788,14 @@ public partial class GetComputersResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetKnownCertificateChains", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetKnownCertificateChainsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public GetKnownCertificateChainsRequest()
     {
     }
-    
+
     public GetKnownCertificateChainsRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -6808,15 +6808,15 @@ public partial class GetKnownCertificateChainsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetKnownCertificateChainsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetKnownCertificateChainsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminConfigurationManagementServiceCertificateChain[] returnval;
-    
+
     public GetKnownCertificateChainsResponse()
     {
     }
-    
+
     public GetKnownCertificateChainsResponse(SsoAdminConfigurationManagementServiceCertificateChain[] returnval)
     {
         this.returnval = returnval;
@@ -6829,14 +6829,14 @@ public partial class GetKnownCertificateChainsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetTrustedCertificates", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetTrustedCertificatesRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public GetTrustedCertificatesRequest()
     {
     }
-    
+
     public GetTrustedCertificatesRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -6849,15 +6849,15 @@ public partial class GetTrustedCertificatesRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetTrustedCertificatesResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetTrustedCertificatesResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public string[] returnval;
-    
+
     public GetTrustedCertificatesResponse()
     {
     }
-    
+
     public GetTrustedCertificatesResponse(string[] returnval)
     {
         this.returnval = returnval;
@@ -6870,14 +6870,14 @@ public partial class GetTrustedCertificatesResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetIssuersCertificates", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetIssuersCertificatesRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public GetIssuersCertificatesRequest()
     {
     }
-    
+
     public GetIssuersCertificatesRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -6890,15 +6890,15 @@ public partial class GetIssuersCertificatesRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetIssuersCertificatesResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetIssuersCertificatesResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public string[] returnval;
-    
+
     public GetIssuersCertificatesResponse()
     {
     }
-    
+
     public GetIssuersCertificatesResponse(string[] returnval)
     {
         this.returnval = returnval;
@@ -6911,14 +6911,14 @@ public partial class GetIssuersCertificatesResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="EnumerateExternalIDPEntityIDs", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class EnumerateExternalIDPEntityIDsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public EnumerateExternalIDPEntityIDsRequest()
     {
     }
-    
+
     public EnumerateExternalIDPEntityIDsRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -6931,15 +6931,15 @@ public partial class EnumerateExternalIDPEntityIDsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="EnumerateExternalIDPEntityIDsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class EnumerateExternalIDPEntityIDsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public string[] returnval;
-    
+
     public EnumerateExternalIDPEntityIDsResponse()
     {
     }
-    
+
     public EnumerateExternalIDPEntityIDsResponse(string[] returnval)
     {
         this.returnval = returnval;
@@ -6952,14 +6952,14 @@ public partial class EnumerateExternalIDPEntityIDsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetExternalIdpTrustedCertificateChains", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetExternalIdpTrustedCertificateChainsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public GetExternalIdpTrustedCertificateChainsRequest()
     {
     }
-    
+
     public GetExternalIdpTrustedCertificateChainsRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -6972,15 +6972,15 @@ public partial class GetExternalIdpTrustedCertificateChainsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetExternalIdpTrustedCertificateChainsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetExternalIdpTrustedCertificateChainsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminConfigurationManagementServiceCertificateChain[] returnval;
-    
+
     public GetExternalIdpTrustedCertificateChainsResponse()
     {
     }
-    
+
     public GetExternalIdpTrustedCertificateChainsResponse(SsoAdminConfigurationManagementServiceCertificateChain[] returnval)
     {
         this.returnval = returnval;
@@ -6993,14 +6993,14 @@ public partial class GetExternalIdpTrustedCertificateChainsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="RetrieveHaBackupConfigurationPackage", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class RetrieveHaBackupConfigurationPackageRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public RetrieveHaBackupConfigurationPackageRequest()
     {
     }
-    
+
     public RetrieveHaBackupConfigurationPackageRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -7013,15 +7013,15 @@ public partial class RetrieveHaBackupConfigurationPackageRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="RetrieveHaBackupConfigurationPackageResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class RetrieveHaBackupConfigurationPackageResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute(DataType="base64Binary")]
     public byte[] returnval;
-    
+
     public RetrieveHaBackupConfigurationPackageResponse()
     {
     }
-    
+
     public RetrieveHaBackupConfigurationPackageResponse(byte[] returnval)
     {
         this.returnval = returnval;
@@ -7034,14 +7034,14 @@ public partial class RetrieveHaBackupConfigurationPackageResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="RetrieveReplicaConfigurationPackage", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class RetrieveReplicaConfigurationPackageRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public RetrieveReplicaConfigurationPackageRequest()
     {
     }
-    
+
     public RetrieveReplicaConfigurationPackageRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -7054,15 +7054,15 @@ public partial class RetrieveReplicaConfigurationPackageRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="RetrieveReplicaConfigurationPackageResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class RetrieveReplicaConfigurationPackageResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute(DataType="base64Binary")]
     public byte[] returnval;
-    
+
     public RetrieveReplicaConfigurationPackageResponse()
     {
     }
-    
+
     public RetrieveReplicaConfigurationPackageResponse(byte[] returnval)
     {
         this.returnval = returnval;
@@ -7075,28 +7075,28 @@ public partial class RetrieveReplicaConfigurationPackageResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="ProbeConnectivity", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class ProbeConnectivityRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     [System.Xml.Serialization.XmlElementAttribute(DataType="anyURI")]
     public string serviceUri;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string authenticationType;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=3)]
     public SsoAdminDomainManagementServiceAuthenticationCredentails authnCredentials;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=4)]
     [System.Xml.Serialization.XmlElementAttribute("certificates")]
     public string[] certificates;
-    
+
     public ProbeConnectivityRequest()
     {
     }
-    
+
     public ProbeConnectivityRequest(ManagedObjectReference _this, string serviceUri, string authenticationType, SsoAdminDomainManagementServiceAuthenticationCredentails authnCredentials, string[] certificates)
     {
         this._this = _this;
@@ -7113,7 +7113,7 @@ public partial class ProbeConnectivityRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="ProbeConnectivityResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class ProbeConnectivityResponse
 {
-    
+
     public ProbeConnectivityResponse()
     {
     }
@@ -7125,17 +7125,17 @@ public partial class ProbeConnectivityResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetUpnSuffixes", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetUpnSuffixesRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public string domainName;
-    
+
     public GetUpnSuffixesRequest()
     {
     }
-    
+
     public GetUpnSuffixesRequest(ManagedObjectReference _this, string domainName)
     {
         this._this = _this;
@@ -7149,15 +7149,15 @@ public partial class GetUpnSuffixesRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetUpnSuffixesResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetUpnSuffixesResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public string[] returnval;
-    
+
     public GetUpnSuffixesResponse()
     {
     }
-    
+
     public GetUpnSuffixesResponse(string[] returnval)
     {
         this.returnval = returnval;
@@ -7170,18 +7170,18 @@ public partial class GetUpnSuffixesResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="SetDefaultDomains", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class SetDefaultDomainsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     [System.Xml.Serialization.XmlElementAttribute("domainNames")]
     public string[] domainNames;
-    
+
     public SetDefaultDomainsRequest()
     {
     }
-    
+
     public SetDefaultDomainsRequest(ManagedObjectReference _this, string[] domainNames)
     {
         this._this = _this;
@@ -7195,7 +7195,7 @@ public partial class SetDefaultDomainsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="SetDefaultDomainsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class SetDefaultDomainsResponse
 {
-    
+
     public SetDefaultDomainsResponse()
     {
     }
@@ -7207,14 +7207,14 @@ public partial class SetDefaultDomainsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetDefaultDomains", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetDefaultDomainsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public GetDefaultDomainsRequest()
     {
     }
-    
+
     public GetDefaultDomainsRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -7227,15 +7227,15 @@ public partial class GetDefaultDomainsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetDefaultDomainsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetDefaultDomainsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public string[] returnval;
-    
+
     public GetDefaultDomainsResponse()
     {
     }
-    
+
     public GetDefaultDomainsResponse(string[] returnval)
     {
         this.returnval = returnval;
@@ -7248,18 +7248,18 @@ public partial class GetDefaultDomainsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="IdS_setDefaultDomains", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class IdS_setDefaultDomainsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     [System.Xml.Serialization.XmlElementAttribute("domainNames")]
     public string[] domainNames;
-    
+
     public IdS_setDefaultDomainsRequest()
     {
     }
-    
+
     public IdS_setDefaultDomainsRequest(ManagedObjectReference _this, string[] domainNames)
     {
         this._this = _this;
@@ -7273,7 +7273,7 @@ public partial class IdS_setDefaultDomainsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="IdS_setDefaultDomainsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class IdS_setDefaultDomainsResponse
 {
-    
+
     public IdS_setDefaultDomainsResponse()
     {
     }
@@ -7285,14 +7285,14 @@ public partial class IdS_setDefaultDomainsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="IdS_getDefaultDomains", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class IdS_getDefaultDomainsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public IdS_getDefaultDomainsRequest()
     {
     }
-    
+
     public IdS_getDefaultDomainsRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -7305,15 +7305,15 @@ public partial class IdS_getDefaultDomainsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="IdS_getDefaultDomainsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class IdS_getDefaultDomainsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public string[] returnval;
-    
+
     public IdS_getDefaultDomainsResponse()
     {
     }
-    
+
     public IdS_getDefaultDomainsResponse(string[] returnval)
     {
         this.returnval = returnval;
@@ -7326,28 +7326,28 @@ public partial class IdS_getDefaultDomainsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="IdS_probeConnectivity", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class IdS_probeConnectivityRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     [System.Xml.Serialization.XmlElementAttribute(DataType="anyURI")]
     public string serviceUri;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string authenticationType;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=3)]
     public SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=4)]
     [System.Xml.Serialization.XmlElementAttribute("certificates")]
     public string[] certificates;
-    
+
     public IdS_probeConnectivityRequest()
     {
     }
-    
+
     public IdS_probeConnectivityRequest(ManagedObjectReference _this, string serviceUri, string authenticationType, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials, string[] certificates)
     {
         this._this = _this;
@@ -7364,7 +7364,7 @@ public partial class IdS_probeConnectivityRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="IdS_probeConnectivityResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class IdS_probeConnectivityResponse
 {
-    
+
     public IdS_probeConnectivityResponse()
     {
     }
@@ -7376,20 +7376,20 @@ public partial class IdS_probeConnectivityResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindPersonUsers", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindPersonUsersRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public int limit;
-    
+
     public FindPersonUsersRequest()
     {
     }
-    
+
     public FindPersonUsersRequest(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         this._this = _this;
@@ -7404,15 +7404,15 @@ public partial class FindPersonUsersRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindPersonUsersResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindPersonUsersResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminPersonUser[] returnval;
-    
+
     public FindPersonUsersResponse()
     {
     }
-    
+
     public FindPersonUsersResponse(SsoAdminPersonUser[] returnval)
     {
         this.returnval = returnval;
@@ -7425,20 +7425,20 @@ public partial class FindPersonUsersResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindPersonUsersByName", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindPersonUsersByNameRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public int limit;
-    
+
     public FindPersonUsersByNameRequest()
     {
     }
-    
+
     public FindPersonUsersByNameRequest(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         this._this = _this;
@@ -7453,15 +7453,15 @@ public partial class FindPersonUsersByNameRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindPersonUsersByNameResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindPersonUsersByNameResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminPersonUser[] returnval;
-    
+
     public FindPersonUsersByNameResponse()
     {
     }
-    
+
     public FindPersonUsersByNameResponse(SsoAdminPersonUser[] returnval)
     {
         this.returnval = returnval;
@@ -7474,20 +7474,20 @@ public partial class FindPersonUsersByNameResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindSolutionUsers", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindSolutionUsersRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public string searchString;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public int limit;
-    
+
     public FindSolutionUsersRequest()
     {
     }
-    
+
     public FindSolutionUsersRequest(ManagedObjectReference _this, string searchString, int limit)
     {
         this._this = _this;
@@ -7502,15 +7502,15 @@ public partial class FindSolutionUsersRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindSolutionUsersResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindSolutionUsersResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminSolutionUser[] returnval;
-    
+
     public FindSolutionUsersResponse()
     {
     }
-    
+
     public FindSolutionUsersResponse(SsoAdminSolutionUser[] returnval)
     {
         this.returnval = returnval;
@@ -7523,20 +7523,20 @@ public partial class FindSolutionUsersResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindUsers", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindUsersRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public int limit;
-    
+
     public FindUsersRequest()
     {
     }
-    
+
     public FindUsersRequest(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         this._this = _this;
@@ -7551,15 +7551,15 @@ public partial class FindUsersRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindUsersResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindUsersResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminUser[] returnval;
-    
+
     public FindUsersResponse()
     {
     }
-    
+
     public FindUsersResponse(SsoAdminUser[] returnval)
     {
         this.returnval = returnval;
@@ -7572,20 +7572,20 @@ public partial class FindUsersResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindGroups", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindGroupsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public int limit;
-    
+
     public FindGroupsRequest()
     {
     }
-    
+
     public FindGroupsRequest(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         this._this = _this;
@@ -7600,15 +7600,15 @@ public partial class FindGroupsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindGroupsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindGroupsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminGroup[] returnval;
-    
+
     public FindGroupsResponse()
     {
     }
-    
+
     public FindGroupsResponse(SsoAdminGroup[] returnval)
     {
         this.returnval = returnval;
@@ -7621,20 +7621,20 @@ public partial class FindGroupsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindGroupsByName", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindGroupsByNameRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public int limit;
-    
+
     public FindGroupsByNameRequest()
     {
     }
-    
+
     public FindGroupsByNameRequest(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         this._this = _this;
@@ -7649,15 +7649,15 @@ public partial class FindGroupsByNameRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindGroupsByNameResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindGroupsByNameResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminGroup[] returnval;
-    
+
     public FindGroupsByNameResponse()
     {
     }
-    
+
     public FindGroupsByNameResponse(SsoAdminGroup[] returnval)
     {
         this.returnval = returnval;
@@ -7670,23 +7670,23 @@ public partial class FindGroupsByNameResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindUsersInGroup", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindUsersInGroupRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoPrincipalId groupId;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string searchString;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=3)]
     public int limit;
-    
+
     public FindUsersInGroupRequest()
     {
     }
-    
+
     public FindUsersInGroupRequest(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         this._this = _this;
@@ -7702,15 +7702,15 @@ public partial class FindUsersInGroupRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindUsersInGroupResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindUsersInGroupResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminUser[] returnval;
-    
+
     public FindUsersInGroupResponse()
     {
     }
-    
+
     public FindUsersInGroupResponse(SsoAdminUser[] returnval)
     {
         this.returnval = returnval;
@@ -7723,23 +7723,23 @@ public partial class FindUsersInGroupResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindPersonUsersByNameInGroup", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindPersonUsersByNameInGroupRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoPrincipalId groupId;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string searchString;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=3)]
     public int limit;
-    
+
     public FindPersonUsersByNameInGroupRequest()
     {
     }
-    
+
     public FindPersonUsersByNameInGroupRequest(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         this._this = _this;
@@ -7755,15 +7755,15 @@ public partial class FindPersonUsersByNameInGroupRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindPersonUsersByNameInGroupResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindPersonUsersByNameInGroupResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminPersonUser[] returnval;
-    
+
     public FindPersonUsersByNameInGroupResponse()
     {
     }
-    
+
     public FindPersonUsersByNameInGroupResponse(SsoAdminPersonUser[] returnval)
     {
         this.returnval = returnval;
@@ -7776,23 +7776,23 @@ public partial class FindPersonUsersByNameInGroupResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindPersonUsersInGroup", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindPersonUsersInGroupRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoPrincipalId groupId;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string searchString;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=3)]
     public int limit;
-    
+
     public FindPersonUsersInGroupRequest()
     {
     }
-    
+
     public FindPersonUsersInGroupRequest(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         this._this = _this;
@@ -7808,15 +7808,15 @@ public partial class FindPersonUsersInGroupRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindPersonUsersInGroupResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindPersonUsersInGroupResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminPersonUser[] returnval;
-    
+
     public FindPersonUsersInGroupResponse()
     {
     }
-    
+
     public FindPersonUsersInGroupResponse(SsoAdminPersonUser[] returnval)
     {
         this.returnval = returnval;
@@ -7829,23 +7829,23 @@ public partial class FindPersonUsersInGroupResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindSolutionUsersInGroup", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindSolutionUsersInGroupRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public string groupName;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string searchString;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=3)]
     public int limit;
-    
+
     public FindSolutionUsersInGroupRequest()
     {
     }
-    
+
     public FindSolutionUsersInGroupRequest(ManagedObjectReference _this, string groupName, string searchString, int limit)
     {
         this._this = _this;
@@ -7861,15 +7861,15 @@ public partial class FindSolutionUsersInGroupRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindSolutionUsersInGroupResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindSolutionUsersInGroupResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminSolutionUser[] returnval;
-    
+
     public FindSolutionUsersInGroupResponse()
     {
     }
-    
+
     public FindSolutionUsersInGroupResponse(SsoAdminSolutionUser[] returnval)
     {
         this.returnval = returnval;
@@ -7882,23 +7882,23 @@ public partial class FindSolutionUsersInGroupResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindGroupsInGroup", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindGroupsInGroupRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoPrincipalId groupId;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string searchString;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=3)]
     public int limit;
-    
+
     public FindGroupsInGroupRequest()
     {
     }
-    
+
     public FindGroupsInGroupRequest(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         this._this = _this;
@@ -7914,15 +7914,15 @@ public partial class FindGroupsInGroupRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindGroupsInGroupResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindGroupsInGroupResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminGroup[] returnval;
-    
+
     public FindGroupsInGroupResponse()
     {
     }
-    
+
     public FindGroupsInGroupResponse(SsoAdminGroup[] returnval)
     {
         this.returnval = returnval;
@@ -7935,23 +7935,23 @@ public partial class FindGroupsInGroupResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindGroupsByNameInGroup", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindGroupsByNameInGroupRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoPrincipalId groupId;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string searchString;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=3)]
     public int limit;
-    
+
     public FindGroupsByNameInGroupRequest()
     {
     }
-    
+
     public FindGroupsByNameInGroupRequest(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         this._this = _this;
@@ -7967,15 +7967,15 @@ public partial class FindGroupsByNameInGroupRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindGroupsByNameInGroupResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindGroupsByNameInGroupResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminGroup[] returnval;
-    
+
     public FindGroupsByNameInGroupResponse()
     {
     }
-    
+
     public FindGroupsByNameInGroupResponse(SsoAdminGroup[] returnval)
     {
         this.returnval = returnval;
@@ -7988,17 +7988,17 @@ public partial class FindGroupsByNameInGroupResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindDirectParentGroups", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindDirectParentGroupsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoPrincipalId principalId;
-    
+
     public FindDirectParentGroupsRequest()
     {
     }
-    
+
     public FindDirectParentGroupsRequest(ManagedObjectReference _this, SsoPrincipalId principalId)
     {
         this._this = _this;
@@ -8012,15 +8012,15 @@ public partial class FindDirectParentGroupsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindDirectParentGroupsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindDirectParentGroupsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminGroup[] returnval;
-    
+
     public FindDirectParentGroupsResponse()
     {
     }
-    
+
     public FindDirectParentGroupsResponse(SsoAdminGroup[] returnval)
     {
         this.returnval = returnval;
@@ -8033,17 +8033,17 @@ public partial class FindDirectParentGroupsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindNestedParentGroups", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindNestedParentGroupsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoPrincipalId userId;
-    
+
     public FindNestedParentGroupsRequest()
     {
     }
-    
+
     public FindNestedParentGroupsRequest(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         this._this = _this;
@@ -8057,15 +8057,15 @@ public partial class FindNestedParentGroupsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindNestedParentGroupsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindNestedParentGroupsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminGroup[] returnval;
-    
+
     public FindNestedParentGroupsResponse()
     {
     }
-    
+
     public FindNestedParentGroupsResponse(SsoAdminGroup[] returnval)
     {
         this.returnval = returnval;
@@ -8078,20 +8078,20 @@ public partial class FindNestedParentGroupsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindLockedUsers", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindLockedUsersRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public string searchString;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public int limit;
-    
+
     public FindLockedUsersRequest()
     {
     }
-    
+
     public FindLockedUsersRequest(ManagedObjectReference _this, string searchString, int limit)
     {
         this._this = _this;
@@ -8106,15 +8106,15 @@ public partial class FindLockedUsersRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindLockedUsersResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindLockedUsersResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminPersonUser[] returnval;
-    
+
     public FindLockedUsersResponse()
     {
     }
-    
+
     public FindLockedUsersResponse(SsoAdminPersonUser[] returnval)
     {
         this.returnval = returnval;
@@ -8127,20 +8127,20 @@ public partial class FindLockedUsersResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindDisabledPersonUsers", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindDisabledPersonUsersRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public string searchString;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public int limit;
-    
+
     public FindDisabledPersonUsersRequest()
     {
     }
-    
+
     public FindDisabledPersonUsersRequest(ManagedObjectReference _this, string searchString, int limit)
     {
         this._this = _this;
@@ -8155,15 +8155,15 @@ public partial class FindDisabledPersonUsersRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindDisabledPersonUsersResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindDisabledPersonUsersResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminPersonUser[] returnval;
-    
+
     public FindDisabledPersonUsersResponse()
     {
     }
-    
+
     public FindDisabledPersonUsersResponse(SsoAdminPersonUser[] returnval)
     {
         this.returnval = returnval;
@@ -8176,17 +8176,17 @@ public partial class FindDisabledPersonUsersResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindDisabledSolutionUsers", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindDisabledSolutionUsersRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public string searchString;
-    
+
     public FindDisabledSolutionUsersRequest()
     {
     }
-    
+
     public FindDisabledSolutionUsersRequest(ManagedObjectReference _this, string searchString)
     {
         this._this = _this;
@@ -8200,15 +8200,15 @@ public partial class FindDisabledSolutionUsersRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindDisabledSolutionUsersResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindDisabledSolutionUsersResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoAdminSolutionUser[] returnval;
-    
+
     public FindDisabledSolutionUsersResponse()
     {
     }
-    
+
     public FindDisabledSolutionUsersResponse(SsoAdminSolutionUser[] returnval)
     {
         this.returnval = returnval;
@@ -8221,14 +8221,14 @@ public partial class FindDisabledSolutionUsersResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetImplicitGroupNames", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetImplicitGroupNamesRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public GetImplicitGroupNamesRequest()
     {
     }
-    
+
     public GetImplicitGroupNamesRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -8241,15 +8241,15 @@ public partial class GetImplicitGroupNamesRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="GetImplicitGroupNamesResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class GetImplicitGroupNamesResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public string[] returnval;
-    
+
     public GetImplicitGroupNamesResponse()
     {
     }
-    
+
     public GetImplicitGroupNamesResponse(string[] returnval)
     {
         this.returnval = returnval;
@@ -8262,21 +8262,21 @@ public partial class GetImplicitGroupNamesResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="RemovePrincipalsFromLocalGroup", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class RemovePrincipalsFromLocalGroupRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     [System.Xml.Serialization.XmlElementAttribute("principalsIds")]
     public SsoPrincipalId[] principalsIds;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string groupName;
-    
+
     public RemovePrincipalsFromLocalGroupRequest()
     {
     }
-    
+
     public RemovePrincipalsFromLocalGroupRequest(ManagedObjectReference _this, SsoPrincipalId[] principalsIds, string groupName)
     {
         this._this = _this;
@@ -8291,15 +8291,15 @@ public partial class RemovePrincipalsFromLocalGroupRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="RemovePrincipalsFromLocalGroupResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class RemovePrincipalsFromLocalGroupResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public bool[] returnval;
-    
+
     public RemovePrincipalsFromLocalGroupResponse()
     {
     }
-    
+
     public RemovePrincipalsFromLocalGroupResponse(bool[] returnval)
     {
         this.returnval = returnval;
@@ -8312,21 +8312,21 @@ public partial class RemovePrincipalsFromLocalGroupResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="AddUsersToLocalGroup", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class AddUsersToLocalGroupRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     [System.Xml.Serialization.XmlElementAttribute("userIds")]
     public SsoPrincipalId[] userIds;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string groupName;
-    
+
     public AddUsersToLocalGroupRequest()
     {
     }
-    
+
     public AddUsersToLocalGroupRequest(ManagedObjectReference _this, SsoPrincipalId[] userIds, string groupName)
     {
         this._this = _this;
@@ -8341,15 +8341,15 @@ public partial class AddUsersToLocalGroupRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="AddUsersToLocalGroupResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class AddUsersToLocalGroupResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public bool[] returnval;
-    
+
     public AddUsersToLocalGroupResponse()
     {
     }
-    
+
     public AddUsersToLocalGroupResponse(bool[] returnval)
     {
         this.returnval = returnval;
@@ -8362,21 +8362,21 @@ public partial class AddUsersToLocalGroupResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="AddGroupsToLocalGroup", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class AddGroupsToLocalGroupRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     [System.Xml.Serialization.XmlElementAttribute("groupIds")]
     public SsoPrincipalId[] groupIds;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     public string groupName;
-    
+
     public AddGroupsToLocalGroupRequest()
     {
     }
-    
+
     public AddGroupsToLocalGroupRequest(ManagedObjectReference _this, SsoPrincipalId[] groupIds, string groupName)
     {
         this._this = _this;
@@ -8391,15 +8391,15 @@ public partial class AddGroupsToLocalGroupRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="AddGroupsToLocalGroupResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class AddGroupsToLocalGroupResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public bool[] returnval;
-    
+
     public AddGroupsToLocalGroupResponse()
     {
     }
-    
+
     public AddGroupsToLocalGroupResponse(bool[] returnval)
     {
         this.returnval = returnval;
@@ -8412,14 +8412,14 @@ public partial class AddGroupsToLocalGroupResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="ExportFullState", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class ExportFullStateRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     public ExportFullStateRequest()
     {
     }
-    
+
     public ExportFullStateRequest(ManagedObjectReference _this)
     {
         this._this = _this;
@@ -8432,15 +8432,15 @@ public partial class ExportFullStateRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="ExportFullStateResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class ExportFullStateResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute(DataType="base64Binary")]
     public byte[] returnval;
-    
+
     public ExportFullStateResponse()
     {
     }
-    
+
     public ExportFullStateResponse(byte[] returnval)
     {
         this.returnval = returnval;
@@ -8453,18 +8453,18 @@ public partial class ExportFullStateResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="ImportFullState", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class ImportFullStateRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     [System.Xml.Serialization.XmlElementAttribute(DataType="base64Binary")]
     public byte[] fullState;
-    
+
     public ImportFullStateRequest()
     {
     }
-    
+
     public ImportFullStateRequest(ManagedObjectReference _this, byte[] fullState)
     {
         this._this = _this;
@@ -8478,7 +8478,7 @@ public partial class ImportFullStateRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="ImportFullStateResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class ImportFullStateResponse
 {
-    
+
     public ImportFullStateResponse()
     {
     }
@@ -8490,21 +8490,21 @@ public partial class ImportFullStateResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindParentGroups", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindParentGroupsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoPrincipalId userId;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=2)]
     [System.Xml.Serialization.XmlElementAttribute("groupList")]
     public SsoPrincipalId[] groupList;
-    
+
     public FindParentGroupsRequest()
     {
     }
-    
+
     public FindParentGroupsRequest(ManagedObjectReference _this, SsoPrincipalId userId, SsoPrincipalId[] groupList)
     {
         this._this = _this;
@@ -8519,15 +8519,15 @@ public partial class FindParentGroupsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindParentGroupsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindParentGroupsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoPrincipalId[] returnval;
-    
+
     public FindParentGroupsResponse()
     {
     }
-    
+
     public FindParentGroupsResponse(SsoPrincipalId[] returnval)
     {
         this.returnval = returnval;
@@ -8540,17 +8540,17 @@ public partial class FindParentGroupsResponse
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindAllParentGroups", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindAllParentGroupsRequest
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     public ManagedObjectReference _this;
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=1)]
     public SsoPrincipalId userId;
-    
+
     public FindAllParentGroupsRequest()
     {
     }
-    
+
     public FindAllParentGroupsRequest(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         this._this = _this;
@@ -8564,15 +8564,15 @@ public partial class FindAllParentGroupsRequest
 [System.ServiceModel.MessageContractAttribute(WrapperName="FindAllParentGroupsResponse", WrapperNamespace="urn:sso", IsWrapped=true)]
 public partial class FindAllParentGroupsResponse
 {
-    
+
     [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sso", Order=0)]
     [System.Xml.Serialization.XmlElementAttribute("returnval")]
     public SsoPrincipalId[] returnval;
-    
+
     public FindAllParentGroupsResponse()
     {
     }
-    
+
     public FindAllParentGroupsResponse(SsoPrincipalId[] returnval)
     {
         this.returnval = returnval;
@@ -8588,101 +8588,101 @@ public interface SsoPortTypeChannel : SsoPortType, System.ServiceModel.IClientCh
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
 public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortType>, SsoPortType
 {
-    
+
     /// <summary>
     /// Implement this partial method to configure the service endpoint.
     /// </summary>
     /// <param name="serviceEndpoint">The endpoint to configure</param>
     /// <param name="clientCredentials">The client credentials</param>
     static partial void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials);
-    
-    public SsoPortTypeClient() : 
+
+    public SsoPortTypeClient() :
             base(SsoPortTypeClient.GetDefaultBinding(), SsoPortTypeClient.GetDefaultEndpointAddress())
     {
         this.Endpoint.Name = EndpointConfiguration.SsoPort.ToString();
         ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
     }
-    
-    public SsoPortTypeClient(EndpointConfiguration endpointConfiguration) : 
+
+    public SsoPortTypeClient(EndpointConfiguration endpointConfiguration) :
             base(SsoPortTypeClient.GetBindingForEndpoint(endpointConfiguration), SsoPortTypeClient.GetEndpointAddress(endpointConfiguration))
     {
         this.Endpoint.Name = endpointConfiguration.ToString();
         ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
     }
-    
-    public SsoPortTypeClient(EndpointConfiguration endpointConfiguration, string remoteAddress) : 
+
+    public SsoPortTypeClient(EndpointConfiguration endpointConfiguration, string remoteAddress) :
             base(SsoPortTypeClient.GetBindingForEndpoint(endpointConfiguration), new System.ServiceModel.EndpointAddress(remoteAddress))
     {
         this.Endpoint.Name = endpointConfiguration.ToString();
         ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
     }
-    
-    public SsoPortTypeClient(EndpointConfiguration endpointConfiguration, System.ServiceModel.EndpointAddress remoteAddress) : 
+
+    public SsoPortTypeClient(EndpointConfiguration endpointConfiguration, System.ServiceModel.EndpointAddress remoteAddress) :
             base(SsoPortTypeClient.GetBindingForEndpoint(endpointConfiguration), remoteAddress)
     {
         this.Endpoint.Name = endpointConfiguration.ToString();
         ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
     }
-    
-    public SsoPortTypeClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+
+    public SsoPortTypeClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
             base(binding, remoteAddress)
     {
     }
-    
+
     public System.Threading.Tasks.Task LoginAsync(ManagedObjectReference _this)
     {
         return base.Channel.LoginAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task LogoutAsync(ManagedObjectReference _this)
     {
         return base.Channel.LogoutAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<string> SetLocaleAsync(ManagedObjectReference _this, string locale)
     {
         return base.Channel.SetLocaleAsync(_this, locale);
     }
-    
+
     public System.Threading.Tasks.Task<string> GetLocaleAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetLocaleAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<bool> AddCertificateAsync(ManagedObjectReference _this, string certificate)
     {
         return base.Channel.AddCertificateAsync(_this, certificate);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<GetAllCertificatesResponse> SsoPortType.GetAllCertificatesAsync(GetAllCertificatesRequest request)
     {
         return base.Channel.GetAllCertificatesAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<GetAllCertificatesResponse> GetAllCertificatesAsync(ManagedObjectReference _this)
     {
         GetAllCertificatesRequest inValue = new GetAllCertificatesRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).GetAllCertificatesAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<string> FindCertificateAsync(ManagedObjectReference _this, string fingerprint)
     {
         return base.Channel.FindCertificateAsync(_this, fingerprint);
     }
-    
+
     public System.Threading.Tasks.Task<bool> DeleteCertificateAsync(ManagedObjectReference _this, string fingerprint)
     {
         return base.Channel.DeleteCertificateAsync(_this, fingerprint);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<GetComputersResponse> SsoPortType.GetComputersAsync(GetComputersRequest request)
     {
         return base.Channel.GetComputersAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<GetComputersResponse> GetComputersAsync(ManagedObjectReference _this, bool getDCOnly)
     {
         GetComputersRequest inValue = new GetComputersRequest();
@@ -8690,264 +8690,264 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.getDCOnly = getDCOnly;
         return ((SsoPortType)(this)).GetComputersAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<GetKnownCertificateChainsResponse> SsoPortType.GetKnownCertificateChainsAsync(GetKnownCertificateChainsRequest request)
     {
         return base.Channel.GetKnownCertificateChainsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<GetKnownCertificateChainsResponse> GetKnownCertificateChainsAsync(ManagedObjectReference _this)
     {
         GetKnownCertificateChainsRequest inValue = new GetKnownCertificateChainsRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).GetKnownCertificateChainsAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<GetTrustedCertificatesResponse> SsoPortType.GetTrustedCertificatesAsync(GetTrustedCertificatesRequest request)
     {
         return base.Channel.GetTrustedCertificatesAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<GetTrustedCertificatesResponse> GetTrustedCertificatesAsync(ManagedObjectReference _this)
     {
         GetTrustedCertificatesRequest inValue = new GetTrustedCertificatesRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).GetTrustedCertificatesAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<GetIssuersCertificatesResponse> SsoPortType.GetIssuersCertificatesAsync(GetIssuersCertificatesRequest request)
     {
         return base.Channel.GetIssuersCertificatesAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<GetIssuersCertificatesResponse> GetIssuersCertificatesAsync(ManagedObjectReference _this)
     {
         GetIssuersCertificatesRequest inValue = new GetIssuersCertificatesRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).GetIssuersCertificatesAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task ImportTrustedSTSConfigurationAsync(ManagedObjectReference _this, SsoAdminTrustedSTSConfig stsConfig)
     {
         return base.Channel.ImportTrustedSTSConfigurationAsync(_this, stsConfig);
     }
-    
+
     public System.Threading.Tasks.Task RemoveTrustedSTSConfigurationAsync(ManagedObjectReference _this, string issuerName)
     {
         return base.Channel.RemoveTrustedSTSConfigurationAsync(_this, issuerName);
     }
-    
+
     public System.Threading.Tasks.Task ImportExternalIDPConfigurationAsync(ManagedObjectReference _this, string externalIDPConfigDoc)
     {
         return base.Channel.ImportExternalIDPConfigurationAsync(_this, externalIDPConfigDoc);
     }
-    
+
     public System.Threading.Tasks.Task CreateExternalIDPConfigurationAsync(ManagedObjectReference _this, SsoAdminIDPConfiguration config)
     {
         return base.Channel.CreateExternalIDPConfigurationAsync(_this, config);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminIDPConfiguration> GetExternalIDPConfigurationAsync(ManagedObjectReference _this, string entityID)
     {
         return base.Channel.GetExternalIDPConfigurationAsync(_this, entityID);
     }
-    
+
     public System.Threading.Tasks.Task SetExternalIDPConfigurationAsync(ManagedObjectReference _this, SsoAdminIDPConfiguration config)
     {
         return base.Channel.SetExternalIDPConfigurationAsync(_this, config);
     }
-    
+
     public System.Threading.Tasks.Task DeleteExternalIDPConfigurationAsync(ManagedObjectReference _this, string entityID)
     {
         return base.Channel.DeleteExternalIDPConfigurationAsync(_this, entityID);
     }
-    
+
     public System.Threading.Tasks.Task DeleteExternalIDPConfigurationAndUsersAsync(ManagedObjectReference _this, string entityID)
     {
         return base.Channel.DeleteExternalIDPConfigurationAndUsersAsync(_this, entityID);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<EnumerateExternalIDPEntityIDsResponse> SsoPortType.EnumerateExternalIDPEntityIDsAsync(EnumerateExternalIDPEntityIDsRequest request)
     {
         return base.Channel.EnumerateExternalIDPEntityIDsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<EnumerateExternalIDPEntityIDsResponse> EnumerateExternalIDPEntityIDsAsync(ManagedObjectReference _this)
     {
         EnumerateExternalIDPEntityIDsRequest inValue = new EnumerateExternalIDPEntityIDsRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).EnumerateExternalIDPEntityIDsAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<GetExternalIdpTrustedCertificateChainsResponse> SsoPortType.GetExternalIdpTrustedCertificateChainsAsync(GetExternalIdpTrustedCertificateChainsRequest request)
     {
         return base.Channel.GetExternalIdpTrustedCertificateChainsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<GetExternalIdpTrustedCertificateChainsResponse> GetExternalIdpTrustedCertificateChainsAsync(ManagedObjectReference _this)
     {
         GetExternalIdpTrustedCertificateChainsRequest inValue = new GetExternalIdpTrustedCertificateChainsRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).GetExternalIdpTrustedCertificateChainsAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminConfigurationManagementServiceCertificateChain> GetExternalIdpTrustedCertificateChainAsync(ManagedObjectReference _this, string entityId)
     {
         return base.Channel.GetExternalIdpTrustedCertificateChainAsync(_this, entityId);
     }
-    
+
     public System.Threading.Tasks.Task<bool> DeleteTrustedCertificateAsync(ManagedObjectReference _this, string fingerprint)
     {
         return base.Channel.DeleteTrustedCertificateAsync(_this, fingerprint);
     }
-    
+
     public System.Threading.Tasks.Task SetNewSignerIdentityAsync(ManagedObjectReference _this, string signingKey, SsoAdminConfigurationManagementServiceCertificateChain signingCertificateChain)
     {
         return base.Channel.SetNewSignerIdentityAsync(_this, signingKey, signingCertificateChain);
     }
-    
+
     public System.Threading.Tasks.Task SetSignerIdentityAsync(ManagedObjectReference _this, SsoPrincipalId adminUser, string adminPass, string signingKey, SsoAdminConfigurationManagementServiceCertificateChain signingCertificateChain)
     {
         return base.Channel.SetSignerIdentityAsync(_this, adminUser, adminPass, signingKey, signingCertificateChain);
     }
-    
+
     public System.Threading.Tasks.Task<long> GetClockToleranceAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetClockToleranceAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task SetClockToleranceAsync(ManagedObjectReference _this, long milliseconds)
     {
         return base.Channel.SetClockToleranceAsync(_this, milliseconds);
     }
-    
+
     public System.Threading.Tasks.Task<int> GetDelegationCountAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetDelegationCountAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task SetDelegationCountAsync(ManagedObjectReference _this, int delegationCount)
     {
         return base.Channel.SetDelegationCountAsync(_this, delegationCount);
     }
-    
+
     public System.Threading.Tasks.Task<int> GetRenewCountAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetRenewCountAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task SetRenewCountAsync(ManagedObjectReference _this, int renewCount)
     {
         return base.Channel.SetRenewCountAsync(_this, renewCount);
     }
-    
+
     public System.Threading.Tasks.Task<long> GetMaximumBearerTokenLifetimeAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetMaximumBearerTokenLifetimeAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task SetMaximumBearerTokenLifetimeAsync(ManagedObjectReference _this, long maxLifetime)
     {
         return base.Channel.SetMaximumBearerTokenLifetimeAsync(_this, maxLifetime);
     }
-    
+
     public System.Threading.Tasks.Task<long> GetMaximumHoKTokenLifetimeAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetMaximumHoKTokenLifetimeAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task SetMaximumHoKTokenLifetimeAsync(ManagedObjectReference _this, long maxLifetime)
     {
         return base.Channel.SetMaximumHoKTokenLifetimeAsync(_this, maxLifetime);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminPasswordExpirationConfig> GetPasswordExpirationConfigurationAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetPasswordExpirationConfigurationAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task UpdatePasswordExpirationConfigurationAsync(ManagedObjectReference _this, SsoAdminPasswordExpirationConfig config)
     {
         return base.Channel.UpdatePasswordExpirationConfigurationAsync(_this, config);
     }
-    
+
     public System.Threading.Tasks.Task ImportSAMLMetadataAsync(ManagedObjectReference _this, string samlConfigDoc)
     {
         return base.Channel.ImportSAMLMetadataAsync(_this, samlConfigDoc);
     }
-    
+
     public System.Threading.Tasks.Task DeleteRelyingPartyAsync(ManagedObjectReference _this, string rpName)
     {
         return base.Channel.DeleteRelyingPartyAsync(_this, rpName);
     }
-    
+
     public System.Threading.Tasks.Task<string> GetIssuerNameAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetIssuerNameAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<bool> IsExternalIDPJitEnabledAsync(ManagedObjectReference _this, string entityID)
     {
         return base.Channel.IsExternalIDPJitEnabledAsync(_this, entityID);
     }
-    
+
     public System.Threading.Tasks.Task SetExternalIDPJitAttributeAsync(ManagedObjectReference _this, string entityID, bool enableJit)
     {
         return base.Channel.SetExternalIDPJitAttributeAsync(_this, entityID, enableJit);
     }
-    
+
     public System.Threading.Tasks.Task SetAuthnPolicyAsync(ManagedObjectReference _this, SsoAdminAuthnPolicy policy)
     {
         return base.Channel.SetAuthnPolicyAsync(_this, policy);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminAuthnPolicy> GetAuthnPolicyAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetAuthnPolicyAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<bool> IsMultiSiteDeploymentAsync(ManagedObjectReference _this)
     {
         return base.Channel.IsMultiSiteDeploymentAsync(_this);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<RetrieveHaBackupConfigurationPackageResponse> SsoPortType.RetrieveHaBackupConfigurationPackageAsync(RetrieveHaBackupConfigurationPackageRequest request)
     {
         return base.Channel.RetrieveHaBackupConfigurationPackageAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<RetrieveHaBackupConfigurationPackageResponse> RetrieveHaBackupConfigurationPackageAsync(ManagedObjectReference _this)
     {
         RetrieveHaBackupConfigurationPackageRequest inValue = new RetrieveHaBackupConfigurationPackageRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).RetrieveHaBackupConfigurationPackageAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<RetrieveReplicaConfigurationPackageResponse> SsoPortType.RetrieveReplicaConfigurationPackageAsync(RetrieveReplicaConfigurationPackageRequest request)
     {
         return base.Channel.RetrieveReplicaConfigurationPackageAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<RetrieveReplicaConfigurationPackageResponse> RetrieveReplicaConfigurationPackageAsync(ManagedObjectReference _this)
     {
         RetrieveReplicaConfigurationPackageRequest inValue = new RetrieveReplicaConfigurationPackageRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).RetrieveReplicaConfigurationPackageAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<ProbeConnectivityResponse> SsoPortType.ProbeConnectivityAsync(ProbeConnectivityRequest request)
     {
         return base.Channel.ProbeConnectivityAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<ProbeConnectivityResponse> ProbeConnectivityAsync(ManagedObjectReference _this, string serviceUri, string authenticationType, SsoAdminDomainManagementServiceAuthenticationCredentails authnCredentials, string[] certificates)
     {
         ProbeConnectivityRequest inValue = new ProbeConnectivityRequest();
@@ -8958,128 +8958,128 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.certificates = certificates;
         return ((SsoPortType)(this)).ProbeConnectivityAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task AddExternalDomainAsync(ManagedObjectReference _this, string serverType, string domainName, string domainAlias, SsoAdminExternalDomainDetails details, string authenticationType, SsoAdminDomainManagementServiceAuthenticationCredentails authnCredentials)
     {
         return base.Channel.AddExternalDomainAsync(_this, serverType, domainName, domainAlias, details, authenticationType, authnCredentials);
     }
-    
+
     public System.Threading.Tasks.Task RegisterLocalOSDomainAsync(ManagedObjectReference _this, string domainName)
     {
         return base.Channel.RegisterLocalOSDomainAsync(_this, domainName);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminDomains> GetDomainsAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetDomainsAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminExternalDomain> FindExternalDomainAsync(ManagedObjectReference _this, string name)
     {
         return base.Channel.FindExternalDomainAsync(_this, name);
     }
-    
+
     public System.Threading.Tasks.Task SetBrandNameAsync(ManagedObjectReference _this, string brandName)
     {
         return base.Channel.SetBrandNameAsync(_this, brandName);
     }
-    
+
     public System.Threading.Tasks.Task<string> GetBrandNameAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetBrandNameAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task SetLogonBannerAsync(ManagedObjectReference _this, string logonBanner)
     {
         return base.Channel.SetLogonBannerAsync(_this, logonBanner);
     }
-    
+
     public System.Threading.Tasks.Task<string> GetLogonBannerAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetLogonBannerAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task SetLogonBannerTitleAsync(ManagedObjectReference _this, string logonBannerTitle)
     {
         return base.Channel.SetLogonBannerTitleAsync(_this, logonBannerTitle);
     }
-    
+
     public System.Threading.Tasks.Task<string> GetLogonBannerTitleAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetLogonBannerTitleAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task SetLogonBannerContentAsync(ManagedObjectReference _this, string logonBannerContent)
     {
         return base.Channel.SetLogonBannerContentAsync(_this, logonBannerContent);
     }
-    
+
     public System.Threading.Tasks.Task<string> GetLogonBannerContentAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetLogonBannerContentAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task SetLogonBannerCheckboxFlagAsync(ManagedObjectReference _this, bool enableLogonBannerCheckbox)
     {
         return base.Channel.SetLogonBannerCheckboxFlagAsync(_this, enableLogonBannerCheckbox);
     }
-    
+
     public System.Threading.Tasks.Task<bool> GetLogonBannerCheckboxFlagAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetLogonBannerCheckboxFlagAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task DisableLogonBannerAsync(ManagedObjectReference _this)
     {
         return base.Channel.DisableLogonBannerAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<bool> IsLogonBannerDisabledAsync(ManagedObjectReference _this)
     {
         return base.Channel.IsLogonBannerDisabledAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<string> GetSystemDomainNameAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetSystemDomainNameAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<string> GetSystemTenantNameAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetSystemTenantNameAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<string> GetLocalOSDomainNameAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetLocalOSDomainNameAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task UpdateExternalDomainDetailsAsync(ManagedObjectReference _this, string name, SsoAdminExternalDomainDetails details)
     {
         return base.Channel.UpdateExternalDomainDetailsAsync(_this, name, details);
     }
-    
+
     public System.Threading.Tasks.Task UpdateExternalDomainAuthnTypeAsync(ManagedObjectReference _this, string name, string authnType, SsoAdminDomainManagementServiceAuthenticationCredentails authnCredentials)
     {
         return base.Channel.UpdateExternalDomainAuthnTypeAsync(_this, name, authnType, authnCredentials);
     }
-    
+
     public System.Threading.Tasks.Task<bool> RegisterUpnSuffixAsync(ManagedObjectReference _this, string domainName, string upnSuffix)
     {
         return base.Channel.RegisterUpnSuffixAsync(_this, domainName, upnSuffix);
     }
-    
+
     public System.Threading.Tasks.Task<bool> UnRegisterUpnSuffixAsync(ManagedObjectReference _this, string domainName, string upnSuffix)
     {
         return base.Channel.UnRegisterUpnSuffixAsync(_this, domainName, upnSuffix);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<GetUpnSuffixesResponse> SsoPortType.GetUpnSuffixesAsync(GetUpnSuffixesRequest request)
     {
         return base.Channel.GetUpnSuffixesAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<GetUpnSuffixesResponse> GetUpnSuffixesAsync(ManagedObjectReference _this, string domainName)
     {
         GetUpnSuffixesRequest inValue = new GetUpnSuffixesRequest();
@@ -9087,23 +9087,23 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.domainName = domainName;
         return ((SsoPortType)(this)).GetUpnSuffixesAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task DeleteDomainAsync(ManagedObjectReference _this, string name)
     {
         return base.Channel.DeleteDomainAsync(_this, name);
     }
-    
+
     public System.Threading.Tasks.Task<ManagedObjectReference> GetSslCertificateManagerAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetSslCertificateManagerAsync(_this);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<SetDefaultDomainsResponse> SsoPortType.SetDefaultDomainsAsync(SetDefaultDomainsRequest request)
     {
         return base.Channel.SetDefaultDomainsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<SetDefaultDomainsResponse> SetDefaultDomainsAsync(ManagedObjectReference _this, string[] domainNames)
     {
         SetDefaultDomainsRequest inValue = new SetDefaultDomainsRequest();
@@ -9111,81 +9111,81 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.domainNames = domainNames;
         return ((SsoPortType)(this)).SetDefaultDomainsAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<GetDefaultDomainsResponse> SsoPortType.GetDefaultDomainsAsync(GetDefaultDomainsRequest request)
     {
         return base.Channel.GetDefaultDomainsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<GetDefaultDomainsResponse> GetDefaultDomainsAsync(ManagedObjectReference _this)
     {
         GetDefaultDomainsRequest inValue = new GetDefaultDomainsRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).GetDefaultDomainsAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminConfigurationManagementServiceCertificateChain> GetSslIdentityAsync(ManagedObjectReference _this, string host, int ldapsPort)
     {
         return base.Channel.GetSslIdentityAsync(_this, host, ldapsPort);
     }
-    
+
     public System.Threading.Tasks.Task RegisterLdapAsync(ManagedObjectReference _this, string serverType, string domainName, string domainAlias, SsoAdminLdapIdentitySourceDetails details, string authenticationType, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials)
     {
         return base.Channel.RegisterLdapAsync(_this, serverType, domainName, domainAlias, details, authenticationType, authnCredentials);
     }
-    
+
     public System.Threading.Tasks.Task RegisterActiveDirectoryAsync(ManagedObjectReference _this, string domainName, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials, SsoAdminExternalDomainSchemaDetails schemaMapping)
     {
         return base.Channel.RegisterActiveDirectoryAsync(_this, domainName, authnCredentials, schemaMapping);
     }
-    
+
     public System.Threading.Tasks.Task RegisterLocalOSAsync(ManagedObjectReference _this, string name)
     {
         return base.Channel.RegisterLocalOSAsync(_this, name);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminIdentitySources> GetAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminAuthenticationAccountInfo> GetActiveDirectoryAuthnAccountInfoAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetActiveDirectoryAuthnAccountInfoAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<string> IdS_getSystemDomainNameAsync(ManagedObjectReference _this)
     {
         return base.Channel.IdS_getSystemDomainNameAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task UpdateLdapAsync(ManagedObjectReference _this, string name, SsoAdminLdapIdentitySourceDetails details)
     {
         return base.Channel.UpdateLdapAsync(_this, name, details);
     }
-    
+
     public System.Threading.Tasks.Task UpdateActiveDirectoryAsync(ManagedObjectReference _this, string domainName, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials, SsoAdminExternalDomainSchemaDetails schemaMapping)
     {
         return base.Channel.UpdateActiveDirectoryAsync(_this, domainName, authnCredentials, schemaMapping);
     }
-    
+
     public System.Threading.Tasks.Task UpdateLdapAuthnTypeAsync(ManagedObjectReference _this, string name, string authnType, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials)
     {
         return base.Channel.UpdateLdapAuthnTypeAsync(_this, name, authnType, authnCredentials);
     }
-    
+
     public System.Threading.Tasks.Task DeleteAsync(ManagedObjectReference _this, string name)
     {
         return base.Channel.DeleteAsync(_this, name);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<IdS_setDefaultDomainsResponse> SsoPortType.IdS_setDefaultDomainsAsync(IdS_setDefaultDomainsRequest request)
     {
         return base.Channel.IdS_setDefaultDomainsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<IdS_setDefaultDomainsResponse> IdS_setDefaultDomainsAsync(ManagedObjectReference _this, string[] domainNames)
     {
         IdS_setDefaultDomainsRequest inValue = new IdS_setDefaultDomainsRequest();
@@ -9193,31 +9193,31 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.domainNames = domainNames;
         return ((SsoPortType)(this)).IdS_setDefaultDomainsAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<IdS_getDefaultDomainsResponse> SsoPortType.IdS_getDefaultDomainsAsync(IdS_getDefaultDomainsRequest request)
     {
         return base.Channel.IdS_getDefaultDomainsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<IdS_getDefaultDomainsResponse> IdS_getDefaultDomainsAsync(ManagedObjectReference _this)
     {
         IdS_getDefaultDomainsRequest inValue = new IdS_getDefaultDomainsRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).IdS_getDefaultDomainsAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<ManagedObjectReference> IdS_getSslCertificateManagerAsync(ManagedObjectReference _this)
     {
         return base.Channel.IdS_getSslCertificateManagerAsync(_this);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<IdS_probeConnectivityResponse> SsoPortType.IdS_probeConnectivityAsync(IdS_probeConnectivityRequest request)
     {
         return base.Channel.IdS_probeConnectivityAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<IdS_probeConnectivityResponse> IdS_probeConnectivityAsync(ManagedObjectReference _this, string serviceUri, string authenticationType, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredentials, string[] certificates)
     {
         IdS_probeConnectivityRequest inValue = new IdS_probeConnectivityRequest();
@@ -9228,78 +9228,78 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.certificates = certificates;
         return ((SsoPortType)(this)).IdS_probeConnectivityAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task IdS_probeLdapConnectivityAsync(ManagedObjectReference _this, string domainName, SsoAdminIdentitySourceManagementServiceAuthenticationCredentials authnCredential, SsoAdminLdapIdentitySource identitySource)
     {
         return base.Channel.IdS_probeLdapConnectivityAsync(_this, domainName, authnCredential, identitySource);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminConfigurationManagementServiceCertificateChain> IdS_getSslIdentityAsync(ManagedObjectReference _this, string host, int ldapsPort)
     {
         return base.Channel.IdS_getSslIdentityAsync(_this, host, ldapsPort);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminLockoutPolicy> GetLockoutPolicyAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetLockoutPolicyAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task UpdateLockoutPolicyAsync(ManagedObjectReference _this, SsoAdminLockoutPolicy policy)
     {
         return base.Channel.UpdateLockoutPolicyAsync(_this, policy);
     }
-    
+
     public System.Threading.Tasks.Task UpdateLocalPasswordPolicyAsync(ManagedObjectReference _this, SsoAdminPasswordPolicy policy)
     {
         return base.Channel.UpdateLocalPasswordPolicyAsync(_this, policy);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminPasswordPolicy> GetLocalPasswordPolicyAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetLocalPasswordPolicyAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<SsoPrincipalId> LookupAsync(ManagedObjectReference _this, SsoPrincipalId id, bool isGroup)
     {
         return base.Channel.LookupAsync(_this, id, isGroup);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminPersonUser> FindPersonUserAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.FindPersonUserAsync(_this, userId);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminPersonUser> FindSelfPersonUserAsync(ManagedObjectReference _this)
     {
         return base.Channel.FindSelfPersonUserAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminSolutionUser> FindSolutionUserAsync(ManagedObjectReference _this, string userName)
     {
         return base.Channel.FindSolutionUserAsync(_this, userName);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminSolutionUser> FindSolutionUserByCertDNAsync(ManagedObjectReference _this, string certDN)
     {
         return base.Channel.FindSolutionUserByCertDNAsync(_this, certDN);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminUser> FindUserAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.FindUserAsync(_this, userId);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminGroup> FindGroupAsync(ManagedObjectReference _this, SsoPrincipalId groupId)
     {
         return base.Channel.FindGroupAsync(_this, groupId);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindPersonUsersResponse> SsoPortType.FindPersonUsersAsync(FindPersonUsersRequest request)
     {
         return base.Channel.FindPersonUsersAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindPersonUsersResponse> FindPersonUsersAsync(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         FindPersonUsersRequest inValue = new FindPersonUsersRequest();
@@ -9308,13 +9308,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindPersonUsersAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindPersonUsersByNameResponse> SsoPortType.FindPersonUsersByNameAsync(FindPersonUsersByNameRequest request)
     {
         return base.Channel.FindPersonUsersByNameAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindPersonUsersByNameResponse> FindPersonUsersByNameAsync(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         FindPersonUsersByNameRequest inValue = new FindPersonUsersByNameRequest();
@@ -9323,13 +9323,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindPersonUsersByNameAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindSolutionUsersResponse> SsoPortType.FindSolutionUsersAsync(FindSolutionUsersRequest request)
     {
         return base.Channel.FindSolutionUsersAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindSolutionUsersResponse> FindSolutionUsersAsync(ManagedObjectReference _this, string searchString, int limit)
     {
         FindSolutionUsersRequest inValue = new FindSolutionUsersRequest();
@@ -9338,13 +9338,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindSolutionUsersAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindUsersResponse> SsoPortType.FindUsersAsync(FindUsersRequest request)
     {
         return base.Channel.FindUsersAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindUsersResponse> FindUsersAsync(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         FindUsersRequest inValue = new FindUsersRequest();
@@ -9353,23 +9353,23 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindUsersAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminPrincipalDiscoveryServiceSearchResult> FindUserAccountAsync(ManagedObjectReference _this, string userName)
     {
         return base.Channel.FindUserAccountAsync(_this, userName);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminGroup> FindGroupAccountAsync(ManagedObjectReference _this, string groupName)
     {
         return base.Channel.FindGroupAccountAsync(_this, groupName);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindGroupsResponse> SsoPortType.FindGroupsAsync(FindGroupsRequest request)
     {
         return base.Channel.FindGroupsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindGroupsResponse> FindGroupsAsync(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         FindGroupsRequest inValue = new FindGroupsRequest();
@@ -9378,13 +9378,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindGroupsAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindGroupsByNameResponse> SsoPortType.FindGroupsByNameAsync(FindGroupsByNameRequest request)
     {
         return base.Channel.FindGroupsByNameAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindGroupsByNameResponse> FindGroupsByNameAsync(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         FindGroupsByNameRequest inValue = new FindGroupsByNameRequest();
@@ -9393,23 +9393,23 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindGroupsByNameAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminPrincipalDiscoveryServiceSearchResult> FindAsync(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         return base.Channel.FindAsync(_this, criteria, limit);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminPrincipalDiscoveryServiceSearchResult> FindByNameAsync(ManagedObjectReference _this, SsoAdminPrincipalDiscoveryServiceSearchCriteria criteria, int limit)
     {
         return base.Channel.FindByNameAsync(_this, criteria, limit);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindUsersInGroupResponse> SsoPortType.FindUsersInGroupAsync(FindUsersInGroupRequest request)
     {
         return base.Channel.FindUsersInGroupAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindUsersInGroupResponse> FindUsersInGroupAsync(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         FindUsersInGroupRequest inValue = new FindUsersInGroupRequest();
@@ -9419,13 +9419,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindUsersInGroupAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindPersonUsersByNameInGroupResponse> SsoPortType.FindPersonUsersByNameInGroupAsync(FindPersonUsersByNameInGroupRequest request)
     {
         return base.Channel.FindPersonUsersByNameInGroupAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindPersonUsersByNameInGroupResponse> FindPersonUsersByNameInGroupAsync(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         FindPersonUsersByNameInGroupRequest inValue = new FindPersonUsersByNameInGroupRequest();
@@ -9435,13 +9435,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindPersonUsersByNameInGroupAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindPersonUsersInGroupResponse> SsoPortType.FindPersonUsersInGroupAsync(FindPersonUsersInGroupRequest request)
     {
         return base.Channel.FindPersonUsersInGroupAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindPersonUsersInGroupResponse> FindPersonUsersInGroupAsync(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         FindPersonUsersInGroupRequest inValue = new FindPersonUsersInGroupRequest();
@@ -9451,13 +9451,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindPersonUsersInGroupAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindSolutionUsersInGroupResponse> SsoPortType.FindSolutionUsersInGroupAsync(FindSolutionUsersInGroupRequest request)
     {
         return base.Channel.FindSolutionUsersInGroupAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindSolutionUsersInGroupResponse> FindSolutionUsersInGroupAsync(ManagedObjectReference _this, string groupName, string searchString, int limit)
     {
         FindSolutionUsersInGroupRequest inValue = new FindSolutionUsersInGroupRequest();
@@ -9467,13 +9467,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindSolutionUsersInGroupAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindGroupsInGroupResponse> SsoPortType.FindGroupsInGroupAsync(FindGroupsInGroupRequest request)
     {
         return base.Channel.FindGroupsInGroupAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindGroupsInGroupResponse> FindGroupsInGroupAsync(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         FindGroupsInGroupRequest inValue = new FindGroupsInGroupRequest();
@@ -9483,13 +9483,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindGroupsInGroupAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindGroupsByNameInGroupResponse> SsoPortType.FindGroupsByNameInGroupAsync(FindGroupsByNameInGroupRequest request)
     {
         return base.Channel.FindGroupsByNameInGroupAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindGroupsByNameInGroupResponse> FindGroupsByNameInGroupAsync(ManagedObjectReference _this, SsoPrincipalId groupId, string searchString, int limit)
     {
         FindGroupsByNameInGroupRequest inValue = new FindGroupsByNameInGroupRequest();
@@ -9499,13 +9499,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindGroupsByNameInGroupAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindDirectParentGroupsResponse> SsoPortType.FindDirectParentGroupsAsync(FindDirectParentGroupsRequest request)
     {
         return base.Channel.FindDirectParentGroupsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindDirectParentGroupsResponse> FindDirectParentGroupsAsync(ManagedObjectReference _this, SsoPrincipalId principalId)
     {
         FindDirectParentGroupsRequest inValue = new FindDirectParentGroupsRequest();
@@ -9513,13 +9513,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.principalId = principalId;
         return ((SsoPortType)(this)).FindDirectParentGroupsAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindNestedParentGroupsResponse> SsoPortType.FindNestedParentGroupsAsync(FindNestedParentGroupsRequest request)
     {
         return base.Channel.FindNestedParentGroupsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindNestedParentGroupsResponse> FindNestedParentGroupsAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         FindNestedParentGroupsRequest inValue = new FindNestedParentGroupsRequest();
@@ -9527,13 +9527,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.userId = userId;
         return ((SsoPortType)(this)).FindNestedParentGroupsAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindLockedUsersResponse> SsoPortType.FindLockedUsersAsync(FindLockedUsersRequest request)
     {
         return base.Channel.FindLockedUsersAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindLockedUsersResponse> FindLockedUsersAsync(ManagedObjectReference _this, string searchString, int limit)
     {
         FindLockedUsersRequest inValue = new FindLockedUsersRequest();
@@ -9542,13 +9542,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindLockedUsersAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindDisabledPersonUsersResponse> SsoPortType.FindDisabledPersonUsersAsync(FindDisabledPersonUsersRequest request)
     {
         return base.Channel.FindDisabledPersonUsersAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindDisabledPersonUsersResponse> FindDisabledPersonUsersAsync(ManagedObjectReference _this, string searchString, int limit)
     {
         FindDisabledPersonUsersRequest inValue = new FindDisabledPersonUsersRequest();
@@ -9557,13 +9557,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.limit = limit;
         return ((SsoPortType)(this)).FindDisabledPersonUsersAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindDisabledSolutionUsersResponse> SsoPortType.FindDisabledSolutionUsersAsync(FindDisabledSolutionUsersRequest request)
     {
         return base.Channel.FindDisabledSolutionUsersAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindDisabledSolutionUsersResponse> FindDisabledSolutionUsersAsync(ManagedObjectReference _this, string searchString)
     {
         FindDisabledSolutionUsersRequest inValue = new FindDisabledSolutionUsersRequest();
@@ -9571,56 +9571,56 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.searchString = searchString;
         return ((SsoPortType)(this)).FindDisabledSolutionUsersAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminPersonUser> FindRegisteredExternalIDPUserAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.FindRegisteredExternalIDPUserAsync(_this, userId);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<GetImplicitGroupNamesResponse> SsoPortType.GetImplicitGroupNamesAsync(GetImplicitGroupNamesRequest request)
     {
         return base.Channel.GetImplicitGroupNamesAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<GetImplicitGroupNamesResponse> GetImplicitGroupNamesAsync(ManagedObjectReference _this)
     {
         GetImplicitGroupNamesRequest inValue = new GetImplicitGroupNamesRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).GetImplicitGroupNamesAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<SsoPrincipalId> CreateLocalPersonUserAsync(ManagedObjectReference _this, string userName, SsoAdminPersonDetails userDetails, string password)
     {
         return base.Channel.CreateLocalPersonUserAsync(_this, userName, userDetails, password);
     }
-    
+
     public System.Threading.Tasks.Task<SsoPrincipalId> CreateLocalSolutionUserAsync(ManagedObjectReference _this, string userName, SsoAdminSolutionDetails userDetails, bool external)
     {
         return base.Channel.CreateLocalSolutionUserAsync(_this, userName, userDetails, external);
     }
-    
+
     public System.Threading.Tasks.Task<SsoPrincipalId> CreateLocalGroupAsync(ManagedObjectReference _this, string groupName, SsoAdminGroupDetails groupDetails)
     {
         return base.Channel.CreateLocalGroupAsync(_this, groupName, groupDetails);
     }
-    
+
     public System.Threading.Tasks.Task DeleteLocalPrincipalAsync(ManagedObjectReference _this, string principalName)
     {
         return base.Channel.DeleteLocalPrincipalAsync(_this, principalName);
     }
-    
+
     public System.Threading.Tasks.Task<bool> RemoveFromLocalGroupAsync(ManagedObjectReference _this, SsoPrincipalId principalId, string groupName)
     {
         return base.Channel.RemoveFromLocalGroupAsync(_this, principalId, groupName);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<RemovePrincipalsFromLocalGroupResponse> SsoPortType.RemovePrincipalsFromLocalGroupAsync(RemovePrincipalsFromLocalGroupRequest request)
     {
         return base.Channel.RemovePrincipalsFromLocalGroupAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<RemovePrincipalsFromLocalGroupResponse> RemovePrincipalsFromLocalGroupAsync(ManagedObjectReference _this, SsoPrincipalId[] principalsIds, string groupName)
     {
         RemovePrincipalsFromLocalGroupRequest inValue = new RemovePrincipalsFromLocalGroupRequest();
@@ -9629,18 +9629,18 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.groupName = groupName;
         return ((SsoPortType)(this)).RemovePrincipalsFromLocalGroupAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<bool> AddUserToLocalGroupAsync(ManagedObjectReference _this, SsoPrincipalId userId, string groupName)
     {
         return base.Channel.AddUserToLocalGroupAsync(_this, userId, groupName);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<AddUsersToLocalGroupResponse> SsoPortType.AddUsersToLocalGroupAsync(AddUsersToLocalGroupRequest request)
     {
         return base.Channel.AddUsersToLocalGroupAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<AddUsersToLocalGroupResponse> AddUsersToLocalGroupAsync(ManagedObjectReference _this, SsoPrincipalId[] userIds, string groupName)
     {
         AddUsersToLocalGroupRequest inValue = new AddUsersToLocalGroupRequest();
@@ -9649,18 +9649,18 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.groupName = groupName;
         return ((SsoPortType)(this)).AddUsersToLocalGroupAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<bool> AddGroupToLocalGroupAsync(ManagedObjectReference _this, SsoPrincipalId groupId, string groupName)
     {
         return base.Channel.AddGroupToLocalGroupAsync(_this, groupId, groupName);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<AddGroupsToLocalGroupResponse> SsoPortType.AddGroupsToLocalGroupAsync(AddGroupsToLocalGroupRequest request)
     {
         return base.Channel.AddGroupsToLocalGroupAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<AddGroupsToLocalGroupResponse> AddGroupsToLocalGroupAsync(ManagedObjectReference _this, SsoPrincipalId[] groupIds, string groupName)
     {
         AddGroupsToLocalGroupRequest inValue = new AddGroupsToLocalGroupRequest();
@@ -9669,106 +9669,106 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.groupName = groupName;
         return ((SsoPortType)(this)).AddGroupsToLocalGroupAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<SsoPrincipalId> UpdateLocalPersonUserDetailsAsync(ManagedObjectReference _this, string userName, SsoAdminPersonDetails userDetails)
     {
         return base.Channel.UpdateLocalPersonUserDetailsAsync(_this, userName, userDetails);
     }
-    
+
     public System.Threading.Tasks.Task ResetLocalPersonUserPasswordAsync(ManagedObjectReference _this, string userName, string newPassword)
     {
         return base.Channel.ResetLocalPersonUserPasswordAsync(_this, userName, newPassword);
     }
-    
+
     public System.Threading.Tasks.Task<SsoPrincipalId> UpdateLocalSolutionUserDetailsAsync(ManagedObjectReference _this, string userName, SsoAdminSolutionDetails userDetails)
     {
         return base.Channel.UpdateLocalSolutionUserDetailsAsync(_this, userName, userDetails);
     }
-    
+
     public System.Threading.Tasks.Task<SsoPrincipalId> UpdateLocalGroupDetailsAsync(ManagedObjectReference _this, string groupName, SsoAdminGroupDetails groupDetails)
     {
         return base.Channel.UpdateLocalGroupDetailsAsync(_this, groupName, groupDetails);
     }
-    
+
     public System.Threading.Tasks.Task<SsoPrincipalId> UpdateSelfLocalPersonUserDetailsAsync(ManagedObjectReference _this, SsoAdminPersonDetails userDetails)
     {
         return base.Channel.UpdateSelfLocalPersonUserDetailsAsync(_this, userDetails);
     }
-    
+
     public System.Threading.Tasks.Task DeleteSelfSolutionUserAsync(ManagedObjectReference _this)
     {
         return base.Channel.DeleteSelfSolutionUserAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task ResetSelfLocalPersonUserPasswordAsync(ManagedObjectReference _this, string newPassword)
     {
         return base.Channel.ResetSelfLocalPersonUserPasswordAsync(_this, newPassword);
     }
-    
+
     public System.Threading.Tasks.Task ResetLocalUserPasswordAsync(ManagedObjectReference _this, string username, string currentPassword, string newPassword)
     {
         return base.Channel.ResetLocalUserPasswordAsync(_this, username, currentPassword, newPassword);
     }
-    
+
     public System.Threading.Tasks.Task<SsoPrincipalId> UpdateSelfLocalSolutionUserDetailsAsync(ManagedObjectReference _this, SsoAdminSolutionDetails userDetails)
     {
         return base.Channel.UpdateSelfLocalSolutionUserDetailsAsync(_this, userDetails);
     }
-    
+
     public System.Threading.Tasks.Task<bool> UnlockUserAccountAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.UnlockUserAccountAsync(_this, userId);
     }
-    
+
     public System.Threading.Tasks.Task<bool> EnableUserAccountAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.EnableUserAccountAsync(_this, userId);
     }
-    
+
     public System.Threading.Tasks.Task<bool> DisableUserAccountAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.DisableUserAccountAsync(_this, userId);
     }
-    
+
     public System.Threading.Tasks.Task<int> GetDaysRemainingUntilPasswordExpirationAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.GetDaysRemainingUntilPasswordExpirationAsync(_this, userId);
     }
-    
+
     public System.Threading.Tasks.Task<int> GetDaysRemainingUntilSelfPasswordExpirationAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetDaysRemainingUntilSelfPasswordExpirationAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<bool> RegisterExternalUserAsync(ManagedObjectReference _this, SsoPrincipalId externalUserId)
     {
         return base.Channel.RegisterExternalUserAsync(_this, externalUserId);
     }
-    
+
     public System.Threading.Tasks.Task<bool> RemoveExternalUserAsync(ManagedObjectReference _this, SsoPrincipalId externalUserId)
     {
         return base.Channel.RemoveExternalUserAsync(_this, externalUserId);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<ExportFullStateResponse> SsoPortType.ExportFullStateAsync(ExportFullStateRequest request)
     {
         return base.Channel.ExportFullStateAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<ExportFullStateResponse> ExportFullStateAsync(ManagedObjectReference _this)
     {
         ExportFullStateRequest inValue = new ExportFullStateRequest();
         inValue._this = _this;
         return ((SsoPortType)(this)).ExportFullStateAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<ImportFullStateResponse> SsoPortType.ImportFullStateAsync(ImportFullStateRequest request)
     {
         return base.Channel.ImportFullStateAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<ImportFullStateResponse> ImportFullStateAsync(ManagedObjectReference _this, byte[] fullState)
     {
         ImportFullStateRequest inValue = new ImportFullStateRequest();
@@ -9776,98 +9776,98 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.fullState = fullState;
         return ((SsoPortType)(this)).ImportFullStateAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<bool> SetRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role)
     {
         return base.Channel.SetRoleAsync(_this, userId, role);
     }
-    
+
     public System.Threading.Tasks.Task<bool> HasAdministratorRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.HasAdministratorRoleAsync(_this, userId);
     }
-    
+
     public System.Threading.Tasks.Task<bool> HasConfigurationUserRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.HasConfigurationUserRoleAsync(_this, userId);
     }
-    
+
     public System.Threading.Tasks.Task<bool> HasRegularUserRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         return base.Channel.HasRegularUserRoleAsync(_this, userId);
     }
-    
+
     public System.Threading.Tasks.Task<bool> GrantWSTrustRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role)
     {
         return base.Channel.GrantWSTrustRoleAsync(_this, userId, role);
     }
-    
+
     public System.Threading.Tasks.Task<bool> RevokeWSTrustRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role)
     {
         return base.Channel.RevokeWSTrustRoleAsync(_this, userId, role);
     }
-    
+
     public System.Threading.Tasks.Task<bool> GrantIDPProvisioningRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role)
     {
         return base.Channel.GrantIDPProvisioningRoleAsync(_this, userId, role);
     }
-    
+
     public System.Threading.Tasks.Task<bool> RevokeIDPProvisioningRoleAsync(ManagedObjectReference _this, SsoPrincipalId userId, string role)
     {
         return base.Channel.RevokeIDPProvisioningRoleAsync(_this, userId, role);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminServiceContent> SsoAdminServiceInstanceAsync(ManagedObjectReference _this)
     {
         return base.Channel.SsoAdminServiceInstanceAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminSmtpConfig> GetSmtpConfigurationAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetSmtpConfigurationAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task UpdateSmtpConfigurationAsync(ManagedObjectReference _this, SsoAdminSmtpConfig config)
     {
         return base.Channel.UpdateSmtpConfigurationAsync(_this, config);
     }
-    
+
     public System.Threading.Tasks.Task SendMailAsync(ManagedObjectReference _this, SsoAdminMailContent content)
     {
         return base.Channel.SendMailAsync(_this, content);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminSsoHealthStats> GetSsoStatisticsAsync(ManagedObjectReference _this)
     {
         return base.Channel.GetSsoStatisticsAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task<SsoAdminActiveDirectoryJoinInfo> IdS_getActiveDirectoryJoinStatusAsync(ManagedObjectReference _this)
     {
         return base.Channel.IdS_getActiveDirectoryJoinStatusAsync(_this);
     }
-    
+
     public System.Threading.Tasks.Task JoinActiveDirectoryAsync(ManagedObjectReference _this, string username, string password, string domain, string orgUnit)
     {
         return base.Channel.JoinActiveDirectoryAsync(_this, username, password, domain, orgUnit);
     }
-    
+
     public System.Threading.Tasks.Task LeaveActiveDirectoryAsync(ManagedObjectReference _this, string username, string password)
     {
         return base.Channel.LeaveActiveDirectoryAsync(_this, username, password);
     }
-    
+
     public System.Threading.Tasks.Task<bool> IsMemberOfGroupAsync(ManagedObjectReference _this, SsoPrincipalId userId, SsoPrincipalId groupId)
     {
         return base.Channel.IsMemberOfGroupAsync(_this, userId, groupId);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindParentGroupsResponse> SsoPortType.FindParentGroupsAsync(FindParentGroupsRequest request)
     {
         return base.Channel.FindParentGroupsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindParentGroupsResponse> FindParentGroupsAsync(ManagedObjectReference _this, SsoPrincipalId userId, SsoPrincipalId[] groupList)
     {
         FindParentGroupsRequest inValue = new FindParentGroupsRequest();
@@ -9876,13 +9876,13 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.groupList = groupList;
         return ((SsoPortType)(this)).FindParentGroupsAsync(inValue);
     }
-    
+
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     System.Threading.Tasks.Task<FindAllParentGroupsResponse> SsoPortType.FindAllParentGroupsAsync(FindAllParentGroupsRequest request)
     {
         return base.Channel.FindAllParentGroupsAsync(request);
     }
-    
+
     public System.Threading.Tasks.Task<FindAllParentGroupsResponse> FindAllParentGroupsAsync(ManagedObjectReference _this, SsoPrincipalId userId)
     {
         FindAllParentGroupsRequest inValue = new FindAllParentGroupsRequest();
@@ -9890,22 +9890,22 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         inValue.userId = userId;
         return ((SsoPortType)(this)).FindAllParentGroupsAsync(inValue);
     }
-    
+
     public System.Threading.Tasks.Task<SsoGroupcheckServiceContent> SsoGroupcheckServiceInstanceAsync(ManagedObjectReference _this)
     {
         return base.Channel.SsoGroupcheckServiceInstanceAsync(_this);
     }
-    
+
     public virtual System.Threading.Tasks.Task OpenAsync()
     {
         return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen));
     }
-    
+
     public virtual System.Threading.Tasks.Task CloseAsync()
     {
         return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose));
     }
-    
+
     private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(EndpointConfiguration endpointConfiguration)
     {
         if ((endpointConfiguration == EndpointConfiguration.SsoPort))
@@ -9920,7 +9920,7 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         }
         throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
     }
-    
+
     private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
     {
         if ((endpointConfiguration == EndpointConfiguration.SsoPort))
@@ -9929,20 +9929,20 @@ public partial class SsoPortTypeClient : System.ServiceModel.ClientBase<SsoPortT
         }
         throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
     }
-    
+
     private static System.ServiceModel.Channels.Binding GetDefaultBinding()
     {
         return SsoPortTypeClient.GetBindingForEndpoint(EndpointConfiguration.SsoPort);
     }
-    
+
     private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
     {
         return SsoPortTypeClient.GetEndpointAddress(EndpointConfiguration.SsoPort);
     }
-    
+
     public enum EndpointConfiguration
     {
-        
+
         SsoPort,
     }
 }
