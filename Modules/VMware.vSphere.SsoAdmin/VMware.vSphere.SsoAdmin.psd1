@@ -114,7 +114,7 @@ PrivateData = @{
         # ProjectUri = ''
 
         # A URL to an icon representing this module.
-        IconUri = 'https://blogs.vmware.com/PowerCLI/files/2020/10/PowerCLI.png'
+        IconUri = 'https://github.com/vmware/PowerCLI-Example-Scripts/blob/2b62d20d1323c89b1c95583a1c514d15eb7828c5/Modules/VMware.vSphere.SsoAdmin/src/resources/powercli.png'
 
         # ReleaseNotes of this module
         # ReleaseNotes = ''
