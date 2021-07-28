@@ -12,7 +12,7 @@
 RootModule = 'VMware.vSphere.SsoAdmin.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.3'
+ModuleVersion = '1.3.4'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -102,6 +102,7 @@ AliasesToExport = 'Add-ActiveDirectoryIdentitySource'
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
+
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
@@ -114,7 +115,7 @@ PrivateData = @{
         # ProjectUri = ''
 
         # A URL to an icon representing this module.
-        IconUri = 'https://github.com/vmware/PowerCLI-Example-Scripts/blob/2b62d20d1323c89b1c95583a1c514d15eb7828c5/Modules/VMware.vSphere.SsoAdmin/src/resources/powercli.png'
+        IconUri = 'https://raw.githubusercontent.com/vmware/PowerCLI-Example-Scripts/master/Modules/VMware.vSphere.SsoAdmin/src/resources/powercli.png'
 
         # ReleaseNotes of this module
         # ReleaseNotes = ''
@@ -130,7 +131,7 @@ PrivateData = @{
 
     } # End of PSData hashtable
 
-} # End of PrivateData hashtable
+ } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
 # HelpInfoURI = ''
