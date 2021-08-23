@@ -5128,7 +5128,7 @@ function Get-HVPoolProvisioningData {
     $snapshotList = $baseImageSnapshot_helper.BaseImageSnapshot_List($services,$parentVmObj.id)
     $snapshotVmObj = $snapshotList | Where-Object { $_.name -eq $snapshotVM }
     if ($null -eq $snapshotVmObj) {
-      throw "No sanpshot found with Name: [$snapshotVM]"
+      throw "No snapshot found with Name: [$snapshotVM]"
     }
     $vmObject.Snapshot = $snapshotVmObj.id
   }
