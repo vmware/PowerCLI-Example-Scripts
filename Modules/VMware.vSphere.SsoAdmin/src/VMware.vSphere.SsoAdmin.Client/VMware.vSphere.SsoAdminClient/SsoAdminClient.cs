@@ -25,7 +25,7 @@ namespace VMware.vSphere.SsoAdminClient
 {
     public class SsoAdminClient
     {
-        private const int WEB_OPERATION_TIMEOUT_SECONDS = 30;
+        private const int WEB_OPERATION_TIMEOUT_SECONDS = 300;
 
         private SsoPortTypeClient _ssoAdminBindingClient;
         private UserPassSecurityContext _securityContext;
