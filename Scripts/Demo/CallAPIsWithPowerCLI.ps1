@@ -9,7 +9,7 @@ SPDX-License-Identifier: BSD-2-Clause
 
 #region 1. Connect to a vCenter Server with PowerCLI
 # Specify VC Server Here
-$VCServerAddress = '10.186.100.116'
+$VCServerAddress = ''
 
 
 Connect-VIServer -Server $VCServerAddress
