@@ -7260,7 +7260,11 @@ function Get-HVBaseImageVM {
 
   process {
 
-    $BaseImageVMList = $services.BaseImageVM.BaseImageVM_List($VirtualCenterId)
+    if ((Get-HVModuleVersion) -lt [version] "12.2") {
+        $BaseImageVMList = $services.BaseImageVM.BaseImageVM_List($VirtualCenter)
+    } else {
+        $BaseImageVMList = $services.BaseImageVM.BaseImageVM_List($VirtualCenter, $null)
+    }
 
     #For all conditions, see https://vdc-download.vmware.com/vmwb-repository/dcr-public/3721109b-48a5-4ffb-a0ad-6d6a44f2f288/ff45dfca-1050-4265-93ef-4e7d702322e4/vdi.utils.virtualcenter.BaseImageVm.BaseImageVmIncompatibleReasons.html
 
@@ -7276,7 +7280,8 @@ function Get-HVBaseImageVM {
             ($_.IncompatibleReasons.ViewComposerReplica -eq $false) -and
             ($_.IncompatibleReasons.UnsupportedOS -eq $false) -and
             ($_.IncompatibleReasons.NoSnapshots -eq $false) -and
-            (($null -eq $_.IncompatibleReasons.InstantInternal) -or ($_.IncompatibleReasons.InstantInternal -eq $false))
+            (($null -eq $_.IncompatibleReasons.InstantInternal) -or ($_.IncompatibleReasons.InstantInternal -eq $false)) -and
+            $(if ((Get-HVModuleVersion) -gt [version] "12.2") {($_.IncompatibleReasons.inUseByInstantCloneDesktop -eq $false)})
           }
         }
         'RDS' {
@@ -7286,7 +7291,8 @@ function Get-HVBaseImageVM {
             ($_.IncompatibleReasons.ViewComposerReplica -eq $false) -and
             ($_.IncompatibleReasons.UnsupportedOSForLinkedCloneFarm -eq $false) -and
             ($_.IncompatibleReasons.NoSnapshots -eq $false) -and
-            (($null -eq $_.IncompatibleReasons.InstantInternal) -or ($_.IncompatibleReasons.InstantInternal -eq $false))
+            (($null -eq $_.IncompatibleReasons.InstantInternal) -or ($_.IncompatibleReasons.InstantInternal -eq $false)) -and
+            $(if ((Get-HVModuleVersion) -gt [version] "12.2") {($_.IncompatibleReasons.inUseByInstantCloneDesktop -eq $false)})
           }
         }
         'ALL' {
