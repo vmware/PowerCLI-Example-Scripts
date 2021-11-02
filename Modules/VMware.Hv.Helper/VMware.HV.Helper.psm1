@@ -7108,7 +7108,7 @@ function Start-HVPool {
             $spec.Settings = New-Object VMware.Hv.DesktopPushImageSettings
             $spec.Settings.LogoffSetting = $logoffSetting
             $spec.Settings.StopOnFirstError = $stopOnFirstError
-            if ($startTime) { $spec.startTime = $startTime }
+            if ($startTime) { $spec.Settings.startTime = $startTime }
             if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_SchedulePushImage($services,$item,$spec)
             }
