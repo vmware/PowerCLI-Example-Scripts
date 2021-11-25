@@ -24,5 +24,7 @@ namespace VMware.vSphere.SsoAdminClient.DataTypes
       public string FailoverUrl { get; set; }
       public string UserBaseDN { get; set; }
       public string GroupBaseDN { get; set; }
+
+      public System.Security.Cryptography.X509Certificates.X509Certificate2[] Certificates {get ;set;}
    }
 }
