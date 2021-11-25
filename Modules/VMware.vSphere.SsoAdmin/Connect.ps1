@@ -24,6 +24,9 @@ function Connect-SsoAdminServer {
     .PARAMETER Password
     Specifies the password you want to use for authenticating with the server.
 
+    .PARAMETER Credential
+    Specifies a PSCredential object to for authenticating with the server.
+
     .PARAMETER SkipCertificateCheck
     Specifies whether server Tls certificate validation will be skipped
 
@@ -46,7 +49,8 @@ function Connect-SsoAdminServer {
             Mandatory = $true,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'User name you want to use for authenticating with the server')]
+            HelpMessage = 'User name you want to use for authenticating with the server',
+            ParameterSetName = 'UserPass')]
         [string]
         $User,
 
@@ -54,10 +58,20 @@ function Connect-SsoAdminServer {
             Mandatory = $true,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'Password you want to use for authenticating with the server')]
+            HelpMessage = 'Password you want to use for authenticating with the server',
+            ParameterSetName = 'UserPass')]
         [VMware.vSphere.SsoAdmin.Utils.StringToSecureStringArgumentTransformationAttribute()]
         [SecureString]
         $Password,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'PSCredential object to use for authenticating with the server',
+            ParameterSetName = 'Credential')]
+        [PSCredential]
+        $Credential,
 
         [Parameter(
             Mandatory = $false,
@@ -73,13 +87,24 @@ function Connect-SsoAdminServer {
 
         $ssoAdminServer = $null
         try {
-            $ssoAdminServer = New-Object `
-                'VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer' `
-                -ArgumentList @(
-                $Server,
-                $User,
-                $Password,
-                $certificateValidator)
+            if ($PSBoundParameters.ContainsKey('Credential')) {
+                $ssoAdminServer = New-Object `
+                    'VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer' `
+                    -ArgumentList @(
+                    $Server,
+                    $Credential.UserName,
+                    $Credential.Password,
+                    $certificateValidator)
+            } else {
+                $ssoAdminServer = New-Object `
+                    'VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer' `
+                    -ArgumentList @(
+                    $Server,
+                    $User,
+                    $Password,
+                    $certificateValidator)
+            }
+
         }
         catch {
             Write-Error (FormatError $_.Exception)

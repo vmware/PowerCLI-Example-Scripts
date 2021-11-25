@@ -1232,32 +1232,34 @@ namespace VMware.vSphere.SsoAdminClient
             var authorizedInvocationContext =
                CreateAuthorizedInvocationContext();
 
-            var domains = authorizedInvocationContext.
+            var identitySources = authorizedInvocationContext.
             InvokeOperation(() =>
-               _ssoAdminBindingClient.GetDomainsAsync(
+               _ssoAdminBindingClient.GetAsync(
                   new ManagedObjectReference
                   {
-                      type = "SsoAdminDomainManagementService",
-                      Value = "domainManagementService"
+                      type = "SsoAdminIdentitySourceManagementService",
+                      Value = "identitySourceManagementService"
                   })).Result;
 
-            if (domains != null)
+            if (identitySources != null)
             {
                 var localos = new LocalOSIdentitySource();
-                localos.Name = domains.localOSDomainName;
+                localos.Name = identitySources.localOS.name;
                 yield return localos;
 
-                var system = new SystemIdentitySource();
-                system.Name = domains.systemDomainName;
-                yield return system;
+                foreach (var systemDomain in identitySources.system.domains) {
+                    var system = new SystemIdentitySource();
+                    system.Name = systemDomain.name;
+                    yield return system;
+                }
 
-                if (domains.externalDomains != null && domains.externalDomains.Length > 0)
+
+                if (identitySources.ldaps != null && identitySources.ldaps.Length > 0)
                 {
-                    foreach (var externalDomain in domains.externalDomains)
+                    foreach (var externalDomain in identitySources.ldaps)
                     {
                         var extIdentitySource = new ActiveDirectoryIdentitySource();
                         extIdentitySource.Name = externalDomain.name;
-                        extIdentitySource.Alias = externalDomain.alias;
                         extIdentitySource.Type = externalDomain.type;
                         extIdentitySource.AuthenticationType = externalDomain.authenticationDetails?.authenticationType;
                         extIdentitySource.AuthenticationUsername = externalDomain.authenticationDetails?.username;
@@ -1266,6 +1268,14 @@ namespace VMware.vSphere.SsoAdminClient
                         extIdentitySource.FailoverUrl = externalDomain.details?.failoverUrl;
                         extIdentitySource.GroupBaseDN = externalDomain.details?.groupBaseDn;
                         extIdentitySource.UserBaseDN = externalDomain.details?.userBaseDn;
+                        if (externalDomain.details?.certificates != null && externalDomain.details?.certificates.Length > 0) {
+                            var certificatesList = new List<X509Certificate2>();
+                            foreach (var cert in externalDomain.details?.certificates) {
+                                certificatesList.Add(new X509Certificate2(Encoding.ASCII.GetBytes(cert)));
+                            }
+                           extIdentitySource.Certificates = certificatesList.ToArray();
+                        }
+
                         yield return extIdentitySource;
                     }
                 }
