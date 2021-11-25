@@ -45,6 +45,26 @@ Describe "Connect-SsoAdminServer and Disconnect-SsoAdminServer Tests" {
          $global:DefaultSsoAdminServers | Should -Contain $actual
       }
 
+      It 'Connect-SsoAdminServer connects the server with PSCredential object' {
+        # Act
+        $securePassword = ConvertTo-SecureString -AsPlainText -Force -String $Password
+        $credential = New-Object `
+            -TypeName System.Management.Automation.PSCredential `
+            -ArgumentList $User, $securePassword
+        $actual = Connect-SsoAdminServer `
+           -Server $VcAddress `
+           -Credential $credential `
+           -SkipCertificateCheck
+
+        # Assert
+        $actual | Should -Not -Be $null
+        $actual.GetType().FullName | Should -Be 'VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer'
+        $actual.IsConnected | Should -Be $true
+        $actual.Name | Should -Be $VcAddress
+        $global:DefaultSsoAdminServers | Should -Contain $actual
+     }
+
+
       It 'Connect-SsoAdminServer throws error on invalid password' {
          # Act
          # Assert
