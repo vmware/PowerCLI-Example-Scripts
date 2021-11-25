@@ -10278,7 +10278,7 @@ function Set-HVGlobalSettings {
   process {
 
     $updates = @()
-    if ($key -and $value) {
+    if ( $PSBoundParameters.ContainsKey('Key') -and $PSBoundParameters.ContainsKey('Value') ) {
       $updates += Get-MapEntry -key $key -value $value
     } elseif ($key -or $value) {
       Write-Error "Both key:[$key] and value:[$value] needs to be specified"
