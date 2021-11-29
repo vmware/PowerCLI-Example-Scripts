@@ -18,21 +18,28 @@ Function Connect-SscServer {
     Use this function to create the cookie/header to connect to SaltStack Config
   .EXAMPLE
     PS C:\> Connect-SscServer -Server 'salt.example.com' -Username 'root' -Password 'VMware1!'
+  .EXAMPLE
+    PS C:\> Connect-SscServer -Server 'salt.example.com' -Username 'bwuchner' -Password 'MyPassword1!' -AuthSource 'LAB Directory'
 #>
   param(
     [Parameter(Mandatory=$true)][string]$server,
     [Parameter(Mandatory=$true)][string]$username,
-    [Parameter(Mandatory=$true)][string]$password
+    [Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$password,
+    [string]$AuthSource='internal'
   )
-
-  $Header = @{"Authorization" = "Basic "+[System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($username):$($password)"))}
+  
+  $loginBody = @{'username'=$username; 'password'=$password; 'config_name'=$AuthSource}
   try {
     $webRequest = Invoke-WebRequest -Uri "https://$server/account/login" -SessionVariable ws -Headers $header
     $ws.headers.Add('X-Xsrftoken', $webRequest.headers.'x-xsrftoken')
-    $global:DefaultSscConnection = New-Object psobject -property @{ "SscWebSession"=$ws; "SscServer"=$server }
+    $webRequest = Invoke-WebRequest -Uri "https://$server/account/login" -WebSession $ws -method POST -body (ConvertTo-Json $loginBody)
+    $webRequestJson = ConvertFrom-JSON $webRequest.Content
+    $global:DefaultSscConnection = New-Object psobject -property @{ "SscWebSession"=$ws; "SscServer"=$server; "ConnectionDetail"=$webRequestJson }
     
 	# Return a few grains, like the Salt server & version; this will prove the connection worked & provide some context
-	(Get-SscMaster).ret.salt.grains | Select Host, NodeName, SaltVersion
+	(Get-SscMaster).ret.salt.grains | Select-Object Host, NodeName, SaltVersion, @{N='Authenticated';E={$global:DefaultSscConnection.ConnectionDetail.authenticated}}, 
+  @{N='AuthType';E={$global:DefaultSscConnection.ConnectionDetail.attributes.config_driver}}, @{N='AuthSource';E={$global:DefaultSscConnection.ConnectionDetail.attributes.config_name}}, 
+  @{N='UserName';E={$global:DefaultSscConnection.ConnectionDetail.attributes.username}}, @{N='Permissions';E={[string]::Join(', ', $global:DefaultSscConnection.ConnectionDetail.attributes.permissions)}}
   } catch {
     write-warning "Failure connecting to $server"
   } # end try/catch block
@@ -130,7 +137,7 @@ Function Get-SscMaster {
   $output = Get-SscData master get_master_grains
 
   if ($return -eq 'Results') {
-    $output.ret.results
+    $output.ret.salt.grains
   } else {
     $output
   } # end if for results parameter
