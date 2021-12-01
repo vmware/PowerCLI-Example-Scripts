@@ -17,7 +17,7 @@ SPDX-License-Identifier: BSD-2-Clause
 RootModule = 'SaltStackConfig.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.2'
+ModuleVersion = '0.0.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -74,7 +74,7 @@ PowerShellVersion = '4.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Connect-SscServer', 'Disconnect-SscServer', 'Get-SscCommand', 'Get-SscData', 'Get-SscJob', 'Get-SscMaster', 'Get-SscMinion', 'Get-SscReturn', 'Get-SscSchedule')
+FunctionsToExport = @('Connect-SscServer', 'Disconnect-SscServer', 'Get-SscCommand', 'Get-SscData', 'Get-SscJob', 'Get-SscMaster', 'Get-SscMinionCache', 'Get-SscReturn', 'Get-SscSchedule')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

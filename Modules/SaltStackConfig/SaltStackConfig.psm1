@@ -12,10 +12,10 @@ Function Connect-SscServer {
    Twitter:		@bwuch
   ===========================================================================
   .SYNOPSIS
-    This function will allow you to connect to a vRealize Automation SaltStack Config API.
-    A global variable will be set with the Servername & Cookie/Header value for use by other functions.
+    Use this function to create the cookie/header to connect to SaltStack Config RaaS API
   .DESCRIPTION
-    Use this function to create the cookie/header to connect to SaltStack Config
+    This function will allow you to connect to a vRealize Automation SaltStack Config RaaS API.
+    A global variable will be set with the Servername & Cookie/Header value for use by other functions.
   .EXAMPLE
     PS C:\> Connect-SscServer -Server 'salt.example.com' -Username 'root' -Password 'VMware1!'
     This will default to internal user authentication.
@@ -32,18 +32,18 @@ Function Connect-SscServer {
   
   $loginBody = @{'username'=$username; 'password'=$password; 'config_name'=$AuthSource}
   try {
-    $webRequest = Invoke-WebRequest -Uri "https://$server/account/login" -SessionVariable ws -Headers $header
+    $webRequest = Invoke-WebRequest -Uri "https://$server/account/login" -SessionVariable ws
     $ws.headers.Add('X-Xsrftoken', $webRequest.headers.'x-xsrftoken')
     $webRequest = Invoke-WebRequest -Uri "https://$server/account/login" -WebSession $ws -method POST -body (ConvertTo-Json $loginBody)
     $webRequestJson = ConvertFrom-JSON $webRequest.Content
     $global:DefaultSscConnection = New-Object psobject -property @{ "SscWebSession"=$ws; "SscServer"=$server; "ConnectionDetail"=$webRequestJson }
     
 	# Return a few grains, like the Salt server & version; this will prove the connection worked & provide some context
-	(Get-SscMaster).ret.salt.grains | Select-Object Host, NodeName, SaltVersion, @{N='Authenticated';E={$global:DefaultSscConnection.ConnectionDetail.authenticated}}, 
+	Get-SscMaster | Select-Object Host, NodeName, SaltVersion, @{N='Authenticated';E={$global:DefaultSscConnection.ConnectionDetail.authenticated}}, 
   @{N='AuthType';E={$global:DefaultSscConnection.ConnectionDetail.attributes.config_driver}}, @{N='AuthSource';E={$global:DefaultSscConnection.ConnectionDetail.attributes.config_name}}, 
   @{N='UserName';E={$global:DefaultSscConnection.ConnectionDetail.attributes.username}}, @{N='Permissions';E={[string]::Join(', ', $global:DefaultSscConnection.ConnectionDetail.attributes.permissions)}}
   } catch {
-    write-warning "Failure connecting to $server"
+    Write-Error ("Failure connecting to $server. " + $_)
   } # end try/catch block
 }
 
@@ -57,16 +57,16 @@ Function Disconnect-SscServer {
    Twitter:		@bwuch
   ===========================================================================
   .SYNOPSIS
-    This function will clear the global variable used to connect to the vRealize Automation SaltStack Config API
-  .DESCRIPTION
     This function clears a previously created cookie/header used to connect to SaltStack Config
+  .DESCRIPTION
+    This function will clear the global variable used to connect to the vRealize Automation SaltStack Config RaaS API
   .EXAMPLE
     PS C:\> Disconnect-SscServer
 #>
   if ($global:DefaultSscConnection) {
     $global:DefaultSscConnection = $null 
   } else {
-    write-warning "Not connected to any SaltStack Config servers."
+    Write-Error 'Could not find an existing connection.'
   } # end if
 }
 
@@ -80,11 +80,11 @@ Function Get-SscData {
    Twitter:		@bwuch
   ===========================================================================
   .SYNOPSIS
-    This function will pass resource/method/arguments to the vRealize Automation SaltStack Config API.
-    It depends on a global variable created by Connect-SscServer.
-  .DESCRIPTION
     Use this function to call the SaltStack Config API.
     Additional helper functions will call this function, this is where the majority of the logic will happen.
+  .DESCRIPTION
+    This function will pass resource/method/arguments to the vRealize Automation SaltStack Config RaaS API.
+    It depends on a global variable created by Connect-SscServer.
   .EXAMPLE
     PS C:\> Get-SscData -Resource 'minions' -Method 'get_minion_cache'
 #>
@@ -95,21 +95,21 @@ Function Get-SscData {
   )
 
   if (!$global:DefaultSscConnection) {
-    write-warning "Not connected to any SaltStack Config servers."
+    Write-Error 'You are not currently connected to any servers. Please connect first using Connect-SscServer.'
     return;
   } # end if
 
   if (!$kwarg) {
-    $body = "{`"resource`": `"$resource`", `"method`": `"$method`"}"
+    $body = @{'resource'=$resource; 'method'=$method }
   } else {
-    $body = "{`"resource`": `"$resource`", `"method`": `"$method`", `"kwarg`": $(ConvertTo-Json $kwarg) }"
+    $body = @{'resource'=$resource; 'method'=$method; 'kwarg'=$kwarg }
   }
 
   try{
-    $output = Invoke-WebRequest -WebSession $global:DefaultSscConnection.SscWebSession -Method POST -Uri "https://$($global:DefaultSscConnection.SscServer)/rpc" -body $body -ContentType 'application/json'
+    $output = Invoke-WebRequest -WebSession $global:DefaultSscConnection.SscWebSession -Method POST -Uri "https://$($global:DefaultSscConnection.SscServer)/rpc" -body $(ConvertTo-Json $body) -ContentType 'application/json'
     return (ConvertFrom-Json $output.Content)
   } catch {
-    write-warning $_.Exception.Message
+    Write-Error $_.Exception.Message
   }
 }
 
@@ -125,27 +125,27 @@ Function Get-SscMaster {
    Twitter:		@bwuch
   ===========================================================================
   .SYNOPSIS
-    This wrapper function will call Get-SscData master.get_master_grains.
-  .DESCRIPTION
     This wrapper function will return grain details about the SaltStack Config master node.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData master.get_master_grains.
   .EXAMPLE
     PS C:\> Get-SscMaster
 #>
 
   param(
-    [ValidateSet('RAW','Results')][string]$Return='RAW'
+    [ValidateSet('Json','Results')][string]$Output='Results'
   )
 
-  $output = Get-SscData master get_master_grains
+  $data = Get-SscData master get_master_grains
 
-  if ($return -eq 'Results') {
-    $output.ret.salt.grains
+  if ($Output -eq 'Results') {
+    $data.ret.salt.grains
   } else {
-    $output
+    $data
   } # end if for results parameter
 }
 
-Function Get-SscMinion {
+Function Get-SscMinionCache {
 <#
   .NOTES
   ===========================================================================
@@ -155,22 +155,22 @@ Function Get-SscMinion {
    Twitter:		@bwuch
   ===========================================================================
   .SYNOPSIS
-    This wrapper function will call Get-SscData minions.get_minion_cache.
-  .DESCRIPTION
     This wrapper function will return the grain property cache of SaltStack Config minions.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData minions.get_minion_cache.
   .EXAMPLE
     PS C:\> Get-SscMinion
 #>
   param(
-    [ValidateSet('RAW','Results')][string]$Return='RAW'
+    [ValidateSet('Json','Results')][string]$Output='Results'
   )
 
-  $output = Get-SscData minions get_minion_cache
+  $data = Get-SscData minions get_minion_cache
 
-  if ($return -eq 'Results') {
-    $output.ret.results
+  if ($Output -eq 'Results') {
+    $data.ret.results
   } else {
-    $output
+    $data
   } # end if for results parameter
 }
 
@@ -184,22 +184,22 @@ Function Get-SscJob {
    Twitter:		@bwuch
   ===========================================================================
   .SYNOPSIS
-    This wrapper function will call Get-SscData job.get_jobs.
-  .DESCRIPTION
     This wrapper function will return configured SatlStack Config jobs.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData job.get_jobs.
   .EXAMPLE
     PS C:\> Get-SscJob
 #>
   param(
-    [ValidateSet('RAW','Results')][string]$Return='RAW'
+    [ValidateSet('Json','Results')][string]$Output='Results'
   )
 
-  $output = Get-SscData job get_jobs
+  $data = Get-SscData job get_jobs
 
-  if ($return -eq 'Results') {
-    $output.ret.results
+  if ($Output -eq 'Results') {
+    $data.ret.results
   } else {
-    $output
+    $data
   } # end if for results parameter
 }
 
@@ -213,22 +213,22 @@ Function Get-SscSchedule {
    Twitter:		@bwuch
   ===========================================================================
   .SYNOPSIS
-    This wrapper function will call Get-SscData schedule.get.
-  .DESCRIPTION
     This wrapper function will return schedules for SaltStack Config.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData schedule.get.
   .EXAMPLE
     PS C:\> Get-SscSchedule
 #>
   param(
-    [ValidateSet('RAW','Results')][string]$Return='RAW'
+    [ValidateSet('Json','Results')][string]$Output='Results'
   )
 
-  $output = Get-SscData schedule get
+  $data = Get-SscData schedule get
 
-  if ($return -eq 'Results') {
-    $output.ret.results
+  if ($Output -eq 'Results') {
+    $data.ret.results
   } else {
-    $output
+    $data
   } # end if for results parameter
 }
 
@@ -242,20 +242,23 @@ Function Get-SscReturn {
    Twitter:		@bwuch
   ===========================================================================
   .SYNOPSIS
-    This wrapper function will call Get-SscData ret.get_returns with either Jid or MinionID.
-  .DESCRIPTION
     This wrapper function will return job results from the job cache based on the provided arguments.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData ret.get_returns with either Jid or MinionID.
+  .EXAMPLE
+    PS C:\> Get-SscReturn
   .EXAMPLE
     PS C:\> Get-SscReturn -Jid '20211122160147314949'
+  .EXAMPLE
     PS C:\> Get-SscReturn -MinionID 't147-win22-01.lab.enterpriseadmins.org'
 #>
   param(
-    [ValidateSet('RAW','Results')][string]$Return='RAW',
+    [ValidateSet('Json','Results')][string]$Output='Results',
   [string]$jid,
   [string]$minionid
   )
   # ToDo: This should be a parameterset, was having trouble with making the parameters optional.  Use if statement for now
-  if ($jid -and $minionid) { Write-Warning "Please only specify JID or MinionID, not both"; return; }
+  if ($jid -and $minionid) { Write-Warning 'Please only specify JID or MinionID, not both.'; return; }
   
   if ($jid) {
     $kwarg = @{'jid'=$jid}
@@ -265,12 +268,12 @@ Function Get-SscReturn {
     $kwarg = $null
   }
   
-  $output = Get-SscData ret get_returns $kwarg
+  $data = Get-SscData ret get_returns $kwarg
 
-  if ($return -eq 'Results') {
-    $output.ret.results
+  if ($Output -eq 'Results') {
+    $data.ret.results
   } else {
-    $output
+    $data
   } # end if for results parameter
 }
 
@@ -284,21 +287,21 @@ Function Get-SscCommand {
    Twitter:		@bwuch
   ===========================================================================
   .SYNOPSIS
-    This wrapper function will call Get-SscData cmd.get_cmds.
-  .DESCRIPTION
     This wrapper function will return SaltStack Config commands that have been issued.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData cmd.get_cmds.
   .EXAMPLE
     PS C:\> Get-SscCommand
 #>
   param(
-    [ValidateSet('RAW','Results')][string]$Return='RAW'
+    [ValidateSet('Json','Results')][string]$Output='Results'
   )
   
-  $output = Get-SscData cmd get_cmds
+  $data = Get-SscData cmd get_cmds
 
-  if ($return -eq 'Results') {
-    $output.ret.results
+  if ($Output -eq 'Results') {
+    $data.ret.results
   } else {
-    $output
+    $data
   } # end if for results parameter
 }
