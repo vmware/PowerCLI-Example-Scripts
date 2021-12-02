@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+    <ViewDefinitions>
+        <View>
+            <Name>SscConnection</Name>
+            <ViewSelectedBy>
+                <TypeName>SscConnection</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Width>25</Width>
+                        <Label>Server Name</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Width>25</Width>
+                        <Label>Connected As</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Authenticated</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>SscServer</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>$_.ConnectionDetail.attributes.config_name +'\'+ $_.ConnectionDetail.attributes.username</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>$_.ConnectionDetail.authenticated</ScriptBlock>
+                            </TableColumnItem>
+                    </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>

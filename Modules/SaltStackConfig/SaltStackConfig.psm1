@@ -36,12 +36,10 @@ Function Connect-SscServer {
     $ws.headers.Add('X-Xsrftoken', $webRequest.headers.'x-xsrftoken')
     $webRequest = Invoke-WebRequest -Uri "https://$server/account/login" -WebSession $ws -method POST -body (ConvertTo-Json $loginBody)
     $webRequestJson = ConvertFrom-JSON $webRequest.Content
-    $global:DefaultSscConnection = New-Object psobject -property @{ "SscWebSession"=$ws; "SscServer"=$server; "ConnectionDetail"=$webRequestJson }
+    $global:DefaultSscConnection = New-Object psobject -property @{ "SscWebSession"=$ws; "SscServer"=$server; "ConnectionDetail"=$webRequestJson; PSTypeName='SscConnection' }
     
-	# Return a few grains, like the Salt server & version; this will prove the connection worked & provide some context
-	Get-SscMaster | Select-Object Host, NodeName, SaltVersion, @{N='Authenticated';E={$global:DefaultSscConnection.ConnectionDetail.authenticated}}, 
-  @{N='AuthType';E={$global:DefaultSscConnection.ConnectionDetail.attributes.config_driver}}, @{N='AuthSource';E={$global:DefaultSscConnection.ConnectionDetail.attributes.config_name}}, 
-  @{N='UserName';E={$global:DefaultSscConnection.ConnectionDetail.attributes.username}}, @{N='Permissions';E={[string]::Join(', ', $global:DefaultSscConnection.ConnectionDetail.attributes.permissions)}}
+	  # Return the connection object
+	  $global:DefaultSscConnection
   } catch {
     Write-Error ("Failure connecting to $server. " + $_)
   } # end try/catch block
@@ -107,7 +105,12 @@ Function Get-SscData {
 
   try{
     $output = Invoke-WebRequest -WebSession $global:DefaultSscConnection.SscWebSession -Method POST -Uri "https://$($global:DefaultSscConnection.SscServer)/rpc" -body $(ConvertTo-Json $body) -ContentType 'application/json'
-    return (ConvertFrom-Json $output.Content)
+    $outputJson = (ConvertFrom-Json $output.Content)
+
+    if ($outputJson.error) { Write-Error $outputJson.error }
+    if ($outputJson.warnings) { Write-Warning $outputJson.warnings }
+    return $outputJson.ret
+
   } catch {
     Write-Error $_.Exception.Message
   }
@@ -132,17 +135,7 @@ Function Get-SscMaster {
     PS C:\> Get-SscMaster
 #>
 
-  param(
-    [ValidateSet('Json','Results')][string]$Output='Results'
-  )
-
-  $data = Get-SscData master get_master_grains
-
-  if ($Output -eq 'Results') {
-    $data.ret.salt.grains
-  } else {
-    $data
-  } # end if for results parameter
+  (Get-SscData master get_master_grains).salt.grains
 }
 
 Function Get-SscMinionCache {
@@ -161,17 +154,8 @@ Function Get-SscMinionCache {
   .EXAMPLE
     PS C:\> Get-SscMinion
 #>
-  param(
-    [ValidateSet('Json','Results')][string]$Output='Results'
-  )
 
-  $data = Get-SscData minions get_minion_cache
-
-  if ($Output -eq 'Results') {
-    $data.ret.results
-  } else {
-    $data
-  } # end if for results parameter
+  (Get-SscData minions get_minion_cache).results
 }
 
 Function Get-SscJob {
@@ -190,17 +174,8 @@ Function Get-SscJob {
   .EXAMPLE
     PS C:\> Get-SscJob
 #>
-  param(
-    [ValidateSet('Json','Results')][string]$Output='Results'
-  )
 
-  $data = Get-SscData job get_jobs
-
-  if ($Output -eq 'Results') {
-    $data.ret.results
-  } else {
-    $data
-  } # end if for results parameter
+  (Get-SscData job get_jobs).results
 }
 
 Function Get-SscSchedule {
@@ -219,17 +194,8 @@ Function Get-SscSchedule {
   .EXAMPLE
     PS C:\> Get-SscSchedule
 #>
-  param(
-    [ValidateSet('Json','Results')][string]$Output='Results'
-  )
 
-  $data = Get-SscData schedule get
-
-  if ($Output -eq 'Results') {
-    $data.ret.results
-  } else {
-    $data
-  } # end if for results parameter
+  (Get-SscData schedule get).results
 }
 
 Function Get-SscReturn {
@@ -251,33 +217,22 @@ Function Get-SscReturn {
     PS C:\> Get-SscReturn -Jid '20211122160147314949'
   .EXAMPLE
     PS C:\> Get-SscReturn -MinionID 't147-win22-01.lab.enterpriseadmins.org'
+  .EXAMPLE
+    PS C:\> Get-SscReturn -MinionID 't147-win22-01.lab.enterpriseadmins.org' -Jid '20211122160147314949'
 #>
   param(
-    [ValidateSet('Json','Results')][string]$Output='Results',
-  [string]$jid,
-  [string]$minionid
+    [string]$jid,
+    [string]$MinionID
   )
-  # ToDo: This should be a parameterset, was having trouble with making the parameters optional.  Use if statement for now
-  if ($jid -and $minionid) { Write-Warning 'Please only specify JID or MinionID, not both.'; return; }
   
-  if ($jid) {
-    $kwarg = @{'jid'=$jid}
-  } elseif ($minionid) {
-    $kwarg = @{'minion_id'=$minionid}
-  } else {
-    $kwarg = $null
-  }
+  $kwarg = @{}
+  if ($jid) { $kwarg += @{'jid'=$jid} }
+  if ($MinionID) { $kwarg += @{'minion_id'=$MinionID} }
   
-  $data = Get-SscData ret get_returns $kwarg
-
-  if ($Output -eq 'Results') {
-    $data.ret.results
-  } else {
-    $data
-  } # end if for results parameter
+  (Get-SscData ret get_returns $kwarg).results
 }
 
-Function Get-SscCommand {
+Function Get-SscActivity {
 <#
   .NOTES
   ===========================================================================
@@ -288,20 +243,12 @@ Function Get-SscCommand {
   ===========================================================================
   .SYNOPSIS
     This wrapper function will return SaltStack Config commands that have been issued.
+    In the web interface this is similar to the Activity button.
   .DESCRIPTION
     This wrapper function will call Get-SscData cmd.get_cmds.
   .EXAMPLE
-    PS C:\> Get-SscCommand
+    PS C:\> Get-SscActivity
 #>
-  param(
-    [ValidateSet('Json','Results')][string]$Output='Results'
-  )
   
-  $data = Get-SscData cmd get_cmds
-
-  if ($Output -eq 'Results') {
-    $data.ret.results
-  } else {
-    $data
-  } # end if for results parameter
+  (Get-SscData cmd get_cmds).results
 }
