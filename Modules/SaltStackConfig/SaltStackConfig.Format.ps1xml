@@ -24,13 +24,13 @@
                     <TableRowEntry>
                         <TableColumnItems>
                             <TableColumnItem>
-                                <PropertyName>SscServer</PropertyName>
+                                <PropertyName>Server Name</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <ScriptBlock>$_.ConnectionDetail.attributes.config_name +'\'+ $_.ConnectionDetail.attributes.username</ScriptBlock>
+                                <PropertyName>Connected As</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <ScriptBlock>$_.ConnectionDetail.authenticated</ScriptBlock>
+                                <PropertyName>Authenticated</PropertyName>
                             </TableColumnItem>
                     </TableColumnItems>
                     </TableRowEntry>
