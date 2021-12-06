@@ -9,12 +9,12 @@
             <TableControl>
                 <TableHeaders>
                     <TableColumnHeader>
-                        <Width>25</Width>
-                        <Label>Server Name</Label>
+                        <Width>30</Width>
+                        <Label>Name</Label>
                     </TableColumnHeader>
                     <TableColumnHeader>
-                        <Width>25</Width>
-                        <Label>Connected As</Label>
+                        <Width>30</Width>
+                        <Label>User</Label>
                     </TableColumnHeader>
                     <TableColumnHeader>
                         <Label>Authenticated</Label>
@@ -24,10 +24,10 @@
                     <TableRowEntry>
                         <TableColumnItems>
                             <TableColumnItem>
-                                <PropertyName>Server Name</PropertyName>
+                                <PropertyName>Name</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>Connected As</PropertyName>
+                                <PropertyName>User</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
                                 <PropertyName>Authenticated</PropertyName>
