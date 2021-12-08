@@ -248,7 +248,7 @@ Function Get-VAMINetwork {
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
-     Modifed by:    Michael Dunsdon
+     Modifed by:    Michael Dunsdon, Mathieu Allegret
      Twitter:      @MJDunsdon
      Date:         September 21, 2020
 	===========================================================================
