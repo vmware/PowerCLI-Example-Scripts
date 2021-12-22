@@ -12,7 +12,7 @@
 RootModule = 'VMware.vSphere.SsoAdmin.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.6'
+ModuleVersion = '1.3.7'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()

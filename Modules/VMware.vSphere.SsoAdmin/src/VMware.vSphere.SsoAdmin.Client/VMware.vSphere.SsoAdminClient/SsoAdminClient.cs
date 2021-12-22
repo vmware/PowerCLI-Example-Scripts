@@ -1113,7 +1113,7 @@ namespace VMware.vSphere.SsoAdminClient
            string baseDNUsers,
            string baseDNGroups,
            string authenticationUserName,
-           string authenticationPassword,
+           SecureString authenticationPassword,
            string serverType,
            X509Certificate2[] ldapCertificates)
         {
@@ -1163,7 +1163,7 @@ namespace VMware.vSphere.SsoAdminClient
                       new SsoAdminIdentitySourceManagementServiceAuthenticationCredentials
                       {
                           username = authenticationUserName,
-                          password = authenticationPassword
+                          password = SecureStringToString(authenticationPassword)
                       })).Wait();
             }
             catch (AggregateException e)
@@ -1220,6 +1220,40 @@ namespace VMware.vSphere.SsoAdminClient
                       },
                       name,
                       adminLdapIdentitySourceDetails)).Wait();
+            }
+            catch (AggregateException e)
+            {
+                throw e.InnerException;
+            }
+        }
+
+        public void UpdateLdapIdentitySourceAuthentication(
+            string name,
+            string authenticationUserName,
+            SecureString authenticationPassword)
+        {
+
+            string authenticationType = "password";
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            try
+            {
+                authorizedInvocationContext.
+                InvokeOperation(() =>
+                   _ssoAdminBindingClient.UpdateLdapAuthnTypeAsync(
+                      new ManagedObjectReference
+                      {
+                          type = "SsoAdminIdentitySourceManagementService",
+                          Value = "identitySourceManagementService"
+                      },
+                      name,
+                      authenticationType,
+                      new SsoAdminIdentitySourceManagementServiceAuthenticationCredentials
+                      {
+                          username = authenticationUserName,
+                          password = SecureStringToString(authenticationPassword)
+                      })).Wait();
             }
             catch (AggregateException e)
             {

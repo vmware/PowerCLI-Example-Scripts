@@ -216,6 +216,9 @@ function Add-LDAPIdentitySource {
        .PARAMETER Passowrd
        Domain authentication password
 
+       .PARAMETER Credential
+       Domain authentication credential
+
        .PARAMETER ServerType
        Type of the ExternalDomain, one of 'ActiveDirectory','OpenLdap','NIS'
 
@@ -303,7 +306,8 @@ function Add-LDAPIdentitySource {
             Mandatory = $true,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'Domain authentication user name')]
+            HelpMessage = 'Domain authentication user name',
+            ParameterSetName = 'DomainAuthenticationPassword')]
         [ValidateNotNull()]
         [string]
         $Username,
@@ -312,10 +316,21 @@ function Add-LDAPIdentitySource {
             Mandatory = $true,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'Domain authentication password')]
+            HelpMessage = 'Domain authentication password',
+            ParameterSetName = 'DomainAuthenticationPassword')]
         [ValidateNotNull()]
-        [string]
+        [VMware.vSphere.SsoAdmin.Utils.StringToSecureStringArgumentTransformationAttribute()]
+        [SecureString]
         $Password,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'PSCredential object to use for authenticating with the LDAP',
+            ParameterSetName = 'DomainAuthenticationCredential')]
+        [PSCredential]
+        $Credential,
 
         [Parameter(
             Mandatory = $false,
@@ -355,6 +370,16 @@ function Add-LDAPIdentitySource {
                 continue
             }
 
+            $authenticationUserName = ""
+            $authenticationPassword = ""
+            if ($PSBoundParameters.ContainsKey('Credential')) {
+                $authenticationUserName = $Credential.UserName
+                $authenticationPassword = $Credential.Password
+            } else {
+                $authenticationUserName = $Username
+                $authenticationPassword = $Password
+            }
+
             $connection.Client.AddLdapIdentitySource(
                 $DomainName,
                 $DomainAlias,
@@ -363,8 +388,8 @@ function Add-LDAPIdentitySource {
                 $SecondaryUrl,
                 $BaseDNUsers,
                 $BaseDNGroups,
-                $Username,
-                $Password,
+                $authenticationUserName,
+                $authenticationPassword,
                 $ServerType,
                 $Certificates);
         }
@@ -392,6 +417,15 @@ function Set-LDAPIdentitySource {
        .PARAMETER Certificates
        List of X509Certicate2 LDAP certificates
 
+       .PARAMETER Username
+       Domain authentication user name
+
+       .PARAMETER Passowrd
+       Domain authentication password
+
+       .PARAMETER Credential
+       Domain authentication credential
+
        .PARAMETER Server
        Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
        If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
@@ -405,6 +439,15 @@ function Set-LDAPIdentitySource {
        Get-IdentitySource -External | `
        Set-LDAPIdentitySource `
           -Certificates 'C:\Temp\test.cer'
+
+        .EXAMPLE
+
+        Updates certificate of a LDAP identity source authentication password
+
+        Get-IdentitySource -External | `
+        Set-LDAPIdentitySource `
+          -Username 'sofPowercliAdmin@sof-powercli.vmware.com' `
+          -Password '$up3R$Tr0Pa$$w0rD'
     #>
     [CmdletBinding()]
     param(
@@ -418,12 +461,43 @@ function Set-LDAPIdentitySource {
         $IdentitySource,
 
         [Parameter(
-            Mandatory = $false,
+            Mandatory = $true,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'Ldap Certificates')]
+            HelpMessage = 'Ldap Certificates',
+            ParameterSetName = 'UpdateCertificates')]
         [System.Security.Cryptography.X509Certificates.X509Certificate2[]]
         $Certificates,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Domain authentication user name',
+            ParameterSetName = 'DomainAuthenticationPassword')]
+        [ValidateNotNull()]
+        [string]
+        $Username,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Domain authentication password',
+            ParameterSetName = 'DomainAuthenticationPassword')]
+        [ValidateNotNull()]
+        [VMware.vSphere.SsoAdmin.Utils.StringToSecureStringArgumentTransformationAttribute()]
+        [SecureString]
+        $Password,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'PSCredential object to use for authenticating with the LDAP',
+            ParameterSetName = 'DomainAuthenticationCredential')]
+        [PSCredential]
+        $Credential,
 
         [Parameter(
             Mandatory = $false,
@@ -436,7 +510,7 @@ function Set-LDAPIdentitySource {
 
     Process {
         $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
-        if ($Server -ne $null) {
+        if ($null -ne $Server) {
             $serversToProcess = $Server
         }
 
@@ -447,14 +521,34 @@ function Set-LDAPIdentitySource {
                     continue
                 }
 
-                $connection.Client.UpdateLdapIdentitySource(
-                    $IdentitySource.Name,
-                    $IdentitySource.FriendlyName,
-                    $IdentitySource.PrimaryUrl,
-                    $IdentitySource.FailoverUrl,
-                    $IdentitySource.UserBaseDN,
-                    $IdentitySource.GroupBaseDN,
-                    $Certificates);
+                if ($PSBoundParameters.ContainsKey('Certificates')) {
+                    $connection.Client.UpdateLdapIdentitySource(
+                        $IdentitySource.Name,
+                        $IdentitySource.FriendlyName,
+                        $IdentitySource.PrimaryUrl,
+                        $IdentitySource.FailoverUrl,
+                        $IdentitySource.UserBaseDN,
+                        $IdentitySource.GroupBaseDN,
+                        $Certificates);
+                }
+
+                $authenticationUserName = $null
+                $authenticationPassword = $null
+                if ($PSBoundParameters.ContainsKey('Credential')) {
+                    $authenticationUserName = $Credential.UserName
+                    $authenticationPassword = $Credential.Password
+                }
+                if ($PSBoundParameters.ContainsKey('Password')) {
+                    $authenticationUserName = $Username
+                    $authenticationPassword = $Password
+                }
+
+                if ($null -ne $authenticationPassword) {
+                    $connection.Client.UpdateLdapIdentitySourceAuthentication(
+                        $IdentitySource.Name,
+                        $authenticationUserName,
+                        $authenticationPassword);
+                }
             }
         }
         catch {
