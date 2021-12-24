@@ -22,6 +22,13 @@ Function Connect-SscServer {
   .EXAMPLE
     PS C:\> Connect-SscServer -Server 'salt.example.com' -Username 'bwuchner' -Password 'MyPassword1!' -AuthSource 'LAB Directory'
     This will use the 'Lab Directory' LDAP authentication source.
+  .EXAMPLE
+    PS C:\> Connect-SscServer -Server 'salt.example.com'
+    This will prompt for credentials
+  .EXAMPLE
+    $creds = Get-Credential
+    PS C:\> Connect-SscServer -Server 'salt.example.com' -Credential $creds -AuthSource 'LAB Directory'
+    This will connect to the 'LAB Directory' LDAP authentication source using a specified credential.
 #>
   param(
     [Parameter(Mandatory=$true, Position=0)][string]$server,
