@@ -22,13 +22,27 @@ Function Connect-SscServer {
   .EXAMPLE
     PS C:\> Connect-SscServer -Server 'salt.example.com' -Username 'bwuchner' -Password 'MyPassword1!' -AuthSource 'LAB Directory'
     This will use the 'Lab Directory' LDAP authentication source.
+  .EXAMPLE
+    PS C:\> Connect-SscServer -Server 'salt.example.com'
+    This will prompt for credentials
+  .EXAMPLE
+    $creds = Get-Credential
+    PS C:\> Connect-SscServer -Server 'salt.example.com' -Credential $creds -AuthSource 'LAB Directory'
+    This will connect to the 'LAB Directory' LDAP authentication source using a specified credential.
 #>
   param(
-    [Parameter(Mandatory=$true)][string]$server,
-    [Parameter(Mandatory=$true)][string]$username,
-    [Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$password,
-    [string]$AuthSource='internal'
+    [Parameter(Mandatory=$true, Position=0)][string]$server,
+    [Parameter(Mandatory=$true, ParameterSetName='PlainText', Position=1)][string]$username,
+    [Parameter(Mandatory=$true, ParameterSetName='PlainText', Position=2)][ValidateNotNullOrEmpty()][string]$password,
+    [Parameter(Mandatory=$false, Position=3)][string]$AuthSource='internal',
+    [Parameter(Mandatory=$false, ParameterSetName='Credential')][PSCredential]$Credential
   )
+
+  if ($PSCmdlet.ParameterSetName -eq 'Credential' -AND $Credential -eq $null) { $Credential = Get-Credential}
+  if ($Credential) {
+    $username = $Credential.GetNetworkCredential().username
+    $password = $Credential.GetNetworkCredential().password
+  }
   
   $loginBody = @{'username'=$username; 'password'=$password; 'config_name'=$AuthSource}
   try {
@@ -37,7 +51,7 @@ Function Connect-SscServer {
     $webRequest = Invoke-WebRequest -Uri "https://$server/account/login" -WebSession $ws -method POST -body (ConvertTo-Json $loginBody)
     $webRequestJson = ConvertFrom-JSON $webRequest.Content
     $global:DefaultSscConnection = New-Object psobject -property @{ 'SscWebSession'=$ws; 'Name'=$server; 'ConnectionDetail'=$webRequestJson; 
-      'User'=$webRequestJson.attributes.config_driver +'\'+ $username; 'Authenticated'=$webRequestJson.authenticated; PSTypeName='SscConnection' }
+      'User'=$webRequestJson.attributes.config_name +'\'+ $username; 'Authenticated'=$webRequestJson.authenticated; PSTypeName='SscConnection' }
     
 	  # Return the connection object
 	  $global:DefaultSscConnection
