@@ -43,7 +43,7 @@ Function Backup-VCSAToFile {
 		[switch]$FullBackup,
 		[Parameter(ParameterSetName='CommonBackup')]
 		[switch]$CommonBackup,
-		[ValidateSet('FTPS', 'HTTP', 'SCP', 'HTTPS', 'FTP', 'SMB')]
+		[ValidateSet('FTPS', 'HTTP', 'SCP', 'HTTPS', 'FTP', 'SMB', 'SFTP')]
 		$LocationType = "FTP",
 		$Location,
 		$LocationUser,
@@ -71,6 +71,17 @@ Function Backup-VCSAToFile {
 		}
 		if ($FullBackup) {$parts = @("common","seat")}
 		if ($CommonBackup) {$parts = @("common")}
+
+		# Per github issue 468 (https://github.com/vmware/PowerCLI-Example-Scripts/issues/468) adding some logic to account for SFTP/SCP handling in versions after VC 7.0.
+		$vCenterVersionNumber = (Get-CisService -Name 'com.vmware.appliance.system.version').get().version
+		if ( ($vCenterVersionNumber -ge 6.5 -AND $vCenterVersionNumber -lt 7.0 ) -AND $LocationType -eq 'SFTP' )  {
+			write-warning 'VCSA Backup for versions 6.5 and 6.7 use SCP, not SFTP.  Adjusting the LocationType accordingly.'
+			$LocationType = 'SCP'
+		} 
+		if ( $vCenterVersionNumber -ge 7.0 -AND $LocationType -eq 'SCP' ) {
+			write-warning 'VCSA Backup starting with version 7.0 use SFTP and not SCP.  Adjusting the LocationType accordingly.'
+			$LocationType = 'SFTP'
+		}
 	}
 	Process{
 		$BackupAPI = Get-CisService 'com.vmware.appliance.recovery.backup.job'
