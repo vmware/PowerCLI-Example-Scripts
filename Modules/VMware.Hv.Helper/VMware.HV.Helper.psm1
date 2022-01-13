@@ -874,6 +874,9 @@ function Get-HVEvent {
 .PARAMETER MessageFilter
    String that can applied in filtering on 'Message' column.
 
+.PARAMETER SqlTimeout
+   Data query command timeout in seconds, default is 30 seconds.
+
 .EXAMPLE
    $e = Get-HVEvent -hvDbServer $hvDbServer
    $e.Events
@@ -925,7 +928,10 @@ function Get-HVEvent {
     [string]$ModuleFilter = "",
 
     [Parameter(Mandatory = $false)]
-    [string]$MessageFilter = ""
+    [string]$MessageFilter = "",
+
+    [Parameter(Mandatory = $false)]
+    [int]$SqlTimeout = 30
   )
 
   begin {
@@ -1022,7 +1028,7 @@ function Get-HVEvent {
     $command.CommandText = $query
     $adapter.SelectCommand = $command
     $DataTable = New-Object System.Data.DataTable
-    $adapter.Fill($DataTable)
+    $adapter.Fill($DataTable) | Out-Null
 
     $toDate = $DataTable.Rows[0][0]
     $fromDate = $toDate.AddDays(- ($timeInDays))
@@ -1055,6 +1061,7 @@ function Get-HVEvent {
     $adapter.SelectCommand = $command
 
     $DataTable = New-Object System.Data.DataTable
+    $adapter.SelectCommand.CommandTimeout = $SqlTimeout
     $adapter.Fill($DataTable) | Out-Null
 
     Write-Host "Number of records found : " $DataTable.Rows.Count
