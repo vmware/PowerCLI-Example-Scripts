@@ -248,7 +248,7 @@ Function Get-VAMINetwork {
      Organization:  VMware
      Blog:          www.virtuallyghetto.com
      Twitter:       @lamw
-     Modifed by:    Michael Dunsdon
+     Modifed by:    Michael Dunsdon, Mathieu Allegret
      Twitter:      @MJDunsdon
      Date:         September 21, 2020
 	===========================================================================
@@ -265,11 +265,8 @@ Function Get-VAMINetwork {
 #>
     $netResults = @()
 
-    $Hostname = ( Get-VAMIServiceAPI -NameFilter "dns.hostname").get()
+    $Hostname = (Get-VAMIServiceAPI -NameFilter "dns.hostname").get()
     $dns = (Get-VAMIServiceAPI -NameFilter "dns.servers").get()
-
-    Write-Host "Hostname: " $hostname
-    Write-Host "DNS Servers: " $dns.servers
 
     $interfaces = (Get-VAMIServiceAPI -NameFilter "interfaces").list()
     foreach ($interface in $interfaces) {
@@ -282,13 +279,15 @@ Function Get-VAMINetwork {
             $Updateable = $ipv4result.updateable
         }
         $interfaceResult = [pscustomobject] @{
-            Inteface =  $interface.name;
-            MAC = $interface.mac;
-            Status = $interface.status;
-            Mode = $ipv4result.mode;
-            IP = $ipv4result.address;
-            Prefix = $ipv4result.prefix;
-            Gateway = $ipv4result.default_gateway;
+	    Hostname = $Hostname
+            Inteface = $interface.name
+            MAC = $interface.mac
+            Status = $interface.status
+            Mode = $ipv4result.mode
+            IP = $ipv4result.address
+            Prefix = $ipv4result.prefix
+            Gateway = $ipv4result.default_gateway
+	    DNSServers = $dns.servers
             Updateable = $Updateable
         }
         $netResults += $interfaceResult
