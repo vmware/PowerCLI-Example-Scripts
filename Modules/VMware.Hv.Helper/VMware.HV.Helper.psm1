@@ -4460,7 +4460,7 @@ function New-HVPool {
           $maximumCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.maxNumberOfMachines
           $spareCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.numberOfSpareMachines
           $provisioningTime = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.provisioningTime
-          $MinimumCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.MinNumberOfMachines
+          if ($provisioningTime -eq 'ON_DEMAND') { $MinimumCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.MinNumberOfMachines }
         } else {
           $specificNames = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.specifiedNames
           $startInMaintenanceMode = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.SpecificNamingSpec.startMachinesInMaintenanceMode
