@@ -73,6 +73,10 @@ The repository has been provided to allow the community to share resources that 
 
 ## Meta Information
 This section will provide guidance on information which should be included with each submitted PowerCLI resource. Information listed in the Suggested Information will not be required for commit of a pull request to the repo, but will certainly increase ease of use for users of the resource.
+
+### Pull Request Requirements
+To comply with VMware's Client License Agreement (CLA), you must sign every commit in a Pull Request acknowledging the Developer Certificate of Origin (DCO) before your changes are merged. This can be done by adding "Signed-off-by: John Doe <john.doe@email.org>" (< > are required around the address) to the last line of each Git commit message. The e-mail address used to sign must match the e-mail address of the Git author. Click here to view the Developer Certificate of Origin agreement <https://cla.vmware.com/dco>
+
 ### Required Information
 The following information must be included with each submitted scripting resource. Please include the information in the appropriate location based upon the submitted scripting resource.  
 
