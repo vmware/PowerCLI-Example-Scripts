@@ -75,7 +75,24 @@ The repository has been provided to allow the community to share resources that 
 This section will provide guidance on information which should be included with each submitted PowerCLI resource. Information listed in the Suggested Information will not be required for commit of a pull request to the repo, but will certainly increase ease of use for users of the resource.
 
 ### Pull Request Requirements
-To comply with VMware's Client License Agreement (CLA), you must sign every commit in a Pull Request acknowledging the Developer Certificate of Origin (DCO) before your changes are merged. This can be done by adding "Signed-off-by: John Doe <john.doe@email.org>" (< > are required around the address) to the last line of each Git commit message. The e-mail address used to sign must match the e-mail address of the Git author. Click here to view the Developer Certificate of Origin agreement <https://cla.vmware.com/dco>
+To comply with VMware's Client License Agreement (CLA), each commit in a Pull Request requires a sign-off acknowledging the Developer Certificate of Origin (DCO) <https://cla.vmware.com/dco> before your changes are merged. Your commit should be in the following format:
+
+    The body of your commit message
+    Signed-off-by: John Doe <john.doe@email.org>
+
+The text can either be manually added to your commit body, or you can add either `-s` or `--signoff` to your usual git commit commands.
+The e-mail address used to sign must match the public e-mail address of the Git author.
+
+    git commit --signoff --message 'This is my commit message'
+
+#### DCO-Required error
+If you have authored a commit that is missing the signed-off-by line, you can amend your commits and push them to GitHub with the following:
+
+    git commit --amend --signoff
+
+If you've pushed your changes to GitHub already, you'll need to force push your branch after this with:
+
+    git push -f
 
 ### Required Information
 The following information must be included with each submitted scripting resource. Please include the information in the appropriate location based upon the submitted scripting resource.  
