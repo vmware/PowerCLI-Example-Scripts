@@ -4460,6 +4460,7 @@ function New-HVPool {
           $maximumCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.maxNumberOfMachines
           $spareCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.numberOfSpareMachines
           $provisioningTime = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.provisioningTime
+          if ($provisioningTime -eq 'ON_DEMAND') { $MinimumCount = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.patternNamingSettings.MinNumberOfMachines }
         } else {
           $specificNames = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.specifiedNames
           $startInMaintenanceMode = $jsonObject.AutomatedDesktopSpec.VmNamingSpec.SpecificNamingSpec.startMachinesInMaintenanceMode
@@ -10541,7 +10542,7 @@ function Rebuild-HVMachine {
 		Author                      : Mayank Goyal
 		Author email                : mayankgoyalmax@gmail.com
 		Version                     : 1.0
-		
+
 		===Tested Against Environment====
 		Horizon View Server Version : 7.3.0
 		PowerCLI Version            : PowerCLI 6.5, PowerCLI 6.5.1
