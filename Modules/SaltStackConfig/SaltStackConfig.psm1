@@ -36,7 +36,8 @@ Function Connect-SscServer {
     [Parameter(Mandatory=$true, ParameterSetName='PlainText', Position=2)][ValidateNotNullOrEmpty()][string]$password,
     [Parameter(Mandatory=$false, Position=3)][string]$AuthSource='internal',
     [Parameter(Mandatory=$false, ParameterSetName='Credential')][PSCredential]$Credential,
-    [Parameter(Mandatory=$false)][Switch]$SkipCertificateCheck
+    [Parameter(Mandatory=$false)][Switch]$SkipCertificateCheck,
+    [Parameter(Mandatory=$false)][ValidateSet('Tls13','Tls12','Tls11','Tls','SystemDefault')]$SslProtocol
   )
 
   if ($PSCmdlet.ParameterSetName -eq 'Credential' -AND $Credential -eq $null) { $Credential = Get-Credential}
@@ -58,10 +59,13 @@ Function Connect-SscServer {
         }
     }
 "@
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Tls,Tls11,Tls12'
     [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
   } # end if SkipCertificate Check
   
+  if ($SslProtocol) {
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]$SslProtocol
+  }
+
   $loginBody = @{'username'=$username; 'password'=$password; 'config_name'=$AuthSource}
   try {
     $webRequest = Invoke-WebRequest -Uri "https://$server/account/login" -SessionVariable ws
