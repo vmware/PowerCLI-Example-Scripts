@@ -37,7 +37,7 @@ Function Connect-SscServer {
     [Parameter(Mandatory=$false, Position=3)][string]$AuthSource='internal',
     [Parameter(Mandatory=$false, ParameterSetName='Credential')][PSCredential]$Credential,
     [Parameter(Mandatory=$false)][Switch]$SkipCertificateCheck,
-    [Parameter(Mandatory=$false)][ValidateSet('Tls13','Tls12','Tls11','Tls','SystemDefault')]$SslProtocol
+    [Parameter(Mandatory=$false)][System.Net.SecurityProtocolType]$SslProtocol
   )
 
   if ($PSCmdlet.ParameterSetName -eq 'Credential' -AND $Credential -eq $null) { $Credential = Get-Credential}
@@ -63,7 +63,7 @@ Function Connect-SscServer {
   } # end if SkipCertificate Check
   
   if ($SslProtocol) {
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]$SslProtocol
+    [System.Net.ServicePointManager]::SecurityProtocol = $SslProtocol
   }
 
   $loginBody = @{'username'=$username; 'password'=$password; 'config_name'=$AuthSource}
