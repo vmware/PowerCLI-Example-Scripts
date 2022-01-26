@@ -35,7 +35,9 @@ Function Connect-SscServer {
     [Parameter(Mandatory=$true, ParameterSetName='PlainText', Position=1)][string]$username,
     [Parameter(Mandatory=$true, ParameterSetName='PlainText', Position=2)][ValidateNotNullOrEmpty()][string]$password,
     [Parameter(Mandatory=$false, Position=3)][string]$AuthSource='internal',
-    [Parameter(Mandatory=$false, ParameterSetName='Credential')][PSCredential]$Credential
+    [Parameter(Mandatory=$false, ParameterSetName='Credential')][PSCredential]$Credential,
+    [Parameter(Mandatory=$false)][Switch]$SkipCertificateCheck,
+    [Parameter(Mandatory=$false)][System.Net.SecurityProtocolType]$SslProtocol
   )
 
   if ($PSCmdlet.ParameterSetName -eq 'Credential' -AND $Credential -eq $null) { $Credential = Get-Credential}
@@ -43,7 +45,27 @@ Function Connect-SscServer {
     $username = $Credential.GetNetworkCredential().username
     $password = $Credential.GetNetworkCredential().password
   }
+
+  if ($SkipCertificateCheck) {
+    # This if statement is using example code from https://stackoverflow.com/questions/11696944/powershell-v3-invoke-webrequest-https-error
+    add-type @"
+    using System.Net;
+    using System.Security.Cryptography.X509Certificates;
+    public class TrustAllCertsPolicy : ICertificatePolicy {
+        public bool CheckValidationResult(
+            ServicePoint srvPoint, X509Certificate certificate,
+            WebRequest request, int certificateProblem) {
+            return true;
+        }
+    }
+"@
+    [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+  } # end if SkipCertificate Check
   
+  if ($SslProtocol) {
+    [System.Net.ServicePointManager]::SecurityProtocol = $SslProtocol
+  }
+
   $loginBody = @{'username'=$username; 'password'=$password; 'config_name'=$AuthSource}
   try {
     $webRequest = Invoke-WebRequest -Uri "https://$server/account/login" -SessionVariable ws
