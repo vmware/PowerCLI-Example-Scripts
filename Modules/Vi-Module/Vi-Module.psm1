@@ -10,7 +10,7 @@ Function Get-RDM {
 .EXAMPLE
 	C:\PS> Get-VM -Server VC1 |Get-RDM
 .EXAMPLE
-	C:\PS> Get-VM |? {$_.Name -like 'linux*'} |Get-RDM |sort VM,Datastore,HDLabel |ft -au
+	C:\PS> Get-VM |? {$_.Name -like 'linux*'} |Get-RDM |sort-object VM,Datastore,HDLabel |ft -au
 .EXAMPLE
 	C:\PS> Get-Datacenter 'North' |Get-VM |Get-RDM |? {$_.HDSizeGB -gt 1} |Export-Csv -NoTypeInformation 'C:\reports\North_RDMs.csv'
 .EXAMPLE
@@ -113,7 +113,7 @@ Function Convert-VmdkThin2EZThick {
 .EXAMPLE
 	C:\PS> Get-VM VM1 |Convert-VmdkThin2EZThick
 .EXAMPLE
-	C:\PS> Get-VM VM1,VM2 |Convert-VmdkThin2EZThick -Confirm:$false |sort VM,Datastore,VMDK |ft -au
+	C:\PS> Get-VM VM1,VM2 |Convert-VmdkThin2EZThick -Confirm:$false |sort-object VM,Datastore,VMDK |ft -au
 .INPUTS
 	[VMware.VimAutomation.ViCore.Types.V1.Inventory.VirtualMachine[]] Objects, returned by Get-VM cmdlet.
 .OUTPUTS
@@ -352,7 +352,7 @@ Function Set-PowerCLiTitle {
 	http://www.ps1code.com/single-post/2015/11/17/ConnectVIServer-deep-dive-or-%C2%ABWhere-am-I-connected-%C2%BB
 #>
 
-$VIS = $global:DefaultVIServers |sort -Descending ProductLine,Name
+$VIS = $global:DefaultVIServers |sort-object -Descending ProductLine,Name
 
 If ($VIS) {
 	Foreach ($VIObj in $VIS) {

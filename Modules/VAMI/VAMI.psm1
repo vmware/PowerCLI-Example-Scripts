@@ -316,8 +316,8 @@ Function Get-VAMIDisks {
     $storageAPI = Get-CisService -Name 'com.vmware.appliance.system.storage'
     $disks = $storageAPI.list()
 
-    foreach ($disk in $disks | sort {[int]$_.disk.toString()}) {
-        $disk | Select Disk, Partition
+    foreach ($disk in $disks | Sort-Object {[int]$_.disk.toString()}) {
+        $disk | Select-Object Disk, Partition
     }
 }
 
