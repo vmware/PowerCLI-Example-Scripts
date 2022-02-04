@@ -1269,7 +1269,7 @@ Function Get-EntityByCryptoKey {
 
        $VMList += $VMs|Where {$_.EncryptionKeyId|MatchKeys -KeyId $keyId -KMSClusterId $KMSClusterId}
        $VMList += $VMDiskList.Parent
-       $VMList = $VMList|sort|Get-Unique
+       $VMList = $VMList|sort-object|Get-Unique
        $Entities.VMList = $VMList
     }
 

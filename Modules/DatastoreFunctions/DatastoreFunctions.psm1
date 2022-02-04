@@ -34,7 +34,7 @@ Function Get-HostViews {
 			Throw "No Datastores found.`nIs ""$Datastore"" a Datastore Object?"
 		}
 		$allHosts = @()
-		$DShostsKeys = $allDatastores.extensiondata.host.key.value | sort | get-unique -asstring
+		$DShostsKeys = $allDatastores.extensiondata.host.key.value | sort-object | get-unique -asstring
 		$DShosts = foreach ($thisKey in $DShostsKeys) {($allDatastores.extensiondata.host | ? {$_.key.value -eq $thisKey})[0]}
 		$i = 1
 		foreach ($DSHost in $DSHosts){

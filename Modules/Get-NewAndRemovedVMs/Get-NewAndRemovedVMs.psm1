@@ -125,7 +125,7 @@ Begin {
 
 process {
     $result = Get-VIEventPlus -Start ((get-date).adddays(-$Days)) -EventType @("VmCreatedEvent", "VmBeingClonedEvent", "VmBeingDeployedEvent","VmRemovedEvent")
-    $sortedResult = $result | Select CreatedTime, @{N='Cluster';E={$_.ComputeResource.Name}}, @{Name="VMName";Expression={$_.vm.name}}, UserName, @{N='Type';E={$_.GetType().Name}}, FullFormattedMessage | Sort CreatedTime
-    $sortedResult | where {$_.Cluster -like $ClusterName}
+    $sortedResult = $result | Select-Object CreatedTime, @{N='Cluster';E={$_.ComputeResource.Name}}, @{Name="VMName";Expression={$_.vm.name}}, UserName, @{N='Type';E={$_.GetType().Name}}, FullFormattedMessage
+    $sortedResult | where-object {$_.Cluster -like $ClusterName}
 }
 }
