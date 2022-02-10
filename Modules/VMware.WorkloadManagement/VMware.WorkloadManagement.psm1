@@ -87,7 +87,7 @@ Function New-WorkloadManagement {
         [Parameter(Mandatory=$True)]$MgmtNetworkGateway,
         [Parameter(Mandatory=$True)][string[]]$MgmtNetworkDNS,
         [Parameter(Mandatory=$True)][string[]]$MgmtNetworkDNSDomain,
-        [Parameter(Mandatory=$True)]$MgmtNetworkNTP,
+        [Parameter(Mandatory=$True)][string[]]$MgmtNetworkNTP,
         [Parameter(Mandatory=$True)]$WorkloadNetworkVDS,
         [Parameter(Mandatory=$True)]$WorkloadNetworkEdgeCluster,
         [Parameter(Mandatory=$True)][string[]]$WorkloadNetworkDNS,
