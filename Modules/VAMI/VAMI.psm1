@@ -655,38 +655,46 @@ Function Get-VAMIUser {
     $userAPI = Get-VAMIServiceAPI -NameFilter "accounts"
     $UserResults = @()
 
-    if (($Name -ne "") -and ($null -ne $Name)) {
-        try {
-            $Users = $UserAPI.get($name)
-        } catch {
-            Write-Error $Error[0].exception.Message
-        }
-    } else {
+    # Get a list of users
+    try {
         $Users = $UserAPI.list()
+    } catch {
+        write-error $_
     }
+
+    # Apply filtering if Name input is provided
+    if ($Name -ne '' -AND $Name -ne $null) {
+        # For 6.5 API, the username is part of the list returnset; for 6.7/7.x API the value from the list is the username. Because of this we will use an OR filter to account for either case.
+        $Users = $Users | Where-Object {$_.username -eq $name -OR $_.value -eq $name}
+    }
+
     if ($Users.status) {
+        # This is for 6.5 API, which has a status property; in newer API response there is an enabled property with values of True/False
         foreach ($User in $Users) {
             $UserString = [pscustomobject] @{
                 User = $User.username
                 Name = $User.fullname
                 Email = $User.email
-                Status = $User.status
+                Enabled = if ($User.status -eq 'enabled' ) { $true } else { $false }
+                LastPasswordChange = 'Unknown'
+                PasswordExpiresAt = 'Unknown'
                 PasswordStatus = $User.passwordstatus
                 Roles = @($User.role)
             }
             $UserResults += $UserString
         }
     } else {
+        # This is for 6.7/7.0+ API response
         foreach ($User in $Users) {
-            $UserInfo = $userAPI.get($user)
+            $UserInfo = $userAPI.get($User.Value)
             $UserString = [pscustomobject] @{
                 User = $User.value
                 Name = $UserInfo.fullname
                 Email = $UserInfo.email
-                Status = $UserInfo.enabled
+                Enabled = $UserInfo.enabled
                 LastPasswordChange = $UserInfo.last_password_change
                 PasswordExpiresAt = $UserInfo.password_expires_at
-                PasswordStatus = if ($UserInfo.has_password) { if ((!!$UserInfo.password_expires_at) -and ([datetime]$UserInfo.password_expires_at -lt (get-date))) {"good"} else {"expired"}} else { "notset"}
+                PasswordStatus = if ($UserInfo.has_password) { if ((!!$UserInfo.password_expires_at) -and ( (Get-Date) -lt [datetime]$UserInfo.password_expires_at)) {'valid'} else {'expired'}} else { 'notset'}
                 Roles = $UserInfo.roles
             }
             $UserResults += $UserString
@@ -741,18 +749,19 @@ Function New-VAMIUser {
 
     $userAPI = Get-VAMIServiceAPI -NameFilter "accounts"
     if ($userAPI.name -eq 'com.vmware.appliance.techpreview.localaccounts.user') {
-        $CreateSpec = $UserAPI.Help.add.config.CreateExample()
+        $CreateSpec = $UserAPI.Help.add.config.Create()
     } else {
-        $CreateSpec = $UserAPI.Help.create.config.CreateExample()
+        $CreateSpec = $UserAPI.Help.create.config.Create()
     }
 
-    $CreateSpec.fullname = $FullName
-    $CreateSpec.role = $Role
     $CreateSpec.email = $Email
     $CreateSpec.password = [VMware.VimAutomation.Cis.Core.Types.V1.Secret]$Password
 
     if ($CreateSpec.psobject.properties.name -contains "username") {
+        # This is for 6.5 API
         $CreateSpec.username = $Name
+        $CreateSpec.fullname = $FullName
+        $CreateSpec.role = $Role
         try {
             Write-Host "Creating new user $Name ..."
             $UserAPI.add($CreateSpec)
@@ -760,14 +769,17 @@ Function New-VAMIUser {
             Write-Error $Error[0].exception.Message
         }
     } else {
-        $CreateSpec.password_expires = $PasswordExpires
+        # This is for 6.7/7.0+ API
+        $CreateSpec.full_name = $FullName
+        $CreateSpec.roles = @($Role)
+        $CreateSpec.password_expires = [string]$PasswordExpires
         $CreateSpec.password_expires_at = $PasswordExpiresAt
         $CreateSpec.max_days_between_password_change = $MaxPasswordAge
         try {
             Write-Host "Creating new user $Name ..."
             $UserAPI.create($Name, $CreateSpec)
         } catch {
-            Write-Error $Error[0].exception.Message
+            Write-Error $_
         }
     }
 }
