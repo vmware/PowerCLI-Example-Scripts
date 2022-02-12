@@ -676,8 +676,9 @@ Function Get-VAMIUser {
                 Name = $User.fullname
                 Email = $User.email
                 Enabled = if ($User.status -eq 'enabled' ) { $true } else { $false }
-                LastPasswordChange = 'Unknown'
-                PasswordExpiresAt = 'Unknown'
+                Status = $User.status
+                LastPasswordChange = $null
+                PasswordExpiresAt = $null
                 PasswordStatus = $User.passwordstatus
                 Roles = @($User.role)
             }
@@ -692,6 +693,7 @@ Function Get-VAMIUser {
                 Name = $UserInfo.fullname
                 Email = $UserInfo.email
                 Enabled = $UserInfo.enabled
+                Status = if ($userInfo.enabled ) { 'enabled' } else { 'disabled' }
                 LastPasswordChange = $UserInfo.last_password_change
                 PasswordExpiresAt = $UserInfo.password_expires_at
                 PasswordStatus = if ($UserInfo.has_password) { if ((!!$UserInfo.password_expires_at) -and ( (Get-Date) -lt [datetime]$UserInfo.password_expires_at)) {'valid'} else {'expired'}} else { 'notset'}
