@@ -141,7 +141,9 @@ Function Get-SscData {
   }
 
   try{
-    $output = Invoke-WebRequest -WebSession $global:DefaultSscConnection.SscWebSession -Method POST -Uri "https://$($global:DefaultSscConnection.Name)/rpc" -body $(ConvertTo-Json $body) -ContentType 'application/json'
+    $jsonBody = $(ConvertTo-Json $body -Depth 4 -Compress )
+    write-debug "JSON Body: $jsonBody"
+    $output = Invoke-WebRequest -WebSession $global:DefaultSscConnection.SscWebSession -Method POST -Uri "https://$($global:DefaultSscConnection.Name)/rpc" -body $jsonBody -ContentType 'application/json'
     $outputJson = (ConvertFrom-Json $output.Content)
 
     if ($outputJson.error) { Write-Error $outputJson.error }
@@ -288,4 +290,347 @@ Function Get-SscActivity {
 #>
   
   (Get-SscData cmd get_cmds).results
+}
+
+Function Get-SscFile {
+<#
+  .NOTES
+  ===========================================================================
+    Created by:	Brian Wuchner
+    Date:		February 12, 2022
+    Blog:		www.enterpriseadmins.org
+    Twitter:		@bwuch
+  ===========================================================================
+  .SYNOPSIS
+    This wrapper function will return file contents from the file server based on the provided arguments.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData fs get_file and pass in specified saltenv and path parameters.
+  .EXAMPLE
+    PS C:\> Get-SscFile -saltenv 'sse' -path '/myfiles/file.sls'
+  .EXAMPLE
+    PS C:\> Get-SscFile -fileuuid '5e2483e8-a981-4e8c-9e83-01d1930413db'
+#>
+  param(
+    [Parameter(Mandatory=$true, ParameterSetName='ByFileUUID', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][Alias('fileuuid')][string]$uuid,
+    [Parameter(Mandatory=$true, ParameterSetName='ByFilePath')][string]$saltenv,
+    [Parameter(Mandatory=$true, ParameterSetName='ByFilePath')][string]$path
+  )
+  
+  $kwarg = @{}
+  if ($uuid) { $kwarg += @{'file_uuid'=$uuid } }
+  if ($saltenv) {
+    $kwarg += @{'saltenv'=$saltenv}
+    $kwarg += @{'path'=$path}
+  }
+  
+  if ( Get-SscData fs file_exists $kwarg ) {
+    Get-SscData fs get_file $kwarg
+  } else {
+    Write-Warning "File $path not found in $saltenv"
+  }
+}
+
+Function Set-SscFile {
+<#
+  .NOTES
+  ===========================================================================
+    Created by:	Brian Wuchner
+    Date:		February 12, 2022
+    Blog:		www.enterpriseadmins.org
+    Twitter:		@bwuch
+  ===========================================================================
+  .SYNOPSIS
+    This wrapper function will update file contents on the file server based on the provided arguments.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData fs update_file and pass in specified fileuuid or saltenv and path parameters.
+  .EXAMPLE
+    PS C:\> Set-SscFile -saltenv 'sse' -path '/myfiles/file.sls' "#This is my content. `n#And so is this"
+  .EXAMPLE
+    PS C:\> Get-SscFile -saltenv 'sse' -path '/myfiles/file.sls' | Set-SscFile -contenttype 'text/x-yaml'
+#>
+  [cmdletbinding(SupportsShouldProcess=$true,ConfirmImpact='High')]
+  param(
+    [Parameter(Mandatory=$true, ParameterSetName='ByFileUUID', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][Alias('fileuuid','file_uuid')][string]$uuid,
+    [Parameter(Mandatory=$true, ParameterSetName='ByFilePath')][string]$saltenv,
+    [Parameter(Mandatory=$true, ParameterSetName='ByFilePath')][string]$path,
+    [string]$content,
+    [ValidateSet('text/plain','text/x-python','application/json','text/x-yaml')][string]$contenttype
+  )
+  
+  $kwarg = @{}
+  if ($uuid) { $kwarg += @{'file_uuid'=$uuid } }
+  if ($saltenv) {
+    $kwarg += @{'saltenv'=$saltenv}
+    $kwarg += @{'path'=$path}
+  }
+
+  # if the file exists, get its contents based on the correct parameterset.  If it does not exist recommend the correct function.
+  if ( Get-SscData fs file_exists $kwarg ) {
+    if ( $PSCmdlet.ParameterSetName -eq 'ByFileUUID' ) {
+      $currentFile = Get-SscFile -fileuuid $uuid
+    } else {
+      $currentFile = Get-SscFile -saltenv $saltenv -path $path
+    }
+  } else {
+    Write-Warning "Specified file does not exist, use New-SscFile instead."
+    return $null
+  }
+
+  if (!$content) { $content = $currentFile.contents }
+  $kwarg += @{'contents'=$content}
+
+  if (!$contenttype) { $contenttype = $currentfile.content_type }
+  $kwarg += @{'content_type'=$contenttype}
+  
+  if ($PSCmdlet.ShouldProcess( "$($currentFile.saltenv)$($currentFile.path) ($($currentFile.uuid))" , 'update')) {
+    Get-SscData fs update_file $kwarg
+  }
+}
+
+Function New-SscFile {
+<#
+  .NOTES
+  ===========================================================================
+    Created by:	Brian Wuchner
+    Date:		February 12, 2022
+    Blog:		www.enterpriseadmins.org
+    Twitter:		@bwuch
+  ===========================================================================
+  .SYNOPSIS
+    This wrapper function will create a new file on the file server based on the provided arguments.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData fs save_file and pass in specified saltenv and path parameters.
+  .EXAMPLE
+    PS C:\> New-SscFile -saltenv 'sse' -path '/myfiles/file.sls' -content '#this is my file content' -contenttype 'text/plain'
+#>
+  param(
+    [Parameter(Mandatory=$true)][string]$saltenv,
+    [Parameter(Mandatory=$true)][string]$path,
+    [string]$content,
+    [ValidateSet('text/plain','text/x-python','application/json','text/x-yaml')][string]$contenttype
+  )
+  
+  $kwarg = @{}
+  $kwarg += @{'saltenv'=$saltenv}
+  $kwarg += @{'path'=$path}
+
+  # if the file exists, get its contents based on the correct parameterset.  If it does not exist recommend the correct function.
+  if ( Get-SscData fs file_exists $kwarg ) {
+    write-warning "Specified file already exists, use Set-SscFile instead."
+    return $null
+  }
+
+  if ($content) { $kwarg += @{'contents'=$content} }
+
+  if ($contenttype) {
+    # if a contenttype is passed to the function we'll use it
+    $kwarg += @{'content_type'=$contenttype}
+  } else {
+    # and finally we'll default to text
+    $kwarg += @{'content_type' = 'text/plain' }
+  }
+
+  Get-SscData fs save_file $kwarg
+}
+
+Function Remove-SscFile {
+<#
+  .NOTES
+  ===========================================================================
+    Created by:	Brian Wuchner
+    Date:		February 12, 2022
+    Blog:		www.enterpriseadmins.org
+    Twitter:		@bwuch
+  ===========================================================================
+  .SYNOPSIS
+    This wrapper function will delete a specified file from the file server based on the provided arguments.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData fs delete_file and pass in specified fileuuid or saltenv and path parameters.
+  .EXAMPLE
+    PS C:\> Remove-SscFile -saltenv 'sse' -path '/myfiles/file.sls'
+  .EXAMPLE
+    PS C:\> Get-SscFile -saltenv 'sse' -path '/myfiles/file.sls' | Remove-SscFile
+#>
+  [cmdletbinding(SupportsShouldProcess=$true,ConfirmImpact='High')]
+  param(
+    [Parameter(Mandatory=$true, ParameterSetName='ByFileUUID', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][Alias('fileuuid')][string]$uuid,
+    [Parameter(Mandatory=$true, ParameterSetName='ByFilePath')][string]$saltenv,
+    [Parameter(Mandatory=$true, ParameterSetName='ByFilePath')][string]$path
+  )
+  
+  $kwarg = @{}
+  if ($uuid) { $kwarg += @{'file_uuid'=$uuid } }
+  if ($saltenv) {
+    $kwarg += @{'saltenv'=$saltenv}
+    $kwarg += @{'path'=$path}
+  }
+
+  if ( Get-SscData fs file_exists $kwarg ) {
+    if ($PSCmdlet.ShouldProcess( $(if ($uuid) {$uuid} else {"$saltenv $path"}) , 'delete')) {
+      Get-SscData fs delete_file $kwarg
+    }
+  } else {
+    Write-Warning "Specified file does not exist."
+    return $null
+  }
+}
+  
+Function Get-SscLicense {
+<#
+  .NOTES
+  ===========================================================================
+    Created by:	Brian Wuchner
+    Date:		February 12, 2022
+    Blog:		www.enterpriseadmins.org
+    Twitter:		@bwuch
+  ===========================================================================
+  .SYNOPSIS
+    This wrapper function will return license information for SaltStack Config.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData license.get_current_license and return the desc property.
+  .EXAMPLE
+    PS C:\> Get-SscLicense
+#>
+
+  (Get-SscData license get_current_license).desc
+}
+
+Function Get-SscvRALicense {
+<#
+  .NOTES
+  ===========================================================================
+    Created by:	Brian Wuchner
+    Date:		February 12, 2022
+    Blog:		www.enterpriseadmins.org
+    Twitter:		@bwuch
+  ===========================================================================
+  .SYNOPSIS
+    This wrapper function will return vRealize Automation license information for SaltStack Config.
+  .DESCRIPTION
+    This wrapper function will call Get-SscData license.get_vra_license and return the serial and edition property.
+  .EXAMPLE
+    PS C:\> Get-SscvRALicense
+#>
+
+  Get-SscData license get_vra_license
+}
+
+Function Get-SscMinionKeyState {
+  <#
+    .NOTES
+    ===========================================================================
+      Created by:	Brian Wuchner
+      Date:		February 12, 2022
+      Blog:		www.enterpriseadmins.org
+      Twitter:		@bwuch
+    ===========================================================================
+    .SYNOPSIS
+      This wrapper function will return minion key state information for SaltStack Config.
+    .DESCRIPTION
+      This wrapper function will call Get-SscData minions.get_minion_key_state and return the minions key states.  
+      Optionally a key state can be provided and the results will be filtered to only return the requested state.
+    .EXAMPLE
+      PS C:\> Get-SscMinionKeyState
+    .EXAMPLE
+      PS C:\> Get-SscMinionKeyState -key_state pending
+  #>
+  param(
+    [ValidateSet('accepted','rejected','pending','denied')][string]$key_state
+  )
+  
+  $kwarg = @{}
+  if ($key_state) { $kwarg.add('key_state',$key_state) }
+  
+  (Get-SscData minions get_minion_key_state $kwarg).results
+}
+
+
+Function Set-SscMinionKeyState {
+  <#
+    .NOTES
+    ===========================================================================
+      Created by:	Brian Wuchner
+      Date:		February 12, 2022
+      Blog:		www.enterpriseadmins.org
+      Twitter:		@bwuch
+    ===========================================================================
+    .SYNOPSIS
+      This wrapper function will set minion key state information for SaltStack Config.
+    .DESCRIPTION
+      This wrapper function will call Get-SscData minions.set_minion_key_state and update the states for specific minions.  
+    .EXAMPLE
+      PS C:\> Get-SscMinionKeyState |?{$_.name -eq 'server2022a'} | Set-SscMinionKeyState -state accept
+    .EXAMPLE
+      PS C:\> Set-SscMinionKeyState -master 'salt' -minion 'server2022a' -state reject -confirm:$false
+  #>
+  [cmdletbinding(SupportsShouldProcess)]
+  param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string]$master,
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string]$minion,
+    [Parameter(Mandatory=$true)][ValidateSet('accept','reject')][string]$state
+  )
+
+  begin {
+    $collection = @()
+  }
+
+  process {
+    if ($PSCmdlet.ShouldProcess("$master : $minion" , $state)) {
+      $collection += ,@($master, $minion)
+    }
+  }
+  
+  end {
+    $kwarg = @{}
+    $kwarg.Add('state', $state)
+    if ($state -eq 'reject') {$kwarg.Add('include_accepted', $true)}
+    if ($state -eq 'accept') {$kwarg.Add('include_rejected', $true)}
+    if ($state -eq 'accept' -OR $state -eq 'reject') {$kwarg.Add('include_denied',$true)}
+    $kwarg.Add('minions', @( $collection ) )
+
+    (Get-SscData minions set_minion_key_state $kwarg).task_ids
+  }
+}
+
+Function Remove-SscMinionKeyState {
+  <#
+    .NOTES
+    ===========================================================================
+      Created by:	Brian Wuchner
+      Date:		February 12, 2022
+      Blog:		www.enterpriseadmins.org
+      Twitter:		@bwuch
+    ===========================================================================
+    .SYNOPSIS
+      This wrapper function will delete a minion key for SaltStack Config.
+    .DESCRIPTION
+      This wrapper function will call Get-SscData minions.set_minion_key_state and remove the specified minion keys.  
+    .EXAMPLE
+      PS C:\> Get-SscMinionKeyState |?{$_.name -eq 'server2022a'} | Remove-SscMinionKeyState
+    .EXAMPLE
+      PS C:\> Remove-SscMinionKeyState -master 'salt' -minion 'server2022a' -confirm:$false
+  #>
+  [cmdletbinding(SupportsShouldProcess=$true,ConfirmImpact='High')]
+  param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string]$master,
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string]$minion
+  )
+
+  begin {
+    $collection = @()
+  }
+
+  process {
+    if ($PSCmdlet.ShouldProcess("$master : $minion" , 'delete')) {
+      $collection += ,@($master, $minion)
+    }
+  }
+
+  end {
+    $kwarg = @{}
+    $kwarg.Add('state','delete')
+    $kwarg.Add('minions', @( $collection ) )
+
+    (Get-SscData minions set_minion_key_state $kwarg).task_ids
+  }
 }
