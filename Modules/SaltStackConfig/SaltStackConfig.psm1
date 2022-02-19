@@ -326,7 +326,7 @@ Function Get-SscFile {
   if ( Get-SscData fs file_exists $kwarg ) {
     Get-SscData fs get_file $kwarg
   } else {
-    Write-Warning "File $path not found in $saltenv"
+    if ($uuid) { Write-Error "File with UUID: $uuid not found." } else { Write-Error "File at path $saltenv $path not found." }
   }
 }
 
@@ -350,7 +350,7 @@ Function Set-SscFile {
 #>
   [cmdletbinding(SupportsShouldProcess=$true,ConfirmImpact='High')]
   param(
-    [Parameter(Mandatory=$true, ParameterSetName='ByFileUUID', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][Alias('fileuuid','file_uuid')][string]$uuid,
+    [Parameter(Mandatory=$true, ParameterSetName='ByFileUUID', ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][Alias('fileuuid')][string]$uuid,
     [Parameter(Mandatory=$true, ParameterSetName='ByFilePath')][string]$saltenv,
     [Parameter(Mandatory=$true, ParameterSetName='ByFilePath')][string]$path,
     [string]$content,
@@ -372,7 +372,7 @@ Function Set-SscFile {
       $currentFile = Get-SscFile -saltenv $saltenv -path $path
     }
   } else {
-    Write-Warning "Specified file does not exist, use New-SscFile instead."
+    Write-Error "Specified file does not exist, use New-SscFile instead."
     return $null
   }
 
@@ -416,7 +416,7 @@ Function New-SscFile {
 
   # if the file exists, get its contents based on the correct parameterset.  If it does not exist recommend the correct function.
   if ( Get-SscData fs file_exists $kwarg ) {
-    write-warning "Specified file already exists, use Set-SscFile instead."
+    Write-Error "Specified file already exists, use Set-SscFile instead."
     return $null
   }
 
@@ -470,7 +470,7 @@ Function Remove-SscFile {
       Get-SscData fs delete_file $kwarg
     }
   } else {
-    Write-Warning "Specified file does not exist."
+    Write-Error "Specified file does not exist."
     return $null
   }
 }
@@ -535,11 +535,11 @@ Function Get-SscMinionKeyState {
       PS C:\> Get-SscMinionKeyState -key_state pending
   #>
   param(
-    [ValidateSet('accepted','rejected','pending','denied')][string]$key_state
+    [ValidateSet('accepted','rejected','pending','denied')][string]$state
   )
   
   $kwarg = @{}
-  if ($key_state) { $kwarg.add('key_state',$key_state) }
+  if ($state) { $kwarg.add('key_state',$state) }
   
   (Get-SscData minions get_minion_key_state $kwarg).results
 }
