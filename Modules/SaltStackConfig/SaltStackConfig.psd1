@@ -17,7 +17,7 @@ SPDX-License-Identifier: BSD-2-Clause
 RootModule = 'SaltStackConfig.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.7'
+ModuleVersion = '0.0.8'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -75,8 +75,8 @@ FormatsToProcess = @('SaltStackConfig.Format.ps1xml')
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @('Connect-SscServer', 'Disconnect-SscServer', 'Get-SscActivity', 'Get-SscData', 'Get-SscJob', 'Get-SscMaster', 'Get-SscMinionCache', 'Get-SscReturn', 
-        'Get-SscSchedule','Get-SscFile','Set-SscFile','New-SscFile','Remove-SscFile','Get-SscLicense','Get-SscvRALicense','Get-SscMinionKeyState','Set-SscMinionKeyState',
-        'Remove-SscMinionKeyState')
+        'Get-SscSchedule','Get-SscFile','Set-SscFile','New-SscFile','Remove-SscFile','Get-SscLicense','Get-SscvRALicense','Get-SscMinionKey','Set-SscMinionKey',
+        'Remove-SscMinionKey')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

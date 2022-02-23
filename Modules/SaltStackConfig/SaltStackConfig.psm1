@@ -515,7 +515,7 @@ Function Get-SscvRALicense {
   Get-SscData license get_vra_license
 }
 
-Function Get-SscMinionKeyState {
+Function Get-SscMinionKey {
   <#
     .NOTES
     ===========================================================================
@@ -545,7 +545,7 @@ Function Get-SscMinionKeyState {
 }
 
 
-Function Set-SscMinionKeyState {
+Function Set-SscMinionKey {
   <#
     .NOTES
     ===========================================================================
@@ -567,7 +567,8 @@ Function Set-SscMinionKeyState {
   param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string]$master,
     [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string]$minion,
-    [Parameter(Mandatory=$true)][ValidateSet('accept','reject')][string]$state
+    [Parameter(Mandatory, ParameterSetName='accept')][switch]$accept,
+    [Parameter(Mandatory, ParameterSetName='reject')][switch]$reject
   )
 
   begin {
@@ -575,6 +576,9 @@ Function Set-SscMinionKeyState {
   }
 
   process {
+    if ($PSCmdlet.ParameterSetName -eq 'accept') { $state = 'accept'}
+    if ($PSCmdlet.ParameterSetName -eq 'reject') { $state = 'reject'}
+    
     if ($PSCmdlet.ShouldProcess("$master : $minion" , $state)) {
       $collection += ,@($master, $minion)
     }
@@ -592,7 +596,7 @@ Function Set-SscMinionKeyState {
   }
 }
 
-Function Remove-SscMinionKeyState {
+Function Remove-SscMinionKey {
   <#
     .NOTES
     ===========================================================================
