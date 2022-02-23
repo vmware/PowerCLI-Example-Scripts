@@ -281,7 +281,9 @@ Function Get-SkylineAffectedObject {
 
         # Try to get results the first time
         $results = @()
+    }
 
+    process {
         if ($PSCmdlet.ParameterSetName -eq 'ByName') {
             $procProduct = $product.Split($separator).Trim() | Where-Object {$_ -ne '' }
             # depending on separator we could end up with null rows on split, we'll omit those with where object
@@ -291,9 +293,7 @@ Function Get-SkylineAffectedObject {
         if ($PSCmdlet.ParameterSetName -eq 'ByObject') {
             $procProduct = $products.products
         }
-    }
-
-    process {
+        
         foreach ( $thisProduct in $procProduct ) {
             $thisQueryBody = $queryBody -Replace 'findingId: "",', "findingId: `"$findingId`","
             $thisQueryBody = $thisQueryBody -Replace 'product: "",', "product: `"$thisProduct`","
