@@ -1316,6 +1316,62 @@ namespace VMware.vSphere.SsoAdminClient
             }
         }
 
+        public void SetDefaultIdentitySource(string domainName)
+        {
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            var setDefaultDomainRequest = new IdS_setDefaultDomainsRequest
+            {
+                domainNames = new string[]{domainName}
+            };
+
+            try
+            {
+                authorizedInvocationContext.
+                InvokeOperation(() =>
+                   _ssoAdminBindingClient.IdS_setDefaultDomainsAsync(
+                      new ManagedObjectReference
+                      {
+                          type = "SsoAdminIdentitySourceManagementService",
+                          Value = "identitySourceManagementService"
+                      },
+                      new string[]{domainName})).Wait();
+            }
+            catch (AggregateException e)
+            {
+                throw e.InnerException;
+            }
+        }
+
+        public string GetDefaultIdentitySourceDomainName()
+        {
+            string result = null;
+            var authorizedInvocationContext =
+               CreateAuthorizedInvocationContext();
+
+            try
+            {
+                var response = authorizedInvocationContext.
+                InvokeOperation(() =>
+                   _ssoAdminBindingClient.IdS_getDefaultDomainsAsync(
+                      new ManagedObjectReference
+                      {
+                          type = "SsoAdminIdentitySourceManagementService",
+                          Value = "identitySourceManagementService"
+                      })).Result;
+                if (response != null && response.returnval != null && response.returnval.Length > 0) {
+                    result = response.returnval[0];
+                }
+            }
+            catch (AggregateException e)
+            {
+                throw e.InnerException;
+            }
+
+            return result;
+        }
+
         public void DeleteDomain(string name)
         {
 

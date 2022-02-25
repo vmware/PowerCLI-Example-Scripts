@@ -42,6 +42,9 @@ function Add-ExternalDomainIdentitySource {
        .PARAMETER DomainServerType
        Type of the ExternalDomain, one of 'ActiveDirectory','OpenLdap','NIS'
 
+       .PARAMETER Default
+       Sets the Identity Source as the defualt for the SSO
+
        .PARAMETER Server
        Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
        If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
@@ -143,6 +146,14 @@ function Add-ExternalDomainIdentitySource {
             Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Sets the Identity Source as default')]
+        [Switch]
+        $Default,
+
+        [Parameter(
+            Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
             HelpMessage = 'Connected SsoAdminServer object')]
         [ValidateNotNull()]
         [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
@@ -170,6 +181,10 @@ function Add-ExternalDomainIdentitySource {
                 $Username,
                 $Password,
                 $DomainServerType);
+
+            if ($Default) {
+                $connection.Client.SetDefaultIdentitySource($Name)
+            }
         }
     }
     catch {
@@ -224,6 +239,9 @@ function Add-LDAPIdentitySource {
 
        .PARAMETER Certificates
        List of X509Certicate2 LDAP certificates
+
+       .PARAMETER Default
+       Sets the Identity Source as the defualt for the SSO
 
        .PARAMETER Server
        Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
@@ -353,6 +371,14 @@ function Add-LDAPIdentitySource {
             Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Sets the Identity Source as default')]
+        [Switch]
+        $Default,
+
+        [Parameter(
+            Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
             HelpMessage = 'Connected SsoAdminServer object')]
         [ValidateNotNull()]
         [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
@@ -392,6 +418,10 @@ function Add-LDAPIdentitySource {
                 $authenticationPassword,
                 $ServerType,
                 $Certificates);
+
+            if ($Default) {
+                $connection.Client.SetDefaultIdentitySource($Name)
+            }
         }
     }
     catch {
@@ -425,6 +455,9 @@ function Set-LDAPIdentitySource {
 
        .PARAMETER Credential
        Domain authentication credential
+
+       .PARAMETER Default
+       Sets the Identity Source as the defualt for the SSO
 
        .PARAMETER Server
        Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
@@ -503,6 +536,15 @@ function Set-LDAPIdentitySource {
             Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
+            ParameterSetName = 'SetAsDefault',
+            HelpMessage = 'Sets the Identity Source as default')]
+        [Switch]
+        $Default,
+
+        [Parameter(
+            Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
             HelpMessage = 'Connected SsoAdminServer object')]
         [ValidateNotNull()]
         [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
@@ -549,6 +591,92 @@ function Set-LDAPIdentitySource {
                         $authenticationUserName,
                         $authenticationPassword);
                 }
+
+                if ($Default) {
+                    $connection.Client.SetDefaultIdentitySource($IdentitySource.Name)
+                }
+            }
+        }
+        catch {
+            Write-Error (FormatError $_.Exception)
+        }
+    }
+}
+
+function Set-IdentitySource {
+    <#
+       .NOTES
+       ===========================================================================
+       Created on:   	2/25/2022
+       Created by:   	Dimitar Milov
+        Twitter:       @dimitar_milov
+        Github:        https://github.com/dmilov
+       ===========================================================================
+       .DESCRIPTION
+       Updates IDentitySource
+
+       .PARAMETER IdentitySource
+       Identity Source to update
+
+       .PARAMETER Default
+       Sets the Identity Source as the defualt for the SSO
+
+       .PARAMETER Server
+       Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
+       If not specified the servers available in $global:DefaultSsoAdminServers variable will be used.
+
+       Updates LDAP Identity Source
+
+       .EXAMPLE
+
+       Updates certificate of a LDAP identity source
+
+       Get-IdentitySource -External | Set-IdentitySource -Default
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Identity source to update')]
+        [ValidateNotNull()]
+        [VMware.vSphere.SsoAdminClient.DataTypes.IdentitySource]
+        $IdentitySource,
+
+        [Parameter(
+            Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Sets the Identity Source as default')]
+        [Switch]
+        $Default,
+
+        [Parameter(
+            Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Connected SsoAdminServer object')]
+        [ValidateNotNull()]
+        [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
+        $Server)
+
+    Process {
+        $serversToProcess = $global:DefaultSsoAdminServers.ToArray()
+        if ($null -ne $Server) {
+            $serversToProcess = $Server
+        }
+
+        try {
+            foreach ($connection in $serversToProcess) {
+                if (-not $connection.IsConnected) {
+                    Write-Error "Server $connection is disconnected"
+                    continue
+                }
+
+                if ($Default) {
+                    $connection.Client.SetDefaultIdentitySource($IdentitySource.Name)
+                }
             }
         }
         catch {
@@ -577,6 +705,9 @@ function Get-IdentitySource {
 
        .PARAMETER External
        Filter parameter to return only the external domain identity sources
+
+       .PARAMETER Default
+       Filter parameter to return only the default domain identity sources
 
        .PARAMETER Server
        Specifies the vSphere Sso Admin Server on which you want to run the cmdlet.
@@ -618,6 +749,14 @@ function Get-IdentitySource {
             Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Returns only the default domain identity sources')]
+        [Switch]
+        $Default,
+
+        [Parameter(
+            Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
             HelpMessage = 'Connected SsoAdminServer object')]
         [ValidateNotNull()]
         [VMware.vSphere.SsoAdminClient.DataTypes.SsoAdminServer]
@@ -650,6 +789,12 @@ function Get-IdentitySource {
 
         if ($External) {
             $resultIdentitySources += $allIdentitySources | Where-Object { $_ -is [VMware.vSphere.SsoAdminClient.DataTypes.ActiveDirectoryIdentitySource] }
+        }
+
+        if ($Default) {
+            $resultIdentitySources = @()
+            $defaultDomainName = $connection.Client.GetDefaultIdentitySourceDomainName()
+            $resultIdentitySources = $allIdentitySources | Where-Object { $_.Name -eq $defaultDomainName }
         }
 
         #Return result
