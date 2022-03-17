@@ -4561,6 +4561,9 @@ function New-HVPool {
       } elseIf ($jsonObject.type -eq "MANUAL") {
         $MANUAL = $true
         $poolType = 'MANUAL'
+	if ($null -ne $jsonObject.ManualDesktopSpec.VirtualCenter) {
+          $vCenter = $jsonObject.ManualDesktopSpec.VirtualCenter
+        }
         $userAssignment = $jsonObject.ManualDesktopSpec.userAssignment.userAssignment
         $automaticAssignment = $jsonObject.ManualDesktopSpec.userAssignment.AutomaticAssignment
         $source = $jsonObject.ManualDesktopSpec.source
