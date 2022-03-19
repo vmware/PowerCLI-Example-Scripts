@@ -31,6 +31,16 @@ Function Connect-SkylineInsights {
         [Parameter(DontShow)]$skylineApi = 'skyline.vmware.com'
     )
     
+    if ($PSEdition -eq 'Core' -And $SaveCredentials) {
+        write-error 'The parameter SaveCredentials of Connect-SkylineInsights cmdlet is not supported on PowerShell Core.'
+        return
+    }
+
+    if ($PSEdition -eq 'Core' -AND !$apiKey) {
+        write-error 'An API key is required.'
+        return
+    }
+
     # Create VICredentialStore item to save the API key
     if ($apiKey -AND $SaveCredentials) {
         if ( (Get-Command Get-VICredentialStoreItem -ErrorAction:SilentlyContinue | Measure-Object).Count -gt 0 ) {
@@ -143,7 +153,8 @@ Function Invoke-SkylineInsightsApi {
             if ($errorStatusAsJson -eq '429 TOO_MANY_REQUESTS') {
                 write-debug 'Hit 429 / rate limite warning, will sleep for 1 second.'
                 start-sleep -Milliseconds 1005
-                Invoke-SkylineInsightsApi $queryBody
+                $retryQuery = Invoke-SkylineInsightsApi $queryBody
+                return $retryQuery
             }
         } catch {
             # this was the error from trying to cast the incoming error to Json
@@ -173,11 +184,16 @@ Function Get-SkylineFinding {
 #>
     [cmdletbinding()]
     param(
-        [ValidateRange(1,200)][int]$pagesize=200
+        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string]$findingId,
+        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string[]]$products,
+        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][ValidateSet('CRITICAL','MODERATE','TRIVIAL')][string]$severity,
+        [Parameter(DontShow=$true)][ValidateRange(1,200)][int]$pagesize=200
     )
-    $queryBody = @"
+
+    begin {
+        $queryBody = @"
 {
-    activeFindings(limit: $pagesize, start: 0 ) {
+    activeFindings(limit: $pagesize, start: 0 filter: {}) {
         findings {
             findingId
             accountId
@@ -201,20 +217,37 @@ Function Get-SkylineFinding {
 }
 "@
 
-    # Try to get results the first time
-    $results = @()
-    $thisQueryBody = $queryBody
-    $thisIteration = 0
-    do {
-        $thisQueryBody = $thisQueryBody -Replace 'start: 0', "start: $thisIteration"
-        Write-Debug $thisQueryBody
-        $thisResult = Invoke-SkylineInsightsApi -queryBody (@{'query' = $thisQueryBody} | ConvertTo-Json -Compress)
-        $totalRecords = $thisResult.data.activeFindings.totalRecords
-        $results += ($thisResult.data.activeFindings.Findings)
-        $thisIteration += $pageSize
-    } while ($results.count -lt $totalRecords ) # end do/while loop
+    }
+    process {
+        if (!$products) { $products = 'NO_PRODUCT_FILTER'}
+        foreach ($thisProduct in $products) {
+            if ($findingId) { $filterString = "findingId: `"$findingId`"," }
+            if ($thisProduct -ne 'NO_PRODUCT_FILTER') { $filterString += "product: `"$thisProduct`"," }
 
-    return $results
+            # Try to get results the first time
+            $results = @()
+            $thisQueryBody = $queryBody -Replace 'filter: {}', "filter: { $filterString }"
+            $thisIteration = 0
+            do {
+                $thisQueryBody = $thisQueryBody -Replace 'start: 0', "start: $thisIteration"
+                Write-Debug $thisQueryBody
+                $thisResult = Invoke-SkylineInsightsApi -queryBody (@{'query' = $thisQueryBody} | ConvertTo-Json -Compress)
+                $totalRecords = $thisResult.data.activeFindings.totalRecords
+                if ($severity) {
+                    $thisResult.data.activeFindings.Findings | Where-Object {$_.severity -eq $severity}
+                } else {
+                    $thisResult.data.activeFindings.Findings
+                }
+                $results += ($thisResult.data.activeFindings.Findings)
+                $thisIteration += $pageSize
+            } while ($results.count -lt $totalRecords ) # end do/while loop
+
+            #return $results
+        }
+    }
+    end {
+
+    }
 }
 
 Function Get-SkylineAffectedObject {
@@ -244,10 +277,8 @@ Function Get-SkylineAffectedObject {
     [cmdletbinding()]
     param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string]$findingId,
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true,ParameterSetName='ByObject')][System.Object]$products,
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true,ParameterSetName='ByName')][string]$product,
-        [Parameter(ParameterSetName='ByName')][string]$separator = '; ',
-        [ValidateRange(1,200)][int]$pagesize=200
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string[]]$products,
+        [Parameter(DontShow=$true)][ValidateRange(1,200)][int]$pagesize=200
     )
 
     begin {
@@ -255,8 +286,8 @@ Function Get-SkylineAffectedObject {
         {
             activeFindings(
                 filter: {
-                findingId: "$findingId",
-                product: "",
+                    findingId: "$findingId",
+                    product: "",
                 }) {
             findings {
                 totalAffectedObjectsCount
@@ -284,17 +315,7 @@ Function Get-SkylineAffectedObject {
     }
 
     process {
-        if ($PSCmdlet.ParameterSetName -eq 'ByName') {
-            $procProduct = $product.Split($separator).Trim() | Where-Object {$_ -ne '' }
-            # depending on separator we could end up with null rows on split, we'll omit those with where object
-            # to eliminate possible errors from the API
-        }
-
-        if ($PSCmdlet.ParameterSetName -eq 'ByObject') {
-            $procProduct = $products.products
-        }
-        
-        foreach ( $thisProduct in $procProduct ) {
+        foreach ( $thisProduct in $products ) {
             $thisQueryBody = $queryBody -Replace 'findingId: "",', "findingId: `"$findingId`","
             $thisQueryBody = $thisQueryBody -Replace 'product: "",', "product: `"$thisProduct`","
             $thisIteration = 0
@@ -304,15 +325,12 @@ Function Get-SkylineAffectedObject {
                 Write-Debug $thisQueryBody
                 $thisResult = Invoke-SkylineInsightsApi -queryBody (@{'query' = $thisQueryBody} | ConvertTo-Json -Compress)
                 $totalRecords = $thisResult.data.activeFindings.Findings.totalAffectedObjectsCount
+                $thisResult.data.activeFindings.Findings.affectedObjects | Select-Object @{N='findingId';E={$findingId}}, *
                 $results += ($thisResult.data.activeFindings.Findings.affectedObjects) | Select-Object @{N='findingId';E={$findingId}}, *
                 $thisIteration += $pagesize
             } while ($results.count -lt $totalRecords ) # end do/while loop
         } # end foreach product loop
     } 
-
-    end {
-        return $results
-    }
 }
 
 Function Format-SkylineResult {
