@@ -184,9 +184,9 @@ Function Get-SkylineFinding {
 #>
     [cmdletbinding()]
     param(
-        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string]$findingId,
-        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][string[]]$products,
-        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)][ValidateSet('CRITICAL','MODERATE','TRIVIAL')][string]$severity,
+        [Parameter(ValueFromPipelineByPropertyName=$true)][string]$findingId,
+        [Parameter(ValueFromPipelineByPropertyName=$true)][string[]]$products,
+        [Parameter(ValueFromPipelineByPropertyName=$true)][ValidateSet('CRITICAL','MODERATE','TRIVIAL')][string]$severity,
         [Parameter(DontShow=$true)][ValidateRange(1,200)][int]$pagesize=200
     )
 
