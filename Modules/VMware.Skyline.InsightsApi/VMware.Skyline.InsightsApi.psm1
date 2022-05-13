@@ -297,7 +297,7 @@ Function Get-SkylineAffectedObject {
         {
             activeFindings(
                 filter: {
-                    findingId: "$findingId",
+                    findingId: "",
                     product: "",
                 }) {
             findings {
@@ -322,15 +322,15 @@ Function Get-SkylineAffectedObject {
 "@
 
         # Try to get results the first time
-        $results = @()
     }
 
     process {
+        $thisQueryBody = $queryBody -Replace 'findingId: "",', "findingId: `"$findingId`","
         foreach ( $thisProduct in $products ) {
             $thisIteration = 0
             $results = @() # reset results variable between products
             do {
-                $thisQueryBody = $queryBody -Replace 'product: "",', "product: `"$thisProduct`","
+                $thisQueryBody = $thisQueryBody -Replace 'product: "",', "product: `"$thisProduct`","
                 $thisQueryBody = $thisQueryBody -Replace 'start: 0', "start: $thisIteration"
                 Write-Debug $thisQueryBody
                 $thisResult = Invoke-SkylineInsightsApi -queryBody (@{'query' = $thisQueryBody} | ConvertTo-Json -Compress)
