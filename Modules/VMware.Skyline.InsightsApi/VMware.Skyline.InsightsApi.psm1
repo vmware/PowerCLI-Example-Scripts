@@ -79,6 +79,8 @@ Function Connect-SkylineInsights {
         'Refresh_Token'=$webRequest.refresh_token; 'SkylineAPI'="https://$skylineApi/public/api/data"; PSTypeName='SkylineConnection' }
     
         # Return the connection object
+        $global:SkylineInsightsApiQueryCount = 0
+        $global:SkylineInsightsApiQueryLastTime = $null
         $global:DefaultSkylineConnection
     } catch {
         Write-Error ("Failure connecting to $skylineAPI.  Posted $loginBody " + $_)
@@ -130,7 +132,8 @@ Function Invoke-SkylineInsightsApi {
     PS C:\> Invoke-SkylineInsightsApi -queryBody '{formatted-query-string-converted-to-json}'
 #>
     param(
-        [Parameter(Mandatory=$true)][string]$queryBody
+        [Parameter(Mandatory=$true)][string]$queryBody,
+        [Parameter(DontShow=$true)][int]$sleepTimerMs=501
     )
     
     if ( !$global:DefaultSkylineConnection ) {
@@ -140,7 +143,16 @@ Function Invoke-SkylineInsightsApi {
 
     write-debug "Querybody: $queryBody"
     try {
+        if ($global:SkylineInsightsApiQueryLastTime) {
+            $timeSinceLastQuery = (New-TimeSpan $global:SkylineInsightsApiQueryLastTime (Get-Date)).TotalMilliseconds
+            if ($timeSinceLastQuery -lt $sleepTimerMs) {
+                Write-Debug "Waiting $($sleepTimerMs-$timeSinceLastQuery)ms to prevent HTTP 429 TOO_MANY_REQUESTS error"
+                Start-Sleep -Milliseconds ($sleepTimerMs-$timeSinceLastQuery) 
+            }
+        }
         $restCall = invoke-restmethod -method post -Uri $($global:DefaultSkylineConnection.SkylineAPI) -Headers @{Authorization = "Bearer $($global:DefaultSkylineConnection.ConnectionDetail.access_token)"} -body $queryBody -ContentType "application/json"
+        $global:SkylineInsightsApiQueryCount++
+        $global:SkylineInsightsApiQueryLastTime = Get-Date
         if ($restCall.errors) {
             Write-Error $restCall.errors.Message
         }
@@ -151,15 +163,14 @@ Function Invoke-SkylineInsightsApi {
             # are nested try/catch blocks the powershell equilivent of vbscript On Error Resume Next?
             $errorStatusAsJson = ($incomingError | ConvertFrom-Json).status
             if ($errorStatusAsJson -eq '429 TOO_MANY_REQUESTS') {
-                write-debug 'Hit 429 / rate limite warning, will sleep for 1 second.'
-                start-sleep -Milliseconds 1005
-                $retryQuery = Invoke-SkylineInsightsApi $queryBody
-                return $retryQuery
+                write-error 'Encountered HTTP 429 TOO_MANY_REQUESTS error, consider increasing sleepTimerMs value.'
+                start-sleep -Milliseconds (2*$sleepTimerMs)
+                break
             }
         } catch {
             # this was the error from trying to cast the incoming error to Json
         }
-        if (!$errorStatusAsJson) { write-error $_ }
+        if (!$errorStatusAsJson) { write-error $incomingError }
     }
 }
 
@@ -316,11 +327,10 @@ Function Get-SkylineAffectedObject {
 
     process {
         foreach ( $thisProduct in $products ) {
-            $thisQueryBody = $queryBody -Replace 'findingId: "",', "findingId: `"$findingId`","
-            $thisQueryBody = $thisQueryBody -Replace 'product: "",', "product: `"$thisProduct`","
             $thisIteration = 0
-
+            $results = @() # reset results variable between products
             do {
+                $thisQueryBody = $queryBody -Replace 'product: "",', "product: `"$thisProduct`","
                 $thisQueryBody = $thisQueryBody -Replace 'start: 0', "start: $thisIteration"
                 Write-Debug $thisQueryBody
                 $thisResult = Invoke-SkylineInsightsApi -queryBody (@{'query' = $thisQueryBody} | ConvertTo-Json -Compress)
