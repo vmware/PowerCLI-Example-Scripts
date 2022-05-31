@@ -3857,6 +3857,9 @@ function New-HVPool {
     [int]$refreshThresholdPercentageForReplicaOsDisk,
 
     #DesktopDisplayProtocolSettings
+    [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
+    [boolean]$enableCollaboration = $true,
+    
     #desktopSpec.desktopSettings.logoffSettings.supportedDisplayProtocols
     [Parameter(Mandatory = $false,ParameterSetName = 'FULL_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -4561,6 +4564,9 @@ function New-HVPool {
       } elseIf ($jsonObject.type -eq "MANUAL") {
         $MANUAL = $true
         $poolType = 'MANUAL'
+	if ($null -ne $jsonObject.ManualDesktopSpec.VirtualCenter) {
+          $vCenter = $jsonObject.ManualDesktopSpec.VirtualCenter
+        }
         $userAssignment = $jsonObject.ManualDesktopSpec.userAssignment.userAssignment
         $automaticAssignment = $jsonObject.ManualDesktopSpec.userAssignment.AutomaticAssignment
         $source = $jsonObject.ManualDesktopSpec.source
@@ -4623,6 +4629,7 @@ function New-HVPool {
                 $maxResolutionOfAnyOneMonitor = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.maxResolutionOfAnyOneMonitor
               }
               $enableHTMLAccess = $jsonObject.DesktopSettings.displayProtocolSettings.enableHTMLAccess
+	      $enableCollaboration = $jsonObject.DesktopSettings.displayProtocolSettings.EnableCollaboration
             }
 
             if ($null -ne $jsonObject.DesktopSettings.mirageConfigurationOverrides) {
@@ -4931,6 +4938,7 @@ function New-HVPool {
             $desktopDisplayProtocolSettings.getDataObject().SupportedDisplayProtocols = $supportedDisplayProtocols
             $desktopDisplayProtocolSettings.setDefaultDisplayProtocol($defaultDisplayProtocol)
             $desktopDisplayProtocolSettings.setEnableHTMLAccess($enableHTMLAccess)
+	    $desktopDisplayProtocolSettings.setEnableCollaboration($enableCollaboration)
             $desktopDisplayProtocolSettings.setAllowUsersToChooseProtocol($allowUsersToChooseProtocol)
 
             $desktopPCoIPDisplaySettings = $desktopSettingsService.getDesktopPCoIPDisplaySettingsHelper()
