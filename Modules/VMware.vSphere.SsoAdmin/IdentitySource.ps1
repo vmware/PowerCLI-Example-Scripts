@@ -363,7 +363,7 @@ function Add-LDAPIdentitySource {
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
             HelpMessage = 'Ldap Server type')]
-        [ValidateSet('ActiveDirectory')]
+        [ValidateSet('ActiveDirectory', 'OpenLdap')]
         [string]
         $ServerType = 'ActiveDirectory',
 
