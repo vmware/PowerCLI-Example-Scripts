@@ -10447,6 +10447,82 @@ The Get-HVLocalSession gets all local session by using view API service object(h
   [System.gc]::collect()
 }
 
+function Restart-HVMachine {
+  <#
+.Synopsis
+    Restart Horizon View desktops.
+.DESCRIPTION
+    Queries and restart virtual machines.
+      Graceful OS restart for Full-clone pool.
+      Graceful OS shut down > Delete VM > Create new VM > Power On for Instant-clone pool.
+      The machines list would be determined based on queryable fields machineName. Use an asterisk (*) as wildcard.
+      If the result has multiple machines all will be reset.
+.PARAMETER MachineName
+    The name of the Machine(s) to query for.
+      This is a required value.
+.PARAMETER HvServer
+  Reference to Horizon View Server to query the virtual machines from. If the value is not passed or null then
+  first element from global:DefaultHVServers would be considered in-place of hvServer
+.EXAMPLE
+    Restart-HVMachine -MachineName 'PowerCLIVM'
+    Queries VM(s) with given parameter machineName
+.EXAMPLE
+    Restart-HVMachine -MachineName 'PowerCLIVM*'
+    Queries VM(s) with given parameter machinename with wildcard character *
+.NOTES
+  Author                      : Goncharenko Roman
+  Author email                : romqatt@gmail.com
+  Version                     : 1.0
+
+  ===Tested Against Environment====
+  Horizon View Server Version : 7.3.2
+  PowerCLI Version            : PowerCLI 12.4
+  PowerShell Version          : 5.1
+#>
+
+  [CmdletBinding(
+      SupportsShouldProcess = $true,
+      ConfirmImpact = 'High'
+  )]
+
+  param(
+
+      [Parameter(Mandatory = $true)]
+      [string]
+      $MachineName,
+
+      [Parameter(Mandatory = $false)]
+      $HvServer
+  )
+
+  Begin {
+
+      $services = Get-ViewAPIService -hvServer $hvServer
+
+      if ($null -eq $services) {
+          Write-Error "Could not retrieve ViewApi services from connection object"
+          break
+      }
+
+      $machineList = Find-HVMachine -Param $PSBoundParameters
+
+      if (-not $machineList) {
+          Write-Host "Restart-HVMachine: No Virtual Machine(s) Found with given search parameters"
+          break
+      }
+  }
+  Process {
+      if ($Force -or $PSCmdlet.ShouldProcess($MachineName)) {
+          foreach ($machine in $machinelist) {
+              $services.machine.Machine_RestartMachines($machine.id)
+          }
+      }
+  }
+  End {
+      [System.gc]::collect()
+  }
+}
+
 function Reset-HVMachine {
 	<#
 	.Synopsis
@@ -13164,7 +13240,7 @@ Export-ModuleMember -Function Get-HVPoolSummary, New-HVPool, Remove-HVPool, Get-
 Export-ModuleMember -Function Get-HVApplication, Remove-HVApplication, New-HVManualApplication, Get-HVPreInstalledApplication, New-HVPreInstalledApplication, Set-HVApplication
 # Entitlement related
 Export-ModuleMember -Function New-HVEntitlement,Get-HVEntitlement,Remove-HVEntitlement
-Export-ModuleMember -Function Set-HVMachine, Reset-HVMachine, Rebuild-HVMachine, Remove-HVMachine
+Export-ModuleMember -Function Set-HVMachine, Reset-HVMachine, Restart-HVMachine, Rebuild-HVMachine, Remove-HVMachine
 # Cloud Pod Architecture related
 Export-ModuleMember -Function New-HVGlobalEntitlement, Remove-HVGlobalEntitlement, Get-HVGlobalEntitlement, Set-HVGlobalEntitlement, New-HVPodFederation, Remove-HVPodFederation, Get-HVPodFederation, Set-HVPodFederation
 Export-ModuleMember -Function Get-HVSite, New-HVSite, New-HVHomeSite, Remove-HVSite, Get-HVHomeSite, Set-HVSite, Register-HVPod, Unregister-HVPod
