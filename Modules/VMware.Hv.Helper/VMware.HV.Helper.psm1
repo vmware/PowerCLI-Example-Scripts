@@ -7028,6 +7028,7 @@ function Start-HVPool {
     $poolList = @{}
     $poolType = @{}
     $poolSource = @{}
+    $poolProvisioningSpecs = @{}
     if ($pool) {
       foreach ($item in $pool) {
         if ($item.GetType().name -eq 'DesktopInfo') {
@@ -7056,6 +7057,18 @@ function Start-HVPool {
             Write-Error "No desktopsummarydata found with pool name: [$item]"
             break
           }
+          try {
+            $poolSettingsObj = Get-HVPool -poolName $item -suppressInfo $true -hvServer $hvServer
+          } catch {
+            Write-Error "Make sure Get-HVPool advanced function is loaded, $_"
+            break
+          }
+          if ($poolSettingsObj) {
+            $poolProvisioningSettings = $poolSettingsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings
+          } else {
+            Write-Error "No pool information found with pool name: [$item]"
+            break
+          }
         } else {
           Write-Error "In pipeline did not get object of expected type DesktopSummaryView/DesktopInfo"
           break
@@ -7063,6 +7076,7 @@ function Start-HVPool {
         $poolList.Add($id,$name)
         $poolType.Add($id,$type)
         $poolSource.Add($id,$source)
+        $poolProvisioningSpecs.Add($id,$poolProvisioningSettings)
       }
     }
   }
@@ -7124,6 +7138,8 @@ function Start-HVPool {
             $spec.Settings = New-Object VMware.Hv.DesktopPushImageSettings
             $spec.Settings.LogoffSetting = $logoffSetting
             $spec.Settings.StopOnFirstError = $stopOnFirstError
+            $spec.Settings.AddVirtualTPM = ($poolProvisioningSpecs.$item).AddVirtualTPM
+            Write-Verbose -Message "virtual TPM setting is: $($spec.Settings.AddVirtualTPM)"
             if ($startTime) { $spec.Settings.startTime = $startTime }
             if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_SchedulePushImage($services,$item,$spec)
