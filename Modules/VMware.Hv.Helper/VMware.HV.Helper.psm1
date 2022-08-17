@@ -7065,6 +7065,7 @@ function Start-HVPool {
           }
           if ($poolSettingsObj) {
             $poolProvisioningSettings = $poolSettingsObj.AutomatedDesktopData.VirtualCenterProvisioningSettings
+            Write-Verbose "retrieved Pool Settings: $($poolProvisioningSettings | Out-String)"
           } else {
             Write-Error "No pool information found with pool name: [$item]"
             break
@@ -7139,7 +7140,10 @@ function Start-HVPool {
             $spec.Settings.LogoffSetting = $logoffSetting
             $spec.Settings.StopOnFirstError = $stopOnFirstError
             $spec.Settings.AddVirtualTPM = ($poolProvisioningSpecs.$item).AddVirtualTPM
-            Write-Verbose -Message "virtual TPM setting is: $($spec.Settings.AddVirtualTPM)"
+            If (($poolProvisioningSpecs.$item).AddVirtualTPM) {
+            Write-Verbose -Message "Restoring previous vTPM state"
+            }
+            Write-Debug -Message "fetched pool provisioning specs: $(($poolProvisioningSpecs.$item) | Out-String)"
             if ($startTime) { $spec.Settings.startTime = $startTime }
             if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($poolList.$item)) {
               $desktop_helper.Desktop_SchedulePushImage($services,$item,$spec)
