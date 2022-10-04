@@ -5,6 +5,7 @@
 
 #VS Code Files
 *.vscode
+/.vs
 
 # Windows image file caches
 Thumbs.db
