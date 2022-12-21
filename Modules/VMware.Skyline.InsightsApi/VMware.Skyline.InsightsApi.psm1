@@ -237,10 +237,9 @@ Function Get-SkylineFinding {
 
             # Try to get results the first time
             $results = @()
-            $thisQueryBody = $queryBody -Replace 'filter: {}', "filter: { $filterString }"
             $thisIteration = 0
             do {
-                $thisQueryBody = $thisQueryBody -Replace 'start: 0', "start: $thisIteration"
+                $thisQueryBody = $queryBody -Replace 'filter: {}', "filter: { $filterString }" -Replace 'start: 0', "start: $thisIteration"
                 Write-Debug $thisQueryBody
                 $thisResult = Invoke-SkylineInsightsApi -queryBody (@{'query' = $thisQueryBody} | ConvertTo-Json -Compress)
                 $totalRecords = $thisResult.data.activeFindings.totalRecords
@@ -325,13 +324,11 @@ Function Get-SkylineAffectedObject {
     }
 
     process {
-        $thisQueryBody = $queryBody -Replace 'findingId: "",', "findingId: `"$findingId`","
         foreach ( $thisProduct in $products ) {
             $thisIteration = 0
             $results = @() # reset results variable between products
             do {
-                $thisQueryBody = $thisQueryBody -Replace 'product: "",', "product: `"$thisProduct`","
-                $thisQueryBody = $thisQueryBody -Replace 'start: 0', "start: $thisIteration"
+                $thisQueryBody = $queryBody -Replace 'product: "",', "product: `"$thisProduct`"," -Replace 'start: 0', "start: $thisIteration" -Replace 'findingId: "",', "findingId: `"$findingId`","
                 Write-Debug $thisQueryBody
                 $thisResult = Invoke-SkylineInsightsApi -queryBody (@{'query' = $thisQueryBody} | ConvertTo-Json -Compress)
                 $totalRecords = $thisResult.data.activeFindings.Findings.totalAffectedObjectsCount
