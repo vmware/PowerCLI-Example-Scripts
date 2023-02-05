@@ -1302,15 +1302,15 @@ namespace VMware.vSphere.SsoAdminClient
                         extIdentitySource.FailoverUrl = externalDomain.details?.failoverUrl;
                         extIdentitySource.GroupBaseDN = externalDomain.details?.groupBaseDn;
                         extIdentitySource.UserBaseDN = externalDomain.details?.userBaseDn;
-                        if (externalDomain.details?.certificates != null && externalDomain.details?.certificates.Length > 0)
-                        {
-                            var certificatesList = new List<X509Certificate2>();
-                            foreach (var cert in externalDomain.details?.certificates)
-                            {
-                                certificatesList.Add(new X509Certificate2(Encoding.ASCII.GetBytes(cert)));
-                            }
-                            extIdentitySource.Certificates = certificatesList.ToArray();
-                        }
+                        //if (externalDomain.details?.certificates != null && externalDomain.details?.certificates.Length > 0)
+                        //{
+                        //    var certificatesList = new List<X509Certificate2>();
+                        //    foreach (var cert in externalDomain.details?.certificates)
+                        //    {
+                        //        certificatesList.Add(new X509Certificate2(Encoding.ASCII.GetBytes(cert)));
+                        //    }
+                        //    extIdentitySource.Certificates = certificatesList.ToArray();
+                        //}
 
                         yield return extIdentitySource;
                     }
