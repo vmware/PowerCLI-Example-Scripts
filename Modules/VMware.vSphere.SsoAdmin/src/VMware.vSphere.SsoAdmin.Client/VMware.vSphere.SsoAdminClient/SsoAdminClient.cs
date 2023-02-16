@@ -1305,7 +1305,7 @@ namespace VMware.vSphere.SsoAdminClient
                         if (externalDomain.details?.certificates != null && externalDomain.details?.certificates.Length > 0) {
                             var certificatesList = new List<X509Certificate2>();
                             foreach (var cert in externalDomain.details?.certificates) {
-                                certificatesList.Add(new X509Certificate2(Encoding.ASCII.GetBytes(cert)));
+                                certificatesList.Add(new X509Certificate2(Convert.FromBase64String(cert)));
                             }
                            extIdentitySource.Certificates = certificatesList.ToArray();
                         }
