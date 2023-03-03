@@ -20,7 +20,7 @@
   * [Security](https://github.com/vmware/PowerCLI-Example-Scripts#security)
 * [Resource Maintenance](https://github.com/vmware/PowerCLI-Example-Scripts#resource-maintenance)
   * [Maintenance Ownership](https://github.com/vmware/PowerCLI-Example-Scripts#maintenance-ownership)
-  * [Filing Issues](https://github.com/vmware/PowerCLI-Example-Scripts#filing-isssues)
+  * [Filing Issues](https://github.com/vmware/PowerCLI-Example-Scripts#filing-issues)
   * [Resolving Issues](https://github.com/vmware/PowerCLI-Example-Scripts#resolving-issues)
 * [Additional Resources](https://github.com/vmware/PowerCLI-Example-Scripts#additional-resources)
   * [Discussions](https://github.com/vmware/PowerCLI-Example-Scripts#discussions)
