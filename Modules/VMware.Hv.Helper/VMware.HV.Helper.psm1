@@ -2140,6 +2140,15 @@ function New-HVFarm {
 .PARAMETER Spec
     Path of the JSON specification file.
 
+.PARAMETER NumCPU
+    Number of CPU of the Vm Instances
+
+.PARAMETER Ram
+    Ram of the Vm Instances
+
+.PARAMETER CoresPerSocket
+    CoresPerSocket of the Vm Instances
+
 .PARAMETER HvServer
     Reference to Horizon View Server to query the farms from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
@@ -2339,6 +2348,24 @@ function New-HVFarm {
     [int]
     $diskWriteLatencyThreshold = 0,
 
+    #farmSpec.automatedfarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ComputeProfile
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $NumCPU = 4,
+
+    #farmSpec.automatedfarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ComputeProfile
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $Ram = 16384,
+
+    #farmSpec.automatedfarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ComputeProfile
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $CoresPerSocket = 1,
+
     #farmSpec.automatedfarmSpec.virtualCenter if LINKED_CLONE, INSTANT_CLONE
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
@@ -2499,6 +2526,7 @@ function New-HVFarm {
 
     #farmSpec.automatedfarmSpec.customizationSettings.reusePreExistingAccounts
     [Parameter(Mandatory = $false,ParameterSetName = 'LINKED_CLONE')]
+    [Parameter(Mandatory = $false,ParameterSetName = "INSTANT_CLONE")]
     [Boolean]
     $ReusePreExistingAccounts = $false,
 
@@ -2639,6 +2667,7 @@ function New-HVFarm {
             $powerOffScriptParameters = $jsonObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.PowerOffScriptParameters
             $postSynchronizationScriptName = $jsonObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.PostSynchronizationScriptName
             $postSynchronizationScriptParameters = $jsonObject.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.PostSynchronizationScriptParameters
+            $reusePreExistingAccounts = $jsonObject.AutomatedFarmSpec.CustomizationSettings.ReusePreExistingAccounts
           }
         } elseif ($jsonObject.AutomatedFarmSpec.ProvisioningType -eq "VIEW_COMPOSER") {
             $LinkedClone = $true
@@ -2823,6 +2852,10 @@ function New-HVFarm {
           $vmNamingSpec.patternNamingSettings.maxNumberOfRDSServers = $maximumCount
           $farmSpecObj.AutomatedFarmSpec.RdsServerNamingSpec = $vmNamingSpec
         }
+
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ComputeProfile.NumCPU = $NumCPU
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ComputeProfile.Ram = $Ram
+        $farmSpecObj.AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ComputeProfile.CoresPerSocket = $CoresPerSocket
 
         #
         # build the VM LIST
@@ -3238,6 +3271,7 @@ function Get-HVFarmCustomizationSetting {
       $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.powerOffScriptParameters = $powerOffScriptParameters
       $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.postSynchronizationScriptName = $postSynchronizationScriptName
       $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.CloneprepCustomizationSettings.postSynchronizationScriptParameters = $postSynchronizationScriptParameters
+      $farmSpecObj.AutomatedFarmSpec.CustomizationSettings.ReusePreExistingAccounts = $reusePreExistingAccounts
       $customObject = $farmSpecObj.AutomatedFarmSpec.CustomizationSettings
     } elseif ($LinkedClone) {
       $ViewComposerDomainAdministrator_service_helper = New-Object VMware.Hv.ViewComposerDomainAdministratorService
@@ -3301,8 +3335,7 @@ function Get-FarmSpec {
   if ($farmType -eq 'AUTOMATED') {
     $farm_spec_helper.getDataObject().AutomatedFarmSpec.RdsServerNamingSpec.PatternNamingSettings = $farm_helper.getFarmPatternNamingSettingsHelper().getDataObject()
     $farm_spec_helper.getDataObject().AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.ViewComposerStorageSettings = $farm_helper.getFarmViewComposerStorageSettingsHelper().getDataObject()
-
-
+    $farm_spec_helper.getDataObject().AutomatedFarmSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ComputeProfile = $farm_helper.getFarmComputeProfileSpecHelper().getDataObject()
   }
   $farm_spec_helper.getDataObject().Data.Settings = $farm_helper.getFarmSessionSettingsHelper().getDataObject()
   $farm_spec_helper.getDataObject().Data.LbSettings = $farm_helper.getRDSHLoadBalancingSettingsHelper().getDataObject()
@@ -4485,6 +4518,8 @@ function New-HVPool {
         $vmFolder = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.VmFolder
         $hostOrCluster = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster
         $resourcePool = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.ResourcePool
+
+
         $dataStoreList = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings.Datastores
         foreach ($dtStore in $dataStoreList) {
           $datastores += $dtStore.Datastore
