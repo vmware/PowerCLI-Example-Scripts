@@ -2145,6 +2145,7 @@ function New-HVFarm {
 
 .PARAMETER Ram
     Ram of the Vm Instances
+    Units in MB for Ram parameter
 
 .PARAMETER CoresPerSocket
     CoresPerSocket of the Vm Instances
