@@ -1,7 +1,7 @@
 #Script Module : VMware.Hv.Helper
 #Version       : 1.3.1
 
-#Copyright © 2016 VMware, Inc. All Rights Reserved.
+#Copyright Â© 2016 VMware, Inc. All Rights Reserved.
 
 #Permission is hereby granted, free of charge, to any person obtaining a copy of
 #this software and associated documentation files (the "Software"), to deal in
@@ -6569,6 +6569,16 @@ function Start-HVFarm {
     How frequently to repeat maintenance, expressed as a multiple of the maintenance period. e.g. Every 2 weeks.
     This property has a default value of 1. This property has values 1-100.
 
+.PARAMETER NumCPU
+    Number of CPU of the Vm Instances
+
+.PARAMETER Ram
+    Ram of the Vm Instances
+    Units in MB for Ram parameter
+
+.PARAMETER CoresPerSocket
+    CoresPerSocket of the Vm Instances
+
 .PARAMETER HvServer
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
@@ -6672,6 +6682,21 @@ function Start-HVFarm {
     [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [ValidateRange(1, 100)]
     [int]$EveryInt = 1,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $NumCPU = 4,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $Ram = 16384,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $CoresPerSocket = 1,
 
     [Parameter(Mandatory = $false)]
     $HvServer = $null
@@ -6820,6 +6845,13 @@ function Start-HVFarm {
                     break
                 }
             }
+
+            #set ComputeProfile in a SCHEDULEMAINTENANCE
+            $spec.ComputeProfile = New-Object VMware.Hv.FarmComputeProfileSpec
+            $spec.ComputeProfile.NumCPU = $NumCPU
+            $spec.ComputeProfile.Ram = $Ram
+            $spec.ComputeProfile.CoresPerSocket = $CoresPerSocket
+
             # call scheduleMaintenance service on farm
             if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($farmList.$item)) {
               $farm_service_helper.Farm_ScheduleMaintenance($services, $item, $spec)
