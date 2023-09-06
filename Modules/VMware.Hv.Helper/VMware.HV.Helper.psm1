@@ -3925,17 +3925,25 @@ function New-HVPool {
     [boolean]$enableHTMLAccess = $false,
 
     # DesktopPCoIPDisplaySettings
-    #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.renderer3D
+    #desktopSpec.desktopSettings.DisplayProtocolSettings.pcoipDisplaySettings.renderer3D
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('MANAGE_BY_VSPHERE_CLIENT', 'AUTOMATIC', 'SOFTWARE', 'HARDWARE', 'DISABLED')]
     [string]$renderer3D = 'DISABLED',
 
-    #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.enableGRIDvGPUs
+    #desktopSpec.desktopSettings.DisplayProtocolSettings.pcoipDisplaySettings.enableGRIDvGPUs
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]$enableGRIDvGPUs = $false,
+
+    #desktopSpec.desktopSettings.DisplayProtocolSettings.pcoipDisplaySettings.VGPUGridProfile
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    # [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [ValidateSet('grid_m10-0b','grid_m10-1b','grid_m10-2b','grid_m10-0q','grid_m10-1q','grid_m10-2q','grid_m10-4q','grid_m10-8q')]
+    [string]$VGPUGridProfile = $null,
 
     #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.vRamSizeMB
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
@@ -4658,6 +4666,7 @@ function New-HVPool {
               if ($null -ne $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings) {
                 $renderer3D = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.renderer3D
                 $enableGRIDvGPUs = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.enableGRIDvGPUs
+                $VGPUGridProfile = $jsonObject.DesktopSettings.DisplayProtocolSettings.PcoipDisplaySettings.VGPUGridProfile
                 if ($jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.vRamSizeMB) {
                  $vRamSizeMB = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.vRamSizeMB
                 }
@@ -4981,6 +4990,17 @@ function New-HVPool {
             $desktopPCoIPDisplaySettings.setRenderer3D($renderer3D)
             #setEnableGRIDvGPUs is not exists, because this property cannot be updated.
             $desktopPCoIPDisplaySettings.getDataObject().EnableGRIDvGPUs = $enableGRIDvGPUs
+            $desktopPCoIPDisplaySettings.getDataObject().EnableGRIDvGPUs = $enableGRIDvGPUs
+            if ($enableGRIDvGPUs -eq $true -and $renderer3D -ne 'MANAGE_BY_VSPHERE_CLIENT' -and $InstantClone -eq $true) {
+              Write-Error "Enabling GRID support requires that 3D rendering be managed by the vSphere client"
+              break
+            }
+            if ($enableGRIDvGPUs -eq $true -and [string]::IsNullOrEmpty($VGPUGridProfile) -eq $true -and $InstantClone -ne $true) {
+              Write-Error "Enabling GRID support for Instant clones, this requires a specified VGPUGridProfile"
+              break
+            } else {
+              $desktopPCoIPDisplaySettings.getDataObject().VGPUGridProfile = $VGPUGridProfile
+            }
             $desktopPCoIPDisplaySettings.setVRamSizeMB($vRamSizeMB)
             $desktopPCoIPDisplaySettings.setMaxNumberOfMonitors($maxNumberOfMonitors)
             $desktopPCoIPDisplaySettings.setMaxResolutionOfAnyOneMonitor($maxResolutionOfAnyOneMonitor)
