@@ -4010,6 +4010,12 @@ function New-HVPool {
     [string]
     $SnapshotVM,
 
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.addVirtualTPM if INSTANT_CLONE, ???
+    # [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [ValidateNotNullOrEmpty()]
+    [boolean]$addVirtualTPM = $false,
+
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.vmFolder if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
@@ -4515,6 +4521,9 @@ function New-HVPool {
         if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.Snapshot) {
           $snapshotVM = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.Snapshot
         }
+        if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.addVirtualTPM) {
+          $addVirtualTPM = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.addVirtualTPM
+        }
         $dataCenter = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.dataCenter
         $vmFolder = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.VmFolder
         $hostOrCluster = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster
@@ -4907,6 +4916,7 @@ function New-HVPool {
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData = $desktopVirtualCenterProvisioningData
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings = $desktopVirtualCenterStorageSettings
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings = $DesktopVirtualCenterNetworkingSettings
+          $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.AddVirtualTPM = $AddVirtualTPM
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings = $desktopCustomizationSettings
           $desktopSpecObj.AutomatedDesktopSpec.ProvisioningType = $provisioningType
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenter = $virtualCenterID
@@ -4915,6 +4925,7 @@ function New-HVPool {
           $DesktopVirtualCenterProvisioningSettings.VirtualCenterProvisioningData = $desktopVirtualCenterProvisioningData
           $DesktopVirtualCenterProvisioningSettings.VirtualCenterStorageSettings = $desktopVirtualCenterStorageSettings
           $DesktopVirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings = $DesktopVirtualCenterNetworkingSettings
+          $DesktopVirtualCenterProvisioningSettings.AddVirtualTPM = $AddVirtualTPM
 
           $DesktopAutomatedDesktopSpec = New-Object VMware.Hv.DesktopAutomatedDesktopSpec
           $DesktopAutomatedDesktopSpec.ProvisioningType = $provisioningType
