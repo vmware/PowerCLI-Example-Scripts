@@ -4990,7 +4990,6 @@ function New-HVPool {
             $desktopPCoIPDisplaySettings.setRenderer3D($renderer3D)
             #setEnableGRIDvGPUs is not exists, because this property cannot be updated.
             $desktopPCoIPDisplaySettings.getDataObject().EnableGRIDvGPUs = $enableGRIDvGPUs
-            $desktopPCoIPDisplaySettings.getDataObject().EnableGRIDvGPUs = $enableGRIDvGPUs
             if ($enableGRIDvGPUs -eq $true -and $renderer3D -ne 'MANAGE_BY_VSPHERE_CLIENT' -and $InstantClone -eq $true) {
               Write-Error "Enabling GRID support requires that 3D rendering be managed by the vSphere client"
               break
