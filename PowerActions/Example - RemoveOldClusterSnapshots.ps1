@@ -11,7 +11,7 @@ $vms = Get-VM -Location $cluster
 foreach ($vm in $vms) {
     $snaphostsToBeRemoved = Get-Snapshot -VM $vm | where {$_.Created -lt $date}
     if ($null -ne $snaphostsToBeRemoved) {
-        Write-Host "Removing snapshots: " + $snaphostsToBeRemoved + " of VM: " + $vm
+        Write-Host "Removing snapshots: '$snaphostsToBeRemoved' of VM: '$vm'"
         Remove-Snapshot $snaphostsToBeRemoved -Confirm:$false
     }
 }
