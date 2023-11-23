@@ -3925,17 +3925,25 @@ function New-HVPool {
     [boolean]$enableHTMLAccess = $false,
 
     # DesktopPCoIPDisplaySettings
-    #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.renderer3D
+    #desktopSpec.desktopSettings.DisplayProtocolSettings.pcoipDisplaySettings.renderer3D
     [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
     [ValidateSet('MANAGE_BY_VSPHERE_CLIENT', 'AUTOMATIC', 'SOFTWARE', 'HARDWARE', 'DISABLED')]
     [string]$renderer3D = 'DISABLED',
 
-    #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.enableGRIDvGPUs
+    #desktopSpec.desktopSettings.DisplayProtocolSettings.pcoipDisplaySettings.enableGRIDvGPUs
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
     [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
     [boolean]$enableGRIDvGPUs = $false,
+
+    #desktopSpec.desktopSettings.DisplayProtocolSettings.pcoipDisplaySettings.VGPUGridProfile
+    [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
+    # [Parameter(Mandatory = $false,ParameterSetName = 'MANUAL')]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [ValidateSet('grid_m10-0b','grid_m10-1b','grid_m10-2b','grid_m10-0q','grid_m10-1q','grid_m10-2q','grid_m10-4q','grid_m10-8q')]
+    [string]$VGPUGridProfile = $null,
 
     #desktopSpec.desktopSettings.logoffSettings.pcoipDisplaySettings.vRamSizeMB
     [Parameter(Mandatory = $false,ParameterSetName = "LINKED_CLONE")]
@@ -4009,6 +4017,12 @@ function New-HVPool {
     [Parameter(Mandatory = $true,ParameterSetName = 'INSTANT_CLONE')]
     [string]
     $SnapshotVM,
+
+    #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.addVirtualTPM if INSTANT_CLONE, ???
+    # [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
+    [Parameter(Mandatory = $false,ParameterSetName = 'INSTANT_CLONE')]
+    [ValidateNotNullOrEmpty()]
+    [boolean]$addVirtualTPM = $false,
 
     #desktopSpec.automatedDesktopSpec.virtualCenterProvisioningSettings.virtualCenterProvisioningData.vmFolder if LINKED_CLONE, INSTANT_CLONE, FULL_CLONE
     [Parameter(Mandatory = $true,ParameterSetName = "LINKED_CLONE")]
@@ -4515,6 +4529,9 @@ function New-HVPool {
         if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.Snapshot) {
           $snapshotVM = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.Snapshot
         }
+        if ($null -ne $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.addVirtualTPM) {
+          $addVirtualTPM = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.addVirtualTPM
+        }
         $dataCenter = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.dataCenter
         $vmFolder = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.VmFolder
         $hostOrCluster = $jsonObject.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData.HostOrCluster
@@ -4658,6 +4675,7 @@ function New-HVPool {
               if ($null -ne $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings) {
                 $renderer3D = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.renderer3D
                 $enableGRIDvGPUs = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.enableGRIDvGPUs
+                $VGPUGridProfile = $jsonObject.DesktopSettings.DisplayProtocolSettings.PcoipDisplaySettings.VGPUGridProfile
                 if ($jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.vRamSizeMB) {
                  $vRamSizeMB = $jsonObject.DesktopSettings.displayProtocolSettings.pcoipDisplaySettings.vRamSizeMB
                 }
@@ -4907,6 +4925,7 @@ function New-HVPool {
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterProvisioningData = $desktopVirtualCenterProvisioningData
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterStorageSettings = $desktopVirtualCenterStorageSettings
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings = $DesktopVirtualCenterNetworkingSettings
+          $desktopSpecObj.AutomatedDesktopSpec.VirtualCenterProvisioningSettings.AddVirtualTPM = $AddVirtualTPM
           $desktopSpecObj.AutomatedDesktopSpec.CustomizationSettings = $desktopCustomizationSettings
           $desktopSpecObj.AutomatedDesktopSpec.ProvisioningType = $provisioningType
           $desktopSpecObj.AutomatedDesktopSpec.VirtualCenter = $virtualCenterID
@@ -4915,6 +4934,7 @@ function New-HVPool {
           $DesktopVirtualCenterProvisioningSettings.VirtualCenterProvisioningData = $desktopVirtualCenterProvisioningData
           $DesktopVirtualCenterProvisioningSettings.VirtualCenterStorageSettings = $desktopVirtualCenterStorageSettings
           $DesktopVirtualCenterProvisioningSettings.VirtualCenterNetworkingSettings = $DesktopVirtualCenterNetworkingSettings
+          $DesktopVirtualCenterProvisioningSettings.AddVirtualTPM = $AddVirtualTPM
 
           $DesktopAutomatedDesktopSpec = New-Object VMware.Hv.DesktopAutomatedDesktopSpec
           $DesktopAutomatedDesktopSpec.ProvisioningType = $provisioningType
@@ -4981,6 +5001,16 @@ function New-HVPool {
             $desktopPCoIPDisplaySettings.setRenderer3D($renderer3D)
             #setEnableGRIDvGPUs is not exists, because this property cannot be updated.
             $desktopPCoIPDisplaySettings.getDataObject().EnableGRIDvGPUs = $enableGRIDvGPUs
+            if ($enableGRIDvGPUs -eq $true -and $renderer3D -ne 'MANAGE_BY_VSPHERE_CLIENT' -and $InstantClone -eq $true) {
+              Write-Error "Enabling GRID support requires that 3D rendering be managed by the vSphere client"
+              break
+            }
+            if ($enableGRIDvGPUs -eq $true -and [string]::IsNullOrEmpty($VGPUGridProfile) -eq $true -and $InstantClone -ne $true) {
+              Write-Error "Enabling GRID support for Instant clones, this requires a specified VGPUGridProfile"
+              break
+            } else {
+              $desktopPCoIPDisplaySettings.getDataObject().VGPUGridProfile = $VGPUGridProfile
+            }
             $desktopPCoIPDisplaySettings.setVRamSizeMB($vRamSizeMB)
             $desktopPCoIPDisplaySettings.setMaxNumberOfMonitors($maxNumberOfMonitors)
             $desktopPCoIPDisplaySettings.setMaxResolutionOfAnyOneMonitor($maxResolutionOfAnyOneMonitor)
@@ -6569,6 +6599,16 @@ function Start-HVFarm {
     How frequently to repeat maintenance, expressed as a multiple of the maintenance period. e.g. Every 2 weeks.
     This property has a default value of 1. This property has values 1-100.
 
+.PARAMETER NumCPU
+    Number of CPU of the Vm Instances
+
+.PARAMETER Ram
+    Ram of the Vm Instances
+    Units in MB for Ram parameter
+
+.PARAMETER CoresPerSocket
+    CoresPerSocket of the Vm Instances
+
 .PARAMETER HvServer
     Reference to Horizon View Server to query the data from. If the value is not passed or null then first element from global:DefaultHVServers would be considered in-place of hvServer.
 
@@ -6672,6 +6712,21 @@ function Start-HVFarm {
     [Parameter(Mandatory = $false,ParameterSetName = 'SCHEDULEMAINTENANCE')]
     [ValidateRange(1, 100)]
     [int]$EveryInt = 1,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $NumCPU = 4,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $Ram = 16384,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1,[Int]::MaxValue)]
+    [int]
+    $CoresPerSocket = 1,
 
     [Parameter(Mandatory = $false)]
     $HvServer = $null
@@ -6820,6 +6875,13 @@ function Start-HVFarm {
                     break
                 }
             }
+
+            #set ComputeProfile in a SCHEDULEMAINTENANCE
+            $spec.ComputeProfile = New-Object VMware.Hv.FarmComputeProfileSpec
+            $spec.ComputeProfile.NumCPU = $NumCPU
+            $spec.ComputeProfile.Ram = $Ram
+            $spec.ComputeProfile.CoresPerSocket = $CoresPerSocket
+
             # call scheduleMaintenance service on farm
             if (!$confirmFlag -OR  $pscmdlet.ShouldProcess($farmList.$item)) {
               $farm_service_helper.Farm_ScheduleMaintenance($services, $item, $spec)
