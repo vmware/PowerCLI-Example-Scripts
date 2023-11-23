@@ -9939,10 +9939,10 @@ function Set-HVApplicationIcon {
             Write-Host "Some application(s) already have an association for the specified icon."
             $ApplicationIconHelper.ApplicationIcon_UpdateAssociations($services, $applicationIconId, @($appInfo.Id))
             Write-Host "Successfully updated customized icon association for Application:[$ApplicationName]."
-            break
-          }
-          Write-Host "Error in associating customized icon for Application:[$ApplicationName] $_"
-          break
+          } else {
+          	Write-Host "Error in associating customized icon for Application:[$ApplicationName] $_"
+          	break
+	   }
       }
       Write-Host "Successfully associated customized icon for Application:[$ApplicationName]."
     }
