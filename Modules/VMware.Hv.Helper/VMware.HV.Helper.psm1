@@ -10000,7 +10000,6 @@ function Set-HVApplicationIcon {
             $applicationIconId = $_.Exception.InnerException.MethodFault.Id
             Write-Host "Some application(s) already have an association for the specified icon."
             $ApplicationIconHelper.ApplicationIcon_UpdateAssociations($services, $applicationIconId, @($appInfo.Id))
-            Write-Host "Successfully updated customized icon association for Application:[$ApplicationName]."
           } else {
           	Write-Host "Error in associating customized icon for Application:[$ApplicationName] $_"
           	break
