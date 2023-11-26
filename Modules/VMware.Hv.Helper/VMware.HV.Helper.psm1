@@ -731,7 +731,7 @@ function Connect-HVEvent {
         Write-Error "Unsupported type recieved for dbPassword: [$dbPassword]. dbpassword should SecureString type."
 	    break
       }
-      $connectionString = "Data Source=$dbServer, $dbPort; Initial Catalog=$dbName;"
+      $connectionString = "Data Source=$dbServer, $dbPort; Initial Catalog=$dbName; multiSubnetFailover=True"
       $connection = New-Object System.Data.SqlClient.SqlConnection ($connectionString)
       $password.MakeReadOnly()
       $connection.Credential = New-Object System.Data.SqlClient.SqlCredential($dbUserName, $password);
