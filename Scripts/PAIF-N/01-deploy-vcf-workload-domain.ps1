@@ -27,7 +27,8 @@ On completion a new VI workload domain reflecting the given parameters should be
 
 Prerequisites:
  - A VCF Management Domain
- - A minimum of three free hosts marked with the appropriate storage
+ - A minimum of three free hosts marked with the appropriate storage and at least 4 NICs.
+ Two of the NICs will be used for Frontend/Management and the other two for workloads.
 
 "Global parameters", "Host commissioning parameters", "Workload domain creation parameters" should be updated to
 reflect the environment they are run in. This may require altering the spec creation script.
@@ -39,16 +40,14 @@ $SCRIPTROOT = ($PWD.ProviderPath, $PSScriptRoot)[!!$PSScriptRoot]
 . (Join-Path $SCRIPTROOT 'utils/Wait-VcfTask.ps1')
 . (Join-Path $SCRIPTROOT 'utils/Wait-VcfValidation.ps1')
 
-
-# Configure PowerCLI
-Set-PowerCLIConfiguration -Scope User -ParticipateInCEIP $false -Confirm:$false
-Set-PowerCLIConfiguration -scope user -InvalidCertificateAction Ignore -Confirm:$false
-
 # --------------------------------------------------------------------------------------------------------------------------
 # Global parameters
 # --------------------------------------------------------------------------------------------------------------------------
 
+# Organization name of the workload domain
 $OrgName = 'VMware'
+
+# Name of the workload domain - used as a prefix for nested inventory items
 $domainName = 'sfo-w01'
 
 $domain = 'vrack.vsphere.local'
@@ -97,15 +96,16 @@ $esxiHosts = @(
    }
 )
 
+# The network pool to associate the host with
 $networkPoolName = 'networkpool'
+
 # --------------------------------------------------------------------------------------------------------------------------
 
 # Connect to SDDC manager
 $sddcConn = Connect-VcfSddcManagerServer `
    -Server $sddcManager.Fqdn `
    -User $sddcManager.User `
-   -Password $sddcManager.Password `
-   -IgnoreInvalidCertificate
+   -Password $sddcManager.Password
 
 ## Host commissioning spec construction
 $NetworkPool = Invoke-VcfGetNetworkPool | `
@@ -340,6 +340,5 @@ $domainValidationResult =  Wait-VcfValidation `
 # Workload domain creation
 $creationTask = Invoke-VcfCreateDomain -domainCreationSpec $DomainCreationSpec
 $creationTask = Wait-VcfTask $creationTask -ThrowOnError
-
 
 Disconnect-VcfSddcManagerServer $sddcConn

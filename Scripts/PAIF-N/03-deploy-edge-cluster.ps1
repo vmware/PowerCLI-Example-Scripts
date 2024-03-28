@@ -6,17 +6,21 @@
 <#
 .SYNOPSIS
 
-This script creates a NSX edge cluster
+This script creates a NSX edge cluster on a cluster in a VI workload domain
 
 .DESCRIPTION
 
-This script creates an NSX edge cluster to provide connectivity from external networks to Supervisor
-Cluster objects.
+This script creates an NSX edge cluster on a cluster in a VI workload domain to provide connectivity
+from external networks to Supervisor Cluster objects.
+
+To create NSX Edge Cluster on multiple VI workload domain clusters the script should be modified and
+executed multiple times.
 
 .NOTES
 
 Prerequisites:
  - VI workload domain (vCenter server instance)
+ - VI workload domain cluster
 
 "Global parameters", "Workload domain parameters", "Edge Cluster deployment parameters" should be updated to
 reflect the environment they are run in. This may require altering the spec creation script.
@@ -50,21 +54,13 @@ $domainSpec = @{
          DnsName = "$DomainName-vc01.$domain"
       }
    }
-   ComputeSpec = @{
-      ClusterSpecs = @(
-         @{
-            Name = "$DomainName-cl01"
-         }
-      )
-   }
 }
 
 # Connect to SDDC manager
 $sddcConn = Connect-VcfSddcManagerServer `
    -Server $sddcManager.Fqdn `
    -User $sddcManager.User `
-   -Password $sddcManager.Password `
-   -IgnoreInvalidCertificate
+   -Password $sddcManager.Password
 
 ############################################################################################################################
 # Deploy Edge Cluster in the created workload domain
@@ -73,7 +69,9 @@ $sddcConn = Connect-VcfSddcManagerServer `
 # --------------------------------------------------------------------------------------------------------------------------
 # Edge Cluster deployment parameters
 
-$ClusterName = $domainSpec.ComputeSpec.ClusterSpecs[0].Name
+# The VI workload cluster on which the NSX Edge Cluster will be created
+$ClusterName = "$DomainName-cl01"
+
 $edgeName = "$ClusterName-ec01"
 
 $vcfCluster = Invoke-VcfGetClusters | `

@@ -6,7 +6,7 @@
 <#
 .SYNOPSIS
 
-This script enable the Workload Management (Kubernetes)
+This script enables Workload Management (Kubernetes)
 
 .DESCRIPTION
 
@@ -18,7 +18,6 @@ The script:
   2. Creates content library for the deep learning VM template
   3. Creates GPU-enabled VMClass
   4. Creates namespace(s) and assigns the created VMClass and assigns deep learning VM content library
-
 
 .NOTES
 

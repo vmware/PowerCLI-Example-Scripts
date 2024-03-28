@@ -35,7 +35,9 @@ $ErrorActionPreference = 'Stop'
 # Global parameters
 # --------------------------------------------------------------------------------------------------------------------------
 
+# Name of the workload domain - used as a prefix for nested inventory items
 $domainName = 'sfo-w01'
+
 $domain = 'vrack.vsphere.local'
 
 # --------------------------------------------------------------------------------------------------------------------------
@@ -88,7 +90,7 @@ $vcConn = Connect-VIServer `
    -User 'administrator@vsphere.local' `
    -Password $domainSpec.VCenterSpec.RootPassword
 
-$esxHosts = Get-VMHost -Location $domainSpec.ComputeSpec.ClusterSpecs[0].Name
+$esxHosts = $domainSpec.ComputeSpec.ClusterSpecs | ForEach-Object { Get-VMHost -Location $_.Name }
 
 # Preparing the GPU Device for the vGPU Driver
 $esxHosts | ForEach-Object {
@@ -179,8 +181,15 @@ $components = $gpuParameters.NVIDIA | ForEach-Object {
       }
 }
 
-$cluster = Get-Cluster -Name $domainSpec.ComputeSpec.ClusterSpecs[0].Name
-$cluster = $cluster | Set-Cluster -BaseImage $esxiBaseImage -Component $components -Confirm:$false
-$cluster = $cluster | Set-Cluster -AcceptEULA -Remediate -Confirm:$false
+if (($components -isnot [array]) -or ($components.Length -ne $gpuParameters.NVIDIA.Length)) {
+   throw "Not all Nvidia components found"
+}
+
+$domainSpec.ComputeSpec.ClusterSpecs | ForEach-Object {
+   $cluster = Get-Cluster -Name $_.Name
+   $cluster = $cluster | Set-Cluster -BaseImage $esxiBaseImage -Component $components -Confirm:$false
+   $cluster = $cluster | Set-Cluster -AcceptEULA -Remediate -Confirm:$false
+}
+
 
 Disconnect-VIServer $vcConn
