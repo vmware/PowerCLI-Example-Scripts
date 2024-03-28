@@ -1,5 +1,5 @@
 <#
-# © 2024 Broadcom.  All Rights Reserved.  Broadcom Confidential.  The term "Broadcom" refers to
+# © 2024 Broadcom.  All Rights Reserved.  Broadcom.  The term "Broadcom" refers to
 # Broadcom Inc. and/or its subsidiaries.
 #>
 
