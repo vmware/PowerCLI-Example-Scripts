@@ -25,10 +25,10 @@ function Set-CBT {
     This Function enables or disables CBT.
 
     .Example
-    Get-VN TST* | Set-CBT -DisableCBT
+    Get-VM TST* | Set-CBT -DisableCBT
 
     .Example
-    Get-VN TST* | Set-CBT -EnableCBT
+    Get-VM TST* | Set-CBT -EnableCBT
 
     .PARAMETER DisableCBT
     Disables CBT for any VMs found with it enabled
