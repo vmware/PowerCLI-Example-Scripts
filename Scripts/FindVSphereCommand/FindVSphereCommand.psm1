@@ -178,7 +178,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterActive",
     "CommandInfo": "Invoke-GetClusterActive",
     "ApiName": "ActiveApi",
-    "Path": "/api/vcenter/vcha/cluster/active__action=get",
+    "Path": "/api/vcenter/vcha/cluster/active?action=get",
     "Tags": "Active",
     "RelatedCommandInfos": "Initialize-VchaClusterActiveGetRequestBody",
     "Method": "POST"
@@ -187,7 +187,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckMigrateActiveDirectory",
     "CommandInfo": "Invoke-CheckMigrateActiveDirectory",
     "ApiName": "ActiveDirectoryApi",
-    "Path": "/api/vcenter/deployment/migrate/active-directory__action=check",
+    "Path": "/api/vcenter/deployment/migrate/active-directory?action=check",
     "Tags": "ActiveDirectory",
     "RelatedCommandInfos": "Initialize-DeploymentMigrateActiveDirectoryCheckSpec",
     "Method": "POST"
@@ -286,7 +286,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AddManagementAdministrators",
     "CommandInfo": "Invoke-AddManagementAdministrators",
     "ApiName": "AdministratorsApi",
-    "Path": "/api/hvc/management/administrators__action=add",
+    "Path": "/api/hvc/management/administrators?action=add",
     "Tags": "Administrators",
     "RelatedCommandInfos": "Initialize-HvcManagementAdministratorsAddRequestBody",
     "Method": "POST"
@@ -304,7 +304,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RemoveManagementAdministrators",
     "CommandInfo": "Invoke-RemoveManagementAdministrators",
     "ApiName": "AdministratorsApi",
-    "Path": "/api/hvc/management/administrators__action=remove",
+    "Path": "/api/hvc/management/administrators?action=remove",
     "Tags": "Administrators",
     "RelatedCommandInfos": "Initialize-HvcManagementAdministratorsRemoveRequestBody",
     "Method": "POST"
@@ -421,7 +421,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetSystemNameArchive",
     "CommandInfo": "Invoke-GetSystemNameArchive",
     "ApiName": "ArchiveApi",
-    "Path": "/api/appliance/recovery/backup/system-name/{system_name}/archives/{archive}__action=get",
+    "Path": "/api/appliance/recovery/backup/system-name/{system_name}/archives/{archive}?action=get",
     "Tags": "Archive",
     "RelatedCommandInfos": "Initialize-RecoveryBackupLocationSpec",
     "Method": "POST"
@@ -430,7 +430,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListSystemNameArchives",
     "CommandInfo": "Invoke-ListSystemNameArchives",
     "ApiName": "ArchiveApi",
-    "Path": "/api/appliance/recovery/backup/system-name/{system_name}/archives__action=list",
+    "Path": "/api/appliance/recovery/backup/system-name/{system_name}/archives?action=list",
     "Tags": "Archive",
     "RelatedCommandInfos": "Initialize-RecoveryBackupSystemNameArchiveListRequestBody",
     "Method": "POST"
@@ -493,7 +493,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AddZoneAssociations",
     "CommandInfo": "Invoke-AddZoneAssociations",
     "ApiName": "AssociationsApi",
-    "Path": "/api/vcenter/consumption-domains/zones/cluster/{zone}/associations__action=add",
+    "Path": "/api/vcenter/consumption-domains/zones/cluster/{zone}/associations?action=add",
     "Tags": "Associations",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -520,7 +520,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RemoveZoneAssociations",
     "CommandInfo": "Invoke-RemoveZoneAssociations",
     "ApiName": "AssociationsApi",
-    "Path": "/api/vcenter/consumption-domains/zones/cluster/{zone}/associations__action=remove",
+    "Path": "/api/vcenter/consumption-domains/zones/cluster/{zone}/associations?action=remove",
     "Tags": "Associations",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -556,7 +556,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ValidateRecoveryBackup",
     "CommandInfo": "Invoke-ValidateRecoveryBackup",
     "ApiName": "BackupApi",
-    "Path": "/api/appliance/recovery/backup__action=validate",
+    "Path": "/api/appliance/recovery/backup?action=validate",
     "Tags": "Backup",
     "RelatedCommandInfos": "Initialize-RecoveryBackupBackupRequest",
     "Method": "POST"
@@ -619,7 +619,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterVersionBaseImagesAsync",
     "CommandInfo": "Invoke-DeleteClusterVersionBaseImagesAsync",
     "ApiName": "BaseImagesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/os/esx/base-images/{version}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/os/esx/base-images/{version}?vmw-task=true",
     "Tags": "BaseImages",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -628,7 +628,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterBaseImagesAsync",
     "CommandInfo": "Invoke-GetClusterBaseImagesAsync",
     "ApiName": "BaseImagesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/os/esx/base-images__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/os/esx/base-images?vmw-task=true",
     "Tags": "BaseImages",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -637,7 +637,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterVersionBaseImagesAsync",
     "CommandInfo": "Invoke-GetClusterVersionBaseImagesAsync",
     "ApiName": "BaseImagesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/os/esx/base-images/{version}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/os/esx/base-images/{version}?vmw-task=true",
     "Tags": "BaseImages",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -646,7 +646,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ImportFromImgdbClusterBaseImagesAsync",
     "CommandInfo": "Invoke-ImportFromImgdbClusterBaseImagesAsync",
     "ApiName": "BaseImagesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/os/esx/base-images__action=import-from-imgdb&vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/os/esx/base-images?action=import-from-imgdb&vmw-task=true",
     "Tags": "BaseImages",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -682,7 +682,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateClusterTpm2CaCertificatesAsync",
     "CommandInfo": "Invoke-CreateClusterTpm2CaCertificatesAsync",
     "ApiName": "CaCertificatesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/ca-certificates__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/ca-certificates?vmw-task=true",
     "Tags": "CaCertificates",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersAttestationTpm2CaCertificatesCreateSpec",
     "Method": "POST"
@@ -691,7 +691,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterNameCaCertificatesAsync",
     "CommandInfo": "Invoke-DeleteClusterNameCaCertificatesAsync",
     "ApiName": "CaCertificatesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/ca-certificates/{name}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/ca-certificates/{name}?vmw-task=true",
     "Tags": "CaCertificates",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -700,7 +700,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterNameCaCertificatesAsync",
     "CommandInfo": "Invoke-GetClusterNameCaCertificatesAsync",
     "ApiName": "CaCertificatesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/ca-certificates/{name}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/ca-certificates/{name}?vmw-task=true",
     "Tags": "CaCertificates",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -709,7 +709,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterTpm2CaCertificatesAsync",
     "CommandInfo": "Invoke-GetClusterTpm2CaCertificatesAsync",
     "ApiName": "CaCertificatesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/ca-certificates__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/ca-certificates?vmw-task=true",
     "Tags": "CaCertificates",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -718,7 +718,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AddToUsedByCategoryId",
     "CommandInfo": "Invoke-AddToUsedByCategoryId",
     "ApiName": "CategoryApi",
-    "Path": "/api/cis/tagging/category/{category_id}__action=add-to-used-by",
+    "Path": "/api/cis/tagging/category/{category_id}?action=add-to-used-by",
     "Tags": "Category",
     "RelatedCommandInfos": "Initialize-TaggingCategoryAddToUsedByRequestBody",
     "Method": "POST"
@@ -763,7 +763,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListUsedCategoriesCategory",
     "CommandInfo": "Invoke-ListUsedCategoriesCategory",
     "ApiName": "CategoryApi",
-    "Path": "/api/cis/tagging/category__action=list-used-categories",
+    "Path": "/api/cis/tagging/category?action=list-used-categories",
     "Tags": "Category",
     "RelatedCommandInfos": "Initialize-TaggingCategoryListUsedCategoriesRequestBody",
     "Method": "POST"
@@ -772,7 +772,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RemoveFromUsedByCategoryId",
     "CommandInfo": "Invoke-RemoveFromUsedByCategoryId",
     "ApiName": "CategoryApi",
-    "Path": "/api/cis/tagging/category/{category_id}__action=remove-from-used-by",
+    "Path": "/api/cis/tagging/category/{category_id}?action=remove-from-used-by",
     "Tags": "Category",
     "RelatedCommandInfos": "Initialize-TaggingCategoryRemoveFromUsedByRequestBody",
     "Method": "POST"
@@ -781,7 +781,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RevokePropagatingPermissionsCategoryId",
     "CommandInfo": "Invoke-RevokePropagatingPermissionsCategoryId",
     "ApiName": "CategoryApi",
-    "Path": "/api/cis/tagging/category/{category_id}__action=revoke-propagating-permissions",
+    "Path": "/api/cis/tagging/category/{category_id}?action=revoke-propagating-permissions",
     "Tags": "Category",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -799,7 +799,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ConnectVmCdrom",
     "CommandInfo": "Invoke-ConnectVmCdrom",
     "ApiName": "CdromApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/cdrom/{cdrom}__action=connect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/cdrom/{cdrom}?action=connect",
     "Tags": "Cdrom",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -826,7 +826,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DisconnectVmCdrom",
     "CommandInfo": "Invoke-DisconnectVmCdrom",
     "ApiName": "CdromApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/cdrom/{cdrom}__action=disconnect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/cdrom/{cdrom}?action=disconnect",
     "Tags": "Cdrom",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -880,7 +880,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckInTemplateLibraryItemVmCheckOuts",
     "CommandInfo": "Invoke-CheckInTemplateLibraryItemVmCheckOuts",
     "ApiName": "CheckOutsApi",
-    "Path": "/api/vcenter/vm-template/library-items/{template_library_item}/check-outs/{vm}__action=check-in",
+    "Path": "/api/vcenter/vm-template/library-items/{template_library_item}/check-outs/{vm}?action=check-in",
     "Tags": "CheckOuts",
     "RelatedCommandInfos": "Initialize-VmTemplateLibraryItemsCheckOutsCheckInSpec",
     "Method": "POST"
@@ -889,7 +889,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckOutTemplateLibraryItemCheckOuts",
     "CommandInfo": "Invoke-CheckOutTemplateLibraryItemCheckOuts",
     "ApiName": "CheckOutsApi",
-    "Path": "/api/vcenter/vm-template/library-items/{template_library_item}/check-outs__action=check-out",
+    "Path": "/api/vcenter/vm-template/library-items/{template_library_item}/check-outs?action=check-out",
     "Tags": "CheckOuts",
     "RelatedCommandInfos": "Initialize-VmTemplateLibraryItemsCheckOutsCheckOutSpec",
     "Method": "POST"
@@ -925,7 +925,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateClusterProviderClientCertificateAsync",
     "CommandInfo": "Invoke-CreateClusterProviderClientCertificateAsync",
     "ApiName": "ClientCertificateApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate?vmw-task=true",
     "Tags": "ClientCertificate",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -934,7 +934,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterProviderClientCertificateAsync",
     "CommandInfo": "Invoke-GetClusterProviderClientCertificateAsync",
     "ApiName": "ClientCertificateApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate?vmw-task=true",
     "Tags": "ClientCertificate",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -943,7 +943,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterProviderClientCertificateAsync",
     "CommandInfo": "Invoke-UpdateClusterProviderClientCertificateAsync",
     "ApiName": "ClientCertificateApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate?vmw-task=true",
     "Tags": "ClientCertificate",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersKmsProvidersClientCertificateUpdateSpec",
     "Method": "PATCH"
@@ -952,7 +952,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeployVchaClusterAsync",
     "CommandInfo": "Invoke-DeployVchaClusterAsync",
     "ApiName": "ClusterApi",
-    "Path": "/api/vcenter/vcha/cluster__action=deploy&vmw-task=true",
+    "Path": "/api/vcenter/vcha/cluster?action=deploy&vmw-task=true",
     "Tags": "Cluster",
     "RelatedCommandInfos": "Initialize-VchaClusterDeploySpec",
     "Method": "POST"
@@ -961,7 +961,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "FailoverVchaClusterAsync",
     "CommandInfo": "Invoke-FailoverVchaClusterAsync",
     "ApiName": "ClusterApi",
-    "Path": "/api/vcenter/vcha/cluster__action=failover&vmw-task=true",
+    "Path": "/api/vcenter/vcha/cluster?action=failover&vmw-task=true",
     "Tags": "Cluster",
     "RelatedCommandInfos": "Initialize-VchaClusterFailoverTaskRequestBody",
     "Method": "POST"
@@ -979,7 +979,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetVchaCluster",
     "CommandInfo": "Invoke-GetVchaCluster",
     "ApiName": "ClusterApi",
-    "Path": "/api/vcenter/vcha/cluster__action=get",
+    "Path": "/api/vcenter/vcha/cluster?action=get",
     "Tags": "Cluster",
     "RelatedCommandInfos": "Initialize-VchaClusterGetRequestBody",
     "Method": "POST"
@@ -1006,7 +1006,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UndeployVchaClusterAsync",
     "CommandInfo": "Invoke-UndeployVchaClusterAsync",
     "ApiName": "ClusterApi",
-    "Path": "/api/vcenter/vcha/cluster__action=undeploy&vmw-task=true",
+    "Path": "/api/vcenter/vcha/cluster?action=undeploy&vmw-task=true",
     "Tags": "Cluster",
     "RelatedCommandInfos": "Initialize-VchaClusterUndeploySpec",
     "Method": "POST"
@@ -1042,7 +1042,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DisableCluster",
     "CommandInfo": "Invoke-DisableCluster",
     "ApiName": "ClustersApi",
-    "Path": "/api/vcenter/namespace-management/clusters/{cluster}__action=disable",
+    "Path": "/api/vcenter/namespace-management/clusters/{cluster}?action=disable",
     "Tags": "Clusters",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1051,7 +1051,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "EnableCluster",
     "CommandInfo": "Invoke-EnableCluster",
     "ApiName": "ClustersApi",
-    "Path": "/api/vcenter/namespace-management/clusters/{cluster}__action=enable",
+    "Path": "/api/vcenter/namespace-management/clusters/{cluster}?action=enable",
     "Tags": "Clusters",
     "RelatedCommandInfos": "Initialize-NamespaceManagementClustersEnableSpec",
     "Method": "POST"
@@ -1096,7 +1096,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RotatePasswordCluster",
     "CommandInfo": "Invoke-RotatePasswordCluster",
     "ApiName": "ClustersApi",
-    "Path": "/api/vcenter/namespace-management/clusters/{cluster}__action=rotate_password",
+    "Path": "/api/vcenter/namespace-management/clusters/{cluster}?action=rotate_password",
     "Tags": "Clusters",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1123,7 +1123,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpgradeCluster",
     "CommandInfo": "Invoke-UpgradeCluster",
     "ApiName": "ClustersApi",
-    "Path": "/api/vcenter/namespace-management/software/clusters/{cluster}__action=upgrade",
+    "Path": "/api/vcenter/namespace-management/software/clusters/{cluster}?action=upgrade",
     "Tags": "Clusters",
     "RelatedCommandInfos": "Initialize-NamespaceManagementSoftwareClustersUpgradeSpec",
     "Method": "POST"
@@ -1132,7 +1132,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpgradeMultipleSoftwareClusters",
     "CommandInfo": "Invoke-UpgradeMultipleSoftwareClusters",
     "ApiName": "ClustersApi",
-    "Path": "/api/vcenter/namespace-management/software/clusters__action=upgradeMultiple",
+    "Path": "/api/vcenter/namespace-management/software/clusters?action=upgradeMultiple",
     "Tags": "Clusters",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1195,7 +1195,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetCliCommand",
     "CommandInfo": "Invoke-GetCliCommand",
     "ApiName": "CommandApi",
-    "Path": "/api/vapi/metadata/cli/command__action=get",
+    "Path": "/api/vapi/metadata/cli/command?action=get",
     "Tags": "Command",
     "RelatedCommandInfos": "Initialize-MetadataCliCommandGetRequestBody",
     "Method": "POST"
@@ -1240,7 +1240,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckCompatibilityNsxDistributedSwitches",
     "CommandInfo": "Invoke-CheckCompatibilityNsxDistributedSwitches",
     "ApiName": "CompatibilityApi",
-    "Path": "/api/vcenter/namespace-management/networks/nsx/distributed-switches__action=check_compatibility",
+    "Path": "/api/vcenter/namespace-management/networks/nsx/distributed-switches?action=check_compatibility",
     "Tags": "Compatibility",
     "RelatedCommandInfos": "Initialize-NamespaceManagementNetworksNsxDistributedSwitchesFilterSpec",
     "Method": "POST"
@@ -1249,7 +1249,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckCompatibilityNsxEdges",
     "CommandInfo": "Invoke-CheckCompatibilityNsxEdges",
     "ApiName": "CompatibilityApi",
-    "Path": "/api/vcenter/namespace-management/networks/nsx/edges__action=check_compatibility",
+    "Path": "/api/vcenter/namespace-management/networks/nsx/edges?action=check_compatibility",
     "Tags": "Compatibility",
     "RelatedCommandInfos": "Initialize-NamespaceManagementNetworksNsxEdgesFilterSpec",
     "Method": "POST"
@@ -1258,7 +1258,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DownloadHclCompatibilityDataAsync",
     "CommandInfo": "Invoke-DownloadHclCompatibilityDataAsync",
     "ApiName": "CompatibilityDataApi",
-    "Path": "/api/esx/hcl/compatibility-data__action=download&vmw-task=true",
+    "Path": "/api/esx/hcl/compatibility-data?action=download&vmw-task=true",
     "Tags": "CompatibilityData",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1285,7 +1285,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateHostCompatibilityReportAsync",
     "CommandInfo": "Invoke-CreateHostCompatibilityReportAsync",
     "ApiName": "CompatibilityReportApi",
-    "Path": "/api/esx/hcl/hosts/{host}/compatibility-report__vmw-task=true",
+    "Path": "/api/esx/hcl/hosts/{host}/compatibility-report?vmw-task=true",
     "Tags": "CompatibilityReport",
     "RelatedCommandInfos": "Initialize-HclHostsCompatibilityReportSpec",
     "Method": "POST"
@@ -1303,7 +1303,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckVmPolicyCompliance",
     "CommandInfo": "Invoke-CheckVmPolicyCompliance",
     "ApiName": "ComplianceApi",
-    "Path": "/api/vcenter/vm/{vm}/storage/policy/compliance__action=check",
+    "Path": "/api/vcenter/vm/{vm}/storage/policy/compliance?action=check",
     "Tags": "Compliance",
     "RelatedCommandInfos": "Initialize-VmStoragePolicyComplianceCheckSpec",
     "Method": "POST"
@@ -1348,7 +1348,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterStorageDeviceOverridesComplianceStatusAsync",
     "CommandInfo": "Invoke-UpdateClusterStorageDeviceOverridesComplianceStatusAsync",
     "ApiName": "ComplianceStatusApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/reports/hardware-compatibility/storage-device-overrides/compliance-status__vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/reports/hardware-compatibility/storage-device-overrides/compliance-status?vmw-task=true",
     "Tags": "ComplianceStatus",
     "RelatedCommandInfos": "Initialize-SettingsClustersSoftwareReportsHardwareCompatibilityStorageDeviceOverridesComplianceStatusUpdateSpec",
     "Method": "PATCH"
@@ -1591,7 +1591,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExportInfraprofileConfigs",
     "CommandInfo": "Invoke-ExportInfraprofileConfigs",
     "ApiName": "ConfigsApi",
-    "Path": "/api/appliance/infraprofile/configs__action=export",
+    "Path": "/api/appliance/infraprofile/configs?action=export",
     "Tags": "Configs",
     "RelatedCommandInfos": "Initialize-InfraprofileConfigsProfilesSpec",
     "Method": "POST"
@@ -1600,7 +1600,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ImportInfraprofileConfigsAsync",
     "CommandInfo": "Invoke-ImportInfraprofileConfigsAsync",
     "ApiName": "ConfigsApi",
-    "Path": "/api/appliance/infraprofile/configs__action=import&vmw-task=true",
+    "Path": "/api/appliance/infraprofile/configs?action=import&vmw-task=true",
     "Tags": "Configs",
     "RelatedCommandInfos": "Initialize-InfraprofileConfigsImportProfileSpec",
     "Method": "POST"
@@ -1618,7 +1618,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ValidateInfraprofileConfigsAsync",
     "CommandInfo": "Invoke-ValidateInfraprofileConfigsAsync",
     "ApiName": "ConfigsApi",
-    "Path": "/api/appliance/infraprofile/configs__action=validate&vmw-task=true",
+    "Path": "/api/appliance/infraprofile/configs?action=validate&vmw-task=true",
     "Tags": "Configs",
     "RelatedCommandInfos": "Initialize-InfraprofileConfigsImportProfileSpec",
     "Method": "POST"
@@ -1627,7 +1627,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ApplyClusterConfigurationAsync",
     "CommandInfo": "Invoke-ApplyClusterConfigurationAsync",
     "ApiName": "ConfigurationApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration__action=apply&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration?action=apply&vmw-task=true",
     "Tags": "Configuration",
     "RelatedCommandInfos": "Initialize-SettingsClustersConfigurationApplySpec",
     "Method": "POST"
@@ -1636,7 +1636,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckComplianceClusterConfigurationAsync",
     "CommandInfo": "Invoke-CheckComplianceClusterConfigurationAsync",
     "ApiName": "ConfigurationApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration__action=checkCompliance&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration?action=checkCompliance&vmw-task=true",
     "Tags": "Configuration",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1645,7 +1645,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExportConfigClusterConfiguration",
     "CommandInfo": "Invoke-ExportConfigClusterConfiguration",
     "ApiName": "ConfigurationApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration__action=exportConfig",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration?action=exportConfig",
     "Tags": "Configuration",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1654,7 +1654,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExtractHostConfiguration",
     "CommandInfo": "Invoke-ExtractHostConfiguration",
     "ApiName": "ConfigurationApi",
-    "Path": "/api/esx/settings/hosts/{host}/configuration__action=extract",
+    "Path": "/api/esx/settings/hosts/{host}/configuration?action=extract",
     "Tags": "Configuration",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1690,7 +1690,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ImportConfigClusterConfigurationAsync",
     "CommandInfo": "Invoke-ImportConfigClusterConfigurationAsync",
     "ApiName": "ConfigurationApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration__action=importConfig&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration?action=importConfig&vmw-task=true",
     "Tags": "Configuration",
     "RelatedCommandInfos": "Initialize-SettingsClustersConfigurationImportSpec",
     "Method": "POST"
@@ -1699,7 +1699,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PrecheckClusterConfigurationAsync",
     "CommandInfo": "Invoke-PrecheckClusterConfigurationAsync",
     "ApiName": "ConfigurationApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration__action=precheck&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration?action=precheck&vmw-task=true",
     "Tags": "Configuration",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1717,7 +1717,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ValidateClusterConfigurationAsync",
     "CommandInfo": "Invoke-ValidateClusterConfigurationAsync",
     "ApiName": "ConfigurationApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration__action=validate&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration?action=validate&vmw-task=true",
     "Tags": "Configuration",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1744,7 +1744,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateClusterConsumerPrincipalsAsync",
     "CommandInfo": "Invoke-CreateClusterConsumerPrincipalsAsync",
     "ApiName": "ConsumerPrincipalsApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/consumer-principals__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/consumer-principals?vmw-task=true",
     "Tags": "ConsumerPrincipals",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersConsumerPrincipalsCreateSpec",
     "Method": "POST"
@@ -1753,7 +1753,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterProfileConsumerPrincipalsAsync",
     "CommandInfo": "Invoke-DeleteClusterProfileConsumerPrincipalsAsync",
     "ApiName": "ConsumerPrincipalsApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/consumer-principals/{profile}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/consumer-principals/{profile}?vmw-task=true",
     "Tags": "ConsumerPrincipals",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -1762,7 +1762,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterProfileConsumerPrincipalsAsync",
     "CommandInfo": "Invoke-GetClusterProfileConsumerPrincipalsAsync",
     "ApiName": "ConsumerPrincipalsApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/consumer-principals/{profile}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/consumer-principals/{profile}?vmw-task=true",
     "Tags": "ConsumerPrincipals",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -1771,7 +1771,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "QueryClusterConsumerPrincipalsAsync",
     "CommandInfo": "Invoke-QueryClusterConsumerPrincipalsAsync",
     "ApiName": "ConsumerPrincipalsApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/consumer-principals__action=query&vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/consumer-principals?action=query&vmw-task=true",
     "Tags": "ConsumerPrincipals",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersConsumerPrincipalsFilterSpec",
     "Method": "POST"
@@ -1942,7 +1942,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SetClusterProviderCredentialAsync",
     "CommandInfo": "Invoke-SetClusterProviderCredentialAsync",
     "ApiName": "CredentialApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/credential__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/credential?vmw-task=true",
     "Tags": "Credential",
     "RelatedCommandInfos": "",
     "Method": "PUT"
@@ -1951,7 +1951,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateClusterProviderClientCertificateCsrAsync",
     "CommandInfo": "Invoke-CreateClusterProviderClientCertificateCsrAsync",
     "ApiName": "CsrApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate/csr__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate/csr?vmw-task=true",
     "Tags": "Csr",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -1960,7 +1960,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterProviderClientCertificateCsrAsync",
     "CommandInfo": "Invoke-GetClusterProviderClientCertificateCsrAsync",
     "ApiName": "CsrApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate/csr__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/client-certificate/csr?vmw-task=true",
     "Tags": "Csr",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -1969,7 +1969,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterProviderPeerCertsCurrentAsync",
     "CommandInfo": "Invoke-GetClusterProviderPeerCertsCurrentAsync",
     "ApiName": "CurrentPeerCertificatesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/peer-certs/current__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/peer-certs/current?vmw-task=true",
     "Tags": "CurrentPeerCertificates",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -2014,7 +2014,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExportNameCustomizationSpecs",
     "CommandInfo": "Invoke-ExportNameCustomizationSpecs",
     "ApiName": "CustomizationSpecsApi",
-    "Path": "/api/vcenter/guest/customization-specs/{name}__action=export",
+    "Path": "/api/vcenter/guest/customization-specs/{name}?action=export",
     "Tags": "CustomizationSpecs",
     "RelatedCommandInfos": "Initialize-GuestCustomizationSpecsExportRequestBody",
     "Method": "POST"
@@ -2032,7 +2032,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ImportGuestCustomizationSpecs",
     "CommandInfo": "Invoke-ImportGuestCustomizationSpecs",
     "ApiName": "CustomizationSpecsApi",
-    "Path": "/api/vcenter/guest/customization-specs__action=import",
+    "Path": "/api/vcenter/guest/customization-specs?action=import",
     "Tags": "CustomizationSpecs",
     "RelatedCommandInfos": "Initialize-GuestCustomizationSpecsImportSpecificationRequestBody",
     "Method": "POST"
@@ -2230,7 +2230,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RollbackDeployment",
     "CommandInfo": "Invoke-RollbackDeployment",
     "ApiName": "DeploymentApi",
-    "Path": "/api/vcenter/deployment__action=rollback",
+    "Path": "/api/vcenter/deployment?action=rollback",
     "Tags": "Deployment",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2266,7 +2266,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AddClusterDepotOverrides",
     "CommandInfo": "Invoke-AddClusterDepotOverrides",
     "ApiName": "DepotOverridesApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/depot-overrides__action=add",
+    "Path": "/api/esx/settings/clusters/{cluster}/depot-overrides?action=add",
     "Tags": "DepotOverrides",
     "RelatedCommandInfos": "Initialize-SettingsClustersDepotOverridesDepot",
     "Method": "POST"
@@ -2275,7 +2275,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AddHostDepotOverrides",
     "CommandInfo": "Invoke-AddHostDepotOverrides",
     "ApiName": "DepotOverridesApi",
-    "Path": "/api/esx/settings/hosts/{host}/depot-overrides__action=add",
+    "Path": "/api/esx/settings/hosts/{host}/depot-overrides?action=add",
     "Tags": "DepotOverrides",
     "RelatedCommandInfos": "Initialize-SettingsHostsDepotOverridesDepot",
     "Method": "POST"
@@ -2302,7 +2302,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RemoveClusterDepotOverrides",
     "CommandInfo": "Invoke-RemoveClusterDepotOverrides",
     "ApiName": "DepotOverridesApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/depot-overrides__action=remove",
+    "Path": "/api/esx/settings/clusters/{cluster}/depot-overrides?action=remove",
     "Tags": "DepotOverrides",
     "RelatedCommandInfos": "Initialize-SettingsClustersDepotOverridesDepot",
     "Method": "POST"
@@ -2311,7 +2311,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RemoveHostDepotOverrides",
     "CommandInfo": "Invoke-RemoveHostDepotOverrides",
     "ApiName": "DepotOverridesApi",
-    "Path": "/api/esx/settings/hosts/{host}/depot-overrides__action=remove",
+    "Path": "/api/esx/settings/hosts/{host}/depot-overrides?action=remove",
     "Tags": "DepotOverrides",
     "RelatedCommandInfos": "Initialize-SettingsHostsDepotOverridesDepot",
     "Method": "POST"
@@ -2320,7 +2320,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SyncDepotsAsync",
     "CommandInfo": "Invoke-SyncDepotsAsync",
     "ApiName": "DepotsApi",
-    "Path": "/api/esx/settings/depots__action=sync&vmw-task=true",
+    "Path": "/api/esx/settings/depots?action=sync&vmw-task=true",
     "Tags": "Depots",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2365,7 +2365,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateTemporaryVmFilesystemDirectories",
     "CommandInfo": "Invoke-CreateTemporaryVmFilesystemDirectories",
     "ApiName": "DirectoriesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/directories__action=createTemporary",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/directories?action=createTemporary",
     "Tags": "Directories",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemDirectoriesCreateTemporaryRequestBody",
     "Method": "POST"
@@ -2374,7 +2374,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateVmFilesystemDirectories",
     "CommandInfo": "Invoke-CreateVmFilesystemDirectories",
     "ApiName": "DirectoriesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/directories__action=create",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/directories?action=create",
     "Tags": "Directories",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemDirectoriesCreateRequestBody",
     "Method": "POST"
@@ -2383,7 +2383,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteVmFilesystemDirectories",
     "CommandInfo": "Invoke-DeleteVmFilesystemDirectories",
     "ApiName": "DirectoriesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/directories__action=delete",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/directories?action=delete",
     "Tags": "Directories",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemDirectoriesDeleteRequestBody",
     "Method": "POST"
@@ -2392,7 +2392,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "MoveVmFilesystemDirectories",
     "CommandInfo": "Invoke-MoveVmFilesystemDirectories",
     "ApiName": "DirectoriesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/directories__action=move",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/directories?action=move",
     "Tags": "Directories",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemDirectoriesMoveRequestBody",
     "Method": "POST"
@@ -2491,7 +2491,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelDownloadSessionId",
     "CommandInfo": "Invoke-CancelDownloadSessionId",
     "ApiName": "DownloadSessionApi",
-    "Path": "/api/content/library/item/download-session/{download_session_id}__action=cancel",
+    "Path": "/api/content/library/item/download-session/{download_session_id}?action=cancel",
     "Tags": "DownloadSession",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2518,7 +2518,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "FailDownloadSessionId",
     "CommandInfo": "Invoke-FailDownloadSessionId",
     "ApiName": "DownloadSessionApi",
-    "Path": "/api/content/library/item/download-session/{download_session_id}__action=fail",
+    "Path": "/api/content/library/item/download-session/{download_session_id}?action=fail",
     "Tags": "DownloadSession",
     "RelatedCommandInfos": "Initialize-LibraryItemDownloadSessionFailRequestBody",
     "Method": "POST"
@@ -2536,7 +2536,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "KeepAliveDownloadSessionId",
     "CommandInfo": "Invoke-KeepAliveDownloadSessionId",
     "ApiName": "DownloadSessionApi",
-    "Path": "/api/content/library/item/download-session/{download_session_id}__action=keep-alive",
+    "Path": "/api/content/library/item/download-session/{download_session_id}?action=keep-alive",
     "Tags": "DownloadSession",
     "RelatedCommandInfos": "Initialize-LibraryItemDownloadSessionKeepAliveRequestBody",
     "Method": "POST"
@@ -2554,7 +2554,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ApplyClusterDraft",
     "CommandInfo": "Invoke-ApplyClusterDraft",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}__action=apply",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}?action=apply",
     "Tags": "Drafts",
     "RelatedCommandInfos": "Initialize-SettingsClustersConfigurationDraftsApplySpec",
     "Method": "POST"
@@ -2563,7 +2563,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckComplianceClusterDraftAsync",
     "CommandInfo": "Invoke-CheckComplianceClusterDraftAsync",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}__action=checkCompliance&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}?action=checkCompliance&vmw-task=true",
     "Tags": "Drafts",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2572,7 +2572,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CommitClusterDraftAsync",
     "CommandInfo": "Invoke-CommitClusterDraftAsync",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts/{draft}__action=commit&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts/{draft}?action=commit&vmw-task=true",
     "Tags": "Drafts",
     "RelatedCommandInfos": "Initialize-SettingsClustersSoftwareDraftsCommitSpec",
     "Method": "POST"
@@ -2581,7 +2581,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CommitHostDraftAsync",
     "CommandInfo": "Invoke-CommitHostDraftAsync",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/hosts/{host}/software/drafts/{draft}__action=commit&vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software/drafts/{draft}?action=commit&vmw-task=true",
     "Tags": "Drafts",
     "RelatedCommandInfos": "Initialize-SettingsHostsSoftwareDraftsCommitSpec",
     "Method": "POST"
@@ -2644,7 +2644,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExportConfigClusterDraft",
     "CommandInfo": "Invoke-ExportConfigClusterDraft",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}__action=exportConfig",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}?action=exportConfig",
     "Tags": "Drafts",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2653,7 +2653,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterDraft",
     "CommandInfo": "Invoke-GetClusterDraft",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}__action=getSchema",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}?action=getSchema",
     "Tags": "Drafts",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -2680,7 +2680,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterDraft_0",
     "CommandInfo": "Invoke-GetClusterDraft_0",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}__action=showChanges",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}?action=showChanges",
     "Tags": "Drafts",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -2698,7 +2698,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ImportFromHostClusterDraftAsync",
     "CommandInfo": "Invoke-ImportFromHostClusterDraftAsync",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}__action=importFromHost&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}?action=importFromHost&vmw-task=true",
     "Tags": "Drafts",
     "RelatedCommandInfos": "Initialize-SettingsClustersConfigurationDraftsImportFromHostTaskRequestBody",
     "Method": "POST"
@@ -2707,7 +2707,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ImportSoftwareSpecClusterSoftwareDrafts",
     "CommandInfo": "Invoke-ImportSoftwareSpecClusterSoftwareDrafts",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts__action=import-software-spec",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts?action=import-software-spec",
     "Tags": "Drafts",
     "RelatedCommandInfos": "Initialize-SettingsClustersSoftwareDraftsImportSpec",
     "Method": "POST"
@@ -2716,7 +2716,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ImportSoftwareSpecHostSoftwareDrafts",
     "CommandInfo": "Invoke-ImportSoftwareSpecHostSoftwareDrafts",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/hosts/{host}/software/drafts__action=import-software-spec",
+    "Path": "/api/esx/settings/hosts/{host}/software/drafts?action=import-software-spec",
     "Tags": "Drafts",
     "RelatedCommandInfos": "Initialize-SettingsHostsSoftwareDraftsImportSpec",
     "Method": "POST"
@@ -2752,7 +2752,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PrecheckClusterDraftAsync",
     "CommandInfo": "Invoke-PrecheckClusterDraftAsync",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}__action=precheck&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}?action=precheck&vmw-task=true",
     "Tags": "Drafts",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2761,7 +2761,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ScanClusterDraftAsync",
     "CommandInfo": "Invoke-ScanClusterDraftAsync",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts/{draft}__action=scan&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts/{draft}?action=scan&vmw-task=true",
     "Tags": "Drafts",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2770,7 +2770,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ScanHostDraftAsync",
     "CommandInfo": "Invoke-ScanHostDraftAsync",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/hosts/{host}/software/drafts/{draft}__action=scan&vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software/drafts/{draft}?action=scan&vmw-task=true",
     "Tags": "Drafts",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2779,7 +2779,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterDraft",
     "CommandInfo": "Invoke-UpdateClusterDraft",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}__action=update",
+    "Path": "/api/esx/settings/clusters/{cluster}/configuration/drafts/{draft}?action=update",
     "Tags": "Drafts",
     "RelatedCommandInfos": "Initialize-SettingsClustersConfigurationDraftsUpdateSpec",
     "Method": "POST"
@@ -2788,7 +2788,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ValidateClusterDraftAsync",
     "CommandInfo": "Invoke-ValidateClusterDraftAsync",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts/{draft}__action=validate&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts/{draft}?action=validate&vmw-task=true",
     "Tags": "Drafts",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2797,7 +2797,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ValidateHostDraftAsync",
     "CommandInfo": "Invoke-ValidateHostDraftAsync",
     "ApiName": "DraftsApi",
-    "Path": "/api/esx/settings/hosts/{host}/software/drafts/{draft}__action=validate&vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software/drafts/{draft}?action=validate&vmw-task=true",
     "Tags": "Drafts",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -2860,7 +2860,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterDraftSoftwareEffectiveComponents",
     "CommandInfo": "Invoke-GetClusterDraftSoftwareEffectiveComponents",
     "ApiName": "EffectiveComponentsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts/{draft}/software/effective-components__with-removed-components",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/drafts/{draft}/software/effective-components?with-removed-components",
     "Tags": "EffectiveComponents",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -2869,7 +2869,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterSoftwareEffectiveComponents",
     "CommandInfo": "Invoke-GetClusterSoftwareEffectiveComponents",
     "ApiName": "EffectiveComponentsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/effective-components__with-removed-components",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/effective-components?with-removed-components",
     "Tags": "EffectiveComponents",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -2878,7 +2878,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetHostDraftSoftwareEffectiveComponents",
     "CommandInfo": "Invoke-GetHostDraftSoftwareEffectiveComponents",
     "ApiName": "EffectiveComponentsApi",
-    "Path": "/api/esx/settings/hosts/{host}/software/drafts/{draft}/software/effective-components__with-removed-components",
+    "Path": "/api/esx/settings/hosts/{host}/software/drafts/{draft}/software/effective-components?with-removed-components",
     "Tags": "EffectiveComponents",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -2887,7 +2887,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetHostSoftwareEffectiveComponents",
     "CommandInfo": "Invoke-GetHostSoftwareEffectiveComponents",
     "ApiName": "EffectiveComponentsApi",
-    "Path": "/api/esx/settings/hosts/{host}/software/effective-components__with-removed-components",
+    "Path": "/api/esx/settings/hosts/{host}/software/effective-components?with-removed-components",
     "Tags": "EffectiveComponents",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -2932,7 +2932,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateClusterTpm2EndorsementKeysAsync",
     "CommandInfo": "Invoke-CreateClusterTpm2EndorsementKeysAsync",
     "ApiName": "EndorsementKeysApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/endorsement-keys__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/endorsement-keys?vmw-task=true",
     "Tags": "EndorsementKeys",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersAttestationTpm2EndorsementKeysCreateSpec",
     "Method": "POST"
@@ -2941,7 +2941,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterNameEndorsementKeysAsync",
     "CommandInfo": "Invoke-DeleteClusterNameEndorsementKeysAsync",
     "ApiName": "EndorsementKeysApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/endorsement-keys/{name}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/endorsement-keys/{name}?vmw-task=true",
     "Tags": "EndorsementKeys",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -2950,7 +2950,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterNameEndorsementKeysAsync",
     "CommandInfo": "Invoke-GetClusterNameEndorsementKeysAsync",
     "ApiName": "EndorsementKeysApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/endorsement-keys/{name}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/endorsement-keys/{name}?vmw-task=true",
     "Tags": "EndorsementKeys",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -2959,7 +2959,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterTpm2EndorsementKeysAsync",
     "CommandInfo": "Invoke-GetClusterTpm2EndorsementKeysAsync",
     "ApiName": "EndorsementKeysApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/endorsement-keys__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/endorsement-keys?vmw-task=true",
     "Tags": "EndorsementKeys",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -2986,7 +2986,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UnsealHostTpmKey",
     "CommandInfo": "Invoke-UnsealHostTpmKey",
     "ApiName": "EndorsementKeysApi",
-    "Path": "/api/vcenter/trusted-infrastructure/hosts/{host}/hardware/tpm/{tpm}/endorsement-keys/{key}__action=unseal",
+    "Path": "/api/vcenter/trusted-infrastructure/hosts/{host}/hardware/tpm/{tpm}/endorsement-keys/{key}?action=unseal",
     "Tags": "EndorsementKeys",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureHostsHardwareTpmEndorsementKeysUnsealSpec",
     "Method": "POST"
@@ -3049,7 +3049,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetVmNameEnvironment",
     "CommandInfo": "Invoke-GetVmNameEnvironment",
     "ApiName": "EnvironmentApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/environment/{name}__action=get",
+    "Path": "/api/vcenter/vm/{vm}/guest/environment/{name}?action=get",
     "Tags": "Environment",
     "RelatedCommandInfos": "Initialize-VmGuestEnvironmentGetRequestBody",
     "Method": "POST"
@@ -3058,7 +3058,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListVmGuestEnvironment",
     "CommandInfo": "Invoke-ListVmGuestEnvironment",
     "ApiName": "EnvironmentApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/environment__action=list",
+    "Path": "/api/vcenter/vm/{vm}/guest/environment?action=list",
     "Tags": "Environment",
     "RelatedCommandInfos": "Initialize-VmGuestEnvironmentListRequestBody",
     "Method": "POST"
@@ -3067,7 +3067,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ConnectVmNicEthernet",
     "CommandInfo": "Invoke-ConnectVmNicEthernet",
     "ApiName": "EthernetApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/ethernet/{nic}__action=connect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/ethernet/{nic}?action=connect",
     "Tags": "Ethernet",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3094,7 +3094,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DisconnectVmNicEthernet",
     "CommandInfo": "Invoke-DisconnectVmNicEthernet",
     "ApiName": "EthernetApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/ethernet/{nic}__action=disconnect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/ethernet/{nic}?action=disconnect",
     "Tags": "Ethernet",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3166,7 +3166,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetDownloadSessionIdFile",
     "CommandInfo": "Invoke-GetDownloadSessionIdFile",
     "ApiName": "FileApi",
-    "Path": "/api/content/library/item/download-session/{download_session_id}/file__file_name",
+    "Path": "/api/content/library/item/download-session/{download_session_id}/file?file_name",
     "Tags": "File",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -3175,7 +3175,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetLibraryItemIdFile",
     "CommandInfo": "Invoke-GetLibraryItemIdFile",
     "ApiName": "FileApi",
-    "Path": "/api/content/library/item/{library_item_id}/file__name",
+    "Path": "/api/content/library/item/{library_item_id}/file?name",
     "Tags": "File",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -3220,7 +3220,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PrepareDownloadSessionIdFile",
     "CommandInfo": "Invoke-PrepareDownloadSessionIdFile",
     "ApiName": "FileApi",
-    "Path": "/api/content/library/item/download-session/{download_session_id}/file__action=prepare",
+    "Path": "/api/content/library/item/download-session/{download_session_id}/file?action=prepare",
     "Tags": "File",
     "RelatedCommandInfos": "Initialize-LibraryItemDownloadsessionFilePrepareRequestBody",
     "Method": "POST"
@@ -3229,7 +3229,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ValidateUpdateSessionIdFile",
     "CommandInfo": "Invoke-ValidateUpdateSessionIdFile",
     "ApiName": "FileApi",
-    "Path": "/api/content/library/item/update-session/{update_session_id}/file__action=validate",
+    "Path": "/api/content/library/item/update-session/{update_session_id}/file?action=validate",
     "Tags": "File",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3238,7 +3238,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateTemporaryVmFilesystemFiles",
     "CommandInfo": "Invoke-CreateTemporaryVmFilesystemFiles",
     "ApiName": "FilesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files__action=createTemporary",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files?action=createTemporary",
     "Tags": "Files",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemFilesCreateTemporaryRequestBody",
     "Method": "POST"
@@ -3247,7 +3247,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteVmPathFiles",
     "CommandInfo": "Invoke-DeleteVmPathFiles",
     "ApiName": "FilesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files/{path}__action=delete",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files/{path}?action=delete",
     "Tags": "Files",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemFilesDeleteRequestBody",
     "Method": "POST"
@@ -3256,7 +3256,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetVmPathFiles",
     "CommandInfo": "Invoke-GetVmPathFiles",
     "ApiName": "FilesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files/{path}__action=get",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files/{path}?action=get",
     "Tags": "Files",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemFilesGetRequestBody",
     "Method": "POST"
@@ -3265,7 +3265,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListVmFilesystemFiles",
     "CommandInfo": "Invoke-ListVmFilesystemFiles",
     "ApiName": "FilesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files__action=list",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files?action=list",
     "Tags": "Files",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemFilesListRequestBody",
     "Method": "POST"
@@ -3274,7 +3274,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "MoveVmFilesystemFiles",
     "CommandInfo": "Invoke-MoveVmFilesystemFiles",
     "ApiName": "FilesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files__action=move",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files?action=move",
     "Tags": "Files",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemFilesMoveRequestBody",
     "Method": "POST"
@@ -3283,7 +3283,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateVmFilesystemFiles",
     "CommandInfo": "Invoke-UpdateVmFilesystemFiles",
     "ApiName": "FilesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files__action=update",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem/files?action=update",
     "Tags": "Files",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemFilesUpdateRequestBody",
     "Method": "POST"
@@ -3292,7 +3292,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ConnectVmFloppy",
     "CommandInfo": "Invoke-ConnectVmFloppy",
     "ApiName": "FloppyApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/floppy/{floppy}__action=connect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/floppy/{floppy}?action=connect",
     "Tags": "Floppy",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3319,7 +3319,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DisconnectVmFloppy",
     "CommandInfo": "Invoke-DisconnectVmFloppy",
     "ApiName": "FloppyApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/floppy/{floppy}__action=disconnect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/floppy/{floppy}?action=disconnect",
     "Tags": "Floppy",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3382,7 +3382,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "TestLoggingForwarding",
     "CommandInfo": "Invoke-TestLoggingForwarding",
     "ApiName": "ForwardingApi",
-    "Path": "/api/appliance/logging/forwarding__action=test",
+    "Path": "/api/appliance/logging/forwarding?action=test",
     "Tags": "Forwarding",
     "RelatedCommandInfos": "Initialize-LoggingForwardingTestRequestBody",
     "Method": "POST"
@@ -3409,7 +3409,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SetProfilesGlobalAsync",
     "CommandInfo": "Invoke-SetProfilesGlobalAsync",
     "ApiName": "GlobalApi",
-    "Path": "/api/appliance/tls/profiles/global__vmw-task=true",
+    "Path": "/api/appliance/tls/profiles/global?vmw-task=true",
     "Tags": "Global",
     "RelatedCommandInfos": "Initialize-TlsProfilesGlobalSetSpec",
     "Method": "PUT"
@@ -3490,7 +3490,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpgradeVmHardware",
     "CommandInfo": "Invoke-UpgradeVmHardware",
     "ApiName": "HardwareApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware__action=upgrade",
+    "Path": "/api/vcenter/vm/{vm}/hardware?action=upgrade",
     "Tags": "Hardware",
     "RelatedCommandInfos": "Initialize-VmHardwareUpgradeRequestBody",
     "Method": "POST"
@@ -3499,7 +3499,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckClusterReportsHardwareCompatibilityAsync",
     "CommandInfo": "Invoke-CheckClusterReportsHardwareCompatibilityAsync",
     "ApiName": "HardwareCompatibilityApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/reports/hardware-compatibility__action=check&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/reports/hardware-compatibility?action=check&vmw-task=true",
     "Tags": "HardwareCompatibility",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3589,7 +3589,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ConnectHost",
     "CommandInfo": "Invoke-ConnectHost",
     "ApiName": "HostApi",
-    "Path": "/api/vcenter/host/{host}__action=connect",
+    "Path": "/api/vcenter/host/{host}?action=connect",
     "Tags": "Host",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3616,7 +3616,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DisconnectHost",
     "CommandInfo": "Invoke-DisconnectHost",
     "ApiName": "HostApi",
-    "Path": "/api/vcenter/host/{host}__action=disconnect",
+    "Path": "/api/vcenter/host/{host}?action=disconnect",
     "Tags": "Host",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3652,7 +3652,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "TestDnsHostname",
     "CommandInfo": "Invoke-TestDnsHostname",
     "ApiName": "HostnameApi",
-    "Path": "/api/appliance/networking/dns/hostname__action=test",
+    "Path": "/api/appliance/networking/dns/hostname?action=test",
     "Tags": "Hostname",
     "RelatedCommandInfos": "Initialize-NetworkingDnsHostnameTestRequestBody",
     "Method": "POST"
@@ -3679,7 +3679,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "MountIsoImage",
     "CommandInfo": "Invoke-MountIsoImage",
     "ApiName": "ImageApi",
-    "Path": "/api/vcenter/iso/image__action=mount",
+    "Path": "/api/vcenter/iso/image?action=mount",
     "Tags": "Image",
     "RelatedCommandInfos": "Initialize-IsoImageMountRequestBody",
     "Method": "POST"
@@ -3688,7 +3688,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UnmountIsoImage",
     "CommandInfo": "Invoke-UnmountIsoImage",
     "ApiName": "ImageApi",
-    "Path": "/api/vcenter/iso/image__action=unmount",
+    "Path": "/api/vcenter/iso/image?action=unmount",
     "Tags": "Image",
     "RelatedCommandInfos": "Initialize-IsoImageUnmountRequestBody",
     "Method": "POST"
@@ -3706,7 +3706,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelDeploymentHistory",
     "CommandInfo": "Invoke-CancelDeploymentHistory",
     "ApiName": "ImportHistoryApi",
-    "Path": "/api/vcenter/deployment/history__action=cancel",
+    "Path": "/api/vcenter/deployment/history?action=cancel",
     "Tags": "ImportHistory",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3724,7 +3724,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PauseDeploymentHistory",
     "CommandInfo": "Invoke-PauseDeploymentHistory",
     "ApiName": "ImportHistoryApi",
-    "Path": "/api/vcenter/deployment/history__action=pause",
+    "Path": "/api/vcenter/deployment/history?action=pause",
     "Tags": "ImportHistory",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3733,7 +3733,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ResumeDeploymentHistory",
     "CommandInfo": "Invoke-ResumeDeploymentHistory",
     "ApiName": "ImportHistoryApi",
-    "Path": "/api/vcenter/deployment/history__action=resume",
+    "Path": "/api/vcenter/deployment/history?action=resume",
     "Tags": "ImportHistory",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3742,7 +3742,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StartDeploymentHistory",
     "CommandInfo": "Invoke-StartDeploymentHistory",
     "ApiName": "ImportHistoryApi",
-    "Path": "/api/vcenter/deployment/history__action=start",
+    "Path": "/api/vcenter/deployment/history?action=start",
     "Tags": "ImportHistory",
     "RelatedCommandInfos": "Initialize-DeploymentImportHistoryCreateSpec",
     "Method": "POST"
@@ -3769,7 +3769,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelDeploymentInstall",
     "CommandInfo": "Invoke-CancelDeploymentInstall",
     "ApiName": "InstallApi",
-    "Path": "/api/vcenter/deployment/install__action=cancel",
+    "Path": "/api/vcenter/deployment/install?action=cancel",
     "Tags": "Install",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3778,7 +3778,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckDeploymentInstall",
     "CommandInfo": "Invoke-CheckDeploymentInstall",
     "ApiName": "InstallApi",
-    "Path": "/api/vcenter/deployment/install__action=check",
+    "Path": "/api/vcenter/deployment/install?action=check",
     "Tags": "Install",
     "RelatedCommandInfos": "Initialize-DeploymentInstallInstallSpec",
     "Method": "POST"
@@ -3796,7 +3796,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StartDeploymentInstall",
     "CommandInfo": "Invoke-StartDeploymentInstall",
     "ApiName": "InstallApi",
-    "Path": "/api/vcenter/deployment/install__action=start",
+    "Path": "/api/vcenter/deployment/install?action=start",
     "Tags": "Install",
     "RelatedCommandInfos": "Initialize-DeploymentInstallInstallSpec",
     "Method": "POST"
@@ -3814,7 +3814,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExtractClusterInstalledImagesAsync",
     "CommandInfo": "Invoke-ExtractClusterInstalledImagesAsync",
     "ApiName": "InstalledImagesApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/installed-images__action=extract&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/installed-images?action=extract&vmw-task=true",
     "Tags": "InstalledImages",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3832,7 +3832,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ConnectVmToolsInstaller",
     "CommandInfo": "Invoke-ConnectVmToolsInstaller",
     "ApiName": "InstallerApi",
-    "Path": "/api/vcenter/vm/{vm}/tools/installer__action=connect",
+    "Path": "/api/vcenter/vm/{vm}/tools/installer?action=connect",
     "Tags": "Installer",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3841,7 +3841,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DisconnectVmToolsInstaller",
     "CommandInfo": "Invoke-DisconnectVmToolsInstaller",
     "ApiName": "InstallerApi",
-    "Path": "/api/vcenter/vm/{vm}/tools/installer__action=disconnect",
+    "Path": "/api/vcenter/vm/{vm}/tools/installer?action=disconnect",
     "Tags": "Installer",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -3985,7 +3985,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateDiscoveryInteropReportAsync",
     "CommandInfo": "Invoke-CreateDiscoveryInteropReportAsync",
     "ApiName": "InteropReportApi",
-    "Path": "/api/vcenter/lcm/discovery/interop-report__vmw-task=true",
+    "Path": "/api/vcenter/lcm/discovery/interop-report?vmw-task=true",
     "Tags": "InteropReport",
     "RelatedCommandInfos": "Initialize-LcmDiscoveryInteropReportSpec",
     "Method": "POST"
@@ -4030,7 +4030,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CopySourceLibraryItemId",
     "CommandInfo": "Invoke-CopySourceLibraryItemId",
     "ApiName": "ItemApi",
-    "Path": "/api/content/library/item/{source_library_item_id}__action=copy",
+    "Path": "/api/content/library/item/{source_library_item_id}?action=copy",
     "Tags": "Item",
     "RelatedCommandInfos": "Initialize-LibraryItemModel",
     "Method": "POST"
@@ -4057,7 +4057,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "FindLibraryItem",
     "CommandInfo": "Invoke-FindLibraryItem",
     "ApiName": "ItemApi",
-    "Path": "/api/content/library/item__action=find",
+    "Path": "/api/content/library/item?action=find",
     "Tags": "Item",
     "RelatedCommandInfos": "Initialize-LibraryItemFindSpec",
     "Method": "POST"
@@ -4075,7 +4075,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListLibraryItem",
     "CommandInfo": "Invoke-ListLibraryItem",
     "ApiName": "ItemApi",
-    "Path": "/api/content/library/item__library_id",
+    "Path": "/api/content/library/item?library_id",
     "Tags": "Item",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -4084,7 +4084,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PublishLibraryItemId",
     "CommandInfo": "Invoke-PublishLibraryItemId",
     "ApiName": "ItemApi",
-    "Path": "/api/content/library/item/{library_item_id}__action=publish",
+    "Path": "/api/content/library/item/{library_item_id}?action=publish",
     "Tags": "Item",
     "RelatedCommandInfos": "Initialize-LibraryItemPublishRequestBody",
     "Method": "POST"
@@ -4102,7 +4102,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelIdJob",
     "CommandInfo": "Invoke-CancelIdJob",
     "ApiName": "JobApi",
-    "Path": "/api/appliance/recovery/backup/job/{id}__action=cancel",
+    "Path": "/api/appliance/recovery/backup/job/{id}?action=cancel",
     "Tags": "Job",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -4111,7 +4111,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelRestoreJob",
     "CommandInfo": "Invoke-CancelRestoreJob",
     "ApiName": "JobApi",
-    "Path": "/api/appliance/recovery/restore/job__action=cancel",
+    "Path": "/api/appliance/recovery/restore/job?action=cancel",
     "Tags": "Job",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -4210,7 +4210,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "QueryTrustAuthorityHostsKms",
     "CommandInfo": "Invoke-QueryTrustAuthorityHostsKms",
     "ApiName": "KmsApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-hosts/kms__action=query",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-hosts/kms?action=query",
     "Tags": "Kms",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityHostsKmsFilterSpec",
     "Method": "POST"
@@ -4291,7 +4291,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "FindContentLibrary",
     "CommandInfo": "Invoke-FindContentLibrary",
     "ApiName": "LibraryApi",
-    "Path": "/api/content/library__action=find",
+    "Path": "/api/content/library?action=find",
     "Tags": "Library",
     "RelatedCommandInfos": "Initialize-LibraryFindSpec",
     "Method": "POST"
@@ -4336,7 +4336,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeployOvfLibraryItemId",
     "CommandInfo": "Invoke-DeployOvfLibraryItemId",
     "ApiName": "LibraryItemApi",
-    "Path": "/api/vcenter/ovf/library-item/{ovf_library_item_id}__action=deploy",
+    "Path": "/api/vcenter/ovf/library-item/{ovf_library_item_id}?action=deploy",
     "Tags": "LibraryItem",
     "RelatedCommandInfos": "Initialize-OvfLibraryItemDeployRequestBody",
     "Method": "POST"
@@ -4345,7 +4345,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "FilterOvfLibraryItemId",
     "CommandInfo": "Invoke-FilterOvfLibraryItemId",
     "ApiName": "LibraryItemApi",
-    "Path": "/api/vcenter/ovf/library-item/{ovf_library_item_id}__action=filter",
+    "Path": "/api/vcenter/ovf/library-item/{ovf_library_item_id}?action=filter",
     "Tags": "LibraryItem",
     "RelatedCommandInfos": "Initialize-OvfLibraryItemFilterRequestBody",
     "Method": "POST"
@@ -4372,7 +4372,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeployTemplateLibraryItemLibraryItems",
     "CommandInfo": "Invoke-DeployTemplateLibraryItemLibraryItems",
     "ApiName": "LibraryItemsApi",
-    "Path": "/api/vcenter/vm-template/library-items/{template_library_item}__action=deploy",
+    "Path": "/api/vcenter/vm-template/library-items/{template_library_item}?action=deploy",
     "Tags": "LibraryItems",
     "RelatedCommandInfos": "Initialize-VmTemplateLibraryItemsDeploySpec",
     "Method": "POST"
@@ -4399,7 +4399,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteLink",
     "CommandInfo": "Invoke-DeleteLink",
     "ApiName": "LinksApi",
-    "Path": "/api/hvc/links/{link}__action=delete",
+    "Path": "/api/hvc/links/{link}?action=delete",
     "Tags": "Links",
     "RelatedCommandInfos": "Initialize-HvcLinksDeleteWithCredentialsRequestBody",
     "Method": "POST"
@@ -4579,7 +4579,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PublishLibraryIdLocalLibrary",
     "CommandInfo": "Invoke-PublishLibraryIdLocalLibrary",
     "ApiName": "LocalLibraryApi",
-    "Path": "/api/content/local-library/{library_id}__action=publish",
+    "Path": "/api/content/local-library/{library_id}?action=publish",
     "Tags": "LocalLibrary",
     "RelatedCommandInfos": "Initialize-LocalLibraryPublishRequestBody",
     "Method": "POST"
@@ -4678,7 +4678,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelDeploymentMigrate",
     "CommandInfo": "Invoke-CancelDeploymentMigrate",
     "ApiName": "MigrateApi",
-    "Path": "/api/vcenter/deployment/migrate__action=cancel",
+    "Path": "/api/vcenter/deployment/migrate?action=cancel",
     "Tags": "Migrate",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -4687,7 +4687,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckDeploymentMigrate",
     "CommandInfo": "Invoke-CheckDeploymentMigrate",
     "ApiName": "MigrateApi",
-    "Path": "/api/vcenter/deployment/migrate__action=check",
+    "Path": "/api/vcenter/deployment/migrate?action=check",
     "Tags": "Migrate",
     "RelatedCommandInfos": "Initialize-DeploymentMigrateMigrateSpec",
     "Method": "POST"
@@ -4705,7 +4705,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StartDeploymentMigrate",
     "CommandInfo": "Invoke-StartDeploymentMigrate",
     "ApiName": "MigrateApi",
-    "Path": "/api/vcenter/deployment/migrate__action=start",
+    "Path": "/api/vcenter/deployment/migrate?action=start",
     "Tags": "Migrate",
     "RelatedCommandInfos": "Initialize-DeploymentMigrateMigrateSpec",
     "Method": "POST"
@@ -4723,7 +4723,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SetClusterModeAsync",
     "CommandInfo": "Invoke-SetClusterModeAsync",
     "ApiName": "ModeApi",
-    "Path": "/api/vcenter/vcha/cluster/mode__vmw-task=true",
+    "Path": "/api/vcenter/vcha/cluster/mode?vmw-task=true",
     "Tags": "Mode",
     "RelatedCommandInfos": "Initialize-VchaClusterModeSetTaskRequestBody",
     "Method": "PUT"
@@ -4768,7 +4768,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetCliNamespace",
     "CommandInfo": "Invoke-GetCliNamespace",
     "ApiName": "NamespaceApi",
-    "Path": "/api/vapi/metadata/cli/namespace__action=get",
+    "Path": "/api/vapi/metadata/cli/namespace?action=get",
     "Tags": "Namespace",
     "RelatedCommandInfos": "Initialize-MetadataCliNamespaceGetRequestBody",
     "Method": "POST"
@@ -4804,7 +4804,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ActivateClusterNamespaceSelfService",
     "CommandInfo": "Invoke-ActivateClusterNamespaceSelfService",
     "ApiName": "NamespaceSelfServiceApi",
-    "Path": "/api/vcenter/namespaces/namespace-self-service/{cluster}__action=activate",
+    "Path": "/api/vcenter/namespaces/namespace-self-service/{cluster}?action=activate",
     "Tags": "NamespaceSelfService",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -4813,7 +4813,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ActivateWithTemplateClusterNamespaceSelfService",
     "CommandInfo": "Invoke-ActivateWithTemplateClusterNamespaceSelfService",
     "ApiName": "NamespaceSelfServiceApi",
-    "Path": "/api/vcenter/namespaces/namespace-self-service/{cluster}__action=activateWithTemplate",
+    "Path": "/api/vcenter/namespaces/namespace-self-service/{cluster}?action=activateWithTemplate",
     "Tags": "NamespaceSelfService",
     "RelatedCommandInfos": "Initialize-NamespacesNamespaceSelfServiceActivateTemplateSpec",
     "Method": "POST"
@@ -4822,7 +4822,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeactivateClusterNamespaceSelfService",
     "CommandInfo": "Invoke-DeactivateClusterNamespaceSelfService",
     "ApiName": "NamespaceSelfServiceApi",
-    "Path": "/api/vcenter/namespaces/namespace-self-service/{cluster}__action=deactivate",
+    "Path": "/api/vcenter/namespaces/namespace-self-service/{cluster}?action=deactivate",
     "Tags": "NamespaceSelfService",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -4939,7 +4939,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ChangeNetworkingAsync",
     "CommandInfo": "Invoke-ChangeNetworkingAsync",
     "ApiName": "NetworkingApi",
-    "Path": "/api/appliance/networking__action=change&vmw-task=true",
+    "Path": "/api/appliance/networking?action=change&vmw-task=true",
     "Tags": "Networking",
     "RelatedCommandInfos": "Initialize-NetworkingChangeSpec",
     "Method": "POST"
@@ -4966,7 +4966,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ResetNetworking",
     "CommandInfo": "Invoke-ResetNetworking",
     "ApiName": "NetworkingApi",
-    "Path": "/api/appliance/networking__action=reset",
+    "Path": "/api/appliance/networking?action=reset",
     "Tags": "Networking",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5101,7 +5101,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "TestNtp",
     "CommandInfo": "Invoke-TestNtp",
     "ApiName": "NtpApi",
-    "Path": "/api/appliance/ntp__action=test",
+    "Path": "/api/appliance/ntp?action=test",
     "Tags": "Ntp",
     "RelatedCommandInfos": "Initialize-NtpTestRequestBody",
     "Method": "POST"
@@ -5146,7 +5146,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateDepotsOfflineAsync",
     "CommandInfo": "Invoke-CreateDepotsOfflineAsync",
     "ApiName": "OfflineApi",
-    "Path": "/api/esx/settings/depots/offline__vmw-task=true",
+    "Path": "/api/esx/settings/depots/offline?vmw-task=true",
     "Tags": "Offline",
     "RelatedCommandInfos": "Initialize-SettingsDepotsOfflineCreateSpec",
     "Method": "POST"
@@ -5155,7 +5155,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateFromHostDepotsOfflineAsync",
     "CommandInfo": "Invoke-CreateFromHostDepotsOfflineAsync",
     "ApiName": "OfflineApi",
-    "Path": "/api/esx/settings/depots/offline__action=createFromHost&vmw-task=true",
+    "Path": "/api/esx/settings/depots/offline?action=createFromHost&vmw-task=true",
     "Tags": "Offline",
     "RelatedCommandInfos": "Initialize-SettingsDepotsOfflineConnectionSpec",
     "Method": "POST"
@@ -5173,7 +5173,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteDepotOfflineAsync",
     "CommandInfo": "Invoke-DeleteDepotOfflineAsync",
     "ApiName": "OfflineApi",
-    "Path": "/api/esx/settings/depots/offline/{depot}__vmw-task=true",
+    "Path": "/api/esx/settings/depots/offline/{depot}?vmw-task=true",
     "Tags": "Offline",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -5218,7 +5218,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteDepotOnlineAsync",
     "CommandInfo": "Invoke-DeleteDepotOnlineAsync",
     "ApiName": "OnlineApi",
-    "Path": "/api/esx/settings/depots/online/{depot}__vmw-task=true",
+    "Path": "/api/esx/settings/depots/online/{depot}?vmw-task=true",
     "Tags": "Online",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -5227,7 +5227,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "FlushDepotOnlineAsync",
     "CommandInfo": "Invoke-FlushDepotOnlineAsync",
     "ApiName": "OnlineApi",
-    "Path": "/api/esx/settings/depots/online/{depot}__action=flush&vmw-task=true",
+    "Path": "/api/esx/settings/depots/online/{depot}?action=flush&vmw-task=true",
     "Tags": "Online",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5407,7 +5407,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ConnectVmPortParallel",
     "CommandInfo": "Invoke-ConnectVmPortParallel",
     "ApiName": "ParallelApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/parallel/{port}__action=connect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/parallel/{port}?action=connect",
     "Tags": "Parallel",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5434,7 +5434,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DisconnectVmPortParallel",
     "CommandInfo": "Invoke-DisconnectVmPortParallel",
     "ApiName": "ParallelApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/parallel/{port}__action=disconnect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/parallel/{port}?action=disconnect",
     "Tags": "Parallel",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5488,7 +5488,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckClusterPassive",
     "CommandInfo": "Invoke-CheckClusterPassive",
     "ApiName": "PassiveApi",
-    "Path": "/api/vcenter/vcha/cluster/passive__action=check",
+    "Path": "/api/vcenter/vcha/cluster/passive?action=check",
     "Tags": "Passive",
     "RelatedCommandInfos": "Initialize-VchaClusterPassiveCheckSpec",
     "Method": "POST"
@@ -5497,7 +5497,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RedeployClusterPassiveAsync",
     "CommandInfo": "Invoke-RedeployClusterPassiveAsync",
     "ApiName": "PassiveApi",
-    "Path": "/api/vcenter/vcha/cluster/passive__action=redeploy&vmw-task=true",
+    "Path": "/api/vcenter/vcha/cluster/passive?action=redeploy&vmw-task=true",
     "Tags": "Passive",
     "RelatedCommandInfos": "Initialize-VchaClusterPassiveRedeploySpec",
     "Method": "POST"
@@ -5533,7 +5533,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "InstallVersionPending",
     "CommandInfo": "Invoke-InstallVersionPending",
     "ApiName": "PendingApi",
-    "Path": "/api/appliance/update/pending/{version}__action=install",
+    "Path": "/api/appliance/update/pending/{version}?action=install",
     "Tags": "Pending",
     "RelatedCommandInfos": "Initialize-UpdatePendingInstallRequestBody",
     "Method": "POST"
@@ -5560,7 +5560,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PrecheckVersionPending",
     "CommandInfo": "Invoke-PrecheckVersionPending",
     "ApiName": "PendingApi",
-    "Path": "/api/appliance/update/pending/{version}__action=precheck",
+    "Path": "/api/appliance/update/pending/{version}?action=precheck",
     "Tags": "Pending",
     "RelatedCommandInfos": "Initialize-UpdatePendingPrecheckRequestBody",
     "Method": "POST"
@@ -5569,7 +5569,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RollbackUpdatePending",
     "CommandInfo": "Invoke-RollbackUpdatePending",
     "ApiName": "PendingApi",
-    "Path": "/api/appliance/update/pending__action=rollback",
+    "Path": "/api/appliance/update/pending?action=rollback",
     "Tags": "Pending",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5578,7 +5578,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StageAndInstallVersionPending",
     "CommandInfo": "Invoke-StageAndInstallVersionPending",
     "ApiName": "PendingApi",
-    "Path": "/api/appliance/update/pending/{version}__action=stage-and-install",
+    "Path": "/api/appliance/update/pending/{version}?action=stage-and-install",
     "Tags": "Pending",
     "RelatedCommandInfos": "Initialize-UpdatePendingStageAndInstallRequestBody",
     "Method": "POST"
@@ -5587,7 +5587,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StageVersionPending",
     "CommandInfo": "Invoke-StageVersionPending",
     "ApiName": "PendingApi",
-    "Path": "/api/appliance/update/pending/{version}__action=stage",
+    "Path": "/api/appliance/update/pending/{version}?action=stage",
     "Tags": "Pending",
     "RelatedCommandInfos": "Initialize-UpdatePendingStageRequestBody",
     "Method": "POST"
@@ -5596,7 +5596,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ValidateVersionPending",
     "CommandInfo": "Invoke-ValidateVersionPending",
     "ApiName": "PendingApi",
-    "Path": "/api/appliance/update/pending/{version}__action=validate",
+    "Path": "/api/appliance/update/pending/{version}?action=validate",
     "Tags": "Pending",
     "RelatedCommandInfos": "Initialize-UpdatePendingValidateRequestBody",
     "Method": "POST"
@@ -5605,7 +5605,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckCompatibilityPolicyPolicies",
     "CommandInfo": "Invoke-CheckCompatibilityPolicyPolicies",
     "ApiName": "PoliciesApi",
-    "Path": "/api/vcenter/storage/policies/{policy}__action=check-compatibility",
+    "Path": "/api/vcenter/storage/policies/{policy}?action=check-compatibility",
     "Tags": "Policies",
     "RelatedCommandInfos": "Initialize-StoragePoliciesCheckCompatibilityRequestBody",
     "Method": "POST"
@@ -5704,7 +5704,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RebootVmGuestPower",
     "CommandInfo": "Invoke-RebootVmGuestPower",
     "ApiName": "PowerApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/power__action=reboot",
+    "Path": "/api/vcenter/vm/{vm}/guest/power?action=reboot",
     "Tags": "Power",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5713,7 +5713,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ResetVmPower",
     "CommandInfo": "Invoke-ResetVmPower",
     "ApiName": "PowerApi",
-    "Path": "/api/vcenter/vm/{vm}/power__action=reset",
+    "Path": "/api/vcenter/vm/{vm}/power?action=reset",
     "Tags": "Power",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5722,7 +5722,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ShutdownVmGuestPower",
     "CommandInfo": "Invoke-ShutdownVmGuestPower",
     "ApiName": "PowerApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/power__action=shutdown",
+    "Path": "/api/vcenter/vm/{vm}/guest/power?action=shutdown",
     "Tags": "Power",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5731,7 +5731,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StandbyVmGuestPower",
     "CommandInfo": "Invoke-StandbyVmGuestPower",
     "ApiName": "PowerApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/power__action=standby",
+    "Path": "/api/vcenter/vm/{vm}/guest/power?action=standby",
     "Tags": "Power",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5740,7 +5740,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StartVmPower",
     "CommandInfo": "Invoke-StartVmPower",
     "ApiName": "PowerApi",
-    "Path": "/api/vcenter/vm/{vm}/power__action=start",
+    "Path": "/api/vcenter/vm/{vm}/power?action=start",
     "Tags": "Power",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5749,7 +5749,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StopVmPower",
     "CommandInfo": "Invoke-StopVmPower",
     "ApiName": "PowerApi",
-    "Path": "/api/vcenter/vm/{vm}/power__action=stop",
+    "Path": "/api/vcenter/vm/{vm}/power?action=stop",
     "Tags": "Power",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5758,7 +5758,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SuspendVmPower",
     "CommandInfo": "Invoke-SuspendVmPower",
     "ApiName": "PowerApi",
-    "Path": "/api/vcenter/vm/{vm}/power__action=suspend",
+    "Path": "/api/vcenter/vm/{vm}/power?action=suspend",
     "Tags": "Power",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5767,7 +5767,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateVersionPrecheckReportAsync",
     "CommandInfo": "Invoke-CreateVersionPrecheckReportAsync",
     "ApiName": "PrecheckReportApi",
-    "Path": "/api/vcenter/lcm/update/pending/{version}/precheck-report__vmw-task=true",
+    "Path": "/api/vcenter/lcm/update/pending/{version}/precheck-report?vmw-task=true",
     "Tags": "PrecheckReport",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5785,7 +5785,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RunSupervisorPrechecks",
     "CommandInfo": "Invoke-RunSupervisorPrechecks",
     "ApiName": "PrechecksApi",
-    "Path": "/api/vcenter/namespace-management/software/supervisors/{supervisor}/prechecks__action=run",
+    "Path": "/api/vcenter/namespace-management/software/supervisors/{supervisor}/prechecks?action=run",
     "Tags": "Prechecks",
     "RelatedCommandInfos": "Initialize-NamespaceManagementSoftwareSupervisorsPrechecksPrecheckSpec",
     "Method": "POST"
@@ -5803,7 +5803,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListAuthorizationPrivilegeChecks",
     "CommandInfo": "Invoke-ListAuthorizationPrivilegeChecks",
     "ApiName": "PrivilegeChecksApi",
-    "Path": "/api/vcenter/authorization/privilege-checks__action=list",
+    "Path": "/api/vcenter/authorization/privilege-checks?action=list",
     "Tags": "PrivilegeChecks",
     "RelatedCommandInfos": "Initialize-AuthorizationPrivilegeChecksListRequestBody",
     "Method": "POST"
@@ -5812,7 +5812,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateVmGuestProcesses",
     "CommandInfo": "Invoke-CreateVmGuestProcesses",
     "ApiName": "ProcessesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/processes__action=create",
+    "Path": "/api/vcenter/vm/{vm}/guest/processes?action=create",
     "Tags": "Processes",
     "RelatedCommandInfos": "Initialize-VmGuestProcessesCreateRequestBody",
     "Method": "POST"
@@ -5821,7 +5821,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteVmPidProcesses",
     "CommandInfo": "Invoke-DeleteVmPidProcesses",
     "ApiName": "ProcessesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/processes/{pid}__action=delete",
+    "Path": "/api/vcenter/vm/{vm}/guest/processes/{pid}?action=delete",
     "Tags": "Processes",
     "RelatedCommandInfos": "Initialize-VmGuestProcessesDeleteRequestBody",
     "Method": "POST"
@@ -5830,7 +5830,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetVmPidProcesses",
     "CommandInfo": "Invoke-GetVmPidProcesses",
     "ApiName": "ProcessesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/processes/{pid}__action=get",
+    "Path": "/api/vcenter/vm/{vm}/guest/processes/{pid}?action=get",
     "Tags": "Processes",
     "RelatedCommandInfos": "Initialize-VmGuestProcessesGetRequestBody",
     "Method": "POST"
@@ -5839,7 +5839,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListVmGuestProcesses",
     "CommandInfo": "Invoke-ListVmGuestProcesses",
     "ApiName": "ProcessesApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/processes__action=list",
+    "Path": "/api/vcenter/vm/{vm}/guest/processes?action=list",
     "Tags": "Processes",
     "RelatedCommandInfos": "Initialize-VmGuestProcessesListRequestBody",
     "Method": "POST"
@@ -5857,7 +5857,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckCompatibilityStorageProfiles",
     "CommandInfo": "Invoke-CheckCompatibilityStorageProfiles",
     "ApiName": "ProfilesApi",
-    "Path": "/api/vcenter/namespace-management/storage/profiles__action=check_compatibility",
+    "Path": "/api/vcenter/namespace-management/storage/profiles?action=check_compatibility",
     "Tags": "Profiles",
     "RelatedCommandInfos": "Initialize-NamespaceManagementStorageProfilesFilterSpec",
     "Method": "POST"
@@ -5920,7 +5920,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PurgeRegistryProject",
     "CommandInfo": "Invoke-PurgeRegistryProject",
     "ApiName": "ProjectsApi",
-    "Path": "/api/vcenter/content/registries/harbor/{registry}/projects/{project}__action=purge",
+    "Path": "/api/vcenter/content/registries/harbor/{registry}/projects/{project}?action=purge",
     "Tags": "Projects",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -5929,7 +5929,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateClusterKmsProvidersAsync",
     "CommandInfo": "Invoke-CreateClusterKmsProvidersAsync",
     "ApiName": "ProvidersApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers?vmw-task=true",
     "Tags": "Providers",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersKmsProvidersCreateSpec",
     "Method": "POST"
@@ -5956,7 +5956,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterProviderAsync",
     "CommandInfo": "Invoke-DeleteClusterProviderAsync",
     "ApiName": "ProvidersApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}?vmw-task=true",
     "Tags": "Providers",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -5983,7 +5983,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterKmsProvidersAsync",
     "CommandInfo": "Invoke-GetClusterKmsProvidersAsync",
     "ApiName": "ProvidersApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers?vmw-task=true",
     "Tags": "Providers",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -5992,7 +5992,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterProviderAsync",
     "CommandInfo": "Invoke-GetClusterProviderAsync",
     "ApiName": "ProvidersApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}?vmw-task=true",
     "Tags": "Providers",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -6055,7 +6055,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterProviderAsync",
     "CommandInfo": "Invoke-UpdateClusterProviderAsync",
     "ApiName": "ProvidersApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}?vmw-task=true",
     "Tags": "Providers",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersKmsProvidersUpdateSpec",
     "Method": "PATCH"
@@ -6118,7 +6118,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "TestProtocolProxy",
     "CommandInfo": "Invoke-TestProtocolProxy",
     "ApiName": "ProxyApi",
-    "Path": "/api/appliance/networking/proxy/{protocol}__action=test",
+    "Path": "/api/appliance/networking/proxy/{protocol}?action=test",
     "Tags": "Proxy",
     "RelatedCommandInfos": "Initialize-NetworkingProxyTestRequestBody",
     "Method": "POST"
@@ -6136,7 +6136,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RepointSystemConfigPscRegistration",
     "CommandInfo": "Invoke-RepointSystemConfigPscRegistration",
     "ApiName": "PscRegistrationApi",
-    "Path": "/api/vcenter/system-config/psc-registration__action=repoint",
+    "Path": "/api/vcenter/system-config/psc-registration?action=repoint",
     "Tags": "PscRegistration",
     "RelatedCommandInfos": "Initialize-DeploymentRemotePscSpec",
     "Method": "POST"
@@ -6145,7 +6145,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AnswerDeploymentQuestion",
     "CommandInfo": "Invoke-AnswerDeploymentQuestion",
     "ApiName": "QuestionApi",
-    "Path": "/api/vcenter/deployment/question__action=answer",
+    "Path": "/api/vcenter/deployment/question?action=answer",
     "Tags": "Question",
     "RelatedCommandInfos": "Initialize-DeploymentQuestionAnswerSpec",
     "Method": "POST"
@@ -6172,7 +6172,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GenerateClusterSoftwareRecommendationsAsync",
     "CommandInfo": "Invoke-GenerateClusterSoftwareRecommendationsAsync",
     "ApiName": "RecommendationsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/recommendations__action=generate&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/recommendations?action=generate&vmw-task=true",
     "Tags": "Recommendations",
     "RelatedCommandInfos": "Initialize-SettingsClustersSoftwareRecommendationsFilterSpec",
     "Method": "POST"
@@ -6181,7 +6181,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GenerateHostSoftwareRecommendationsAsync",
     "CommandInfo": "Invoke-GenerateHostSoftwareRecommendationsAsync",
     "ApiName": "RecommendationsApi",
-    "Path": "/api/esx/settings/hosts/{host}/software/recommendations__action=generate&vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software/recommendations?action=generate&vmw-task=true",
     "Tags": "Recommendations",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -6217,7 +6217,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckInstallRemotePsc",
     "CommandInfo": "Invoke-CheckInstallRemotePsc",
     "ApiName": "RemotePscApi",
-    "Path": "/api/vcenter/deployment/install/remote-psc__action=check",
+    "Path": "/api/vcenter/deployment/install/remote-psc?action=check",
     "Tags": "RemotePsc",
     "RelatedCommandInfos": "Initialize-DeploymentRemotePscSpec",
     "Method": "POST"
@@ -6334,7 +6334,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckPscReplicated",
     "CommandInfo": "Invoke-CheckPscReplicated",
     "ApiName": "ReplicatedApi",
-    "Path": "/api/vcenter/deployment/install/psc/replicated__action=check",
+    "Path": "/api/vcenter/deployment/install/psc/replicated?action=check",
     "Tags": "Replicated",
     "RelatedCommandInfos": "Initialize-DeploymentReplicatedPscSpec",
     "Method": "POST"
@@ -6460,7 +6460,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ValidateRecoveryRestore",
     "CommandInfo": "Invoke-ValidateRecoveryRestore",
     "ApiName": "RestoreApi",
-    "Path": "/api/appliance/recovery/restore__action=validate",
+    "Path": "/api/appliance/recovery/restore?action=validate",
     "Tags": "Restore",
     "RelatedCommandInfos": "Initialize-RecoveryRestoreRestoreRequest",
     "Method": "POST"
@@ -6550,7 +6550,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RunSchedule",
     "CommandInfo": "Invoke-RunSchedule",
     "ApiName": "SchedulesApi",
-    "Path": "/api/appliance/recovery/backup/schedules/{schedule}__action=run",
+    "Path": "/api/appliance/recovery/backup/schedules/{schedule}?action=run",
     "Tags": "Schedules",
     "RelatedCommandInfos": "Initialize-RecoveryBackupSchedulesRunRequestBody",
     "Method": "POST"
@@ -6631,7 +6631,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ConnectVmPortSerial",
     "CommandInfo": "Invoke-ConnectVmPortSerial",
     "ApiName": "SerialApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/serial/{port}__action=connect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/serial/{port}?action=connect",
     "Tags": "Serial",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -6658,7 +6658,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DisconnectVmPortSerial",
     "CommandInfo": "Invoke-DisconnectVmPortSerial",
     "ApiName": "SerialApi",
-    "Path": "/api/vcenter/vm/{vm}/hardware/serial/{port}__action=disconnect",
+    "Path": "/api/vcenter/vm/{vm}/hardware/serial/{port}?action=disconnect",
     "Tags": "Serial",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -6721,7 +6721,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "TestDnsServers",
     "CommandInfo": "Invoke-TestDnsServers",
     "ApiName": "ServersApi",
-    "Path": "/api/appliance/networking/dns/servers__action=test",
+    "Path": "/api/appliance/networking/dns/servers?action=test",
     "Tags": "Servers",
     "RelatedCommandInfos": "Initialize-NetworkingDnsServersTestRequestBody",
     "Method": "POST"
@@ -6802,7 +6802,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RestartService",
     "CommandInfo": "Invoke-RestartService",
     "ApiName": "ServiceApi",
-    "Path": "/api/vcenter/services/{service}__action=restart",
+    "Path": "/api/vcenter/services/{service}?action=restart",
     "Tags": "Service",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -6811,7 +6811,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StartService",
     "CommandInfo": "Invoke-StartService",
     "ApiName": "ServiceApi",
-    "Path": "/api/vcenter/services/{service}__action=start",
+    "Path": "/api/vcenter/services/{service}?action=start",
     "Tags": "Service",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -6820,7 +6820,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StopService",
     "CommandInfo": "Invoke-StopService",
     "ApiName": "ServiceApi",
-    "Path": "/api/vcenter/services/{service}__action=stop",
+    "Path": "/api/vcenter/services/{service}?action=stop",
     "Tags": "Service",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -6838,7 +6838,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateClusterAttestationServicesAsync",
     "CommandInfo": "Invoke-CreateClusterAttestationServicesAsync",
     "ApiName": "ServicesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services?vmw-task=true",
     "Tags": "Services",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustedClustersAttestationServicesCreateSpec",
     "Method": "POST"
@@ -6847,7 +6847,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateClusterKmsServicesAsync",
     "CommandInfo": "Invoke-CreateClusterKmsServicesAsync",
     "ApiName": "ServicesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services?vmw-task=true",
     "Tags": "Services",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustedClustersKmsServicesCreateSpec",
     "Method": "POST"
@@ -6874,7 +6874,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterServiceAsync",
     "CommandInfo": "Invoke-DeleteClusterServiceAsync",
     "ApiName": "ServicesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services/{service}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services/{service}?vmw-task=true",
     "Tags": "Services",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -6883,7 +6883,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterServiceAsync_0",
     "CommandInfo": "Invoke-DeleteClusterServiceAsync_0",
     "ApiName": "ServicesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services/{service}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services/{service}?vmw-task=true",
     "Tags": "Services",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -6964,7 +6964,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "QueryAttestationServices",
     "CommandInfo": "Invoke-QueryAttestationServices",
     "ApiName": "ServicesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/attestation/services__action=query",
+    "Path": "/api/vcenter/trusted-infrastructure/attestation/services?action=query",
     "Tags": "Services",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureAttestationServicesFilterSpec",
     "Method": "POST"
@@ -6973,7 +6973,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "QueryClusterAttestationServices",
     "CommandInfo": "Invoke-QueryClusterAttestationServices",
     "ApiName": "ServicesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services__action=query",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services?action=query",
     "Tags": "Services",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustedClustersAttestationServicesFilterSpec",
     "Method": "POST"
@@ -6982,7 +6982,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "QueryClusterKmsServices",
     "CommandInfo": "Invoke-QueryClusterKmsServices",
     "ApiName": "ServicesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services__action=query",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services?action=query",
     "Tags": "Services",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustedClustersKmsServicesFilterSpec",
     "Method": "POST"
@@ -6991,7 +6991,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "QueryKmsServices",
     "CommandInfo": "Invoke-QueryKmsServices",
     "ApiName": "ServicesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/kms/services__action=query",
+    "Path": "/api/vcenter/trusted-infrastructure/kms/services?action=query",
     "Tags": "Services",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureKmsServicesFilterSpec",
     "Method": "POST"
@@ -7000,7 +7000,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RestartService",
     "CommandInfo": "Invoke-ApplianceRestartService",
     "ApiName": "ServicesApi",
-    "Path": "/api/appliance/services/{service}__action=restart",
+    "Path": "/api/appliance/services/{service}?action=restart",
     "Tags": "Services",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7009,7 +7009,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StartService",
     "CommandInfo": "Invoke-ApplianceStartService",
     "ApiName": "ServicesApi",
-    "Path": "/api/appliance/services/{service}__action=start",
+    "Path": "/api/appliance/services/{service}?action=start",
     "Tags": "Services",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7018,7 +7018,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StopService",
     "CommandInfo": "Invoke-ApplianceStopService",
     "ApiName": "ServicesApi",
-    "Path": "/api/appliance/services/{service}__action=stop",
+    "Path": "/api/appliance/services/{service}?action=stop",
     "Tags": "Services",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7027,7 +7027,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterAttestationServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-DeleteClusterAttestationServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services-applied-config__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services-applied-config?vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -7036,7 +7036,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterKmsServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-DeleteClusterKmsServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services-applied-config__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services-applied-config?vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -7045,7 +7045,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-DeleteClusterServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/services-applied-config__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/services-applied-config?vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -7054,7 +7054,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterAttestationServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-GetClusterAttestationServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services-applied-config__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services-applied-config?vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureNetworkAddress",
     "Method": "GET"
@@ -7063,7 +7063,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterKmsServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-GetClusterKmsServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services-applied-config__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services-applied-config?vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -7072,7 +7072,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-GetClusterServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/services-applied-config__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/services-applied-config?vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -7081,7 +7081,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "QueryClusterAttestationServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-QueryClusterAttestationServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services-applied-config__action=query&vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services-applied-config?action=query&vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustedClustersAttestationServicesAppliedConfigFilterSpec",
     "Method": "POST"
@@ -7090,7 +7090,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "QueryClusterKmsServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-QueryClusterKmsServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services-applied-config__action=query&vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services-applied-config?action=query&vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustedClustersKmsServicesAppliedConfigFilterSpec",
     "Method": "POST"
@@ -7099,7 +7099,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterAttestationServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-UpdateClusterAttestationServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services-applied-config__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/attestation/services-applied-config?vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "",
     "Method": "PATCH"
@@ -7108,7 +7108,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterKmsServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-UpdateClusterKmsServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services-applied-config__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/kms/services-applied-config?vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "",
     "Method": "PATCH"
@@ -7117,7 +7117,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterServicesAppliedConfigAsync",
     "CommandInfo": "Invoke-UpdateClusterServicesAppliedConfigAsync",
     "ApiName": "ServicesAppliedConfigApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/services-applied-config__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trusted-clusters/{cluster}/services-applied-config?vmw-task=true",
     "Tags": "ServicesAppliedConfig",
     "RelatedCommandInfos": "",
     "Method": "PATCH"
@@ -7126,7 +7126,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterAttestationServiceStatusAsync",
     "CommandInfo": "Invoke-GetClusterAttestationServiceStatusAsync",
     "ApiName": "ServiceStatusApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/service-status__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/service-status?vmw-task=true",
     "Tags": "ServiceStatus",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -7135,7 +7135,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterKmsServiceStatusAsync",
     "CommandInfo": "Invoke-GetClusterKmsServiceStatusAsync",
     "ApiName": "ServiceStatusApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/service-status__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/service-status?vmw-task=true",
     "Tags": "ServiceStatus",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -7171,7 +7171,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterTpm2SettingsAsync",
     "CommandInfo": "Invoke-GetClusterTpm2SettingsAsync",
     "ApiName": "SettingsApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/settings__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/settings?vmw-task=true",
     "Tags": "Settings",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -7180,7 +7180,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterTpm2SettingsAsync",
     "CommandInfo": "Invoke-UpdateClusterTpm2SettingsAsync",
     "ApiName": "SettingsApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/settings__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/attestation/tpm2/settings?vmw-task=true",
     "Tags": "Settings",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersAttestationTpm2SettingsUpdateSpec",
     "Method": "PATCH"
@@ -7207,7 +7207,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelShutdown",
     "CommandInfo": "Invoke-CancelShutdown",
     "ApiName": "ShutdownApi",
-    "Path": "/api/appliance/shutdown__action=cancel",
+    "Path": "/api/appliance/shutdown?action=cancel",
     "Tags": "Shutdown",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7225,7 +7225,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PoweroffShutdown",
     "CommandInfo": "Invoke-PoweroffShutdown",
     "ApiName": "ShutdownApi",
-    "Path": "/api/appliance/shutdown__action=poweroff",
+    "Path": "/api/appliance/shutdown?action=poweroff",
     "Tags": "Shutdown",
     "RelatedCommandInfos": "Initialize-ShutdownPoweroffRequestBody",
     "Method": "POST"
@@ -7234,7 +7234,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RebootShutdown",
     "CommandInfo": "Invoke-RebootShutdown",
     "ApiName": "ShutdownApi",
-    "Path": "/api/appliance/shutdown__action=reboot",
+    "Path": "/api/appliance/shutdown?action=reboot",
     "Tags": "Shutdown",
     "RelatedCommandInfos": "Initialize-ShutdownRebootRequestBody",
     "Method": "POST"
@@ -7252,7 +7252,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RefreshSigningCertificate",
     "CommandInfo": "Invoke-RefreshSigningCertificate",
     "ApiName": "SigningCertificateApi",
-    "Path": "/api/vcenter/certificate-management/vcenter/signing-certificate__action=refresh",
+    "Path": "/api/vcenter/certificate-management/vcenter/signing-certificate?action=refresh",
     "Tags": "SigningCertificate",
     "RelatedCommandInfos": "Initialize-CertificateManagementVcenterSigningCertificateRefreshRequestBody",
     "Method": "POST"
@@ -7270,7 +7270,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ApplyClusterSoftwareAsync",
     "CommandInfo": "Invoke-ApplyClusterSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software__action=apply&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software?action=apply&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsClustersSoftwareApplySpec",
     "Method": "POST"
@@ -7279,7 +7279,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ApplyHostSoftwareAsync",
     "CommandInfo": "Invoke-ApplyHostSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/hosts/{host}/software__action=apply&vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software?action=apply&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsHostsSoftwareApplySpec",
     "Method": "POST"
@@ -7288,7 +7288,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckClusterEnablementSoftwareAsync",
     "CommandInfo": "Invoke-CheckClusterEnablementSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/software__action=check&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/software?action=check&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsClustersEnablementSoftwareCheckSpec",
     "Method": "POST"
@@ -7297,7 +7297,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckClusterSoftwareAsync",
     "CommandInfo": "Invoke-CheckClusterSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software__action=check&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software?action=check&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsClustersSoftwareCheckSpec",
     "Method": "POST"
@@ -7306,7 +7306,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckHostEnablementSoftwareAsync",
     "CommandInfo": "Invoke-CheckHostEnablementSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/hosts/{host}/enablement/software__action=check&vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/enablement/software?action=check&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsHostsEnablementSoftwareCheckSpec",
     "Method": "POST"
@@ -7315,7 +7315,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckHostSoftwareAsync",
     "CommandInfo": "Invoke-CheckHostSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/hosts/{host}/software__action=check&vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software?action=check&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsHostsSoftwareCheckSpec",
     "Method": "POST"
@@ -7324,7 +7324,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExportClusterSoftware",
     "CommandInfo": "Invoke-ExportClusterSoftware",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software__action=export",
+    "Path": "/api/esx/settings/clusters/{cluster}/software?action=export",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsClustersSoftwareExportSpec",
     "Method": "POST"
@@ -7333,7 +7333,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExportHostSoftware",
     "CommandInfo": "Invoke-ExportHostSoftware",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/hosts/{host}/software__action=export",
+    "Path": "/api/esx/settings/hosts/{host}/software?action=export",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsHostsSoftwareExportSpec",
     "Method": "POST"
@@ -7387,7 +7387,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ScanClusterSoftwareAsync",
     "CommandInfo": "Invoke-ScanClusterSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software__action=scan&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software?action=scan&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7396,7 +7396,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ScanHostSoftwareAsync",
     "CommandInfo": "Invoke-ScanHostSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/hosts/{host}/software__action=scan&vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software?action=scan&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7405,7 +7405,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SetClusterEnablementSoftwareAsync",
     "CommandInfo": "Invoke-SetClusterEnablementSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/software__vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/software?vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsClustersEnablementSoftwareEnableSpec",
     "Method": "PUT"
@@ -7414,7 +7414,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SetHostEnablementSoftwareAsync",
     "CommandInfo": "Invoke-SetHostEnablementSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/hosts/{host}/enablement/software__vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/enablement/software?vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsHostsEnablementSoftwareEnableSpec",
     "Method": "PUT"
@@ -7423,7 +7423,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StageClusterSoftwareAsync",
     "CommandInfo": "Invoke-StageClusterSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software__action=stage&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software?action=stage&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsClustersSoftwareStageSpec",
     "Method": "POST"
@@ -7432,7 +7432,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StageHostSoftwareAsync",
     "CommandInfo": "Invoke-StageHostSoftwareAsync",
     "ApiName": "SoftwareApi",
-    "Path": "/api/esx/settings/hosts/{host}/software__action=stage&vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software?action=stage&vmw-task=true",
     "Tags": "Software",
     "RelatedCommandInfos": "Initialize-SettingsHostsSoftwareStageSpec",
     "Method": "POST"
@@ -7450,7 +7450,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteClusterSolutionAsync",
     "CommandInfo": "Invoke-DeleteClusterSolutionAsync",
     "ApiName": "SolutionsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/solutions/{solution}__vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/solutions/{solution}?vmw-task=true",
     "Tags": "Solutions",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -7459,7 +7459,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteHostSolutionAsync",
     "CommandInfo": "Invoke-DeleteHostSolutionAsync",
     "ApiName": "SolutionsApi",
-    "Path": "/api/esx/settings/hosts/{host}/software/solutions/{solution}__vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software/solutions/{solution}?vmw-task=true",
     "Tags": "Solutions",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -7504,7 +7504,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SetClusterSolutionAsync",
     "CommandInfo": "Invoke-SetClusterSolutionAsync",
     "ApiName": "SolutionsApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/solutions/{solution}__vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/solutions/{solution}?vmw-task=true",
     "Tags": "Solutions",
     "RelatedCommandInfos": "Initialize-SettingsSolutionSpec",
     "Method": "PUT"
@@ -7513,7 +7513,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SetHostSolutionAsync",
     "CommandInfo": "Invoke-SetHostSolutionAsync",
     "ApiName": "SolutionsApi",
-    "Path": "/api/esx/settings/hosts/{host}/software/solutions/{solution}__vmw-task=true",
+    "Path": "/api/esx/settings/hosts/{host}/software/solutions/{solution}?vmw-task=true",
     "Tags": "Solutions",
     "RelatedCommandInfos": "Initialize-SettingsSolutionSpec",
     "Method": "PUT"
@@ -7558,7 +7558,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckPscStandalone",
     "CommandInfo": "Invoke-CheckPscStandalone",
     "ApiName": "StandaloneApi",
-    "Path": "/api/vcenter/deployment/install/psc/standalone__action=check",
+    "Path": "/api/vcenter/deployment/install/psc/standalone?action=check",
     "Tags": "Standalone",
     "RelatedCommandInfos": "Initialize-DeploymentStandalonePscSpec",
     "Method": "POST"
@@ -7576,7 +7576,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetLibraryItemIdStorage",
     "CommandInfo": "Invoke-GetLibraryItemIdStorage",
     "ApiName": "StorageApi",
-    "Path": "/api/content/library/item/{library_item_id}/storage__file_name",
+    "Path": "/api/content/library/item/{library_item_id}/storage?file_name",
     "Tags": "Storage",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -7603,7 +7603,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ResizeExSystemStorage",
     "CommandInfo": "Invoke-ResizeExSystemStorage",
     "ApiName": "StorageApi",
-    "Path": "/api/appliance/system/storage__action=resize-ex",
+    "Path": "/api/appliance/system/storage?action=resize-ex",
     "Tags": "Storage",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7612,7 +7612,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ResizeSystemStorage",
     "CommandInfo": "Invoke-ResizeSystemStorage",
     "ApiName": "StorageApi",
-    "Path": "/api/appliance/system/storage__action=resize",
+    "Path": "/api/appliance/system/storage?action=resize",
     "Tags": "Storage",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7639,7 +7639,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "EvictLibraryItemIdSubscribedItem",
     "CommandInfo": "Invoke-EvictLibraryItemIdSubscribedItem",
     "ApiName": "SubscribedItemApi",
-    "Path": "/api/content/library/subscribed-item/{library_item_id}__action=evict",
+    "Path": "/api/content/library/subscribed-item/{library_item_id}?action=evict",
     "Tags": "SubscribedItem",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7648,7 +7648,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SyncLibraryItemIdSubscribedItem",
     "CommandInfo": "Invoke-SyncLibraryItemIdSubscribedItem",
     "ApiName": "SubscribedItemApi",
-    "Path": "/api/content/library/subscribed-item/{library_item_id}__action=sync",
+    "Path": "/api/content/library/subscribed-item/{library_item_id}?action=sync",
     "Tags": "SubscribedItem",
     "RelatedCommandInfos": "Initialize-LibrarySubscribedItemSyncRequestBody",
     "Method": "POST"
@@ -7675,7 +7675,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "EvictLibraryIdSubscribedLibrary",
     "CommandInfo": "Invoke-EvictLibraryIdSubscribedLibrary",
     "ApiName": "SubscribedLibraryApi",
-    "Path": "/api/content/subscribed-library/{library_id}__action=evict",
+    "Path": "/api/content/subscribed-library/{library_id}?action=evict",
     "Tags": "SubscribedLibrary",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7702,7 +7702,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ProbeContentSubscribedLibrary",
     "CommandInfo": "Invoke-ProbeContentSubscribedLibrary",
     "ApiName": "SubscribedLibraryApi",
-    "Path": "/api/content/subscribed-library__action=probe",
+    "Path": "/api/content/subscribed-library?action=probe",
     "Tags": "SubscribedLibrary",
     "RelatedCommandInfos": "Initialize-SubscribedLibraryProbeRequestBody",
     "Method": "POST"
@@ -7711,7 +7711,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "SyncLibraryIdSubscribedLibrary",
     "CommandInfo": "Invoke-SyncLibraryIdSubscribedLibrary",
     "ApiName": "SubscribedLibraryApi",
-    "Path": "/api/content/subscribed-library/{library_id}__action=sync",
+    "Path": "/api/content/subscribed-library/{library_id}?action=sync",
     "Tags": "SubscribedLibrary",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -7792,7 +7792,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "EnableOnComputeClusterClusterSupervisors",
     "CommandInfo": "Invoke-EnableOnComputeClusterClusterSupervisors",
     "ApiName": "SupervisorsApi",
-    "Path": "/api/vcenter/namespace-management/supervisors/{cluster}__action=enable_on_compute_cluster",
+    "Path": "/api/vcenter/namespace-management/supervisors/{cluster}?action=enable_on_compute_cluster",
     "Tags": "Supervisors",
     "RelatedCommandInfos": "Initialize-NamespaceManagementSupervisorsEnableOnComputeClusterSpec",
     "Method": "POST"
@@ -7801,7 +7801,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "EnableOnZonesNamespaceManagementSupervisors",
     "CommandInfo": "Invoke-EnableOnZonesNamespaceManagementSupervisors",
     "ApiName": "SupervisorsApi",
-    "Path": "/api/vcenter/namespace-management/supervisors__action=enable_on_zones",
+    "Path": "/api/vcenter/namespace-management/supervisors?action=enable_on_zones",
     "Tags": "Supervisors",
     "RelatedCommandInfos": "Initialize-NamespaceManagementSupervisorsEnableOnZonesSpec",
     "Method": "POST"
@@ -7810,7 +7810,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckContentNamespaceManagementSupervisorServices",
     "CommandInfo": "Invoke-CheckContentNamespaceManagementSupervisorServices",
     "ApiName": "SupervisorServicesApi",
-    "Path": "/api/vcenter/namespace-management/supervisor-services__action=checkContent",
+    "Path": "/api/vcenter/namespace-management/supervisor-services?action=checkContent",
     "Tags": "SupervisorServices",
     "RelatedCommandInfos": "Initialize-NamespaceManagementSupervisorServicesCheckContentRequestBody",
     "Method": "POST"
@@ -7864,7 +7864,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PrecheckSupervisorSupervisorService",
     "CommandInfo": "Invoke-PrecheckSupervisorSupervisorService",
     "ApiName": "SupervisorServicesApi",
-    "Path": "/api/vcenter/namespace-management/supervisors/{supervisor}/supervisor-services/{supervisor_service}__action=precheck",
+    "Path": "/api/vcenter/namespace-management/supervisors/{supervisor}/supervisor-services/{supervisor_service}?action=precheck",
     "Tags": "SupervisorServices",
     "RelatedCommandInfos": "Initialize-NamespaceManagementSupervisorsSupervisorServicesPrecheckSpec",
     "Method": "POST"
@@ -7873,7 +7873,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateSupervisorService",
     "CommandInfo": "Invoke-UpdateSupervisorService",
     "ApiName": "SupervisorServicesApi",
-    "Path": "/api/vcenter/namespace-management/supervisor-services/{supervisor_service}__action=activate",
+    "Path": "/api/vcenter/namespace-management/supervisor-services/{supervisor_service}?action=activate",
     "Tags": "SupervisorServices",
     "RelatedCommandInfos": "",
     "Method": "PATCH"
@@ -7891,7 +7891,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateSupervisorService_0",
     "CommandInfo": "Invoke-UpdateSupervisorService_0",
     "ApiName": "SupervisorServicesApi",
-    "Path": "/api/vcenter/namespace-management/supervisor-services/{supervisor_service}__action=deactivate",
+    "Path": "/api/vcenter/namespace-management/supervisor-services/{supervisor_service}?action=deactivate",
     "Tags": "SupervisorServices",
     "RelatedCommandInfos": "",
     "Method": "PATCH"
@@ -7909,7 +7909,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateSupportBundleAsync",
     "CommandInfo": "Invoke-CreateSupportBundleAsync",
     "ApiName": "SupportBundleApi",
-    "Path": "/api/appliance/support-bundle__vmw-task=true",
+    "Path": "/api/appliance/support-bundle?vmw-task=true",
     "Tags": "SupportBundle",
     "RelatedCommandInfos": "Initialize-SupportBundleCreateSpec",
     "Method": "POST"
@@ -7981,7 +7981,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "HelloSystem",
     "CommandInfo": "Invoke-HelloSystem",
     "ApiName": "SystemApi",
-    "Path": "/api/vcenter/system__action=hello",
+    "Path": "/api/vcenter/system?action=hello",
     "Tags": "System",
     "RelatedCommandInfos": "Initialize-SystemHelloSpec",
     "Method": "POST"
@@ -7990,7 +7990,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListBackupSystemName",
     "CommandInfo": "Invoke-ListBackupSystemName",
     "ApiName": "SystemNameApi",
-    "Path": "/api/appliance/recovery/backup/system-name__action=list",
+    "Path": "/api/appliance/recovery/backup/system-name?action=list",
     "Tags": "SystemName",
     "RelatedCommandInfos": "Initialize-RecoveryBackupLocationSpec",
     "Method": "POST"
@@ -7999,7 +7999,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AddToUsedByTagId",
     "CommandInfo": "Invoke-AddToUsedByTagId",
     "ApiName": "TagApi",
-    "Path": "/api/cis/tagging/tag/{tag_id}__action=add-to-used-by",
+    "Path": "/api/cis/tagging/tag/{tag_id}?action=add-to-used-by",
     "Tags": "Tag",
     "RelatedCommandInfos": "Initialize-TaggingTagAddToUsedByRequestBody",
     "Method": "POST"
@@ -8044,7 +8044,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListTagsForCategory",
     "CommandInfo": "Invoke-ListTagsForCategory",
     "ApiName": "TagApi",
-    "Path": "/api/cis/tagging/tag__action=list-tags-for-category",
+    "Path": "/api/cis/tagging/tag?action=list-tags-for-category",
     "Tags": "Tag",
     "RelatedCommandInfos": "Initialize-TaggingTagListTagsForCategoryRequestBody",
     "Method": "POST"
@@ -8053,7 +8053,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListUsedTags",
     "CommandInfo": "Invoke-ListUsedTags",
     "ApiName": "TagApi",
-    "Path": "/api/cis/tagging/tag__action=list-used-tags",
+    "Path": "/api/cis/tagging/tag?action=list-used-tags",
     "Tags": "Tag",
     "RelatedCommandInfos": "Initialize-TaggingTagListUsedTagsRequestBody",
     "Method": "POST"
@@ -8062,7 +8062,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RemoveFromUsedByTagId",
     "CommandInfo": "Invoke-RemoveFromUsedByTagId",
     "ApiName": "TagApi",
-    "Path": "/api/cis/tagging/tag/{tag_id}__action=remove-from-used-by",
+    "Path": "/api/cis/tagging/tag/{tag_id}?action=remove-from-used-by",
     "Tags": "Tag",
     "RelatedCommandInfos": "Initialize-TaggingTagRemoveFromUsedByRequestBody",
     "Method": "POST"
@@ -8071,7 +8071,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RevokePropagatingPermissionsTagId",
     "CommandInfo": "Invoke-RevokePropagatingPermissionsTagId",
     "ApiName": "TagApi",
-    "Path": "/api/cis/tagging/tag/{tag_id}__action=revoke-propagating-permissions",
+    "Path": "/api/cis/tagging/tag/{tag_id}?action=revoke-propagating-permissions",
     "Tags": "Tag",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8089,7 +8089,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AttachMultipleTagsToObjectTagAssociation",
     "CommandInfo": "Invoke-AttachMultipleTagsToObjectTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association__action=attach-multiple-tags-to-object",
+    "Path": "/api/cis/tagging/tag-association?action=attach-multiple-tags-to-object",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationAttachMultipleTagsToObjectRequestBody",
     "Method": "POST"
@@ -8098,7 +8098,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AttachTagIdTagAssociation",
     "CommandInfo": "Invoke-AttachTagIdTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association/{tag_id}__action=attach",
+    "Path": "/api/cis/tagging/tag-association/{tag_id}?action=attach",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationAttachRequestBody",
     "Method": "POST"
@@ -8107,7 +8107,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "AttachTagToMultipleObjectsTagIdTagAssociation",
     "CommandInfo": "Invoke-AttachTagToMultipleObjectsTagIdTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association/{tag_id}__action=attach-tag-to-multiple-objects",
+    "Path": "/api/cis/tagging/tag-association/{tag_id}?action=attach-tag-to-multiple-objects",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationAttachTagToMultipleObjectsRequestBody",
     "Method": "POST"
@@ -8116,7 +8116,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DetachMultipleTagsFromObjectTagAssociation",
     "CommandInfo": "Invoke-DetachMultipleTagsFromObjectTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association__action=detach-multiple-tags-from-object",
+    "Path": "/api/cis/tagging/tag-association?action=detach-multiple-tags-from-object",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationDetachMultipleTagsFromObjectRequestBody",
     "Method": "POST"
@@ -8125,7 +8125,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DetachTagFromMultipleObjectsTagIdTagAssociation",
     "CommandInfo": "Invoke-DetachTagFromMultipleObjectsTagIdTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association/{tag_id}__action=detach-tag-from-multiple-objects",
+    "Path": "/api/cis/tagging/tag-association/{tag_id}?action=detach-tag-from-multiple-objects",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationDetachTagFromMultipleObjectsRequestBody",
     "Method": "POST"
@@ -8134,7 +8134,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DetachTagIdTagAssociation",
     "CommandInfo": "Invoke-DetachTagIdTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association/{tag_id}__action=detach",
+    "Path": "/api/cis/tagging/tag-association/{tag_id}?action=detach",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationDetachRequestBody",
     "Method": "POST"
@@ -8143,7 +8143,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListAttachableTagsTagAssociation",
     "CommandInfo": "Invoke-ListAttachableTagsTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association__action=list-attachable-tags",
+    "Path": "/api/cis/tagging/tag-association?action=list-attachable-tags",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationListAttachableTagsRequestBody",
     "Method": "POST"
@@ -8152,7 +8152,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListAttachedObjectsOnTagsTagAssociation",
     "CommandInfo": "Invoke-ListAttachedObjectsOnTagsTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association__action=list-attached-objects-on-tags",
+    "Path": "/api/cis/tagging/tag-association?action=list-attached-objects-on-tags",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationListAttachedObjectsOnTagsRequestBody",
     "Method": "POST"
@@ -8161,7 +8161,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListAttachedObjectsTagIdTagAssociation",
     "CommandInfo": "Invoke-ListAttachedObjectsTagIdTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association/{tag_id}__action=list-attached-objects",
+    "Path": "/api/cis/tagging/tag-association/{tag_id}?action=list-attached-objects",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8170,7 +8170,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListAttachedTagsOnObjectsTagAssociation",
     "CommandInfo": "Invoke-ListAttachedTagsOnObjectsTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association__action=list-attached-tags-on-objects",
+    "Path": "/api/cis/tagging/tag-association?action=list-attached-tags-on-objects",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationListAttachedTagsOnObjectsRequestBody",
     "Method": "POST"
@@ -8179,7 +8179,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListAttachedTagsTagAssociation",
     "CommandInfo": "Invoke-ListAttachedTagsTagAssociation",
     "ApiName": "TagAssociationApi",
-    "Path": "/api/cis/tagging/tag-association__action=list-attached-tags",
+    "Path": "/api/cis/tagging/tag-association?action=list-attached-tags",
     "Tags": "TagAssociation",
     "RelatedCommandInfos": "Initialize-TaggingTagAssociationListAttachedTagsRequestBody",
     "Method": "POST"
@@ -8188,7 +8188,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelTask",
     "CommandInfo": "Invoke-CancelTask",
     "ApiName": "TasksApi",
-    "Path": "/api/cis/tasks/{task}__action=cancel",
+    "Path": "/api/cis/tasks/{task}?action=cancel",
     "Tags": "Tasks",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8224,7 +8224,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ListTasks",
     "CommandInfo": "Invoke-ListTasks",
     "ApiName": "TasksApi",
-    "Path": "/api/cis/tasks__action=list",
+    "Path": "/api/cis/tasks?action=list",
     "Tags": "Tasks",
     "RelatedCommandInfos": "Initialize-TasksListRequestBody",
     "Method": "POST"
@@ -8314,7 +8314,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RenewTls",
     "CommandInfo": "Invoke-RenewTls",
     "ApiName": "TlsApi",
-    "Path": "/api/vcenter/certificate-management/vcenter/tls__action=renew",
+    "Path": "/api/vcenter/certificate-management/vcenter/tls?action=renew",
     "Tags": "Tls",
     "RelatedCommandInfos": "Initialize-CertificateManagementVcenterTlsRenewRequestBody",
     "Method": "POST"
@@ -8323,7 +8323,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ReplaceVmcaSignedTls",
     "CommandInfo": "Invoke-ReplaceVmcaSignedTls",
     "ApiName": "TlsApi",
-    "Path": "/api/vcenter/certificate-management/vcenter/tls__action=replace-vmca-signed",
+    "Path": "/api/vcenter/certificate-management/vcenter/tls?action=replace-vmca-signed",
     "Tags": "Tls",
     "RelatedCommandInfos": "Initialize-CertificateManagementVcenterTlsReplaceSpec",
     "Method": "POST"
@@ -8377,7 +8377,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpgradeVmTools",
     "CommandInfo": "Invoke-UpgradeVmTools",
     "ApiName": "ToolsApi",
-    "Path": "/api/vcenter/vm/{vm}/tools__action=upgrade",
+    "Path": "/api/vcenter/vm/{vm}/tools?action=upgrade",
     "Tags": "Tools",
     "RelatedCommandInfos": "Initialize-VmToolsUpgradeRequestBody",
     "Method": "POST"
@@ -8422,7 +8422,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CreateVmGuestFilesystem",
     "CommandInfo": "Invoke-CreateVmGuestFilesystem",
     "ApiName": "TransfersApi",
-    "Path": "/api/vcenter/vm/{vm}/guest/filesystem__action=create",
+    "Path": "/api/vcenter/vm/{vm}/guest/filesystem?action=create",
     "Tags": "Transfers",
     "RelatedCommandInfos": "Initialize-VmGuestFilesystemTransfersCreateRequestBody",
     "Method": "POST"
@@ -8431,7 +8431,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelClusterConfigurationTransition",
     "CommandInfo": "Invoke-CancelClusterConfigurationTransition",
     "ApiName": "TransitionApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition__action=cancel",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition?action=cancel",
     "Tags": "Transition",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8440,7 +8440,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckEligibilityClusterConfigurationTransitionAsync",
     "CommandInfo": "Invoke-CheckEligibilityClusterConfigurationTransitionAsync",
     "ApiName": "TransitionApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition__action=checkEligibility&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition?action=checkEligibility&vmw-task=true",
     "Tags": "Transition",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8449,7 +8449,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "EnableClusterConfigurationTransitionAsync",
     "CommandInfo": "Invoke-EnableClusterConfigurationTransitionAsync",
     "ApiName": "TransitionApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition__action=enable&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition?action=enable&vmw-task=true",
     "Tags": "Transition",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8458,7 +8458,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExportConfigClusterConfigurationTransition",
     "CommandInfo": "Invoke-ExportConfigClusterConfigurationTransition",
     "ApiName": "TransitionApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition__action=exportConfig",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition?action=exportConfig",
     "Tags": "Transition",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8467,7 +8467,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ExportSchemaClusterConfigurationTransition",
     "CommandInfo": "Invoke-ExportSchemaClusterConfigurationTransition",
     "ApiName": "TransitionApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition__action=exportSchema",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition?action=exportSchema",
     "Tags": "Transition",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8485,7 +8485,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ImportFromFileClusterConfigurationTransition",
     "CommandInfo": "Invoke-ImportFromFileClusterConfigurationTransition",
     "ApiName": "TransitionApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition__action=importFromFile",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition?action=importFromFile",
     "Tags": "Transition",
     "RelatedCommandInfos": "Initialize-SettingsClustersEnablementConfigurationTransitionFileSpec",
     "Method": "POST"
@@ -8494,7 +8494,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ImportFromHostClusterConfigurationTransitionAsync",
     "CommandInfo": "Invoke-ImportFromHostClusterConfigurationTransitionAsync",
     "ApiName": "TransitionApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition__action=importFromHost&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition?action=importFromHost&vmw-task=true",
     "Tags": "Transition",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8503,7 +8503,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "PrecheckClusterConfigurationTransitionAsync",
     "CommandInfo": "Invoke-PrecheckClusterConfigurationTransitionAsync",
     "ApiName": "TransitionApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition__action=precheck&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition?action=precheck&vmw-task=true",
     "Tags": "Transition",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8512,7 +8512,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "ValidateConfigClusterConfigurationTransitionAsync",
     "CommandInfo": "Invoke-ValidateConfigClusterConfigurationTransitionAsync",
     "ApiName": "TransitionApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition__action=validateConfig&vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/enablement/configuration/transition?action=validateConfig&vmw-task=true",
     "Tags": "Transition",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8539,7 +8539,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterAsync",
     "CommandInfo": "Invoke-UpdateClusterAsync",
     "ApiName": "TrustAuthorityClustersApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}?vmw-task=true",
     "Tags": "TrustAuthorityClusters",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersUpdateSpec",
     "Method": "PATCH"
@@ -8584,7 +8584,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "GetClusterProviderPeerCertsTrustedAsync",
     "CommandInfo": "Invoke-GetClusterProviderPeerCertsTrustedAsync",
     "ApiName": "TrustedPeerCertificatesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/peer-certs/trusted__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/peer-certs/trusted?vmw-task=true",
     "Tags": "TrustedPeerCertificates",
     "RelatedCommandInfos": "",
     "Method": "GET"
@@ -8593,7 +8593,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterProviderPeerCertsTrustedAsync",
     "CommandInfo": "Invoke-UpdateClusterProviderPeerCertsTrustedAsync",
     "ApiName": "TrustedPeerCertificatesApi",
-    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/peer-certs/trusted__vmw-task=true",
+    "Path": "/api/vcenter/trusted-infrastructure/trust-authority-clusters/{cluster}/kms/providers/{provider}/peer-certs/trusted?vmw-task=true",
     "Tags": "TrustedPeerCertificates",
     "RelatedCommandInfos": "Initialize-TrustedInfrastructureTrustAuthorityClustersKmsProvidersTrustedPeerCertificatesUpdateSpec",
     "Method": "PATCH"
@@ -8656,7 +8656,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "DeleteDepotsUmdsAsync",
     "CommandInfo": "Invoke-DeleteDepotsUmdsAsync",
     "ApiName": "UmdsApi",
-    "Path": "/api/esx/settings/depots/umds__vmw-task=true",
+    "Path": "/api/esx/settings/depots/umds?vmw-task=true",
     "Tags": "Umds",
     "RelatedCommandInfos": "",
     "Method": "DELETE"
@@ -8692,7 +8692,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelUpdate",
     "CommandInfo": "Invoke-CancelUpdate",
     "ApiName": "UpdateApi",
-    "Path": "/api/appliance/update__action=cancel",
+    "Path": "/api/appliance/update?action=cancel",
     "Tags": "Update",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8710,7 +8710,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelUpdateSessionId",
     "CommandInfo": "Invoke-CancelUpdateSessionId",
     "ApiName": "UpdateSessionApi",
-    "Path": "/api/content/library/item/update-session/{update_session_id}__action=cancel",
+    "Path": "/api/content/library/item/update-session/{update_session_id}?action=cancel",
     "Tags": "UpdateSession",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8719,7 +8719,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CompleteUpdateSessionId",
     "CommandInfo": "Invoke-CompleteUpdateSessionId",
     "ApiName": "UpdateSessionApi",
-    "Path": "/api/content/library/item/update-session/{update_session_id}__action=complete",
+    "Path": "/api/content/library/item/update-session/{update_session_id}?action=complete",
     "Tags": "UpdateSession",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8746,7 +8746,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "FailUpdateSessionId",
     "CommandInfo": "Invoke-FailUpdateSessionId",
     "ApiName": "UpdateSessionApi",
-    "Path": "/api/content/library/item/update-session/{update_session_id}__action=fail",
+    "Path": "/api/content/library/item/update-session/{update_session_id}?action=fail",
     "Tags": "UpdateSession",
     "RelatedCommandInfos": "Initialize-LibraryItemUpdateSessionFailRequestBody",
     "Method": "POST"
@@ -8764,7 +8764,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "KeepAliveUpdateSessionId",
     "CommandInfo": "Invoke-KeepAliveUpdateSessionId",
     "ApiName": "UpdateSessionApi",
-    "Path": "/api/content/library/item/update-session/{update_session_id}__action=keep-alive",
+    "Path": "/api/content/library/item/update-session/{update_session_id}?action=keep-alive",
     "Tags": "UpdateSession",
     "RelatedCommandInfos": "Initialize-LibraryItemUpdateSessionKeepAliveRequestBody",
     "Method": "POST"
@@ -8791,7 +8791,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CancelDeploymentUpgrade",
     "CommandInfo": "Invoke-CancelDeploymentUpgrade",
     "ApiName": "UpgradeApi",
-    "Path": "/api/vcenter/deployment/upgrade__action=cancel",
+    "Path": "/api/vcenter/deployment/upgrade?action=cancel",
     "Tags": "Upgrade",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -8800,7 +8800,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckDeploymentUpgrade",
     "CommandInfo": "Invoke-CheckDeploymentUpgrade",
     "ApiName": "UpgradeApi",
-    "Path": "/api/vcenter/deployment/upgrade__action=check",
+    "Path": "/api/vcenter/deployment/upgrade?action=check",
     "Tags": "Upgrade",
     "RelatedCommandInfos": "Initialize-DeploymentUpgradeUpgradeSpec",
     "Method": "POST"
@@ -8818,7 +8818,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "StartDeploymentUpgrade",
     "CommandInfo": "Invoke-StartDeploymentUpgrade",
     "ApiName": "UpgradeApi",
-    "Path": "/api/vcenter/deployment/upgrade__action=start",
+    "Path": "/api/vcenter/deployment/upgrade?action=start",
     "Tags": "Upgrade",
     "RelatedCommandInfos": "Initialize-DeploymentUpgradeUpgradeSpec",
     "Method": "POST"
@@ -8836,7 +8836,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateClusterStorageDeviceOverridesVcgEntriesAsync",
     "CommandInfo": "Invoke-UpdateClusterStorageDeviceOverridesVcgEntriesAsync",
     "ApiName": "VcgEntriesApi",
-    "Path": "/api/esx/settings/clusters/{cluster}/software/reports/hardware-compatibility/storage-device-overrides/vcg-entries__vmw-task=true",
+    "Path": "/api/esx/settings/clusters/{cluster}/software/reports/hardware-compatibility/storage-device-overrides/vcg-entries?vmw-task=true",
     "Tags": "VcgEntries",
     "RelatedCommandInfos": "Initialize-SettingsClustersSoftwareReportsHardwareCompatibilityStorageDeviceOverridesVcgEntriesUpdateSpec",
     "Method": "PATCH"
@@ -8953,7 +8953,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RollbackTemplateLibraryItemVersion",
     "CommandInfo": "Invoke-RollbackTemplateLibraryItemVersion",
     "ApiName": "VersionsApi",
-    "Path": "/api/vcenter/vm-template/library-items/{template_library_item}/versions/{version}__action=rollback",
+    "Path": "/api/vcenter/vm-template/library-items/{template_library_item}/versions/{version}?action=rollback",
     "Tags": "Versions",
     "RelatedCommandInfos": "Initialize-VmTemplateLibraryItemsVersionsRollbackSpec",
     "Method": "POST"
@@ -8962,7 +8962,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateSupervisorServiceVersion",
     "CommandInfo": "Invoke-UpdateSupervisorServiceVersion",
     "ApiName": "VersionsApi",
-    "Path": "/api/vcenter/namespace-management/supervisor-services/{supervisor_service}/versions/{version}__action=activate",
+    "Path": "/api/vcenter/namespace-management/supervisor-services/{supervisor_service}/versions/{version}?action=activate",
     "Tags": "Versions",
     "RelatedCommandInfos": "",
     "Method": "PATCH"
@@ -8971,7 +8971,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UpdateSupervisorServiceVersion_0",
     "CommandInfo": "Invoke-UpdateSupervisorServiceVersion_0",
     "ApiName": "VersionsApi",
-    "Path": "/api/vcenter/namespace-management/supervisor-services/{supervisor_service}/versions/{version}__action=deactivate",
+    "Path": "/api/vcenter/namespace-management/supervisor-services/{supervisor_service}/versions/{version}?action=deactivate",
     "Tags": "Versions",
     "RelatedCommandInfos": "",
     "Method": "PATCH"
@@ -9025,7 +9025,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CloneVm",
     "CommandInfo": "Invoke-CloneVm",
     "ApiName": "VmApi",
-    "Path": "/api/vcenter/vm__action=clone",
+    "Path": "/api/vcenter/vm?action=clone",
     "Tags": "Vm",
     "RelatedCommandInfos": "Initialize-VMCloneSpec",
     "Method": "POST"
@@ -9034,7 +9034,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CloneVmAsync",
     "CommandInfo": "Invoke-CloneVmAsync",
     "ApiName": "VmApi",
-    "Path": "/api/vcenter/vm__action=clone&vmw-task=true",
+    "Path": "/api/vcenter/vm?action=clone&vmw-task=true",
     "Tags": "Vm",
     "RelatedCommandInfos": "Initialize-VMCloneSpec",
     "Method": "POST"
@@ -9070,7 +9070,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "InstantCloneVm",
     "CommandInfo": "Invoke-InstantCloneVm",
     "ApiName": "VmApi",
-    "Path": "/api/vcenter/vm__action=instant-clone",
+    "Path": "/api/vcenter/vm?action=instant-clone",
     "Tags": "Vm",
     "RelatedCommandInfos": "Initialize-VMInstantCloneSpec",
     "Method": "POST"
@@ -9106,7 +9106,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RegisterVm",
     "CommandInfo": "Invoke-RegisterVm",
     "ApiName": "VmApi",
-    "Path": "/api/vcenter/vm__action=register",
+    "Path": "/api/vcenter/vm?action=register",
     "Tags": "Vm",
     "RelatedCommandInfos": "Initialize-VMRegisterSpec",
     "Method": "POST"
@@ -9115,7 +9115,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RelocateVm",
     "CommandInfo": "Invoke-RelocateVm",
     "ApiName": "VmApi",
-    "Path": "/api/vcenter/vm/{vm}__action=relocate",
+    "Path": "/api/vcenter/vm/{vm}?action=relocate",
     "Tags": "Vm",
     "RelatedCommandInfos": "Initialize-VMRelocateSpec",
     "Method": "POST"
@@ -9124,7 +9124,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RelocateVmAsync",
     "CommandInfo": "Invoke-RelocateVmAsync",
     "ApiName": "VmApi",
-    "Path": "/api/vcenter/vm/{vm}__action=relocate&vmw-task=true",
+    "Path": "/api/vcenter/vm/{vm}?action=relocate&vmw-task=true",
     "Tags": "Vm",
     "RelatedCommandInfos": "Initialize-VMRelocateSpec",
     "Method": "POST"
@@ -9133,7 +9133,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "UnregisterVm",
     "CommandInfo": "Invoke-UnregisterVm",
     "ApiName": "VmApi",
-    "Path": "/api/vcenter/vm/{vm}__action=unregister",
+    "Path": "/api/vcenter/vm/{vm}?action=unregister",
     "Tags": "Vm",
     "RelatedCommandInfos": "",
     "Method": "POST"
@@ -9151,7 +9151,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "CheckClusterWitness",
     "CommandInfo": "Invoke-CheckClusterWitness",
     "ApiName": "WitnessApi",
-    "Path": "/api/vcenter/vcha/cluster/witness__action=check",
+    "Path": "/api/vcenter/vcha/cluster/witness?action=check",
     "Tags": "Witness",
     "RelatedCommandInfos": "Initialize-VchaClusterWitnessCheckSpec",
     "Method": "POST"
@@ -9160,7 +9160,7 @@ $script:powerCLIVsphereSdkCommandsJson = @"
     "Name": "RedeployClusterWitnessAsync",
     "CommandInfo": "Invoke-RedeployClusterWitnessAsync",
     "ApiName": "WitnessApi",
-    "Path": "/api/vcenter/vcha/cluster/witness__action=redeploy&vmw-task=true",
+    "Path": "/api/vcenter/vcha/cluster/witness?action=redeploy&vmw-task=true",
     "Tags": "Witness",
     "RelatedCommandInfos": "Initialize-VchaClusterWitnessRedeploySpec",
     "Method": "POST"
