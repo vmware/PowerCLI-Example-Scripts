@@ -63,7 +63,8 @@ function Find-VSphereCommand {
    )
 
    if ($null -eq $script:powerCLIVsphereSdkCommands) {
-      $script:powerCLIVsphereSdkCommands = ConvertFrom-Json -InputObject $script:powerCLIVsphereSdkCommandsJson | ForEach-Object {
+      $jsonObjects = ConvertFrom-Json -InputObject $script:powerCLIVsphereSdkCommandsJson
+      $script:powerCLIVsphereSdkCommands = $jsonObjects | ForEach-Object {
          $op = [Operation]::new()
          $op.Name = $_.Name
          $op.ApiName = $_.ApiName
