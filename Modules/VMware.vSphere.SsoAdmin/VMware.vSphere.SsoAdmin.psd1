@@ -12,7 +12,7 @@
 RootModule = 'VMware.vSphere.SsoAdmin.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.9'
+ModuleVersion = '1.4.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -80,7 +80,10 @@ FunctionsToExport = 'Connect-SsoAdminServer', 'Disconnect-SsoAdminServer',
                'Get-SsoTokenLifetime', 'Set-SsoTokenLifetime', 'Get-IdentitySource', 'Set-IdentitySource',
                'Remove-IdentitySource', 'Add-ActiveDirectoryIdentitySource',
                'Add-LDAPIdentitySource', 'Set-LDAPIdentitySource',
-               'Get-SsoAuthenticationPolicy', 'Set-SsoAuthenticationPolicy'
+               'Get-SsoAuthenticationPolicy', 'Set-SsoAuthenticationPolicy',
+               'Connect-VcenterServerMOB', 'Disconnect-VcenterServerMOB',
+               'Set-VcenterServerGlobalPermission', 'Get-VcenterServerGlobalPermissions',
+               'Reset-VcenterServerGlobalPermissions'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
