@@ -20,7 +20,7 @@ class MobConnection {
             $role_id = (Get-VIRole -Name $role_name).ExtensionData.RoleId
 
             $mobconn = New-Object MobConnection($vcenter_server, $credential, $True)
-            $mobconn.SetPermissions($local_user_name, $role_id, $True)
+            $mobconn.SetGlobalPermissions($local_user_name, $role_id, $True)
             $mobconn.Logout()
     #>
 
@@ -395,7 +395,7 @@ function Set-VcenterServerGlobalPermission {
         $Propagate
     )
     Process {
-        $Server.SetPermissions($TargetUser, $RoleId, $Propagate)
+        $Server.SetGlobalPermissions($TargetUser, $RoleId, $Propagate)
     }
 }
 
