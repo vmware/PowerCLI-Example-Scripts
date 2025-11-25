@@ -395,7 +395,7 @@ function Set-VcenterServerGlobalPermission {
         $Propagate
     )
     Process {
-        $Server.SetPermissions($TargetUser, $RoleId, $Propagate)
+        $Server.SetGlobalPermissions($TargetUser, $RoleId, $Propagate)
     }
 }
 
